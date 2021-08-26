@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 project(algorithm)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 add_definitions(-DLOCAL)
 
 
@@ -21,6 +21,11 @@ add_executable(1010 hdu/mineye/10/1010.cpp)
 add_executable(acwing_284 "bluebook/0x50 dynamic programming/0x53 interval dp/acwing_284.cpp")
 add_executable(NC13230 "new code/NC13230.cpp")
 add_executable(1003 hdu/mineye/10/1003.cpp)
-add_executable(010 leetcode/meituan-2021AUT/011.cpp)
+add_executable(010 leetcode/meituan-2021AUT/010.cpp)
 add_executable(012 leetcode/meituan-2021AUT/012.cpp)
 add_executable(013 leetcode/meituan-2021AUT/013.cpp)
+add_executable(014 leetcode/meituan-2021AUT/014.cpp)
+add_executable(015 leetcode/meituan-2021AUT/015.cpp)
+
+add_executable(001 leetcode/Pony.ai-2021AUT/001.cpp)
+add_executable(acwing_265 "bluebook/0x50 dynamic programming/0x54 tree dp/acwing_265.cpp")
