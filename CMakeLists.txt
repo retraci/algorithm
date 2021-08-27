@@ -28,4 +28,6 @@ add_executable(014 leetcode/meituan-2021AUT/014.cpp)
 add_executable(015 leetcode/meituan-2021AUT/015.cpp)
 
 add_executable(001 leetcode/Pony.ai-2021AUT/001.cpp)
-add_executable(acwing_265 "bluebook/0x50 dynamic programming/0x54 tree dp/acwing_265.cpp")
+add_executable(acwing_265 "bluebook/0x50 dynamic programming/0x54 tree dp/acwing_285.cpp")
+add_executable(acwing_9 "acwing/knapsack problem/acwing_9.cpp")
+add_executable(acwing_286 "bluebook/0x50 dynamic programming/0x54 tree dp/acwing_286.cpp")
