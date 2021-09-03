@@ -40,3 +40,7 @@ add_executable(acwing_287 "bluebook/0x50 dynamic programming/0x54 tree dp/acwing
 add_executable(acwing_288 "bluebook/0x50 dynamic programming/0x55 circle dp/acwing_288.cpp")
 
 add_executable(acwing_289 "bluebook/0x50 dynamic programming/0x55 circle dp/acwing_289.cpp")
+add_executable(006 leetcode/Pony.ai-2021AUT/006.cpp)
+add_executable(acwing_290 "bluebook/0x50 dynamic programming/0x55 circle dp/acwing_290.cpp")
+add_executable(7106 hdu/7106.cpp)
+add_executable(acwing_291 "bluebook/0x50 dynamic programming/0x56 state compression dp/acwing_291.cpp")
