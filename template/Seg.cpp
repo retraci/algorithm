@@ -23,15 +23,15 @@ int va[N];
 Node tree[4 * N];
 vector<ll> lsh;
 
-int getIdx(ll x) {
+int get_idx(ll x) {
     return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin();
 }
 
-void pushUp(int node) {
+void push_up(int node) {
     tree[node].sum = tree[lson].sum + tree[rson].sum;
 }
 
-void pushDown(int node) {
+void push_down(int node) {
     if (tree[node].lz) {
         tree[lson].sum += tree[node].lz;
         tree[rson].sum += tree[node].lz;
@@ -62,10 +62,10 @@ void update(int node, int L, int R, ll val) {
         return;
     }
 
-    pushDown(node);
+    push_down(node);
     update(lson, L, R, val);
     update(rson, L, R, val);
-    pushUp(node);
+    push_up(node);
 }
 
 ll query(int node, int L, int R) {
@@ -75,6 +75,6 @@ ll query(int node, int L, int R) {
     if (right < L || left > R) return 0;
     if (L <= left && right <= R) return tree[node].sum;
 
-    pushDown(node);
+    push_down(node);
     return query(lson, L, R) + query(rson, L, R);
 }
