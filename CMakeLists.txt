@@ -54,6 +54,11 @@ add_executable(K "new code/acm/contest/20414/K.cpp")
 add_executable(G "new code/acm/contest/20457/G.cpp")
 add_executable(M "new code/acm/contest/20457/M.cpp")
 
-add_executable(C "new code/acm/contest/20485/C.cpp")
-add_executable(A "new code/acm/contest/20485/A.cpp")
+add_executable(C "codeforces/codeforces global/round 16/C.cpp")
+add_executable(A "codeforces/codeforces global/round 16/A.cpp")
 add_executable(E "new code/acm/contest/20485/E.cpp")
+
+add_executable(B "codeforces/codeforces global/round 16/B.cpp")
+
+add_executable(D1 "codeforces/codeforces global/round 16/D1.cpp")
+add_executable(D2 "codeforces/codeforces global/round 16/D2.cpp")
