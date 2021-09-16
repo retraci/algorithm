@@ -5,18 +5,17 @@
 #include <vector>
 
 using namespace std;
-
 #define ll long long
 #define mid (left + right >> 1)
-#define lson ((node << 1) + 1)
-#define rson ((node << 1) + 2)
+#define lson (node << 1)
+#define rson ((node << 1) + 1)
 
 struct Node {
     int left, right;
     ll sum, lz;
 };
 
-const int N = 1e6;
+const int N = 3e6;
 
 int n;
 int va[N];
@@ -24,7 +23,7 @@ Node tree[4 * N];
 vector<ll> lsh;
 
 int get_idx(ll x) {
-    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin();
+    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin() + 1;
 }
 
 void push_up(int node) {

@@ -52,7 +52,6 @@ add_executable(L "new code/acm/contest/20414/L.cpp")
 add_executable(J "new code/acm/contest/20457/J.cpp")
 add_executable(K "new code/acm/contest/20414/K.cpp")
 add_executable(G "new code/acm/contest/20457/G.cpp")
-add_executable(M "new code/acm/contest/20457/M.cpp")
 
 add_executable(C "codeforces/codeforces global/round 16/C.cpp")
 add_executable(A "new code/acm/contest/20457/A.cpp")
@@ -63,3 +62,5 @@ add_executable(B "codeforces/codeforces global/round 16/B.cpp")
 add_executable(D1 "codeforces/codeforces global/round 16/D1.cpp")
 add_executable(D2 "codeforces/codeforces global/round 16/D2.cpp")
 add_executable(acwing_208 "bluebook/0x30 math/0x35 gauss elimination & vector space/acwing_208.cpp")
+
+add_executable(F "new code/acm/contest/20607/F.cpp")
