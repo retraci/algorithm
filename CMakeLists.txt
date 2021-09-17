@@ -64,3 +64,6 @@ add_executable(D2 "codeforces/codeforces global/round 16/D2.cpp")
 add_executable(acwing_208 "bluebook/0x30 math/0x35 gauss elimination & vector space/acwing_208.cpp")
 
 add_executable(F "new code/acm/contest/20607/F.cpp")
+add_executable(M "new code/acm/contest/20642/M.cpp")
+add_executable(D "new code/acm/contest/20642/D.cpp")
+add_executable(I "new code/acm/contest/20642/I.cpp")
