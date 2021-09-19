@@ -2,36 +2,47 @@
 #include <cstdio>
 #include <algorithm>
 #include <cstring>
-#include <unordered_map>
 
 using namespace std;
 
-unordered_map<string, string> mp = {
-        {"chimasu", "tte"},
-        {"rimasu", "tte"},
-        {"mimasu", "nde"},
-        {"bimasu", "nde"},
-        {"nimasu", "nde"},
-        {"kimasu", "ite"},
-        {"gimasu", "ide"},
-        {"shimasu", "shite"}
-};
+const int N = 15;
 
-string str;
+int n;
+int v[N];
+int f[N][N * N];
+int ans;
 
-void solve() {
-    if (str == "ikimasu") {
-        cout << "itte" << endl;
+void dfs(int cur, int sum) {
+    int rem = n - cur;
+    if (sum > 90) return;
+    if (rem * 10 + sum < 90) return;
+    if (cur == n) {
+        if (sum == 90) ans++;
         return;
     }
 
-    for (auto &[k, v] : mp) {
-        auto p = str.find(k);
-        if (p != -1 && p + k.size() == str.size()) {
-            cout << str.substr(0, p) + v << endl;
-            continue;
+    for (int k = 0; k <= 10; k++) dfs(cur + 1, sum + k);
+}
+
+void solve() {
+    n = 10;
+    for (int i = 0; i <= 10; i++) v[i] = i;
+
+    memset(f, 0, sizeof f);
+    f[0][0] = 1;
+    for (int i = 1; i <= n; i++) {
+        for (int j = 0; j <= 10 * 10; j++) {
+            for (int k = 0; k <= 10; k++) {
+                if (j - k >= 0) f[i][j] += f[i - 1][j - k];
+            }
         }
     }
+
+    cout << f[n][90] << endl;
+
+    ans = 0;
+    dfs(0, 0);
+    cout << ans << endl;
 }
 
 int main() {
@@ -40,12 +51,7 @@ int main() {
     freopen("../out.txt", "w", stdout);
 #endif
 
-    int T;
-    cin >> T;
-    while (T--) {
-        cin >> str;
-        solve();
-    }
+    solve();
 
     return 0;
 }
