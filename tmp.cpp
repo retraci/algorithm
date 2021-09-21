@@ -1,48 +1,38 @@
-#include <iostream>
-#include <cstdio>
-#include <algorithm>
-#include <cstring>
+#include<bits/stdc++.h>
 
 using namespace std;
+const int N = 1e5 + 5;
+int p1, q1, maxn = 1e8;
+vector<int> p[3 * N];
+int n, m, l, r, dp[3 * N][2], fi, ans;
 
-const int N = 15;
+void dfs(int k, int fa) {
+    dp[k][1] = 1, dp[k][0] = 0;
+    for (int i = 0; i < p[k].size(); ++i)
+        if (p[k][i] != fa) {
+            if (p[k][i] == 0 && k == fi || p[k][i] == fi && k == 0) continue;
+            dfs(p[k][i], k);
 
-int n;
-int v[N];
-int f[N][N * N];
-int ans;
-
-void dfs(int cur, int sum) {
-    int rem = n - cur;
-    if (sum > 90) return;
-    if (rem * 10 + sum < 90) return;
-    if (cur == n) {
-        if (sum == 90) ans++;
-        return;
-    }
-
-    for (int k = 0; k <= 10; k++) dfs(cur + 1, sum + k);
+            dp[k][0] += dp[p[k][i]][1];
+            dp[k][1] += min(dp[p[k][i]][1], dp[p[k][i]][0]);
+        }
 }
 
-void solve() {
-    n = 10;
-    for (int i = 0; i <= 10; i++) v[i] = i;
+void dfs1(int k, int fa) {
+    dp[k][1] = 1, dp[k][0] = 0;
+    for (int i = 0; i < p[k].size(); ++i)
+        if (p[k][i] != fa) {
+            if (p[k][i] == 0 && k == fi || p[k][i] == fi && k == 0) continue;
 
-    memset(f, 0, sizeof f);
-    f[0][0] = 1;
-    for (int i = 1; i <= n; i++) {
-        for (int j = 0; j <= 10 * 10; j++) {
-            for (int k = 0; k <= 10; k++) {
-                if (j - k >= 0) f[i][j] += f[i - 1][j - k];
+            dfs1(p[k][i], k);
+            if (k == fi) {
+                dp[k][0] = maxn;
+                dp[k][1] += min(dp[p[k][i]][1], dp[p[k][i]][0]);
+            } else {
+                dp[k][0] += dp[p[k][i]][1];
+                dp[k][1] += min(dp[p[k][i]][1], dp[p[k][i]][0]);
             }
         }
-    }
-
-    cout << f[n][90] << endl;
-
-    ans = 0;
-    dfs(0, 0);
-    cout << ans << endl;
 }
 
 int main() {
@@ -51,7 +41,21 @@ int main() {
     freopen("../out.txt", "w", stdout);
 #endif
 
-    solve();
+    cin >> n >> m;
+    for (int i = 1; i <= n + m; ++i) {
+        cin >> l >> r;
+        if (l > r) swap(l, r);
+        if (l == 0 && r < n) fi = r;
+        p[l].push_back(r);
+        p[r].push_back(l);
+    }
+
+    dfs(0, fi);
+    ans = dp[0][1];
+    memset(dp, 0, sizeof(dp));
+    dfs1(0, fi);
+    ans = min({ans, dp[0][1], dp[0][0]});
+    cout << ans;
 
     return 0;
 }
