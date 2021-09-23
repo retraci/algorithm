@@ -72,7 +72,9 @@ void solve() {
         auto &[u, v, w] = es[i];
         int fu = find(u), fv = find(v);
         if (fu == fv) continue;
+
         tmp.push_back(i);
+
         fa[fu] = fv;
         if (++cnt == n - 1) break;
     }
@@ -86,8 +88,7 @@ void solve() {
 
         ans += 1LL * sz[fu] * sz[fv] * w;
 
-        fa[fu] = fv;
-        sz[fv] += sz[fu];
+        fa[fu] = fv; sz[fv] += sz[fu];
         if (++cnt == n - 1) break;
     }
 
