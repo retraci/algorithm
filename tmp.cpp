@@ -1,61 +1,116 @@
-#include<bits/stdc++.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-using namespace std;
-const int N = 1e5 + 5;
-int p1, q1, maxn = 1e8;
-vector<int> p[3 * N];
-int n, m, l, r, dp[3 * N][2], fi, ans;
+typedef struct {
+    int location;
+    int v;
+    int is;
+    int live;
 
-void dfs(int k, int fa) {
-    dp[k][1] = 1, dp[k][0] = 0;
-    for (int i = 0; i < p[k].size(); ++i)
-        if (p[k][i] != fa) {
-            if (p[k][i] == 0 && k == fi || p[k][i] == fi && k == 0) continue;
-            dfs(p[k][i], k);
+} Czr;
 
-            dp[k][0] += dp[p[k][i]][1];
-            dp[k][1] += min(dp[p[k][i]][1], dp[p[k][i]][0]);
-        }
-}
+Czr *creat(int n);
 
-void dfs1(int k, int fa) {
-    dp[k][1] = 1, dp[k][0] = 0;
-    for (int i = 0; i < p[k].size(); ++i)
-        if (p[k][i] != fa) {
-            if (p[k][i] == 0 && k == fi || p[k][i] == fi && k == 0) continue;
+void move(Czr *czrs, int n, int *num);
 
-            dfs1(p[k][i], k);
-            if (k == fi) {
-                dp[k][0] = maxn;
-                dp[k][1] += min(dp[p[k][i]][1], dp[p[k][i]][0]);
-            } else {
-                dp[k][0] += dp[p[k][i]][1];
-                dp[k][1] += min(dp[p[k][i]][1], dp[p[k][i]][0]);
-            }
-        }
-}
+void check(Czr *czrs, int n);
+
+int cnt(Czr *czrs, int n);
 
 int main() {
-#ifdef LOCAL
-    freopen("../in.txt", "r", stdin);
-    freopen("../out.txt", "w", stdout);
-#endif
+    int n, sum, num;
+    printf("n=");
+    scanf("%d", &n);
+    Czr *czrs;
+    czrs = creat(n);
+    num = n;
 
-    cin >> n >> m;
-    for (int i = 1; i <= n + m; ++i) {
-        cin >> l >> r;
-        if (l > r) swap(l, r);
-        if (l == 0 && r < n) fi = r;
-        p[l].push_back(r);
-        p[r].push_back(l);
+    while (num != 0) {
+        move(czrs, n, &num);
+        //printf("num=%d",num);
     }
 
-    dfs(0, fi);
-    ans = dp[0][1];
-    memset(dp, 0, sizeof(dp));
-    dfs1(0, fi);
-    ans = min({ans, dp[0][1], dp[0][0]});
-    cout << ans;
+    sum = cnt(czrs, n);
 
+    printf("共有%d只陈梓锐感染猪瘟\n", sum);
+
+    system("pause");
     return 0;
+}
+
+Czr *creat(int n) {
+    Czr *czrs;
+    czrs = (Czr *) malloc(sizeof(Czr) * n);
+    int xyer;
+
+    for (int i = 0; i < n; i++) {
+        czrs[i].v = 1;
+        czrs[i].is = 0;
+        czrs[i].live = 1;
+        printf("%d:", i + 1);
+        scanf("%d", &czrs[i].location);
+
+    }
+
+    printf("xyer:");
+    scanf("%d", &xyer);
+    czrs[xyer - 1].is = 1;
+
+    return czrs;
+}
+
+void move(Czr *czrs, int n, int *num) {
+    for (int i = 0; i < n; i++) {
+        if (czrs[i].location == 0 || czrs[i].location == 100) {
+            czrs[i].location = 200;
+            czrs[i].live = 0;
+            *num = *num - 1;
+
+        }
+    }
+
+    check(czrs, n);
+    for (int i = 0; i < n; i++) {
+        if (czrs[i].live == 1) {
+            czrs[i].location++;
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        printf("czrs[%d]=%d ", i, czrs[i].location);
+
+    }
+    printf("\n");
+}
+
+void check(Czr *czrs, int n) {
+    for (int i = 0; i < n - 1; i++) {
+        // 遍历检查是否有相碰
+        for (int j = i + 1; j < n; j++) {
+            // 如果相碰
+            if (czrs[i].location + czrs[j].location == -1 || czrs[i].location + czrs[j].location == -2) {
+                czrs[i].location *= -1;
+                czrs[j].location *= -1;
+                if (czrs[i].is == 1 || czrs[j].is == 1) {
+                    czrs[i].is = czrs[j].is = 1;
+
+                }
+                check(czrs, n);
+            }
+        }
+
+    }
+}
+
+int cnt(Czr *czrs, int n) {
+    int cnt = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (czrs[i].is == 1) {
+            cnt++;
+        }
+
+    }
+
+    return cnt;
 }
