@@ -5,6 +5,7 @@
 #include <vector>
 
 using namespace std;
+
 #define ll long long
 #define mid (left + right >> 1)
 #define lson (node << 1)
@@ -19,10 +20,10 @@ const int N = 3e6;
 
 int n;
 int va[N];
-Node tree[4 * N];
+Node tree[N * 4];
 vector<ll> lsh;
 
-int get_idx(ll x) {
+int get_id(ll x) {
     return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin() + 1;
 }
 
@@ -41,8 +42,7 @@ void push_down(int node) {
 }
 
 void build(int node, int left, int right) {
-    tree[node].left = left;
-    tree[node].right = right;
+    tree[node].left = left, tree[node].right = right;
     tree[node].sum = tree[node].lz = 0;
 
     if (left == right) return;

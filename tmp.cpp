@@ -1,116 +1,106 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <map>
+#include <queue>
+#include <cstdio>
+#include <cstring>
+#include <iostream>
+#include <algorithm>
+#include <vector>
 
-typedef struct {
-    int location;
-    int v;
-    int is;
-    int live;
+using namespace std;
+const int M = (2e5) + 10;
+#define ls tree[now].l
+#define rs tree[now].r
 
-} Czr;
+int n, m;
+int k, N;
+int root[M];
+vector<int> lsh;
 
-Czr *creat(int n);
+struct Node {
+    int num;
+    int id;
+} q[M];
 
-void move(Czr *czrs, int n, int *num);
+struct node {
+    int l, r;
+    int size;
+} tree[M << 5];
 
-void check(Czr *czrs, int n);
+int get_id(int x) { return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin() + 1; }
 
-int cnt(Czr *czrs, int n);
+inline int read() {
+    int f = 1, x = 0;
+    char ch = getchar();
+    while (ch < '0' || ch > '9') {
+        if (ch == '-')f = -1;
+        ch = getchar();
+    }
+    while (ch >= '0' && ch <= '9') {
+        x = x * 10 + ch - '0';
+        ch = getchar();
+    }
+    return x * f;
+}
+
+int build(int l, int r) {
+    int now = ++k;
+
+    if (l < r) {
+        int mid = (l + r) >> 1;
+        ls = build(l, mid);
+        rs = build(mid + 1, r);
+    }
+    return now;
+}
+
+int update(int pre, int l, int r, int x) {
+    int now = ++k;
+    tree[now].size = tree[pre].size + 1;
+    ls = tree[pre].l;
+    rs = tree[pre].r;
+
+    if (l < r) {
+        int mid = (l + r) >> 1;
+        if (x > mid) rs = update(rs, mid + 1, r, x);
+        else ls = update(ls, l, mid, x);
+    }
+
+    return now;
+}
+
+int query(int u, int v, int l, int r, int x) {//查询操作
+    if (l == r) return l;
+
+    int t = tree[tree[v].l].size - tree[tree[u].l].size;
+    int mid = (l + r) >> 1;
+    if (x <= t) return query(tree[u].l, tree[v].l, l, mid, x);
+    else return query(tree[u].r, tree[v].r, mid + 1, r, x - t);
+}
 
 int main() {
-    int n, sum, num;
-    printf("n=");
-    scanf("%d", &n);
-    Czr *czrs;
-    czrs = creat(n);
-    num = n;
+#ifdef LOCAL
+    freopen("../in.txt", "r", stdin);
+    freopen("../out.txt", "w", stdout);
+#endif
 
-    while (num != 0) {
-        move(czrs, n, &num);
-        //printf("num=%d",num);
+    n = read();
+    m = read();
+    for (int i = 1; i <= n; i++) {
+        q[i].num = read();
+        q[i].id = i;
     }
+    for (int i = 1;i <= n; i++) lsh.push_back(q[i].num);
+    sort(lsh.begin(), lsh.end());
+    lsh.erase(unique(lsh.begin(), lsh.end()), lsh.end());
+    N = lsh.size();
 
-    sum = cnt(czrs, n);
-
-    printf("共有%d只陈梓锐感染猪瘟\n", sum);
-
-    system("pause");
+    root[0] = build(1, N);
+    for (int i = 1; i <= n; i++) {
+        root[i] = update(root[i - 1], 1, N, q[i].num);
+    }
+    for (int i = 1, l, r, x; i <= m; i++) {
+        l = read(); r = read();  = read();
+        printf("%d\n", lsh[query(root[l - 1], root[r], 1, N, x) - 1]);
+    }
     return 0;
-}
-
-Czr *creat(int n) {
-    Czr *czrs;
-    czrs = (Czr *) malloc(sizeof(Czr) * n);
-    int xyer;
-
-    for (int i = 0; i < n; i++) {
-        czrs[i].v = 1;
-        czrs[i].is = 0;
-        czrs[i].live = 1;
-        printf("%d:", i + 1);
-        scanf("%d", &czrs[i].location);
-
-    }
-
-    printf("xyer:");
-    scanf("%d", &xyer);
-    czrs[xyer - 1].is = 1;
-
-    return czrs;
-}
-
-void move(Czr *czrs, int n, int *num) {
-    for (int i = 0; i < n; i++) {
-        if (czrs[i].location == 0 || czrs[i].location == 100) {
-            czrs[i].location = 200;
-            czrs[i].live = 0;
-            *num = *num - 1;
-
-        }
-    }
-
-    check(czrs, n);
-    for (int i = 0; i < n; i++) {
-        if (czrs[i].live == 1) {
-            czrs[i].location++;
-        }
-    }
-
-    for (int i = 0; i < n; i++) {
-        printf("czrs[%d]=%d ", i, czrs[i].location);
-
-    }
-    printf("\n");
-}
-
-void check(Czr *czrs, int n) {
-    for (int i = 0; i < n - 1; i++) {
-        // 遍历检查是否有相碰
-        for (int j = i + 1; j < n; j++) {
-            // 如果相碰
-            if (czrs[i].location + czrs[j].location == -1 || czrs[i].location + czrs[j].location == -2) {
-                czrs[i].location *= -1;
-                czrs[j].location *= -1;
-                if (czrs[i].is == 1 || czrs[j].is == 1) {
-                    czrs[i].is = czrs[j].is = 1;
-
-                }
-                check(czrs, n);
-            }
-        }
-
-    }
-}
-
-int cnt(Czr *czrs, int n) {
-    int cnt = 0;
-
-    for (int i = 0; i < n; i++) {
-        if (czrs[i].is == 1) {
-            cnt++;
-        }
-
-    }
-
-    return cnt;
 }

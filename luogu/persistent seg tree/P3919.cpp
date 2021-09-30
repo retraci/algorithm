@@ -10,8 +10,7 @@ using namespace std;
 #define mid (left + right >> 1)
 
 struct Node {
-    int left, right, ls, rs;
-    ll sum;
+    int left, right, ls, rs, sum;
 };
 
 const int N = 2e5 + 10;
