@@ -41,8 +41,8 @@ int update(int pre, int left, int right, int val) {
     tr[now].sum++;
 
     if (left == right) return now;
-    if (val > mid) tr[now].rs = update(tr[pre].rs, mid + 1, right, val);
-    else tr[now].ls = update(tr[pre].ls, left, mid, val);
+    if (val <= mid) tr[now].ls = update(tr[pre].ls, left, mid, val);
+    else tr[now].rs = update(tr[pre].rs, mid + 1, right, val);
 
     return now;
 }

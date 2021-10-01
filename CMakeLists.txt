@@ -42,7 +42,7 @@ add_executable(7123 hdu/7123.cpp)
 add_executable(tmp tmp.cpp)
 add_executable(acwing_292 "bluebook/0x50 dynamic programming/0x56 state compression dp/acwing_292.cpp")
 add_executable(acwing_295 "bluebook/0x50 dynamic programming/0x58 data structure dp/acwing_295.cpp")
-add_executable(L "nowcoder/acm/contest/20414/L.cpp")
+add_executable(L codeforces/contest/1578/L.cpp)
 add_executable(J "nowcoder/acm/contest/20457/J.cpp")
 add_executable(K "nowcoder/acm/contest/20414/K.cpp")
 add_executable(G codeforces/gym/102452/G.cpp)
@@ -57,7 +57,7 @@ add_executable(F codeforces/gym/102835/F.cpp)
 add_executable(M codeforces/gym/102835/M.cpp)
 add_executable(I "nowcoder/acm/contest/20642/I.cpp")
 
-add_executable(H codeforces/gym/102460/H.cpp)
+add_executable(H codeforces/contest/1578/H.cpp)
 
 add_executable(NC200324 nowcoder/NC200324.cpp)
 
