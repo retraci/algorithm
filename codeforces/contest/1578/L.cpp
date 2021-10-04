@@ -36,8 +36,8 @@ void solve() {
         ll fx = find(a), fy = find(b);
         if (fx == fy) continue;
 
-        ll tmp = max(c - s[fx], c - s[fy]);
-        d[fy] = min({d[fx], d[fy], tmp});
+        ll t1 = min(c, d[fy]) - s[fx], t2 = min(c, d[fx]) - s[fy];
+        d[fy] = max(t1, t2);
         fa[fx] = fy;
         s[fy] += s[fx];
     }

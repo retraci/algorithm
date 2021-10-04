@@ -45,7 +45,7 @@ add_executable(acwing_295 "bluebook/0x50 dynamic programming/0x58 data structure
 add_executable(L codeforces/contest/1578/L.cpp)
 add_executable(J "nowcoder/acm/contest/20457/J.cpp")
 add_executable(K "nowcoder/acm/contest/20414/K.cpp")
-add_executable(G codeforces/gym/102452/G.cpp)
+add_executable(G "codeforces/round/#744 (Div. 3)/G.cpp")
 add_executable(C "codeforces/round/#745 (Div. 2)/C.cpp")
 add_executable(A "codeforces/round/#745 (Div. 2)/A.cpp")
 add_executable(E "nowcoder/acm/contest/20485/E.cpp")
@@ -62,6 +62,7 @@ add_executable(H codeforces/contest/1578/H.cpp)
 add_executable(NC200324 nowcoder/NC200324.cpp)
 
 add_executable(E1 "codeforces/round/#744 (Div. 3)/E1.cpp")
-add_executable(D "codeforces/round/#744 (Div. 3)/D.cpp")
 add_executable(P3834 "luogu/persistent seg tree/P3834.cpp")
 add_executable(P3919 "luogu/persistent seg tree/P3919.cpp")
+
+add_executable(E2 "codeforces/round/#744 (Div. 3)/E2.cpp")
