@@ -18,17 +18,13 @@ ull get(int L, int R) {
     return h[R] - h[L - 1] * p[R - L + 1];
 }
 
-void init() {
+void solve() {
+    n = s.size();
     h[0] = 0, p[0] = 1;
     for (int i = 1; i <= n; i++) {
         h[i] = h[i - 1] * BASE + s[i - 1] - 'a';
         p[i] = p[i - 1] * BASE;
     }
-}
-
-void solve() {
-    n = s.size();
-    init();
 
     cin >> m;
     while (m--) {

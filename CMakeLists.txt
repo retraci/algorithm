@@ -71,3 +71,5 @@ add_executable(D "codeforces/round/#747 (Div. 2)/D.cpp")
 add_executable(1011 "hdu/ccpc2021(re)/1011.cpp")
 add_executable(acwing_137 "bluebook/0x10 base data structures/0x14 hash/acwing_137.cpp")
 add_executable(acwing_138 "bluebook/0x10 base data structures/0x14 hash/acwing_138.cpp")
+
+add_executable(acwing_139 "bluebook/0x10 base data structures/0x14 hash/acwing_139.cpp")
