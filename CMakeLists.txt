@@ -75,3 +75,13 @@ add_executable(acwing_138 "bluebook/0x10 base data structures/0x14 hash/acwing_1
 add_executable(acwing_139 "bluebook/0x10 base data structures/0x14 hash/acwing_139.cpp")
 
 add_executable(acwing_140 "bluebook/0x10 base data structures/0x14 hash/acwing_140.cpp")
+add_executable(35 dgutoj/35.cpp)
+add_executable(54 dgutoj/54.cpp)
+add_executable(72 dgutoj/72.cpp)
+add_executable(78 dgutoj/78.cpp)
+add_executable(87 dgutoj/87.cpp)
+add_executable(93 dgutoj/93.cpp)
+add_executable(110 dgutoj/110.cpp)
+add_executable(111 dgutoj/111.cpp)
+add_executable(112 dgutoj/112.cpp)
+add_executable(113 dgutoj/113.cpp)
