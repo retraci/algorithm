@@ -44,10 +44,10 @@ add_executable(acwing_292 "bluebook/0x50 dynamic programming/0x56 state compress
 add_executable(acwing_295 "bluebook/0x50 dynamic programming/0x58 data structure dp/acwing_295.cpp")
 add_executable(L codeforces/contest/1578/L.cpp)
 add_executable(J nowcoder/acm/contest/20326/J.cpp)
-add_executable(K "nowcoder/acm/contest/20414/K.cpp")
+add_executable(K codeforces/gym/103185/K.cpp)
 add_executable(G "codeforces/round/#744 (Div. 3)/G.cpp")
 add_executable(C "codeforces/round/#749 (Div. 1 + Div. 2, based on Technocup 2022 Elimination Round 1)/C.cpp")
-add_executable(E "codeforces/round/#748 (Div. 3)/E.cpp")
+add_executable(E codeforces/gym/103186/E.cpp)
 add_executable(B "codeforces/round/#749 (Div. 1 + Div. 2, based on Technocup 2022 Elimination Round 1)/B.cpp")
 add_executable(D1 "codeforces/round/#748 (Div. 3)/D1.cpp")
 add_executable(D2 "codeforces/round/#748 (Div. 3)/D2.cpp")
@@ -56,7 +56,7 @@ add_executable(F codeforces/gym/102835/F.cpp)
 add_executable(M codeforces/gym/102835/M.cpp)
 add_executable(I nowcoder/acm/contest/20862/I.cpp)
 
-add_executable(H codeforces/contest/1578/H.cpp)
+add_executable(H codeforces/gym/103186/H.cpp)
 
 add_executable(NC200324 nowcoder/NC200324.cpp)
 
@@ -66,7 +66,7 @@ add_executable(P3919 "luogu/persistent seg tree/P3919.cpp")
 
 add_executable(E2 "codeforces/round/#744 (Div. 3)/E2.cpp")
 
-add_executable(D "codeforces/round/#749 (Div. 1 + Div. 2, based on Technocup 2022 Elimination Round 1)/D.cpp")
+add_executable(D codeforces/gym/103186/D.cpp)
 add_executable(1011 "hdu/ccpc2021(re)/1011.cpp")
 add_executable(acwing_137 "bluebook/0x10 base data structures/0x14 hash/acwing_137.cpp")
 add_executable(acwing_138 "bluebook/0x10 base data structures/0x14 hash/acwing_138.cpp")
@@ -89,3 +89,5 @@ add_executable(A "codeforces/round/#749 (Div. 1 + Div. 2, based on Technocup 202
 
 add_executable(acwing_141 "bluebook/0x10 base data structures/0x15 string/acwing_141.cpp")
 add_executable(acwing_142 "bluebook/0x10 base data structures/0x16 trie/acwing_142.cpp")
+add_executable(acwing_143 "bluebook/0x10 base data structures/0x16 trie/acwing_143.cpp")
+add_executable(N codeforces/gym/103185/N.cpp)
