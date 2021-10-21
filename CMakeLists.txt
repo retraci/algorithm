@@ -45,34 +45,27 @@ add_executable(acwing_295 "bluebook/0x50 dynamic programming/0x58 data structure
 add_executable(L codeforces/contest/1578/L.cpp)
 add_executable(J nowcoder/acm/contest/20326/J.cpp)
 add_executable(K codeforces/gym/103185/K.cpp)
-add_executable(G "codeforces/round/#744 (Div. 3)/G.cpp")
-add_executable(C "codeforces/round/#749 (Div. 1 + Div. 2, based on Technocup 2022 Elimination Round 1)/C.cpp")
+add_executable(G "codeforces/contest/round/#744 (Div. 3)/G.cpp")
+add_executable(C "codeforces/contest/round/#749 (Div. 1 + Div. 2, based on Technocup 2022 Elimination Round 1)/C.cpp")
 add_executable(E codeforces/gym/103186/E.cpp)
-add_executable(B "codeforces/round/#749 (Div. 1 + Div. 2, based on Technocup 2022 Elimination Round 1)/B.cpp")
-add_executable(D1 "codeforces/round/#748 (Div. 3)/D1.cpp")
-add_executable(D2 "codeforces/round/#748 (Div. 3)/D2.cpp")
+add_executable(B "codeforces/contest/round/#749 (Div. 1 + Div. 2, based on Technocup 2022 Elimination Round 1)/B.cpp")
+add_executable(D1 "codeforces/contest/round/#748 (Div. 3)/D1.cpp")
+add_executable(D2 "codeforces/contest/round/#748 (Div. 3)/D2.cpp")
 add_executable(acwing_208 "bluebook/0x30 math/0x35 gauss elimination & vector space/acwing_208.cpp")
 add_executable(F codeforces/gym/102835/F.cpp)
 add_executable(M codeforces/gym/102835/M.cpp)
 add_executable(I nowcoder/acm/contest/20862/I.cpp)
-
 add_executable(H codeforces/gym/103186/H.cpp)
-
 add_executable(NC200324 nowcoder/NC200324.cpp)
-
-add_executable(E1 "codeforces/round/#747 (Div. 2)/E1.cpp")
+add_executable(E1 "codeforces/contest/round/#747 (Div. 2)/E1.cpp")
 add_executable(P3834 "luogu/persistent seg tree/P3834.cpp")
 add_executable(P3919 "luogu/persistent seg tree/P3919.cpp")
-
-add_executable(E2 "codeforces/round/#744 (Div. 3)/E2.cpp")
-
+add_executable(E2 "codeforces/contest/round/#744 (Div. 3)/E2.cpp")
 add_executable(D codeforces/gym/103186/D.cpp)
 add_executable(1011 "hdu/ccpc2021(re)/1011.cpp")
 add_executable(acwing_137 "bluebook/0x10 base data structures/0x14 hash/acwing_137.cpp")
 add_executable(acwing_138 "bluebook/0x10 base data structures/0x14 hash/acwing_138.cpp")
-
 add_executable(acwing_139 "bluebook/0x10 base data structures/0x14 hash/acwing_139.cpp")
-
 add_executable(acwing_140 "bluebook/0x10 base data structures/0x14 hash/acwing_140.cpp")
 add_executable(35 dgutoj/35.cpp)
 add_executable(54 dgutoj/54.cpp)
@@ -84,9 +77,7 @@ add_executable(110 dgutoj/110.cpp)
 add_executable(111 dgutoj/111.cpp)
 add_executable(112 dgutoj/112.cpp)
 add_executable(113 dgutoj/113.cpp)
-
-add_executable(A "codeforces/round/#749 (Div. 1 + Div. 2, based on Technocup 2022 Elimination Round 1)/A.cpp")
-
+add_executable(A "codeforces/contest/round/#749 (Div. 1 + Div. 2, based on Technocup 2022 Elimination Round 1)/A.cpp")
 add_executable(acwing_141 "bluebook/0x10 base data structures/0x15 string/acwing_141.cpp")
 add_executable(acwing_142 "bluebook/0x10 base data structures/0x16 trie/acwing_142.cpp")
 add_executable(acwing_143 "bluebook/0x10 base data structures/0x16 trie/acwing_143.cpp")

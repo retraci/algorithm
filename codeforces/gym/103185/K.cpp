@@ -28,19 +28,6 @@ void init() {
     }
 }
 
-//ll dfs(int cur, int x) {
-//    if (cur == n) return 1;
-//    if (f[cur][x]) return f[cur][x];
-//
-//    ll res = 0;
-//    auto &[L, R] = vb[cur][x];
-//    for (int i = L; i <= R; i++) {
-//        if (i >= 1 && i <= K) res = (res + dfs(cur + 1, i)) % MOD;
-//    }
-//
-//    return f[cur][x] = res;
-//}
-
 void solve() {
     init();
 

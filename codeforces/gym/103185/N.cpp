@@ -23,9 +23,6 @@ int main() {
     while (n--) {
         cin >> s;
         int tmp = stoi(s.substr(1, s.size() - 4)) * 100 + stoi(s.substr(s.size() - 2, 2));
-
-//        cout << tmp << " " << rem << endl;
-
         rem += tmp;
         if (rem % 100 != 0) ans++;
     }
