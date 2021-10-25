@@ -51,8 +51,7 @@ void build(int node, int left, int right) {
 }
 
 void update(int node, int L, int R, ll val) {
-    int left = tree[node].left;
-    int right = tree[node].right;
+    int left = tree[node].left, right = tree[node].right;
 
     if (right < L || left > R) return;
     if (L <= left && right <= R) {
@@ -68,12 +67,11 @@ void update(int node, int L, int R, ll val) {
 }
 
 ll query(int node, int L, int R) {
-    int left = tree[node].left;
-    int right = tree[node].right;
+    int left = tree[node].left, right = tree[node].right;
 
     if (right < L || left > R) return 0;
     if (L <= left && right <= R) return tree[node].sum;
 
     push_down(node);
-    return query(lson, L, R) + query(rson, L, R);
+    return (query(lson, L, R) + query(rson, L, R)) % MOD;
 }

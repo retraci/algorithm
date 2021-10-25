@@ -17,17 +17,19 @@ struct matrix {
     matrix(int r = 0, int c = 0) : r(r), c(c) {
         memset(s, 0, sizeof s);
     }
-};
 
-matrix operator*(const matrix &a, const matrix &b) {
-    matrix c = matrix(a.r, b.c);
-    for (int i = 0; i < c.r; i++) {
-        for (int j = 0; j < c.c; j++)
-            for (int k = 0; k < a.c; k++)
-                c.s[i][j] = (c.s[i][j] + a.s[i][k] * b.s[k][j] % MOD) % MOD;
+    matrix operator*(const matrix &that) const {
+        matrix res = matrix(r, that.c);
+        for (int i = 1; i <= res.r; i++) {
+            for (int j = 1; j <= res.c; j++) {
+                for (int k = 1; k <= c; k++) {
+                    res.s[i][j] = (res.s[i][j] + s[i][k] * that.s[k][j] % MOD) % MOD;
+                }
+            }
+        }
+        return res;
     }
-    return c;
-}
+};
 
 // 默认 b >= 1
 matrix qpow(matrix a, int b) {
