@@ -46,7 +46,7 @@ add_executable(L codeforces/contest/1578/L.cpp)
 add_executable(J codeforces/gym/102875/J.cpp)
 add_executable(K codeforces/gym/103185/K.cpp)
 add_executable(C "codeforces/contest/round/#751 (Div. 2)/C.cpp")
-add_executable(E codeforces/gym/102875/E.cpp)
+add_executable(E "codeforces/contest/round/#750 (Div. 2)/E.cpp")
 add_executable(B "codeforces/contest/round/#751 (Div. 2)/B.cpp")
 add_executable(D1 "codeforces/contest/round/#748 (Div. 3)/D1.cpp")
 add_executable(D2 "codeforces/contest/round/#748 (Div. 3)/D2.cpp")
@@ -87,3 +87,5 @@ add_executable(acwing_144 "bluebook/0x10 base data structures/0x16 trie/acwing_1
 add_executable(NC222874 nowcoder/NC222874.cpp)
 
 add_executable(F1 "codeforces/contest/round/#750 (Div. 2)/F1.cpp")
+
+add_executable(F2 "codeforces/contest/round/#750 (Div. 2)/F2.cpp")
