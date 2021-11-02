@@ -90,3 +90,6 @@ add_executable(F1 "codeforces/contest/round/#750 (Div. 2)/F1.cpp")
 add_executable(F2 "codeforces/contest/round/#750 (Div. 2)/F2.cpp")
 
 add_executable(A codeforces/gym/103104/A.cpp)
+
+add_executable(acwing_340 "bluebook/0x60 graph/0x61 shortest path/acwing_340.cpp")
+add_executable(acwing_341 "bluebook/0x60 graph/0x61 shortest path/acwing_341.cpp")
