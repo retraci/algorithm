@@ -60,7 +60,6 @@ add_executable(E1 "codeforces/contest/round/#747 (Div. 2)/E1.cpp")
 add_executable(P3834 "luogu/persistent seg tree/P3834.cpp")
 add_executable(P3919 "luogu/persistent seg tree/P3919.cpp")
 add_executable(E2 "codeforces/contest/round/#744 (Div. 3)/E2.cpp")
-add_executable(D codeforces/gym/103388/D.cpp)
 add_executable(1011 "hdu/ccpc2021(re)/1011.cpp")
 add_executable(acwing_137 "bluebook/0x10 base data structures/0x14 hash/acwing_137.cpp")
 add_executable(acwing_138 "bluebook/0x10 base data structures/0x14 hash/acwing_138.cpp")
@@ -95,3 +94,5 @@ add_executable(acwing_340 "bluebook/0x60 graph/0x61 shortest path/acwing_340.cpp
 add_executable(acwing_341 "bluebook/0x60 graph/0x61 shortest path/acwing_341.cpp")
 
 add_executable(G codeforces/gym/103388/G.cpp)
+
+add_executable(acwing_342 "bluebook/0x60 graph/0x61 shortest path/acwing_342.cpp")
