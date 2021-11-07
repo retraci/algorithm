@@ -45,7 +45,7 @@ add_executable(acwing_295 "bluebook/0x50 dynamic programming/0x58 data structure
 add_executable(L codeforces/gym/103102/L.cpp)
 add_executable(J codeforces/gym/102920/J.cpp)
 add_executable(K codeforces/gym/103388/K.cpp)
-add_executable(C codeforces/gym/102920/C.cpp)
+add_executable(C codeforces/gym/103081/C.cpp)
 add_executable(E codeforces/gym/103102/E.cpp)
 add_executable(B codeforces/gym/103102/B.cpp)
 add_executable(D1 "codeforces/contest/round/#748 (Div. 3)/D1.cpp")
@@ -53,7 +53,7 @@ add_executable(D2 "codeforces/contest/round/#748 (Div. 3)/D2.cpp")
 add_executable(acwing_208 "bluebook/0x30 math/0x35 gauss elimination & vector space/acwing_208.cpp")
 add_executable(F codeforces/gym/103104/F.cpp)
 add_executable(M codeforces/gym/103102/M.cpp)
-add_executable(I codeforces/gym/103102/I.cpp)
+add_executable(I codeforces/gym/103081/I.cpp)
 add_executable(H codeforces/gym/103118/H.cpp)
 add_executable(NC200324 nowcoder/NC200324.cpp)
 add_executable(E1 "codeforces/contest/round/#747 (Div. 2)/E1.cpp")
@@ -88,7 +88,7 @@ add_executable(F1 "codeforces/contest/round/#750 (Div. 2)/F1.cpp")
 
 add_executable(F2 "codeforces/contest/round/#750 (Div. 2)/F2.cpp")
 
-add_executable(A codeforces/gym/103104/A.cpp)
+add_executable(A codeforces/gym/103081/A.cpp)
 
 add_executable(acwing_340 "bluebook/0x60 graph/0x61 shortest path/acwing_340.cpp")
 add_executable(acwing_341 "bluebook/0x60 graph/0x61 shortest path/acwing_341.cpp")
@@ -96,3 +96,5 @@ add_executable(acwing_341 "bluebook/0x60 graph/0x61 shortest path/acwing_341.cpp
 add_executable(G codeforces/gym/102920/G.cpp)
 
 add_executable(acwing_342 "bluebook/0x60 graph/0x61 shortest path/acwing_342.cpp")
+
+add_executable(D codeforces/gym/103081/D.cpp)
