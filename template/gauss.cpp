@@ -5,6 +5,8 @@
 
 using namespace std;
 
+/*----------------------------------------*/
+
 const double eps = 1e-8;
 
 // 普通方程

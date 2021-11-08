@@ -1,1 +1,1 @@
-3
+Inconsistency found after 6 relations.

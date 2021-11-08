@@ -5,6 +5,8 @@
 
 using namespace std;
 
+/*----------------------------------------*/
+
 template<typename T> inline void rd(T& x){
     T ret = 0, sgn = 1;
     char c = getchar();

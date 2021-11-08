@@ -5,6 +5,8 @@
 
 using namespace std;
 
+/*----------------------------------------*/
+
 #define ll long long
 
 const int N = 110;

@@ -98,3 +98,5 @@ add_executable(G codeforces/gym/102920/G.cpp)
 add_executable(acwing_342 "bluebook/0x60 graph/0x61 shortest path/acwing_342.cpp")
 
 add_executable(D codeforces/gym/103081/D.cpp)
+
+add_executable(acwing_343 "bluebook/0x60 graph/0x61 shortest path/acwing_343.cpp")

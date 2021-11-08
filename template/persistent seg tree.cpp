@@ -6,6 +6,8 @@
 
 using namespace std;
 
+/*----------------------------------------*/
+
 #define ll long long
 #define mid (left + right >> 1)
 

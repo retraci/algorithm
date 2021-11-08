@@ -5,6 +5,8 @@
 
 using namespace std;
 
+/*----------------------------------------*/
+
 const int N = 1e5 + 10;
 
 int ps[N], cs[N], tt;
