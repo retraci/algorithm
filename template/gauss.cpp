@@ -40,8 +40,10 @@ int gauss(int n, int m) {
 }
 
 // 异或方程
-bitset<1010> matrix[2010];  // matrix[1~n]: 增广矩阵, 0 位置为常数
 // n 为方程个数, m 为未知数个数, 返回方程组的解（多解 / 无解返回一个空的 vector）
+// matrix[1~n]: 增广矩阵, 0 位置为常数
+bitset<1010> matrix[2010];
+
 vector<bool> gauss(int n, int m) {
     for (int i = 1; i <= m; i++) {
         int cur = i;
@@ -52,7 +54,7 @@ vector<bool> gauss(int n, int m) {
             if (i != j && mat[j].test(i)) mat[j] ^= mat[i];
         }
     }
-    
+
     vector<bool> res(n + 1, 0);
     for (int i = 1; i <= n; i++) res[i] = matrix[i].test(0);
     return res;

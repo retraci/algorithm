@@ -27,7 +27,8 @@ vector<int> lsh;
 int get_id(int x) { return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin() + 1; }
 
 int build(int left, int right) {
-    int now = ++tt; tr[now].sum = 0;
+    int now = ++tt;
+    tr[now].sum = 0;
     tr[now].left = left, tr[now].right = right;
 
     if (left == right) return now;
@@ -38,7 +39,8 @@ int build(int left, int right) {
 }
 
 int update(int pre, int left, int right, int val) {
-    int now = ++tt; tr[now] = tr[pre];
+    int now = ++tt;
+    tr[now] = tr[pre];
 
     tr[now].sum++;
 

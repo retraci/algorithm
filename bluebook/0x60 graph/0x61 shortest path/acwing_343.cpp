@@ -11,14 +11,14 @@ using namespace std;
 const int N = 30;
 
 int n, m;
-vector<int> g[N];
+bitset<N> g[N];
 int du[N];
 bitset<N> f[N];
 int fail, succ, ti, T;
 vector<int> ans;
 
 void add(int u, int v) {
-    g[u].push_back(v);
+    g[u][v] = 1;
     du[v]++;
 }
 
@@ -78,14 +78,15 @@ void topo() {
         int u = que.front(); que.pop();
         ans.push_back(u);
 
-        for (int v: g[u]) {
+        for (int v = 0; v < n; v++) {
+            if (g[u][v] == 0) continue;
             if (--du[v] == 0) que.push(v);
         }
     }
 }
 
 void solve() {
-    for (int i = 0; i < n; i++) g[i].clear(), f[i].reset();
+    for (int i = 0; i < n; i++) g[i].reset(), f[i].reset();
     memset(du, 0, sizeof du);
     fail = succ = ti = T = 0;
     while (m--) {
