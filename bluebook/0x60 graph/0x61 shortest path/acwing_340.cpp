@@ -26,7 +26,7 @@ bool check(int mid) {
     priority_queue<pii> que;
     que.push({0, 1});
     while (!que.empty()) {
-        auto [d, u] = que.top(); que.pop(), d = -d;
+        auto [d, u] = que.top(); que.pop(); d = -d;
         if (vis[u]) continue;
         vis[u] = 1;
 

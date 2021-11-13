@@ -32,7 +32,7 @@ bool check(double mid) {
 
     for (int i = 1; i <= n; i++) dist[i] = 1e18, vis[i] = 0;
     dist[1] = 0;
-    for (int i = 1; i <= n; i++) {
+    for (int k = 1; k <= n; k++) {
         int u = 1;
         double w = 1e18;
         for (int i = 1; i <= n; i++) {

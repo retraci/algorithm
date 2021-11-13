@@ -25,12 +25,12 @@ void init() {
 }
 
 struct Node {
-  ll up, down;
-  int x, y;
+    ll up, down;
+    int x, y;
 
-  bool operator<(const Node &that) const {
-      return up * that.down - down * that.up > 0;
-  }
+    bool operator<(const Node &that) const {
+        return up * that.down - down * that.up > 0;
+    }
 };
 
 void solve() {
