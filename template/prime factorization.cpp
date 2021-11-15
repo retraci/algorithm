@@ -21,3 +21,14 @@ void divide(int n) {
     }
     if (n > 1) ps[++tt] = n, cs[tt] = 1;
 }
+
+// 埃筛
+int vis[N];
+
+void primes(int n) {
+    memset(vis, 0, sizeof vis);
+    for (int i = 2; i <= n; i++) {
+        if (vis[i]) continue;
+        for (int j = i; j <= n / i; j++) vis[i * j] = 1;
+    }
+}
