@@ -25,3 +25,5 @@ add_executable(acwing_208 "bluebook/0x30 math/0x35 gauss elimination & vector sp
 add_executable(SGU-275 "virtual judge/linear basis/SGU-275.cpp")
 add_executable(P4151 "luogu/linear basis/P4151.cpp")
 add_executable(P1006 luogu/dp/P1006.cpp)
+add_executable(acwing_212 "bluebook/0x30 math/0x36 combination calc/acwing_212.cpp")
+add_executable(P2447 luogu/matrix/P2447.cpp)
