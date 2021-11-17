@@ -1,5 +1,5 @@
 // POJ 2349 Arctic Network
-// Kruskal + Ì°ÐÄ
+// Kruskal + 贪心
 #include <iostream>
 #include <cstdio>
 #include <algorithm>

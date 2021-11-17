@@ -1,7 +1,6 @@
 // POJ 3278 Catch That Cow
 /*
-	Ë¼Â·£º
-	±©ËÑ£¬bfs 
+    bfs
 */
 
 #include <iostream>

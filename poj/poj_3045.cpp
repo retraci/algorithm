@@ -1,7 +1,4 @@
 // POJ 3045 Cow Acrobats
-/*
-
-*/
 
 #include <iostream>
 #include <algorithm>

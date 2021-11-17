@@ -1,7 +1,4 @@
 // POJ 3050 Hopscotch
-/*
-	Ã¶¾Ù 
-*/
 
 #include <iostream>
 #include <algorithm>

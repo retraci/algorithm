@@ -19,3 +19,8 @@ add_executable(acwing_350 "bluebook/0x60 graph/0x63 diameter of tree & lca/acwin
 add_executable(acwing_361 "bluebook/0x60 graph/0x65 negative ring & difference constraints/acwing_361.cpp")
 add_executable(acwing_362 "bluebook/0x60 graph/0x65 negative ring & difference constraints/acwing_362.cpp")
 add_executable(acwing_199 "bluebook/0x30 math/0x32 divisor/acwing_199.cpp")
+add_executable(acwing_209 "bluebook/0x30 math/0x35 gauss elimination & vector space/acwing_209.cpp")
+add_executable(acwing_210 "bluebook/0x30 math/0x35 gauss elimination & vector space/acwing_210.cpp")
+add_executable(acwing_208 "bluebook/0x30 math/0x35 gauss elimination & vector space/acwing_208.cpp")
+add_executable(SGU-275 "virtual judge/linear basis/SGU-275.cpp")
+add_executable(P4151 "luogu/linear basis/P4151.cpp")

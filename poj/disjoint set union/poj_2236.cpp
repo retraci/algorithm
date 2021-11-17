@@ -1,7 +1,4 @@
 // POJ 2236 Wireless Network
-/*
-
-*/
 
 #include <iostream>
 #include <algorithm>

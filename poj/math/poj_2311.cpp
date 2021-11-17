@@ -1,7 +1,6 @@
 // POJ 2311 Cutting Game
 /*
-	Ë¼Â·£º
-	GrundyÊı
+    Grundy数
 */
 
 #include <iostream>

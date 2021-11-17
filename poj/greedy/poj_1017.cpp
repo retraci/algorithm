@@ -1,7 +1,6 @@
 // POJ 1017 Packets
 /*
 	思路：贪心
-
 */
 
 #include <iostream>

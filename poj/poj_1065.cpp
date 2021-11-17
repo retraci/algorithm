@@ -1,8 +1,4 @@
 // POJ 1065 Wooden Sticks
-/*
-	Ë¼Â·£º
-	Ì°ÐÄ 
-*/
 
 #include <iostream>
 #include <cstring>

@@ -2,6 +2,8 @@
 #include <cstdio>
 #include <algorithm>
 #include <cstring>
+#include <bitset>
+#include <vector>
 
 using namespace std;
 
@@ -9,59 +11,48 @@ const int N = 35;
 
 int n;
 int va[N], vb[N];
-int mat[N][N];
+bitset<N> mat[N];
 
-int gauss() {
-    int r, c;
-    for (r = 1, c = 1; c <= n; c++) {
-        // 找主元
-        int p = r;
-        while (p <= n) {
-            if (mat[p][c] != 0) break;
-            else p++;
+// 异或方程
+// r 为方程个数, c 为未知数个数, 返回方程组的解（多解 / 无解返回一个空的 vector）
+// matrix[1~n]: 增广矩阵, 0 位置为常数
+int gauss(int r, int c) {
+    int row = 1;
+    for (int col = 1; col <= c; col++) {
+        for (int i = row; i <= r; i++) {
+            if (mat[i][col] == 0) continue;
+            swap(mat[row], mat[i]);
         }
-        // 不一定有主元
-        if (p > n) continue;
-        // 交换到 r 行
-        for (int j = c; j <= n + 1; j++) swap(mat[r][j], mat[p][j]);
+        if (mat[row][col] == 0) continue;
 
-        // 消元
-        for (int i = r + 1; i <= n; i++) {
-            // 如果 mat[i][c] 已经是 0, 则不需要消元
-            if (mat[i][c] == 0) continue;
-            for (int j = c; j <= n + 1; j++) {
-                mat[i][j] ^= mat[r][j];
-            }
+        for (int i = 1; i <= r; i++) {
+            if (i != row && mat[i][col]) mat[i] ^= mat[row];
         }
-        r++;
+        row++;
     }
 
     int res = 1;
-    for (int i = r; i <= n; i++) {
-        // 全零行的右边出现非零 无解
-        if (mat[i][n + 1]) return -1;
-        res *= 2;
+    for (int i = row; i <= r; i++) {
+        if (mat[i][0] == 1) return -1;
+        res <<= 1;
     }
-
     return res;
 }
 
 void solve() {
-    memset(mat, 0, sizeof mat);
+    for (int i = 1; i <= n; i++) mat[i].reset();
     // 最终状态
     for (int i = 1; i <= n; i++) {
-        mat[i][n + 1] = va[i] ^ vb[i];
+        mat[i][0] = va[i] ^ vb[i];
     }
     // 式子 1
     for (int i = 1; i <= n; i++) mat[i][i] = 1;
 
     // 式子 2
     int x, y;
-    while (cin >> x >> y, x || y) {
-        mat[y][x] = 1;
-    }
+    while (cin >> x >> y, x || y) mat[y][x] = 1;
 
-    int ans = gauss();
+    int ans = gauss(n, n);
     if (ans == -1) cout << "Oh,it's impossible~!!" << endl;
     else cout << ans << endl;
 }

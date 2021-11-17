@@ -1,5 +1,5 @@
 // POJ 2406 Power Strings
-// Ñ­»·×Ö·û´®
+// 循环字符串
 #include <cstdio>
 #include <cstring>
 using namespace std;

@@ -1,8 +1,4 @@
 // POJ 2251 Dungeon Master
-/*
-	Ë¼Â·£º
-	bfs
-*/
 
 #include <iostream>
 #include <algorithm>

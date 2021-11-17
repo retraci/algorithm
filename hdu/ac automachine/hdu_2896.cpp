@@ -1,5 +1,5 @@
-// HDU 2896 ²¡¶¾ÇÖÏ®
-// AC×Ô¶¯»ú
+// HDU 2896 病毒侵袭
+// AC 自动机
 #include <iostream>
 #include <cstdio>
 #include <queue>

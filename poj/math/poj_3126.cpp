@@ -1,7 +1,6 @@
 // POJ 3126 Prime Path
 /*
-	Ë¼Â·£º
-	°£É¸ 
+    埃筛
 */
 
 #include <iostream>

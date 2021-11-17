@@ -1,7 +1,4 @@
 // POJ 3579 Median
-/*
-
-*/
 
 #include <iostream>
 #include <cstdio>

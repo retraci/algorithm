@@ -1,8 +1,4 @@
 // POJ 1426 Find The Multiple
-/*
-	Ë¼Â·£º
-	±©ËÑ£¬bfs 
-*/
 
 #include <iostream>
 #include <algorithm>
