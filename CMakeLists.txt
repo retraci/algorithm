@@ -30,5 +30,12 @@ add_executable(P2447 luogu/matrix/P2447.cpp)
 
 add_executable(G codeforces/gym/103409/G.cpp)
 add_executable(E codeforces/gym/103409/E.cpp)
-add_executable(D codeforces/gym/103409/D.cpp)
+add_executable(D dgut/contest/26/D.cpp)
 add_executable(K codeforces/gym/103409/K.cpp)
+
+add_executable(A dgut/contest/26/A.cpp)
+add_executable(B dgut/contest/25/B.cpp)
+
+add_executable(C dgut/contest/26/C.cpp)
+
+add_executable(E2 dgut/contest/25/E2.cpp)

@@ -26,11 +26,6 @@ ll distance(int city1, int city2) {
 
 // 计算路径长度
 ll path_len(int *arr) {
-//    for (int i = 0; i < n; i++) {
-//        cout << arr[i] << " ";
-//    }
-//    cout << endl;
-
     ll path = 0; // 初始化路径长度
     for (int i = 0; i < n - 1; i++) {
         int index1 = *(arr + i);
@@ -60,11 +55,6 @@ void create_new() {
         pos1 = (int) (n * r1);
         pos2 = (int) (n * r2);
     }
-//    double r1 = ((double) rand()) / (RAND_MAX + 1.0);
-//    double r2 = ((double) rand()) / (RAND_MAX + 1.0);
-//    // 第一个交叉点的位置
-//    pos1 = (int) (n * r1);
-//    pos2 = (int) (n * r2);
 
     // 交换两个点
     temp = city_list[pos1];
@@ -102,12 +92,6 @@ void work2() {
         // 降温
         T *= q;
     }
-
-    // 输出最优路径
-//    for (int i = 0; i < n; i++) {
-//        cout << city_list[i] << " ";
-//    }
-//    cout << endl;
 
     ll len = path_len(city_list); // 最优路径长度
     cout << len << endl;
