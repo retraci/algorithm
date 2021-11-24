@@ -29,14 +29,14 @@ add_executable(acwing_212 "bluebook/0x30 math/0x36 combination calc/acwing_212.c
 add_executable(P2447 luogu/matrix/P2447.cpp)
 
 add_executable(G codeforces/gym/103409/G.cpp)
-add_executable(E codeforces/gym/103409/E.cpp)
-add_executable(D "codeforces/contest/educational codeforces round/117/D.cpp")
+add_executable(E "codeforces/contest/global round/17/E.cpp")
+add_executable(D "codeforces/contest/global round/17/D.cpp")
 add_executable(K codeforces/gym/103409/K.cpp)
 
-add_executable(A "codeforces/contest/educational codeforces round/117/A.cpp")
-add_executable(B "codeforces/contest/educational codeforces round/117/B.cpp")
+add_executable(A "codeforces/contest/global round/17/A.cpp")
+add_executable(B "codeforces/contest/global round/17/B.cpp")
 
-add_executable(C "codeforces/contest/educational codeforces round/117/C.cpp")
+add_executable(C "codeforces/contest/global round/17/C.cpp")
 
 add_executable(E_gt dgut/contest/25/E_gt.cpp)
 
