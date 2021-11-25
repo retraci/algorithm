@@ -6,7 +6,7 @@ add_definitions(-DLOCAL)
 
 add_executable(acwing_349 "bluebook/0x60 graph/0x62 min spanning tree/acwing_349.cpp")
 add_executable(I codeforces/gym/103409/I.cpp)
-add_executable(F codeforces/gym/103049/F.cpp)
+add_executable(F "codeforces/contest/round/#756 (Div. 3)/F.cpp")
 add_executable(acwing_340 "bluebook/0x60 graph/0x61 shortest path/acwing_340.cpp")
 add_executable(acwing_363 "bluebook/0x60 graph/0x66 tarjan-dcc/acwing_363.cpp")
 add_executable(acwing_364 "bluebook/0x60 graph/0x66 tarjan-dcc/acwing_364.cpp")
@@ -30,14 +30,16 @@ add_executable(P2447 luogu/matrix/P2447.cpp)
 
 add_executable(G codeforces/gym/103409/G.cpp)
 add_executable(E "codeforces/contest/global round/17/E.cpp")
-add_executable(D "codeforces/contest/global round/17/D.cpp")
+add_executable(D "codeforces/contest/round/#756 (Div. 3)/D.cpp")
 add_executable(K codeforces/gym/103409/K.cpp)
 
-add_executable(A "codeforces/contest/global round/17/A.cpp")
-add_executable(B "codeforces/contest/global round/17/B.cpp")
+add_executable(A "codeforces/contest/round/#756 (Div. 3)/A.cpp")
+add_executable(B "codeforces/contest/round/#756 (Div. 3)/B.cpp")
 
-add_executable(C "codeforces/contest/global round/17/C.cpp")
+add_executable(C "codeforces/contest/round/#756 (Div. 3)/C.cpp")
 
 add_executable(E_gt dgut/contest/25/E_gt.cpp)
 
 add_executable(D_gt "codeforces/contest/educational codeforces round/117/D_gt.cpp")
+
+add_executable(E1 "codeforces/contest/round/#756 (Div. 3)/E1.cpp")
