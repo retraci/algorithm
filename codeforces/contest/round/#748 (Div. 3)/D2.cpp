@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <algorithm>
 #include <cstring>
+#include <unordered_map>
 
 using namespace std;
 
@@ -24,6 +25,13 @@ void work(ll x) {
 
 void solve() {
     sort(va, va + n);
+    unordered_map<int, int> mp;
+    for (int k = 0; k < n; k++) {
+        if (++mp[va[k]] >= n / 2) {
+            cout << -1 << endl;
+            return;
+        }
+    }
 
     int ans = -1;
     for (int k = 0; k < n; k++) {

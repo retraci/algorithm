@@ -22,7 +22,7 @@ struct Node {
 const int N = 3e6;
 
 int n;
-int va[N];
+ll va[N];
 Node tree[N * 4];
 vector<ll> lsh;
 
