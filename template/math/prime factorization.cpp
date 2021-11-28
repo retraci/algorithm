@@ -27,6 +27,7 @@ int vis[N];
 
 void primes(int n) {
     memset(vis, 0, sizeof vis);
+    vis[1] = 1;
     for (int i = 2; i <= n; i++) {
         if (vis[i]) continue;
         for (int j = i; j <= n / i; j++) vis[i * j] = 1;

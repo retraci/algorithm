@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cstring>
 #include <vector>
-#include <set>
 
 using namespace std;
 
@@ -16,13 +15,12 @@ const int N = 1e5 + 10;
 
 int n, q;
 string str;
-set<int> st;
 int f[N];
 
 void solve() {
     str = ' ' + str;
     int ans = 0;
-    for (int i = 3; i <= n; ++i) {
+    for (int i = 3; i <= n; i++) {
         if (str[i - 2] == 'a' && str[i - 1] == 'b' && str[i] == 'c') {
             f[i - 2] = f[i - 1] = f[i] = 1;
             ans++;
@@ -46,7 +44,7 @@ void solve() {
         }
 
         str[pos] = ch;
-        for (int j = pos; j <= pos + 4; j++) {
+        for (int j = pos; j <= pos + 2; j++) {
             if (f[j] == 1 || f[j - 1] == 1 || f[j - 2] == 1) continue;
 
             if (str[j - 2] == 'a' && str[j - 1] == 'b' && str[j] == 'c') {
