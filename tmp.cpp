@@ -14,49 +14,25 @@ typedef pair<ll, ll> pll;
 
 const int N = 1e5 + 10;
 
-int n, q;
-string str;
-set<int> st;
-int f[N];
+int arr[5];
+
+struct Node {
+    int id;
+    bool operator<(const Node &that) const {
+        return arr[id] > arr[that.id];
+    }
+};
 
 void solve() {
-    str = ' ' + str;
-    int ans = 0;
-    for (int i = 3; i <= n; ++i) {
-        if (str[i - 2] == 'a' && str[i - 1] == 'b' && str[i] == 'c') {
-            f[i - 2] = f[i - 1] = f[i] = 1;
-            ans++;
-        }
-    }
+    set<Node> st;
+    st.insert({1});
+    st.insert({2});
+    st.insert({3});
 
-    while (q--) {
-        int pos;
-        char ch;
-        cin >> pos >> ch;
-
-        if (ch == str[pos]) {
-            cout << ans << endl;
-            continue;
-        }
-        if (f[pos]) {
-            if (str[pos] == 'a') f[pos + 1] = f[pos + 2] = f[pos] = 0;
-            else if (str[pos] == 'b') f[pos] = f[pos - 1] = f[pos + 1] = 0;
-            else f[pos] = f[pos - 1] = f[pos - 2] = 0;
-            ans--;
-        }
-
-        str[pos] = ch;
-        for (int j = pos; j <= pos + 4; j++) {
-            if (f[j] == 1 || f[j - 1] == 1 || f[j - 2] == 1) continue;
-
-            if (str[j - 2] == 'a' && str[j - 1] == 'b' && str[j] == 'c') {
-                f[j - 2] = f[j - 1] = f[j] = 1;
-                ans++;
-            }
-        }
-
-        cout << ans << endl;
-    }
+    arr[1] = 100;
+    arr[2] = 200;
+    st.insert({2});
+    cout << (*st.begin()).id;
 }
 
 int main() {
@@ -66,8 +42,6 @@ int main() {
 #endif
 
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
-    cin >> n >> q;
-    cin >> str;
     solve();
 
     return 0;

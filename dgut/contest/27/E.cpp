@@ -45,7 +45,7 @@ int search(int x) {
     return ans;
 }
 
-int findMaximumXOR(vector<int>& nums) {
+int findMaximumXOR(vector<int> &nums) {
     int ans = 0;
     for (int x: nums) {
         insert(x);
@@ -56,9 +56,16 @@ int findMaximumXOR(vector<int>& nums) {
     return ans;
 }
 
+void init() {
+    tt = 0;
+    memset(vis, 0, sizeof vis);
+    memset(tree, 0, sizeof tree);
+}
+
 void solve() {
     while (m--) {
-        tt = 0;
+        init();
+
         int L, R;
         cin >> L >> R;
         vector<int> nums;

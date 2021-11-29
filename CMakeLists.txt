@@ -49,3 +49,7 @@ add_executable(D2 "codeforces/contest/round/#748 (Div. 3)/D2.cpp")
 add_executable(D1 "codeforces/contest/round/#757 (Div. 2)/D1.cpp")
 
 add_executable(F atcoder/contest/abc/229/F.cpp)
+
+add_executable(acwing_145 "bluebook/0x10 base data structures/0x17 heap/acwing_145.cpp")
+add_executable(acwing_146 "bluebook/0x10 base data structures/0x17 heap/acwing_146.cpp")
+add_executable(acwing_147 "bluebook/0x10 base data structures/0x17 heap/acwing_147.cpp")
