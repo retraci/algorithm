@@ -28,14 +28,14 @@ add_executable(acwing_212 "bluebook/0x30 math/0x36 combination calc/acwing_212.c
 add_executable(P2447 luogu/matrix/P2447.cpp)
 
 add_executable(G atcoder/contest/abc/229/G.cpp)
-add_executable(E dgut/contest/27/E.cpp)
-add_executable(D "codeforces/contest/other/1609/D.cpp")
+add_executable(E "codeforces/contest/educational codeforces round/118/E.cpp")
+add_executable(D "codeforces/contest/educational codeforces round/118/D.cpp")
 add_executable(K codeforces/gym/103409/K.cpp)
 
-add_executable(A "codeforces/contest/other/1609/A.cpp")
-add_executable(B "codeforces/contest/other/1609/B.cpp")
+add_executable(A "codeforces/contest/educational codeforces round/118/A.cpp")
+add_executable(B "codeforces/contest/educational codeforces round/118/B.cpp")
 
-add_executable(C "codeforces/contest/other/1609/C.cpp")
+add_executable(C "codeforces/contest/educational codeforces round/118/C.cpp")
 
 add_executable(E_gt dgut/contest/27/E_gt.cpp)
 
@@ -57,3 +57,4 @@ add_executable(acwing_148 "bluebook/0x10 base data structures/0x17 heap/acwing_1
 add_executable(acwing_149 "bluebook/0x10 base data structures/0x17 heap/acwing_149.cpp")
 add_executable(acwing_150 "bluebook/0x10 base data structures/0x18 summary & practice/acwing_150.cpp")
 add_executable(acwing_152 "bluebook/0x10 base data structures/0x18 summary & practice/acwing_152.cpp")
+add_executable(acwing_153 "bluebook/0x10 base data structures/0x18 summary & practice/acwing_153.cpp")
