@@ -58,3 +58,6 @@ add_executable(acwing_149 "bluebook/0x10 base data structures/0x17 heap/acwing_1
 add_executable(acwing_150 "bluebook/0x10 base data structures/0x18 summary & practice/acwing_150.cpp")
 add_executable(acwing_152 "bluebook/0x10 base data structures/0x18 summary & practice/acwing_152.cpp")
 add_executable(acwing_153 "bluebook/0x10 base data structures/0x18 summary & practice/acwing_153.cpp")
+
+add_executable(acwing_154 "bluebook/0x10 base data structures/0x18 summary & practice/acwing_154.cpp")
+add_executable(acwing_155 "bluebook/0x10 base data structures/0x18 summary & practice/acwing_155.cpp")
