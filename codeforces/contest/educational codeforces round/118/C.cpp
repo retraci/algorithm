@@ -17,11 +17,13 @@ ll n, m;
 ll va[N];
 
 bool check(ll mid) {
-    ll res = 0;
+    ll res = 0, last = -1;
 
     for (int i = 1; i <= n; i++) {
-        ll lb = va[i], rb = min(va[i] + mid - 1, va[i + 1] - 1);
-        res += rb - lb + 1;
+        ll lb = va[i], rb = va[i] + mid - 1;
+        last = max(last, lb);
+        res += rb - last + 1;
+        last = rb + 1;
     }
 
     return res >= m;

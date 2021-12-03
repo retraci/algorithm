@@ -13,8 +13,8 @@ typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
 
 const int N = 1e6 + 10;
-const int dx[4] = {0, 0, -1, 1};
-const int dy[4] = {-1, 1, 0, 0};
+const int dx[9] = {0, 0, -1, 1, -1, -1, 1, 1, 0};
+const int dy[9] = {-1, 1, 0, 0, -1, 1, -1, 1, 0};
 
 int n, m;
 string g[N];
