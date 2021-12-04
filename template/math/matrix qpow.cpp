@@ -7,53 +7,85 @@ using namespace std;
 
 /*----------------------------------------*/
 
-#define ll long long
-
-const int N = 110;
-const ll MOD = 1e9 + 7;
-
-struct matrix {
+template<int SZ>
+struct Mat {
     int r, c;
-    ll s[N][N];
+    ll a[SZ + 1][SZ + 1];
 
-    matrix(int r = 0, int c = 0) : r(r), c(c) {
-        memset(s, 0, sizeof s);
+    inline Mat(int r = 0, int c = 0) : r(r), c(c) {
+        memset(a, 0, sizeof a);
     }
 
-    matrix operator*(const matrix &that) const {
-        matrix res = matrix(r, that.c);
+    inline Mat operator-(const Mat &T) const {
+        Mat res(r, c);
+        for (int i = 1; i <= r; i++) {
+            for (int j = 1; j <= c; j++) {
+                res.a[i][j] = (a[i][j] - T.a[i][j]) % MOD;
+            }
+        }
+        return res;
+    }
+
+    inline Mat operator+(const Mat &T) const {
+        Mat res(r, c);
+        for (int i = 1; i <= r; i++) {
+            for (int j = 1; j <= c; j++) {
+                res.a[i][j] = (a[i][j] + T.a[i][j]) % MOD;
+            }
+        }
+        return res;
+    }
+
+    inline Mat operator*(const Mat &T) const {
+        Mat res(r, T.c);
         for (int i = 1; i <= res.r; i++) {
-            for (int j = 1; j <= res.c; j++) {
+            for (int j = 1; j <= T.c; j++) {
                 for (int k = 1; k <= c; k++) {
-                    res.s[i][j] = (res.s[i][j] + s[i][k] * that.s[k][j] % MOD) % MOD;
+                    res.a[i][j] = (res.a[i][j] + a[i][k] * T.a[k][j] % MOD) % MOD;
                 }
             }
         }
         return res;
     }
-};
 
-// 默认 b >= 1
-matrix qpow(matrix a, ll b) {
-    matrix res = a;
-    b--;
-    while (b) {
-        if (b & 1) res = res * a;
-        a = a * a;
-        b >>= 1;
-    }
-
-    return res;
-}
-
-void print(matrix &mat) {
-    cout << mat.r << " " << mat.c << endl;
-
-    for (int i = 1; i <= mat.r; i++) {
-        for (int j = 1; j <= mat.c; j++) {
-            cout << mat.s[i][j] << " ";
+    inline Mat operator*(ll x) const {
+        Mat res(r, c);
+        for (int i = 1; i <= r; i++) {
+            for (int j = 1; j <= c; j++) {
+                res.a[i][j] = (a[i][j] * x) % MOD;
+            }
         }
-        cout << endl;
+        return res;
     }
-    cout << endl;
-}
+
+    inline Mat operator^(ll x) const {
+        Mat res(r, c), bas(r, c);
+        for (int i = 1; i <= r; i++) res.a[i][i] = 1;
+        memcpy(bas.a, a, sizeof a);
+
+        while (x) {
+            if (x & 1) res = res * bas;
+            bas = bas * bas;
+            x >>= 1;
+        }
+        return res;
+    }
+
+    inline bool operator==(const Mat &T) const {
+        for (int i = 1; i <= r; i++) {
+            for (int j = 1; j <= c; j++) {
+                if (a[i][j] != T.a[i][j]) return false;
+            }
+        }
+        return true;
+    }
+
+    inline void print() const {
+        for (int i = 1; i <= r; i++) {
+            for (int j = 1; j <= c; j++) {
+                cout << a[i][j] << " ";
+            }
+            cout << "\n";
+        }
+    }
+};

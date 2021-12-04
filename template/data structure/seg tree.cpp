@@ -9,207 +9,229 @@ using namespace std;
 /*----------------------------------------*/
 
 // 普通线段树
-#define ll long long
+namespace Seg {
 #define mid (left + right >> 1)
 #define lson (node << 1)
 #define rson ((node << 1) + 1)
 
-struct Node {
-    int left, right;
-    ll sum, lz;
-};
+    const int SZ = 3e6;
 
-const int N = 3e6;
+    struct Node {
+        int left, right;
+        ll sum, lz;
+    };
 
-int n;
-ll va[N];
-Node tree[N * 4];
-vector<ll> lsh;
+    Node tree[SZ * 4];
+    vector<ll> lsh;
 
-int get_id(ll x) {
-    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin() + 1;
-}
-
-void push_up(int node) {
-    tree[node].sum = tree[lson].sum + tree[rson].sum;
-}
-
-void push_down(int node) {
-    if (tree[node].lz) {
-        tree[lson].sum += tree[node].lz;
-        tree[rson].sum += tree[node].lz;
-        tree[lson].lz += tree[node].lz;
-        tree[rson].lz += tree[node].lz;
-        tree[node].lz = 0;
-    }
-}
-
-void build(int node, int left, int right) {
-    tree[node].left = left, tree[node].right = right;
-    tree[node].sum = tree[node].lz = 0;
-
-    if (left == right) return;
-    build(lson, left, mid);
-    build(rson, mid + 1, right);
-}
-
-void update(int node, int L, int R, ll val) {
-    int left = tree[node].left, right = tree[node].right;
-
-    if (right < L || left > R) return;
-    if (L <= left && right <= R) {
-        tree[node].sum += val;
-        tree[node].lz += val;
-        return;
+    inline int get_id(ll x) {
+        return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin() + 1;
     }
 
-    push_down(node);
-    update(lson, L, R, val);
-    update(rson, L, R, val);
-    push_up(node);
+    inline void push_up(int node) {
+        tree[node].sum = (tree[lson].sum + tree[rson].sum) % MOD;
+    }
+
+    inline void push_down(int node) {
+        if (tree[node].lz) {
+            tree[lson].sum = (tree[lson].sum + tree[node].lz) % MOD;
+            tree[rson].sum = (tree[rson].sum + tree[node].lz) % MOD;
+            tree[lson].lz = (tree[lson].lz + tree[node].lz) % MOD;
+            tree[rson].lz = (tree[rson].lz + tree[node].lz) % MOD;
+            tree[node].lz = 0;
+        }
+    }
+
+    void build(int node, int left, int right) {
+        tree[node].left = left, tree[node].right = right;
+        tree[node].sum = tree[node].lz = 0;
+
+        if (left == right) return;
+        build(lson, left, mid);
+        build(rson, mid + 1, right);
+    }
+
+    void update(int node, int L, int R, ll val) {
+        int left = tree[node].left, right = tree[node].right;
+
+        if (right < L || left > R) return;
+        if (L <= left && right <= R) {
+            tree[node].sum = (tree[node].sum + val) % MOD;
+            tree[node].lz = (tree[node].lz + val) % MOD;
+            return;
+        }
+
+        push_down(node);
+        update(lson, L, R, val);
+        update(rson, L, R, val);
+        push_up(node);
+    }
+
+    ll query(int node, int L, int R) {
+        int left = tree[node].left, right = tree[node].right;
+
+        if (right < L || left > R) return 0;
+        if (L <= left && right <= R) return tree[node].sum;
+
+        push_down(node);
+        return (query(lson, L, R) + query(rson, L, R)) % MOD;
+    }
 }
+using namespace Seg;
 
-ll query(int node, int L, int R) {
-    int left = tree[node].left, right = tree[node].right;
-
-    if (right < L || left > R) return 0;
-    if (L <= left && right <= R) return tree[node].sum;
-
-    push_down(node);
-    return (query(lson, L, R) + query(rson, L, R)) % MOD;
-}
 
 // 线段树维护矩阵
-#define ll long long
-#define mid (left + right >> 1)
-#define lson (node << 1)
-#define rson ((node << 1) + 1)
-
-const int N = 3e5 + 10;
-const ll MOD = 998244353;
-
-struct matrix {
+template<int SZ>
+struct Mat {
     int r, c;
-    ll s[5][5];
+    ll a[SZ + 1][SZ + 1];
 
-    matrix(int r = 0, int c = 0) : r(r), c(c) {
-        memset(s, 0, sizeof s);
+    inline Mat(int r = 0, int c = 0) : r(r), c(c) {
+        memset(a, 0, sizeof a);
     }
 
-    matrix operator*(const matrix &that) const {
-        matrix res = matrix(r, that.c);
+    inline Mat operator-(const Mat &T) const {
+        Mat res(r, c);
+        for (int i = 1; i <= r; i++) {
+            for (int j = 1; j <= c; j++) {
+                res.a[i][j] = (a[i][j] - T.a[i][j]) % MOD;
+            }
+        }
+        return res;
+    }
+
+    inline Mat operator+(const Mat &T) const {
+        Mat res(r, c);
+        for (int i = 1; i <= r; i++) {
+            for (int j = 1; j <= c; j++) {
+                res.a[i][j] = (a[i][j] + T.a[i][j]) % MOD;
+            }
+        }
+        return res;
+    }
+
+    inline Mat operator*(const Mat &T) const {
+        Mat res(r, T.c);
         for (int i = 1; i <= res.r; i++) {
-            for (int j = 1; j <= res.c; j++) {
+            for (int j = 1; j <= T.c; j++) {
                 for (int k = 1; k <= c; k++) {
-                    res.s[i][j] = (res.s[i][j] + s[i][k] * that.s[k][j] % MOD) % MOD;
+                    res.a[i][j] = (res.a[i][j] + a[i][k] * T.a[k][j] % MOD) % MOD;
                 }
             }
         }
         return res;
     }
 
-    bool operator!=(const matrix &that) const {
+    inline Mat operator*(ll x) const {
+        Mat res(r, c);
         for (int i = 1; i <= r; i++) {
             for (int j = 1; j <= c; j++) {
-                if (s[i][j] != that.s[i][j]) return true;
+                res.a[i][j] = (a[i][j] * x) % MOD;
             }
         }
-        return false;
+        return res;
     }
-};
 
-struct Node {
-    int left, right;
-    matrix sum = matrix(1, 4);
-    matrix lz = matrix(4, 4);
-};
+    inline Mat operator^(ll x) const {
+        Mat res(r, c), bas(r, c);
+        for (int i = 1; i <= r; i++) res.a[i][i] = 1;
+        memcpy(bas.a, a, sizeof a);
 
-int n, q;
-int va[N];
-Node tree[N * 4];
-matrix E;
-
-void pt(matrix &mat) {
-    for (int i = 1; i <= mat.r; i++) {
-        for (int j = 1; j <= mat.c; j++) {
-            cout << mat.s[i][j] << " ";
+        while (x) {
+            if (x & 1) res = res * bas;
+            bas = bas * bas;
+            x >>= 1;
         }
-        cout << endl;
-    }
-}
-
-void print(int node) {
-    int left = tree[node].left, right = tree[node].right;
-    if (left == right) {
-        cout << left << " " << right << endl;
-        cout << "sum:" << endl;
-        pt(tree[node].sum);
-        cout << "lz:" << endl;
-        pt(tree[node].lz);
-        return;
+        return res;
     }
 
-    cout << left << " " << right << endl;
-    cout << "sum:" << endl;
-    pt(tree[node].sum);
-    cout << "lz:" << endl;
-    pt(tree[node].lz);
-
-    print(lson);
-    print(rson);
-}
-
-void push_up(int node) {
-    for (int j = 1; j <= 4; j++) {
-        tree[node].sum.s[1][j] = (tree[lson].sum.s[1][j] + tree[rson].sum.s[1][j]) % MOD;
+    inline bool operator==(const Mat &T) const {
+        for (int i = 1; i <= r; i++) {
+            for (int j = 1; j <= c; j++) {
+                if (a[i][j] != T.a[i][j]) return false;
+            }
+        }
+        return true;
     }
-}
 
-void push_down(int node) {
-    if (tree[node].lz != E) {
-        tree[lson].sum = tree[lson].sum * tree[node].lz;
-        tree[lson].lz = tree[lson].lz * tree[node].lz;
-        tree[rson].sum = tree[rson].sum * tree[node].lz;
-        tree[rson].lz = tree[rson].lz * tree[node].lz;
+    inline void print() const {
+        for (int i = 1; i <= r; i++) {
+            for (int j = 1; j <= c; j++) {
+                cout << a[i][j] << " ";
+            }
+            cout << "\n";
+        }
+    }
+};
+namespace Seg {
+#define mid (left + right >> 1)
+#define lson (node << 1)
+#define rson ((node << 1) + 1)
+
+    const int SZ = 3e5;
+
+    struct Node {
+        int left, right;
+        Mat<4> sum = Mat<4>(1, 4);
+        Mat<4> lz = Mat<4>(4, 4);
+    };
+
+    Node tree[SZ * 4];
+    Mat<4> E;
+
+    void push_up(int node) {
+        for (int j = 1; j <= 4; j++) {
+            tree[node].sum.a[1][j] = (tree[lson].sum.a[1][j] + tree[rson].sum.a[1][j]) % MOD;
+        }
+    }
+
+    void push_down(int node) {
+        if (!(tree[node].lz == E)) {
+            tree[lson].sum = tree[lson].sum * tree[node].lz;
+            tree[lson].lz = tree[lson].lz * tree[node].lz;
+            tree[rson].sum = tree[rson].sum * tree[node].lz;
+            tree[rson].lz = tree[rson].lz * tree[node].lz;
+            tree[node].lz = E;
+        }
+    }
+
+    void build(int node, int left, int right) {
+        tree[node].left = left, tree[node].right = right;
         tree[node].lz = E;
-    }
-}
 
-void build(int node, int left, int right) {
-    tree[node].left = left, tree[node].right = right;
-    tree[node].lz = E;
-
-    if (left == right) {
-        tree[node].sum.s[1][4] = 1;
-        return;
-    }
-    build(lson, left, mid);
-    build(rson, mid + 1, right);
-    tree[node].sum.s[1][4] = tree[lson].sum.s[1][4] + tree[rson].sum.s[1][4];
-}
-
-void update(int node, int L, int R, matrix &val) {
-    int left = tree[node].left, right = tree[node].right;
-
-    if (right < L || left > R) return;
-    if (L <= left && right <= R) {
-        tree[node].sum = tree[node].sum * val;
-        tree[node].lz = tree[node].lz * val;
-        return;
+        if (left == right) {
+            tree[node].sum.a[1][4] = 1;
+            return;
+        }
+        build(lson, left, mid);
+        build(rson, mid + 1, right);
+        tree[node].sum.a[1][4] = tree[lson].sum.a[1][4] + tree[rson].sum.a[1][4];
     }
 
-    push_down(node);
-    update(lson, L, R, val);
-    update(rson, L, R, val);
-    push_up(node);
+    void update(int node, int L, int R, Mat<4> &val) {
+        int left = tree[node].left, right = tree[node].right;
+
+        if (right < L || left > R) return;
+        if (L <= left && right <= R) {
+            tree[node].sum = tree[node].sum * val;
+            tree[node].lz = tree[node].lz * val;
+            return;
+        }
+
+        push_down(node);
+        update(lson, L, R, val);
+        update(rson, L, R, val);
+        push_up(node);
+    }
+
+    ll query(int node, int L, int R, int x) {
+        int left = tree[node].left, right = tree[node].right;
+
+        if (right < L || left > R) return 0;
+        if (L <= left && right <= R) return tree[node].sum.a[1][x];
+
+        push_down(node);
+        return (query(lson, L, R, x) + query(rson, L, R, x)) % MOD;
+    }
 }
-
-ll query(int node, int L, int R, int x) {
-    int left = tree[node].left, right = tree[node].right;
-
-    if (right < L || left > R) return 0;
-    if (L <= left && right <= R) return tree[node].sum.s[1][x];
-
-    push_down(node);
-    return (query(lson, L, R, x) + query(rson, L, R, x)) % MOD;
-}
+using namespace Seg;

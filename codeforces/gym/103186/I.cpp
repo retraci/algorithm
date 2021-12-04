@@ -6,92 +6,116 @@
 using namespace std;
 
 #define ll long long
-#define mid (left + right >> 1)
-#define lson (node << 1)
-#define rson ((node << 1) + 1)
 
 const int N = 3e5 + 10;
 const ll MOD = 998244353;
 
-struct matrix {
+template<int SZ>
+struct Mat {
     int r, c;
-    ll s[5][5];
+    ll a[SZ + 1][SZ + 1];
 
-    matrix(int r = 0, int c = 0) : r(r), c(c) {
-        memset(s, 0, sizeof s);
+    inline Mat(int r = 0, int c = 0) : r(r), c(c) {
+        memset(a, 0, sizeof a);
     }
 
-    matrix operator*(const matrix &that) const {
-        matrix res = matrix(r, that.c);
+    inline Mat operator-(const Mat &T) const {
+        Mat res(r, c);
+        for (int i = 1; i <= r; i++) {
+            for (int j = 1; j <= c; j++) {
+                res.a[i][j] = (a[i][j] - T.a[i][j]) % MOD;
+            }
+        }
+        return res;
+    }
+
+    inline Mat operator+(const Mat &T) const {
+        Mat res(r, c);
+        for (int i = 1; i <= r; i++) {
+            for (int j = 1; j <= c; j++) {
+                res.a[i][j] = (a[i][j] + T.a[i][j]) % MOD;
+            }
+        }
+        return res;
+    }
+
+    inline Mat operator*(const Mat &T) const {
+        Mat res(r, T.c);
         for (int i = 1; i <= res.r; i++) {
-            for (int j = 1; j <= res.c; j++) {
+            for (int j = 1; j <= T.c; j++) {
                 for (int k = 1; k <= c; k++) {
-                    res.s[i][j] = (res.s[i][j] + s[i][k] * that.s[k][j] % MOD) % MOD;
+                    res.a[i][j] = (res.a[i][j] + a[i][k] * T.a[k][j] % MOD) % MOD;
                 }
             }
         }
         return res;
     }
 
-    bool operator!=(const matrix &that) const {
+    inline Mat operator*(ll x) const {
+        Mat res(r, c);
         for (int i = 1; i <= r; i++) {
             for (int j = 1; j <= c; j++) {
-                if (s[i][j] != that.s[i][j]) return true;
+                res.a[i][j] = (a[i][j] * x) % MOD;
             }
         }
-        return false;
+        return res;
+    }
+
+    inline Mat operator^(ll x) const {
+        Mat res(r, c), bas(r, c);
+        for (int i = 1; i <= r; i++) res.a[i][i] = 1;
+        memcpy(bas.a, a, sizeof a);
+
+        while (x) {
+            if (x & 1) res = res * bas;
+            bas = bas * bas;
+            x >>= 1;
+        }
+        return res;
+    }
+
+    inline bool operator==(const Mat &T) const {
+        for (int i = 1; i <= r; i++) {
+            for (int j = 1; j <= c; j++) {
+                if (a[i][j] != T.a[i][j]) return false;
+            }
+        }
+        return true;
+    }
+
+    inline void print() const {
+        for (int i = 1; i <= r; i++) {
+            for (int j = 1; j <= c; j++) {
+                cout << a[i][j] << " ";
+            }
+            cout << "\n";
+        }
     }
 };
+namespace Seg {
+const int SZ = 3e5;
+
+#define mid (left + right >> 1)
+#define lson (node << 1)
+#define rson ((node << 1) + 1)
 
 struct Node {
     int left, right;
-    matrix sum = matrix(1, 4);
-    matrix lz = matrix(4, 4);
+    Mat<4> sum = Mat<4>(1, 4);
+    Mat<4> lz = Mat<4>(4, 4);
 };
 
-int n, q;
-int va[N];
-Node tree[N * 4];
-matrix E;
-
-void pt(matrix &mat) {
-    for (int i = 1; i <= mat.r; i++) {
-        for (int j = 1; j <= mat.c; j++) {
-            cout << mat.s[i][j] << " ";
-        }
-        cout << endl;
-    }
-}
-
-void print(int node) {
-    int left = tree[node].left, right = tree[node].right;
-    if (left == right) {
-        cout << left << " " << right << endl;
-        cout << "sum:" << endl;
-        pt(tree[node].sum);
-        cout << "lz:" << endl;
-        pt(tree[node].lz);
-        return;
-    }
-
-    cout << left << " " << right << endl;
-    cout << "sum:" << endl;
-    pt(tree[node].sum);
-    cout << "lz:" << endl;
-    pt(tree[node].lz);
-
-    print(lson);
-    print(rson);
-}
+Node tree[SZ * 4];
+Mat<4> E;
 
 void push_up(int node) {
     for (int j = 1; j <= 4; j++) {
-        tree[node].sum.s[1][j] = (tree[lson].sum.s[1][j] + tree[rson].sum.s[1][j]) % MOD;
+        tree[node].sum.a[1][j] = (tree[lson].sum.a[1][j] + tree[rson].sum.a[1][j]) % MOD;
     }
 }
 
 void push_down(int node) {
-    if (tree[node].lz != E) {
+    if (!(tree[node].lz == E)) {
         tree[lson].sum = tree[lson].sum * tree[node].lz;
         tree[lson].lz = tree[lson].lz * tree[node].lz;
         tree[rson].sum = tree[rson].sum * tree[node].lz;
@@ -105,15 +129,15 @@ void build(int node, int left, int right) {
     tree[node].lz = E;
 
     if (left == right) {
-        tree[node].sum.s[1][4] = 1;
+        tree[node].sum.a[1][4] = 1;
         return;
     }
     build(lson, left, mid);
     build(rson, mid + 1, right);
-    tree[node].sum.s[1][4] = tree[lson].sum.s[1][4] + tree[rson].sum.s[1][4];
+    tree[node].sum.a[1][4] = tree[lson].sum.a[1][4] + tree[rson].sum.a[1][4];
 }
 
-void update(int node, int L, int R, matrix &val) {
+void update(int node, int L, int R, Mat<4> &val) {
     int left = tree[node].left, right = tree[node].right;
 
     if (right < L || left > R) return;
@@ -133,15 +157,20 @@ ll query(int node, int L, int R, int x) {
     int left = tree[node].left, right = tree[node].right;
 
     if (right < L || left > R) return 0;
-    if (L <= left && right <= R) return tree[node].sum.s[1][x];
+    if (L <= left && right <= R) return tree[node].sum.a[1][x];
 
     push_down(node);
     return (query(lson, L, R, x) + query(rson, L, R, x)) % MOD;
 }
+}
+using namespace Seg;
+
+int n, q;
+int va[N];
 
 void solve() {
-    E = matrix(4, 4);
-    E.s[1][1] = E.s[2][2] = E.s[3][3] = E.s[4][4] = 1;
+    E = Mat<4>(4, 4);
+    E.a[1][1] = E.a[2][2] = E.a[3][3] = E.a[4][4] = 1;
     build(1, 1, n);
 
     while (q--) {
@@ -154,20 +183,20 @@ void solve() {
         } else if (op == 1) {
             ll x, L, R, y;
             cin >> x >> L >> R >> y;
-            matrix tmp = E;
-            tmp.s[4][x] = y;
+            Mat tmp = E;
+            tmp.a[4][x] = y;
             update(1, L, R, tmp);
         } else if (op == 2) {
             ll x, y, L, R;
             cin >> x >> y >> L >> R;
-            matrix tmp = E;
-            tmp.s[x][x] = tmp.s[y][y] = 0, tmp.s[x][y] = tmp.s[y][x] = 1;
+            Mat tmp = E;
+            tmp.a[x][x] = tmp.a[y][y] = 0, tmp.a[x][y] = tmp.a[y][x] = 1;
             update(1, L, R, tmp);
         } else if (op == 3) {
             ll x, y, L, R;
             cin >> x >> y >> L >> R;
-            matrix tmp = E;
-            tmp.s[x][y]++;
+            Mat tmp = E;
+            tmp.a[x][y]++;
             update(1, L, R, tmp);
         }
     }

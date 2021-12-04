@@ -8,77 +8,117 @@ using namespace std;
 
 #define ll long long
 
-const int maxk = 55;
-const int MOD = 20211114;
+const ll MOD = 20211114;
 
-struct matrix {
+template<int SZ>
+struct Mat {
     int r, c;
-    ll s[maxk][maxk];
+    ll a[SZ + 1][SZ + 1];
 
-    matrix(int r = 0, int c = 0) : r(r), c(c) {
-        memset(s, 0, sizeof s);
+    inline Mat(int r = 0, int c = 0) : r(r), c(c) {
+        memset(a, 0, sizeof a);
+    }
+
+    inline Mat operator-(const Mat &T) const {
+        Mat res(r, c);
+        for (int i = 1; i <= r; i++) {
+            for (int j = 1; j <= c; j++) {
+                res.a[i][j] = (a[i][j] - T.a[i][j]) % MOD;
+            }
+        }
+        return res;
+    }
+
+    inline Mat operator+(const Mat &T) const {
+        Mat res(r, c);
+        for (int i = 1; i <= r; i++) {
+            for (int j = 1; j <= c; j++) {
+                res.a[i][j] = (a[i][j] + T.a[i][j]) % MOD;
+            }
+        }
+        return res;
+    }
+
+    inline Mat operator*(const Mat &T) const {
+        Mat res(r, T.c);
+        for (int i = 1; i <= res.r; i++) {
+            for (int j = 1; j <= T.c; j++) {
+                for (int k = 1; k <= c; k++) {
+                    res.a[i][j] = (res.a[i][j] + a[i][k] * T.a[k][j] % MOD) % MOD;
+                }
+            }
+        }
+        return res;
+    }
+
+    inline Mat operator*(ll x) const {
+        Mat res(r, c);
+        for (int i = 1; i <= r; i++) {
+            for (int j = 1; j <= c; j++) {
+                res.a[i][j] = (a[i][j] * x) % MOD;
+            }
+        }
+        return res;
+    }
+
+    inline Mat operator^(ll x) const {
+        Mat res(r, c), bas(r, c);
+        for (int i = 1; i <= r; i++) res.a[i][i] = 1;
+        memcpy(bas.a, a, sizeof a);
+
+        while (x) {
+            if (x & 1) res = res * bas;
+            bas = bas * bas;
+            x >>= 1;
+        }
+        return res;
+    }
+
+    inline bool operator==(const Mat &T) const {
+        for (int i = 1; i <= r; i++) {
+            for (int j = 1; j <= c; j++) {
+                if (a[i][j] != T.a[i][j]) return false;
+            }
+        }
+        return true;
+    }
+
+    inline void print() const {
+        for (int i = 1; i <= r; i++) {
+            for (int j = 1; j <= c; j++) {
+                cout << a[i][j] << " ";
+            }
+            cout << "\n";
+        }
     }
 };
 
 ll n, k;
 
-matrix xi;
-matrix f;
-
-matrix operator*(const matrix &a, const matrix &b) {
-    matrix c = matrix(a.r, b.c);
-    for (int i = 0; i < c.r; i++) {
-        for (int j = 0; j < c.c; j++) {
-            for (int k = 0; k < a.c; k++) {
-                c.s[i][j] += a.s[i][k] * b.s[k][j];
-            }
-            c.s[i][j] %= MOD;
-        }
-    }
-    return c;
-}
-
-matrix power(matrix a, ll b) {
-    matrix res = a;
-    b--;
-    while (b) {
-        if (b & 1)
-            res = res * a;
-        a = a * a;
-        b >>= 1;
-    }
-    return res;
-}
+Mat<50> xi;
+Mat<50> f;
 
 void init() {
-    xi = matrix(k, k);
+    xi = Mat<50>(k, k);
 
-    for (int i = 0; i < k; i++) {
-        xi.s[0][i] = 1;
+    for (int i = 1; i <= k; i++) {
+        xi.a[1][i] = 1;
     }
-    for (int i = 1; i < k; i++) {
-        xi.s[i][i - 1] = 1;
+    for (int i = 2; i <= k; i++) {
+        xi.a[i][i - 1] = 1;
     }
-}
 
-void print() {
-    for (int i = 0; i < f.c; i++) {
-        for (int j = 0; j < f.r; j++) {
-            cout << f.s[i][j] << " ";
-        }
-        cout << endl;
-    }
+    f = Mat<50>(k, 1);
+    f.a[1][1] = 1;
 }
 
 void solve() {
     init();
-    f = matrix(k, 1);
-    f.s[0][0] = 1;
 
-    xi = power(xi, n);
+    xi = xi ^ n;
     f = xi * f;
 
-    cout << f.s[0][0] << endl;
+    cout << f.a[1][1] << endl;
 }
 
 int main() {

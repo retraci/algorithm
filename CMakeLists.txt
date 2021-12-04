@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 add_definitions(-DLOCAL)
 
 add_executable(acwing_349 "bluebook/0x60 graph/0x62 min spanning tree/acwing_349.cpp")
-add_executable(I codeforces/gym/103409/I.cpp)
+add_executable(I codeforces/gym/103186/I.cpp)
 add_executable(acwing_340 "bluebook/0x60 graph/0x61 shortest path/acwing_340.cpp")
 add_executable(acwing_363 "bluebook/0x60 graph/0x66 tarjan-dcc/acwing_363.cpp")
 add_executable(acwing_364 "bluebook/0x60 graph/0x66 tarjan-dcc/acwing_364.cpp")
@@ -28,14 +28,14 @@ add_executable(acwing_212 "bluebook/0x30 math/0x36 combination calc/acwing_212.c
 add_executable(P2447 luogu/matrix/P2447.cpp)
 
 add_executable(G atcoder/contest/abc/229/G.cpp)
-add_executable(E atcoder/contest/abc/230/E.cpp)
-add_executable(D atcoder/contest/abc/230/D.cpp)
+add_executable(E codeforces/contest/other/1609/E.cpp)
+add_executable(D dgut/contest/25/D.cpp)
 add_executable(K codeforces/gym/103409/K.cpp)
 
 add_executable(A atcoder/contest/abc/230/A.cpp)
 add_executable(B atcoder/contest/abc/230/B.cpp)
 
-add_executable(C atcoder/contest/abc/230/C.cpp)
+add_executable(C dgut/contest/26/C.cpp)
 
 add_executable(E_gt dgut/contest/27/E_gt.cpp)
 
