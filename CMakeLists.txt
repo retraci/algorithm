@@ -44,7 +44,7 @@ add_executable(D_gt "codeforces/contest/educational codeforces round/117/D_gt.cp
 add_executable(E1 "codeforces/contest/round/#756 (Div. 3)/E1.cpp")
 
 add_executable(E2 "codeforces/contest/round/#756 (Div. 3)/E2.cpp")
-add_executable(D2 "codeforces/contest/round/#748 (Div. 3)/D2.cpp")
+add_executable(D2 "codeforces/contest/round/#757 (Div. 2)/D2.cpp")
 
 add_executable(D1 "codeforces/contest/round/#757 (Div. 2)/D1.cpp")
 
