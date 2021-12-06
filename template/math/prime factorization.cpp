@@ -7,8 +7,7 @@ using namespace std;
 
 /*----------------------------------------*/
 
-const int N = 1e5 + 10;
-
+// 质因数分解
 ll ps[N], cs[N], tt;
 
 void divide(ll x) {
@@ -32,4 +31,21 @@ void primes(int lim) {
         if (vis[i]) continue;
         for (int j = i; j <= lim / i; j++) vis[i * j] = 1;
     }
+}
+
+// 欧拉函数
+int phi[N];
+
+ll euler(ll x) {
+    int res = x;
+
+    for (int i = 2; 1LL * i * i <= x; i++) {
+        if (x % i == 0) {
+            res = res / i * (i - 1);
+            while (x % i == 0) x /= i;
+        }
+    }
+    if (x > 1) res = res / x * (x - 1);
+
+    return res;
 }

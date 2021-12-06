@@ -29,13 +29,13 @@ add_executable(P2447 luogu/matrix/P2447.cpp)
 
 add_executable(G atcoder/contest/abc/229/G.cpp)
 add_executable(E codeforces/contest/other/1609/E.cpp)
-add_executable(D dgut/contest/25/D.cpp)
+add_executable(D atcoder/contest/arc/131/D.cpp)
 add_executable(K codeforces/gym/103409/K.cpp)
 
-add_executable(A atcoder/contest/abc/230/A.cpp)
-add_executable(B atcoder/contest/abc/230/B.cpp)
+add_executable(A atcoder/contest/arc/131/A.cpp)
+add_executable(B atcoder/contest/arc/131/B.cpp)
 
-add_executable(C dgut/contest/26/C.cpp)
+add_executable(C atcoder/contest/arc/131/C.cpp)
 
 add_executable(E_gt dgut/contest/27/E_gt.cpp)
 
@@ -63,3 +63,8 @@ add_executable(acwing_154 "bluebook/0x10 base data structures/0x18 summary & pra
 add_executable(acwing_155 "bluebook/0x10 base data structures/0x18 summary & practice/acwing_155.cpp")
 add_executable(acwing_156 "bluebook/0x10 base data structures/0x18 summary & practice/acwing_156.cpp")
 add_executable(acwing_157 "bluebook/0x10 base data structures/0x18 summary & practice/acwing_157.cpp")
+
+add_executable(P2731 "luogu/euler graph/P2731.cpp")
+
+add_executable(acwing_158 "bluebook/0x10 base data structures/0x18 summary & practice/acwing_158.cpp")
+add_executable(acwing_159 "bluebook/0x10 base data structures/0x18 summary & practice/acwing_159.cpp")
