@@ -39,15 +39,15 @@ void solve() {
     for (int i = 1; i <= n + 1; i++) st.insert({vb[i], i});
     ll ans = 0;
     while (K--) {
-        auto it = st.begin();
-        auto [val, id] = *it;
-        ans += val;
+        auto [w, id] = *st.begin(); st.erase(st.begin());
+        ans += w;
 
         int left = ls[id], right = rs[id];
-        remove(left), remove(right);
-        st.erase(it), st.erase({vb[left], left}), st.erase({vb[right], right});
         vb[id] = vb[left] + vb[right] - vb[id];
         st.insert({vb[id], id});
+
+        remove(left), remove(right);
+        st.erase({vb[left], left}), st.erase({vb[right], right});
     }
 
     cout << ans << endl;
