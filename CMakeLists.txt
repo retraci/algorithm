@@ -71,3 +71,5 @@ add_executable(acwing_160 "bluebook/0x10 base data structures/0x18 summary & pra
 add_executable(acwing_161 "bluebook/0x10 base data structures/0x18 summary & practice/acwing_161.cpp")
 add_executable(acwing_162 "bluebook/0x10 base data structures/0x18 summary & practice/acwing_162.cpp")
 add_executable(acwing_163 "bluebook/0x10 base data structures/0x18 summary & practice/acwing_163.cpp")
+add_executable(acwing_170 "bluebook/0x20 searching/0x24 iterative deepening/acwing_170.cpp")
+add_executable(acwing_171 "bluebook/0x20 searching/0x24 iterative deepening/acwing_171.cpp")
