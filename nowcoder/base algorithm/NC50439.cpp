@@ -26,7 +26,7 @@ void solve() {
 
     ll ans = 0;
     ll cur = 0;
-    priority_queue<ll, vector<ll>, greater<ll>> que;
+    priority_queue<ll, vector<ll>, greater<>> que;
     for (int i = 0; i < n; i++) {
         int idx = idxs[i];
         que.push(v[idx]);

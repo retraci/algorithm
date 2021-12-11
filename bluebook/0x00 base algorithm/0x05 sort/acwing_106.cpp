@@ -10,7 +10,7 @@ const int maxn = 1e4 + 10;
 int n, m;
 int va[maxn];
 priority_queue<int> que1;
-priority_queue<int, vector<int>, greater<int>> que2;
+priority_queue<int, vector<int>, greater<>> que2;
 
 void solve() {
     cout << m << " " << (n+1) / 2 << endl;

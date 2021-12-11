@@ -15,7 +15,7 @@ typedef pair<ll, ll> pll;
 
 int n;
 set<pii> mem;
-priority_queue<pii, vector<pii>, greater<pii>> edts;
+priority_queue<pii, vector<pii>, greater<>> edts;
 queue<pii> que;
 int cnt, ti;
 
