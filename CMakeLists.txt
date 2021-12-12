@@ -34,7 +34,7 @@ add_executable(K codeforces/gym/103409/K.cpp)
 add_executable(A "codeforces/contest/round/#758 (Div.1 + Div. 2)/A.cpp")
 add_executable(B atcoder/contest/abc/231/B.cpp)
 
-add_executable(C atcoder/contest/abc/231/C.cpp)
+add_executable(C "codeforces/contest/round/#758 (Div.1 + Div. 2)/C.cpp")
 
 add_executable(E_gt dgut/contest/27/E_gt.cpp)
 

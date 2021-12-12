@@ -25,56 +25,70 @@ const int N = 1e5 + 10;
 int n;
 int va[N], vb[N];
 int idx1[N], idx2[N];
+int ridx1[N], ridx2[N];
 
-void fake() {
-    int mx1 = max_element(va + 1, va + n + 1) - va;
-    int mx2 = max_element(vb + 1, vb + n + 1) - vb;
+int fa[N];
+int vis[N];
 
-    if (mx1 == mx2) {
-        string ans = string(n, '0');
-        ans[mx1 - 1] = '1';
-        cout << ans << "\n";
-    } else {
-        cout << string(n, '1') << "\n";
-    }
+int find(int x) {
+    return x == fa[x] ? x : fa[x] = find(fa[x]);
 }
 
-void solve() {
+void init() {
     for (int i = 1; i <= n; i++) idx1[i] = idx2[i] = i;
     sort(idx1 + 1, idx1 + n + 1, [&](auto &a, auto &b) {
         return va[a] < va[b];
     });
+    for (int i = 1; i <= n; i++) ridx1[idx1[i]] = i;
     sort(idx2 + 1, idx2 + n + 1, [&](auto &a, auto &b) {
         return vb[a] < vb[b];
     });
+    for (int i = 1; i <= n; i++) ridx2[idx2[i]] = i;
 
-    string ans = string(n, '0');
-    {
-        unordered_set<int> st;
-        int pos = 1, mx = 0;
-        for (int i = 1; i <= n; i++) {
-            int id = idx1[i];
+    for (int i = 1; i <= n; i++) fa[i] = i, vis[i] = 0;
+}
 
-            st.insert(id);
-            mx = max(mx, vb[id]);
-            while (pos <= n && mx >= vb[idx2[pos]]) st.insert(idx2[pos]), pos++;
+void solve() {
+    init();
 
-            if (st.size() >= n) ans[id - 1] = '1';
+    int mx1 = idx1[n], mx2 = idx2[n];
+    queue<int> que;
+    vis[mx1] = vis[mx2] = 1;
+    que.push(mx1), que.push(mx2);
+    int p1 = n + 1, p2 = n + 1;
+    while (!que.empty()) {
+        auto u = que.front(); que.pop();
+
+        int np1 = min(p1, ridx1[u]), np2 = min(p2, ridx2[u]);
+        for (int i = np1; i < p1; i++) {
+            int v = idx1[i];
+            int fx = find(u), fy = find(v);
+            fa[fy] = fx;
+
+            if (!vis[v]) {
+                vis[v] = 1;
+                que.push(v);
+            }
         }
+        for (int i = np2; i < p2; i++) {
+            int v = idx2[i];
+            int fx = find(u), fy = find(v);
+            fa[fy] = fx;
+
+            if (!vis[v]) {
+                vis[v] = 1;
+                que.push(v);
+            }
+        }
+
+        p1 = np1, p2 = np2;
     }
 
-    {
-        unordered_set<int> st;
-        int pos = 1, mx = 0;
-        for (int i = 1; i <= n; i++) {
-            int id = idx2[i];
-
-            st.insert(id);
-            mx = max(mx, va[id]);
-            while (pos <= n && mx >= va[idx1[pos]]) st.insert(idx1[pos]), pos++;
-
-            if (st.size() >= n) ans[id - 1] = '1';
-        }
+    string ans = string(n, '0');
+    for (int i = 1; i <= n; i++) {
+        int fx1 = find(mx1), fx2 = find(mx2);
+        int fy = find(i);
+        if (fy == fx1 || fy == fx2) ans[i - 1] = '1';
     }
     cout << ans << "\n";
 }

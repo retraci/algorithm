@@ -141,7 +141,8 @@ void solve() {
         int j = i;
         int idi = idx1[i], idj = idx1[j];
         while (j >= 1 && va[idi] == va[idj]) {
-            ans += query(1, 1, get_id(vb[idj]) - 1);
+            int x = get_id(vb[idj]);
+            ans += query(1, 1,  x - 1);
             idj = idx1[--j];
         }
         
