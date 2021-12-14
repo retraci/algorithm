@@ -28,7 +28,6 @@ int idx1[N], idx2[N];
 int ridx1[N], ridx2[N];
 
 int fa[N];
-int vis[N];
 
 int find(int x) {
     return x == fa[x] ? x : fa[x] = find(fa[x]);
@@ -45,7 +44,7 @@ void init() {
     });
     for (int i = 1; i <= n; i++) ridx2[idx2[i]] = i;
 
-    for (int i = 1; i <= n; i++) fa[i] = i, vis[i] = 0;
+    for (int i = 1; i <= n; i++) fa[i] = i;
 }
 
 void solve() {
@@ -53,7 +52,6 @@ void solve() {
 
     int mx1 = idx1[n], mx2 = idx2[n];
     queue<int> que;
-    vis[mx1] = vis[mx2] = 1;
     que.push(mx1), que.push(mx2);
     int p1 = n + 1, p2 = n + 1;
     while (!que.empty()) {
@@ -65,20 +63,14 @@ void solve() {
             int fx = find(u), fy = find(v);
             fa[fy] = fx;
 
-            if (!vis[v]) {
-                vis[v] = 1;
-                que.push(v);
-            }
+            que.push(v);
         }
         for (int i = np2; i < p2; i++) {
             int v = idx2[i];
             int fx = find(u), fy = find(v);
             fa[fy] = fx;
 
-            if (!vis[v]) {
-                vis[v] = 1;
-                que.push(v);
-            }
+            que.push(v);
         }
 
         p1 = np1, p2 = np2;
