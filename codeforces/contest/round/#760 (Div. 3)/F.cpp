@@ -39,7 +39,6 @@ ll get(ll x) {
         res++;
         x >>= 1;
     }
-
     return res;
 }
 
@@ -52,7 +51,12 @@ bool dfs(ll u) {
 }
 
 void solve() {
-    cout << (dfs(a) ? "YES" : "NO") << "\n";
+    if (a == b) {
+        cout << "YES" << "\n";
+        return;
+    }
+    bool ans = dfs(rev(a * 2)) || dfs(rev(a * 2 + 1));
+    cout << (ans ? "YES" : "NO") << "\n";
 }
 
 int main() {
