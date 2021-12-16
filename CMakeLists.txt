@@ -84,3 +84,6 @@ add_executable(acwing_177 "bluebook/0x20 searching/0x26 bfs_gt/acwing_177.cpp")
 add_executable(P2949 "luogu/lying greedy/P2949.cpp")
 add_executable(P4053 "luogu/lying greedy/P4053.cpp")
 add_executable(CF865D "luogu/lying greedy/CF865D.cpp")
+
+add_executable(acwing_178 "bluebook/0x20 searching/0x27 A star/acwing_178.cpp")
+add_executable(acwing_179 "bluebook/0x20 searching/0x27 A star/acwing_179.cpp")
