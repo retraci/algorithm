@@ -31,10 +31,10 @@ add_executable(G "codeforces/contest/round/#760 (Div. 3)/G.cpp")
 add_executable(E "codeforces/contest/round/#760 (Div. 3)/E.cpp")
 add_executable(K codeforces/gym/103409/K.cpp)
 
-add_executable(A "codeforces/contest/round/#760 (Div. 3)/A.cpp")
-add_executable(B "codeforces/contest/round/#760 (Div. 3)/B.cpp")
+add_executable(A "codeforces/contest/round/#761 (Div. 2)/A.cpp")
+add_executable(B "codeforces/contest/round/#761 (Div. 2)/B.cpp")
 
-add_executable(C "codeforces/contest/round/#760 (Div. 3)/C.cpp")
+add_executable(C "codeforces/contest/round/#761 (Div. 2)/C.cpp")
 
 add_executable(E_gt dgut/contest/27/E_gt.cpp)
 
@@ -43,9 +43,9 @@ add_executable(D_gt "codeforces/contest/educational codeforces round/117/D_gt.cp
 add_executable(E1 "codeforces/contest/round/#756 (Div. 3)/E1.cpp")
 
 add_executable(E2 "codeforces/contest/round/#756 (Div. 3)/E2.cpp")
-add_executable(D2 "codeforces/contest/round/#757 (Div. 2)/D2.cpp")
+add_executable(D2 "codeforces/contest/round/#761 (Div. 2)/D2.cpp")
 
-add_executable(D1 "codeforces/contest/round/#757 (Div. 2)/D1.cpp")
+add_executable(D1 "codeforces/contest/round/#761 (Div. 2)/D1.cpp")
 
 add_executable(F "codeforces/contest/round/#760 (Div. 3)/F.cpp")
 
