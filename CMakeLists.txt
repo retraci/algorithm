@@ -28,13 +28,13 @@ add_executable(acwing_212 "bluebook/0x30 math/0x36 combination calc/acwing_212.c
 add_executable(P2447 luogu/matrix/P2447.cpp)
 
 add_executable(G "codeforces/contest/round/#760 (Div. 3)/G.cpp")
-add_executable(E "codeforces/contest/round/#760 (Div. 3)/E.cpp")
+add_executable(E "codeforces/contest/educational codeforces round/119/E.cpp")
 add_executable(K codeforces/gym/103409/K.cpp)
 
-add_executable(A "codeforces/contest/round/#761 (Div. 2)/A.cpp")
-add_executable(B "codeforces/contest/round/#761 (Div. 2)/B.cpp")
+add_executable(A "codeforces/contest/educational codeforces round/119/A.cpp")
+add_executable(B "codeforces/contest/educational codeforces round/119/B.cpp")
 
-add_executable(C "codeforces/contest/round/#761 (Div. 2)/C.cpp")
+add_executable(C "codeforces/contest/educational codeforces round/119/C.cpp")
 
 add_executable(E_gt dgut/contest/27/E_gt.cpp)
 
@@ -78,7 +78,7 @@ add_executable(acwing_173 "bluebook/0x20 searching/0x25 bfs/acwing_173.cpp")
 add_executable(acwing_175 "bluebook/0x20 searching/0x26 bfs_gt/acwing_175.cpp")
 add_executable(acwing_176 "bluebook/0x20 searching/0x26 bfs_gt/acwing_176.cpp")
 
-add_executable(D "codeforces/contest/round/#758 (Div.1 + Div. 2)/D.cpp")
+add_executable(D "codeforces/contest/educational codeforces round/119/D.cpp")
 
 add_executable(acwing_177 "bluebook/0x20 searching/0x26 bfs_gt/acwing_177.cpp")
 add_executable(P2949 "luogu/lying greedy/P2949.cpp")
