@@ -20,29 +20,23 @@ typedef pair<ll, ll> pll;
 const int dx[9] = {-1, 0, 1, 0, -1, -1, 1, 1, 0};
 const int dy[9] = {0, 1, 0, -1, -1, 1, -1, 1, 0};
 
-const int N = 5e5 + 10;
-
-int n;
-int vop[N], va[N], vb[N];
-int fa[N];
+string s, t;
 
 void solve() {
-    for (int i = 0; i < N; i++) fa[i] = i;
-
-    vector<int> ans;
-    for (int i = n; i >= 1; i--) {
-        int op = vop[i], a = va[i], b = vb[i];
-
-        if (op == 1) {
-            ans.push_back(fa[a]);
-        } else {
-            fa[a] = fa[b];
+    for (int i = 0; i < 26; i++) {
+        string v = s;
+        for (int j = 0; j < v.size(); j++) {
+            int x = v[j] - 'a';
+            int nxt = (x + i) % 26;
+            v[j] = nxt + 'a';
+        }
+        if (v == t) {
+            cout << "Yes" << "\n";
+            return;
         }
     }
 
-    reverse(ans.begin(), ans.end());
-    for (int x : ans) cout << x << " ";
-    cout << "\n";
+    cout << "No" << "\n";
 }
 
 int main() {
@@ -52,12 +46,7 @@ int main() {
 #endif
 
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
-    cin >> n;
-    for (int i = 1; i <= n; i++) {
-        cin >> vop[i];
-        if (vop[i] == 1) cin >> va[i];
-        else cin >> va[i] >> vb[i];
-    }
+    cin >> s >> t;
     solve();
 
     return 0;

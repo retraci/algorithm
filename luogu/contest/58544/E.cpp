@@ -20,29 +20,36 @@ typedef pair<ll, ll> pll;
 const int dx[9] = {-1, 0, 1, 0, -1, -1, 1, 1, 0};
 const int dy[9] = {0, 1, 0, -1, -1, 1, -1, 1, 0};
 
-const int N = 5e5 + 10;
+const int N = 1010;
+const int K = 110;
 
-int n;
-int vop[N], va[N], vb[N];
-int fa[N];
+int n, k;
+ll va[K][N];
+ll vs[K][N];
+
+int calc(int x, int y1, int y2) {
+    for (int i = 1; i <= y2; i++) vs[x][i] = vs[x][i - 1] + va[x][i];
+
+    return vs[x][y2] - vs[x][y1 - 1];
+}
 
 void solve() {
-    for (int i = 0; i < N; i++) fa[i] = i;
-
-    vector<int> ans;
-    for (int i = n; i >= 1; i--) {
-        int op = vop[i], a = va[i], b = vb[i];
-
+    while (n--) {
+        ll op, p;
+        cin >> op;
         if (op == 1) {
-            ans.push_back(fa[a]);
+            cin >> p;
+            while (p--) {
+                ll x, y;
+                cin >> x >> y;
+                va[x][y]++;
+            }
         } else {
-            fa[a] = fa[b];
+            ll x, y1, y2;
+            cin >> x >> y1 >> y2;
+            cout << calc(x, y1, y2) << "\n";
         }
     }
-
-    reverse(ans.begin(), ans.end());
-    for (int x : ans) cout << x << " ";
-    cout << "\n";
 }
 
 int main() {
@@ -52,12 +59,7 @@ int main() {
 #endif
 
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
-    cin >> n;
-    for (int i = 1; i <= n; i++) {
-        cin >> vop[i];
-        if (vop[i] == 1) cin >> va[i];
-        else cin >> va[i] >> vb[i];
-    }
+    cin >> n >> k;
     solve();
 
     return 0;

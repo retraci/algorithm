@@ -20,29 +20,30 @@ typedef pair<ll, ll> pll;
 const int dx[9] = {-1, 0, 1, 0, -1, -1, 1, 1, 0};
 const int dy[9] = {0, 1, 0, -1, -1, 1, -1, 1, 0};
 
-const int N = 5e5 + 10;
+const int N = 110;
 
-int n;
-int vop[N], va[N], vb[N];
-int fa[N];
+int n, m;
+string g[N];
+int f[N][N];
 
 void solve() {
-    for (int i = 0; i < N; i++) fa[i] = i;
+    memset(f, -0x3f, sizeof f);
+    f[0][1] = f[1][0] = 0;
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            if (g[i][j] == '#') continue;
 
-    vector<int> ans;
-    for (int i = n; i >= 1; i--) {
-        int op = vop[i], a = va[i], b = vb[i];
-
-        if (op == 1) {
-            ans.push_back(fa[a]);
-        } else {
-            fa[a] = fa[b];
+            f[i][j] = max(f[i - 1][j], f[i][j - 1]) + 1;
         }
     }
 
-    reverse(ans.begin(), ans.end());
-    for (int x : ans) cout << x << " ";
-    cout << "\n";
+    int ans = 0;
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            ans = max(ans, f[i][j]);
+        }
+    }
+    cout << ans << "\n";
 }
 
 int main() {
@@ -52,11 +53,10 @@ int main() {
 #endif
 
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
-    cin >> n;
+    cin >> n >> m;
     for (int i = 1; i <= n; i++) {
-        cin >> vop[i];
-        if (vop[i] == 1) cin >> va[i];
-        else cin >> va[i] >> vb[i];
+        cin >> g[i];
+        g[i] = ' ' + g[i];
     }
     solve();
 
