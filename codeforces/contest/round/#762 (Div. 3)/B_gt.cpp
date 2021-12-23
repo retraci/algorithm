@@ -4,6 +4,7 @@
 #include <cstring>
 #include <vector>
 #include <queue>
+#include <stack>
 #include <set>
 #include <map>
 #include <unordered_set>
@@ -21,10 +22,13 @@ typedef pair<ll, ll> pll;
 const int dx[9] = {-1, 0, 1, 0, -1, -1, 1, 1, 0};
 const int dy[9] = {0, 1, 0, -1, -1, 1, -1, 1, 0};
 
-double a, b, c;
+ll n;
 
 void solve() {
-    cout << int(0.2 * a + 0.3 * b + 0.5 * c) << "\n";
+    int a = sqrt(n);
+    int b = cbrt(n);
+    int c = sqrt(cbrt(n));
+    cout << a + b - c << "\n";
 }
 
 int main() {
@@ -34,8 +38,12 @@ int main() {
 #endif
 
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
-    cin >> a >> b >> c;
-    solve();
+    int T;
+    cin >> T;
+    while (T--) {
+        cin >> n;
+        solve();
+    }
 
     return 0;
 }
