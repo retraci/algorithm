@@ -32,9 +32,9 @@ add_executable(E "codeforces/contest/round/#762 (Div. 3)/E.cpp")
 add_executable(K codeforces/gym/103409/K.cpp)
 
 add_executable(A "codeforces/contest/global round/18/A.cpp")
-add_executable(B "codeforces/contest/global round/18/B.cpp")
+add_executable(B acwing/contest/31/B.cpp)
 
-add_executable(C "codeforces/contest/global round/18/C.cpp")
+add_executable(C acwing/contest/31/C.cpp)
 
 add_executable(E_gt dgut/contest/27/E_gt.cpp)
 
@@ -92,3 +92,4 @@ add_executable(B_gt "codeforces/contest/round/#762 (Div. 3)/B_gt.cpp")
 add_executable(acwing_180 "bluebook/0x20 searching/0x28 IDA star/acwing_180.cpp")
 add_executable(acwing_181 "bluebook/0x20 searching/0x28 IDA star/acwing_181.cpp")
 add_executable(acwing_182 "bluebook/0x20 searching/0x28 IDA star/acwing_182.cpp")
+
