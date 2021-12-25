@@ -31,10 +31,10 @@ add_executable(G "codeforces/contest/round/#762 (Div. 3)/G.cpp")
 add_executable(E "codeforces/contest/round/#762 (Div. 3)/E.cpp")
 add_executable(K codeforces/gym/103409/K.cpp)
 
-add_executable(A luogu/contest/58544/A.cpp)
-add_executable(B "codeforces/contest/round/#762 (Div. 3)/B.cpp")
+add_executable(A "codeforces/contest/global round/18/A.cpp")
+add_executable(B "codeforces/contest/global round/18/B.cpp")
 
-add_executable(C "codeforces/contest/round/#762 (Div. 3)/C.cpp")
+add_executable(C "codeforces/contest/global round/18/C.cpp")
 
 add_executable(E_gt dgut/contest/27/E_gt.cpp)
 
@@ -78,7 +78,7 @@ add_executable(acwing_173 "bluebook/0x20 searching/0x25 bfs/acwing_173.cpp")
 add_executable(acwing_175 "bluebook/0x20 searching/0x26 bfs_gt/acwing_175.cpp")
 add_executable(acwing_176 "bluebook/0x20 searching/0x26 bfs_gt/acwing_176.cpp")
 
-add_executable(D "codeforces/contest/round/#762 (Div. 3)/D.cpp")
+add_executable(D "codeforces/contest/global round/18/D.cpp")
 
 add_executable(acwing_177 "bluebook/0x20 searching/0x26 bfs_gt/acwing_177.cpp")
 add_executable(P2949 "luogu/lying greedy/P2949.cpp")
@@ -91,3 +91,4 @@ add_executable(acwing_179 "bluebook/0x20 searching/0x27 A star/acwing_179.cpp")
 add_executable(B_gt "codeforces/contest/round/#762 (Div. 3)/B_gt.cpp")
 add_executable(acwing_180 "bluebook/0x20 searching/0x28 IDA star/acwing_180.cpp")
 add_executable(acwing_181 "bluebook/0x20 searching/0x28 IDA star/acwing_181.cpp")
+add_executable(acwing_182 "bluebook/0x20 searching/0x28 IDA star/acwing_182.cpp")
