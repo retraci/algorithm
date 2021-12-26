@@ -4,12 +4,13 @@
 #include <cstring>
 #include <vector>
 #include <queue>
+#include <stack>
 #include <set>
 #include <map>
 #include <unordered_set>
 #include <unordered_map>
-#include <cmath>
-#include <iomanip>
+#include <numeric>
+#include <bitset>
 
 using namespace std;
 
@@ -21,25 +22,31 @@ typedef pair<ll, ll> pll;
 const int dx[9] = {-1, 0, 1, 0, -1, -1, 1, 1, 0};
 const int dy[9] = {0, 1, 0, -1, -1, 1, -1, 1, 0};
 
-const int N = 2e5 + 10;
-const double eps = 1e-11;
-
-double x;
+int n;
+string s;
 
 void solve() {
-    double ans = 0;
-    double fac = 1;
-    for (double k = 0; ; k++) {
-        fac *= k + 1;
-        double up = x * k + (x - 1);
-        double down = fac * pow(x, k + 1);
-        double cur = (k + 1) * up / down;
-        if (cur < eps) break;
-        ans += cur;
+    n = s.size() - 1;
+    vector<int> fa(n + 1, 1e9), fb(n + 1, 1e9), sa(n + 1, 0);
+
+    if (s[1] == 'a') {
+        fa[1] = 0;
+        fb[1] = 1;
+    } else {
+        fa[1] = 1;
+        fb[1] = 0;
+    }
+    for (int i = 2; i <= n; i++) {
+        if (s[i] == 'a') {
+            fa[i] = min(fa[i - 1], fb[i - 1]);
+            fb[i] = fb[i - 1] + 1;
+        } else {
+            fa[i] = min(fa[i - 1], fb[i - 1]) + 1;
+            fb[i] = fb[i - 1];
+        }
     }
 
-    cout << fixed << setprecision(9);
-    cout << ans << "\n";
+    cout << min(fa[n], fb[n]) << "\n";
 }
 
 int main() {
@@ -49,7 +56,8 @@ int main() {
 #endif
 
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
-    cin >> x;
+    cin >> s;
+    s = ' ' + s;
     solve();
 
     return 0;
