@@ -27,7 +27,7 @@ add_executable(P1006 luogu/dp/P1006.cpp)
 add_executable(acwing_212 "bluebook/0x30 math/0x36 combination calc/acwing_212.cpp")
 add_executable(P2447 luogu/matrix/P2447.cpp)
 
-add_executable(E "codeforces/contest/educational codeforces round/120/E.cpp")
+add_executable(E "codeforces/contest/global round/18/E.cpp")
 add_executable(K codeforces/gym/103409/K.cpp)
 
 add_executable(A "codeforces/contest/educational codeforces round/120/A.cpp")
