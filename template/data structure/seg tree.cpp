@@ -33,9 +33,11 @@ namespace Seg {
     }
 
     inline void push_down(int node) {
+        ll lsz = tree[lson].right - tree[lson].left + 1;
+        ll rsz = tree[rson].right - tree[rson].left + 1;
         if (tree[node].lz) {
-            tree[lson].sum = (tree[lson].sum + tree[node].lz) % MOD;
-            tree[rson].sum = (tree[rson].sum + tree[node].lz) % MOD;
+            tree[lson].sum = (tree[lson].sum + lsz * tree[node].lz % MOD) % MOD;
+            tree[rson].sum = (tree[rson].sum + rsz * tree[node].lz % MOD) % MOD;
             tree[lson].lz = (tree[lson].lz + tree[node].lz) % MOD;
             tree[rson].lz = (tree[rson].lz + tree[node].lz) % MOD;
             tree[node].lz = 0;
@@ -56,7 +58,7 @@ namespace Seg {
 
         if (right < L || left > R) return;
         if (L <= left && right <= R) {
-            tree[node].sum = (tree[node].sum + val) % MOD;
+            tree[node].sum = (tree[node].sum + (R - L + 1) * val % MOD) % MOD;
             tree[node].lz = (tree[node].lz + val) % MOD;
             return;
         }
