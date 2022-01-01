@@ -30,10 +30,10 @@ add_executable(P2447 luogu/matrix/P2447.cpp)
 add_executable(E "codeforces/contest/Good Bye 2021/E.cpp")
 add_executable(K codeforces/gym/103409/K.cpp)
 
-add_executable(A nowcoder/contest/11184/A.cpp)
-add_executable(B nowcoder/contest/11184/B.cpp)
+add_executable(A acwing/contest/32/A.cpp)
+add_executable(B acwing/contest/32/B.cpp)
 
-add_executable(C nowcoder/contest/11184/C.cpp)
+add_executable(C acwing/contest/32/C.cpp)
 
 add_executable(E_gt dgut/contest/27/E_gt.cpp)
 
@@ -46,7 +46,6 @@ add_executable(D2 "codeforces/contest/round/#761 (Div. 2)/D2.cpp")
 
 add_executable(D1 "codeforces/contest/round/#761 (Div. 2)/D1.cpp")
 
-add_executable(F "codeforces/contest/round/#762 (Div. 3)/F.cpp")
 
 add_executable(acwing_145 "bluebook/0x10 base data structures/0x17 heap/acwing_145.cpp")
 add_executable(acwing_146 "bluebook/0x10 base data structures/0x17 heap/acwing_146.cpp")
