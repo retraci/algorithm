@@ -11,26 +11,27 @@ using namespace std;
 // 无向图 割点
 int n, m;
 vector<int> g[N];
+
 int dfn[N], low[N], num;
 int cut[N];
 
-void tarjan(int u, int pa) {
+void tarjan(int u, int fno) {
     dfn[u] = low[u] = ++num;
     int cnt = 0;
     for (int v : g[u]) {
-        // 没走过
-        if (!dfn[v]) {
+        if (dfn[v] == 0) {
             tarjan(v);
-            // 把孩子的 low 更新到自己
             low[u] = min(low[u], low[v]);
 
             // 发现割点 u
             if (low[v] >= dfn[u]) {
                 cnt++;
-                if (pa != 0 || cnt >= 2) cut[u] = 1;
+                if (fno != 0 || cnt >= 2) cut[u] = 1;
             }
-        } else if (v != pa) {
-            // 遇到走过的, 就把走过的 dfn 更新一下
+        }
+
+        // 遇到走过的, 证明 u 可以回到 v, 把 dfn[v] 维护到 low[u]
+        if (dfn[v] != 0 && v != fno) {
             low[u] = min(low[u], dfn[v]);
         }
     }
@@ -39,25 +40,26 @@ void tarjan(int u, int pa) {
 // 无向图 割边
 int n, m;
 vector<int> g[N];
-int dfn[N], low[N], num;
-unordered_set<int> bridge[N];
 
-void tarjan(int u, int pa) {
+int dfn[N], low[N], num;
+unordered_set<int> bs[N];
+
+void tarjan(int u, int fno) {
     dfn[u] = low[u] = ++num;
     for (int v : g[u]) {
-        // 没走过
-        if (!dfn[v]) {
+        if (dfn[v] == 0) {
             tarjan(v, u);
-            // 把孩子的 low 更新到自己
             low[u] = min(low[u], low[v]);
 
             // 发现割边 u -> v
             if (low[v] > dfn[u]) {
-                bridge[u].insert(v);
-                bridge[v].insert(u);
+                bs[u].insert(v);
+                bs[v].insert(u);
             }
-        } else if (v != pa) {
-            // 遇到走过的, 就把走过的 dfn 更新一下
+        }
+
+        // 遇到走过的, 证明 u 可以回到 v, 把 dfn[v] 维护到 low[u]
+        if (dfn[v] != 0 && v != fno) {
             low[u] = min(low[u], dfn[v]);
         }
     }
@@ -77,7 +79,7 @@ void add_c(int u, int v) {
 void dfs_suodian(int u) {
     c[u] = dcc, sz[dcc]++;
     for (int v : g[u]) {
-        if (c[v] || bridge[u].count(v)) continue;
+        if (c[v] || bs[u].count(v)) continue;
         dfs_suodian(v);
     }
 }

@@ -5,10 +5,10 @@ using namespace std;
 string str;
 char va[9][9];
 int sx[9], sy[9], sc[3][3];
-int mp1[1 << 9], mp2[1 << 9];
+int mp[1 << 9];
 
 int lowbit(int x) {
-    return x & (-x);
+    return x & -x;
 }
 
 int getStatus(int x, int y) {
@@ -26,8 +26,7 @@ bool dfs(int cnt) {
             if (va[i][j] != '.') continue;
 
             int s = getStatus(i, j);
-            // 避免循环，mp1 为预处理每种可能的 '.' 数
-            int c = mp1[s];
+            int c = __builtin_popcount(s);
             if (mi > c) mi = c, x = i, y = j;
         }
     }
@@ -35,10 +34,7 @@ bool dfs(int cnt) {
     int s = getStatus(x, y);
     for (int i = s; i; i -= lowbit(i)) {
         int tmp = lowbit(i);
-        // 避免循环， 预处理 mp2 来快速获取当前 lowbit 所代表的数字
-        int cur = mp2[tmp];
-
-//        cout << x << " " << y << " " << cur << endl;
+        int cur = mp[tmp];
 
         va[x][y] = cur + '0';
         sx[x] -= 1 << cur;
@@ -64,18 +60,8 @@ void solve() {
         }
     }
 
-    // 预处理 mp1
-    int lim = 1 << 9;
-    for (int s = 0; s < lim; s++) {
-        int tmp = 0;
-        for (int i = s; i; i -= lowbit(i)) {
-            tmp++;
-        }
-        mp1[s] = tmp;
-    }
-
-    // 预处理 mp2
-    for (int i = 0; i < 9; i++) mp2[1 << i] = i;
+    // 预处理 mp
+    for (int i = 0; i < 9; i++) mp[1 << i] = i;
 
     // 转为表格，维护状态
     int cnt = 0;

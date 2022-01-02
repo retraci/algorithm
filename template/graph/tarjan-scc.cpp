@@ -11,6 +11,7 @@ using namespace std;
 // 有向图 缩点
 int n, m;
 vector<int> g[N];
+
 int dfn[N], low[N], num;
 stack<int> stk;
 int in_stk[N];
@@ -20,18 +21,23 @@ vector<int> gc[N];
 
 void tarjan(int u) {
     dfn[u] = low[u] = ++num;
-    stk.push(u), in_stk[u] = 1;
-    for (int v: g[u]) {
-        if (!dfn[v]) {
+    stk.push(u);
+    in_stk[u] = 1;
+
+    for (int v : g[u]) {
+        if (dfn[v] == 0) {
             tarjan(v);
             low[u] = min(low[u], low[v]);
-        } else if (in_stk[v]) {
+        }
+
+        // 遇到走过的, 证明 u 可以回到 v, 把 dfn[v] 维护到 low[u]
+        if (dfn[v] != 0 && in_stk[v]) {
             low[u] = min(low[u], dfn[v]);
         }
     }
 
     if (dfn[u] == low[u]) {
-        ++scc;
+        scc++;
         int v;
         do {
             v = stk.top(); stk.pop();

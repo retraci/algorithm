@@ -93,3 +93,7 @@ add_executable(acwing_182 "bluebook/0x20 searching/0x28 IDA star/acwing_182.cpp"
 
 
 add_executable(J nowcoder/contest/26808/J.cpp)
+
+add_executable(acwing_183 "bluebook/0x20 searching/0x29 summary & practice/acwing_183.cpp")
+add_executable(acwing_166 "bluebook/0x20 searching/0x22 dfs/acwing_166.cpp")
+add_executable(acwing_184 "bluebook/0x20 searching/0x29 summary & practice/acwing_184.cpp")
