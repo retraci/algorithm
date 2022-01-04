@@ -98,3 +98,9 @@ add_executable(acwing_183 "bluebook/0x20 searching/0x29 summary & practice/acwin
 add_executable(acwing_166 "bluebook/0x20 searching/0x22 dfs/acwing_166.cpp")
 add_executable(acwing_184 "bluebook/0x20 searching/0x29 summary & practice/acwing_184.cpp")
 add_executable(acwing_2058 acwing/other/acwing_2058.cpp)
+
+add_executable(acwing_2041 acwing/other/acwing_2041.cpp)
+add_executable(acwing_186 "bluebook/0x20 searching/0x29 summary & practice/acwing_186.cpp")
+add_executable(acwing_187 "bluebook/0x20 searching/0x29 summary & practice/acwing_187.cpp")
+add_executable(acwing_188 "bluebook/0x20 searching/0x29 summary & practice/acwing_188.cpp")
+add_executable(acwing_189 "bluebook/0x20 searching/0x29 summary & practice/acwing_189.cpp")
