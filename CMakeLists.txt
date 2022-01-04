@@ -30,10 +30,10 @@ add_executable(P2447 luogu/matrix/P2447.cpp)
 add_executable(E "codeforces/contest/Good Bye 2021/E.cpp")
 add_executable(K codeforces/gym/103409/K.cpp)
 
-add_executable(A acwing/contest/32/A.cpp)
-add_executable(B acwing/contest/32/B.cpp)
+add_executable(A "codeforces/contest/Hello 2022/A.cpp")
+add_executable(B "codeforces/contest/Hello 2022/B.cpp")
 
-add_executable(C acwing/contest/32/C.cpp)
+add_executable(C "codeforces/contest/Hello 2022/C.cpp")
 
 add_executable(E_gt dgut/contest/27/E_gt.cpp)
 
@@ -76,7 +76,7 @@ add_executable(acwing_173 "bluebook/0x20 searching/0x25 bfs/acwing_173.cpp")
 add_executable(acwing_175 "bluebook/0x20 searching/0x26 bfs_gt/acwing_175.cpp")
 add_executable(acwing_176 "bluebook/0x20 searching/0x26 bfs_gt/acwing_176.cpp")
 
-add_executable(D "codeforces/contest/Good Bye 2021/D.cpp")
+add_executable(D "codeforces/contest/Hello 2022/D.cpp")
 
 add_executable(acwing_177 "bluebook/0x20 searching/0x26 bfs_gt/acwing_177.cpp")
 add_executable(P2949 "luogu/lying greedy/P2949.cpp")
@@ -97,3 +97,4 @@ add_executable(J nowcoder/contest/26808/J.cpp)
 add_executable(acwing_183 "bluebook/0x20 searching/0x29 summary & practice/acwing_183.cpp")
 add_executable(acwing_166 "bluebook/0x20 searching/0x22 dfs/acwing_166.cpp")
 add_executable(acwing_184 "bluebook/0x20 searching/0x29 summary & practice/acwing_184.cpp")
+add_executable(acwing_2058 acwing/other/acwing_2058.cpp)
