@@ -1,14 +1,4 @@
-#include <iostream>
-#include <cstdio>
-#include <algorithm>
-#include <cstring>
-#include <vector>
-
-using namespace std;
-
-/*----------------------------------------*/
-
-// 有向图 缩点
+// region 有向图 缩点
 int n, m;
 vector<int> g[N];
 
@@ -60,3 +50,4 @@ void suodian() {
         }
     }
 }
+// endregion

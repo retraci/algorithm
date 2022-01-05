@@ -1,20 +1,4 @@
-#include <iostream>
-#include <cstdio>
-#include <algorithm>
-#include <cstring>
-#include <vector>
-#include <queue>
-#include <stack>
-#include <set>
-#include <map>
-#include <unordered_set>
-#include <unordered_map>
-#include <numeric>
-#include <bitset>
-
-using namespace std;
-
-#define ll long long
+// region comb
 
 const ll MOD = 998244353;
 const int N = 5010;
@@ -44,3 +28,4 @@ inline void init_comb(int lim) {
     fac[0] = ifac[0] = 1;
     for (int i = 1; i <= lim; i++) fac[i] = fac[i - 1] * i % MOD, ifac[i] = inv(fac[i]);
 }
+// endregion

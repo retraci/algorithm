@@ -1,19 +1,4 @@
-#include <iostream>
-#include <cstdio>
-#include <algorithm>
-#include <cstring>
-#include <vector>
-#include <queue>
-#include <set>
-#include <map>
-#include <unordered_set>
-#include <unordered_map>
-
-using namespace std;
-
-/*----------------------------------------*/
-
-// 有向图欧拉回路
+// region 有向图欧拉回路
 vector<int> g[N];
 int in[N], out[N];
 vector<vector<int>> ans;
@@ -31,9 +16,9 @@ void dfs(int u) {
         ans.push_back({u, v});
     }
 }
+// endregion
 
-
-// 无向图欧拉回路
+// region 无向图欧拉回路
 set<int> g[N];
 int du[N];
 vector<int> ans;
@@ -54,6 +39,7 @@ void dfs(int u) {
     }
     ans.push_back(u);
 }
+// endregion
 
 void solve() {
     int s = 0;

@@ -1,13 +1,4 @@
-#include <iostream>
-#include <cstdio>
-#include <algorithm>
-#include <cstring>
-
-using namespace std;
-
-/*----------------------------------------*/
-
-// 质因数分解
+// region 质因数分解
 ll ps[N], cs[N], tt;
 
 void divide(ll x) {
@@ -20,8 +11,9 @@ void divide(ll x) {
     }
     if (x > 1) ps[++tt] = x, cs[tt] = 1;
 }
+// endregion
 
-// 埃筛
+// region 埃筛
 int vis[N];
 
 void primes(int lim) {
@@ -32,8 +24,9 @@ void primes(int lim) {
         for (int j = i; j <= lim / i; j++) vis[i * j] = 1;
     }
 }
+// endregion
 
-// 欧拉函数
+// region 欧拉函数
 int phi[N];
 
 ll euler(ll x) {
@@ -49,3 +42,4 @@ ll euler(ll x) {
 
     return res;
 }
+// endregion

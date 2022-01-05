@@ -1,12 +1,4 @@
-#include <iostream>
-#include <cstdio>
-#include <algorithm>
-#include <cstring>
-
-using namespace std;
-
-/*----------------------------------------*/
-
+// region 快读
 template<typename T>
 inline void rd(T &x) {
     T ret = 0, sgn = 1;
@@ -15,3 +7,4 @@ inline void rd(T &x) {
     while (isdigit(c)) ret = (ret << 3) + (ret << 1) + c - '0', c = getchar();
     x = (sgn == -1 ? -ret : ret);
 }
+// endregion

@@ -1,20 +1,11 @@
-#include <iostream>
-#include <cstdio>
-#include <algorithm>
-#include <cstring>
-#include <vector>
-
-using namespace std;
-
-/*----------------------------------------*/
-
-// 普通线段树
-namespace Seg {
+// region 普通线段树
+namespace seg {
 #define mid (left + right >> 1)
 #define lson (node << 1)
 #define rson ((node << 1) + 1)
 
     const int SZ = 3e6;
+    const ll MOD = 1e9 + 7;
 
     struct Node {
         int left, right;
@@ -22,7 +13,7 @@ namespace Seg {
     };
 
     Node tree[SZ * 4];
-    vector<ll> lsh;
+    std::vector<ll> lsh;
 
     inline int get_id(ll x) {
         return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin() + 1;
@@ -79,10 +70,84 @@ namespace Seg {
         return (query(lson, L, R) + query(rson, L, R)) % MOD;
     }
 }
-using namespace Seg;
+// endregion
 
+// region 区间最小值线段树
+namespace seg {
+#define mid (left + right >> 1)
+#define lson (node << 1)
+#define rson ((node << 1) + 1)
 
-// 线段树维护矩阵
+    const int SZ = 2e5;
+
+    struct Node {
+        int left, right;
+        ll sum, lz, mi;
+    };
+
+    Node tree[SZ * 4];
+    std::vector<ll> lsh;
+
+    inline int get_id(ll x) {
+        return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin() + 1;
+    }
+
+    inline void push_up(int node) {
+        tree[node].sum = tree[lson].sum + tree[rson].sum;
+        tree[node].mi = std::min(tree[lson].mi, tree[rson].mi);
+    }
+
+    inline void push_down(int node) {
+        ll lsz = tree[lson].right - tree[lson].left + 1;
+        ll rsz = tree[rson].right - tree[rson].left + 1;
+        if (tree[node].lz) {
+            tree[lson].sum = tree[lson].sum + lsz * tree[node].lz;
+            tree[rson].sum = tree[rson].sum + rsz * tree[node].lz;
+            tree[lson].lz = tree[lson].lz + tree[node].lz;
+            tree[rson].lz = tree[rson].lz + tree[node].lz;
+            tree[node].lz = 0;
+        }
+    }
+
+    void build(int node, int left, int right) {
+        tree[node].left = left, tree[node].right = right;
+        tree[node].sum = tree[node].mi = tree[node].lz = 0;
+
+        if (left == right) return;
+        build(lson, left, mid);
+        build(rson, mid + 1, right);
+    }
+
+    void update(int node, int L, int R, ll val) {
+        int left = tree[node].left, right = tree[node].right;
+
+        if (right < L || left > R) return;
+        if (L <= left && right <= R) {
+            tree[node].sum = tree[node].sum + (R - L + 1) * val;
+            tree[node].lz = tree[node].lz + val;
+            tree[node].mi = tree[node].mi + val;
+            return;
+        }
+
+        push_down(node);
+        update(lson, L, R, val);
+        update(rson, L, R, val);
+        push_up(node);
+    }
+
+    ll query(int node, int L, int R) {
+        int left = tree[node].left, right = tree[node].right;
+
+        if (right < L || left > R) return 1e18;
+        if (L <= left && right <= R) return tree[node].mi;
+
+        push_down(node);
+        return std::min(query(lson, L, R), query(rson, L, R));
+    }
+}
+// endregion
+
+// region 线段树维护矩阵
 template<int SZ>
 struct Mat {
     int r, c;
@@ -165,7 +230,7 @@ struct Mat {
         }
     }
 };
-namespace Seg {
+namespace seg {
 #define mid (left + right >> 1)
 #define lson (node << 1)
 #define rson ((node << 1) + 1)
@@ -236,4 +301,4 @@ namespace Seg {
         return (query(lson, L, R, x) + query(rson, L, R, x)) % MOD;
     }
 }
-using namespace Seg;
+// endregion

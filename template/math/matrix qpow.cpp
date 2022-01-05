@@ -1,11 +1,4 @@
-#include <iostream>
-#include <cstdio>
-#include <algorithm>
-#include <cstring>
-
-using namespace std;
-
-/*----------------------------------------*/
+// region 矩阵
 
 template<int SZ>
 struct Mat {
@@ -89,3 +82,4 @@ struct Mat {
         }
     }
 };
+// endregion

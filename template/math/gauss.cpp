@@ -1,17 +1,9 @@
-#include <iostream>
-#include <cstdio>
-#include <algorithm>
-#include <cstring>
-
-using namespace std;
-
-/*----------------------------------------*/
+// region 普通方程
 
 #define ld long double
 
 const ld eps = 1e-8;
 
-// 普通方程
 // 求det: 其符号可由交换行的数量来确定（如果为奇数，则行列式的符号应颠倒）
 // r 为方程数, c 为未知数数目
 int gauss(int r, int c) {
@@ -43,10 +35,12 @@ int gauss(int r, int c) {
     }
     return 1;
 }
+// endregion
+
+// region 异或方程
 
 bitset<N> mat[N];
 
-// 异或方程
 // r 为方程个数, c 为未知数个数, 返回方程组的解（多解 / 无解返回一个空的 vector）
 // matrix[1~n]: 增广矩阵, 0 位置为常数
 vector<bool> gauss(int r, int c) {
@@ -69,3 +63,4 @@ vector<bool> gauss(int r, int c) {
     for (int i = 1; i <= r; i++) res[i] = mat[i][0];
     return res;
 }
+// endregion

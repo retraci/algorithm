@@ -1,13 +1,4 @@
-#include <iostream>
-#include <cstdio>
-#include <algorithm>
-#include <cstring>
-#include <vector>
-
-using namespace std;
-
-/*----------------------------------------*/
-// 自然溢出
+// region 自然溢出字符串hash
 #define ull unsigned long long
 
 const int N = 300000 + 10;
@@ -30,8 +21,9 @@ void init_hash() {
         sa[i] = i;
     }
 }
+// endregion
 
-// 双MOD, 双BASE
+// region 双MOD, 双BASE 字符串hash
 typedef pair<ll, ll> pll;
 
 const int N = 4e5 + 10;
@@ -81,3 +73,4 @@ void init_hash() {
         mp[{h[i][m], h2[i][m]}]++;
     }
 }
+// endregion

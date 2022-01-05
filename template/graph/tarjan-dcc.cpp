@@ -1,14 +1,4 @@
-#include <iostream>
-#include <cstdio>
-#include <algorithm>
-#include <cstring>
-#include <vector>
-
-using namespace std;
-
-/*----------------------------------------*/
-
-// 无向图 割点
+// region 无向图 割点
 int n, m;
 vector<int> g[N];
 
@@ -36,8 +26,9 @@ void tarjan(int u, int fno) {
         }
     }
 }
+// endregion
 
-// 无向图 割边
+// region 无向图 割边
 int n, m;
 vector<int> g[N];
 
@@ -64,8 +55,9 @@ void tarjan(int u, int fno) {
         }
     }
 }
+// endregion
 
-// e-dcc 缩点
+// region e-dcc 缩点
 int n, m;
 vector<int> g[N];
 
@@ -100,3 +92,4 @@ void suodian() {
         }
     }
 }
+// endregion

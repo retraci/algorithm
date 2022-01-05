@@ -1,12 +1,4 @@
-#include <iostream>
-#include <cstdio>
-#include <algorithm>
-#include <cstring>
-#include <vector>
-
-using namespace std;
-
-/*----------------------------------------*/
+// region 普通floyd
 
 // 初始 (1 - n)
 int f[N][N];
@@ -20,8 +12,11 @@ void floyd() {
         }
     }
 }
+// endregion
 
-// 传递闭包 bitset 优化(1 - n)
+// region 传递闭包
+
+// bitset 优化(1 - n)
 bitset <N> f[N];
 
 void floyd() {
@@ -31,8 +26,10 @@ void floyd() {
         }
     }
 }
+// endregion
 
-// 最小环 (1 - n)
+// region 最小环 (1 - n)
+
 // pos[i][j] 表示 i 到 j 经过了 k
 int f[N][N];
 int pos[N][N];
@@ -84,8 +81,10 @@ void floyd() {
         }
     }
 }
+// endregion
 
-// 强制走 K 个边
+// region 强制走 K 个边
+
 void floyd(int a[][N], int b[][N]) {
     // temp数组作为相乘的结果
     static int temp[N][N];
@@ -112,3 +111,4 @@ void qsm() {
         K >>= 1;
     }
 }
+// endregion

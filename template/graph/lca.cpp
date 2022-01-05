@@ -1,19 +1,8 @@
-#include <iostream>
-#include <cstdio>
-#include <algorithm>
-#include <cstring>
-#include <vector>
-
-using namespace std;
-
-/*----------------------------------------*/
-
-typedef pair<int, int> pii;
+// region 有边权的lca
 
 vector<pii> g[N];
 int fa[N][31], cost[N][31], dep[N];
 
-// 有边权的
 // dfs, 用来为 lca 算法做准备, 接受两个参数: dfs 起始节点和它的父亲节点
 void dfs_lca(int u, int fno) {
     fa[u][0] = fno, dep[u] = dep[fno] + 1;
@@ -42,6 +31,7 @@ int lca(int x, int y) {
     for (int i = 0; delta; i++, delta >>= 1) {
         if (delta & 1) x = fa[x][i], res += cost[x][i];
     }
+    // 可返回2种答案
     if (x == y) return x;
 
     for (int i = 30; i >= 0; i--) {
@@ -51,6 +41,8 @@ int lca(int x, int y) {
         }
     }
 
+    // 可返回2种答案
     res += cost[x][0] + cost[y][0];
     return fa[x][0];
 }
+// endregion

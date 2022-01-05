@@ -1,12 +1,4 @@
-#include <iostream>
-#include <cstdio>
-#include <algorithm>
-#include <cstring>
-#include <vector>
-
-using namespace std;
-
-/*----------------------------------------*/
+// region bellman-ford
 
 struct Edge {
     int u, v, w;
@@ -30,3 +22,4 @@ int bellman_ford(int s) {
 
     return dist[t];
 }
+// endregion
