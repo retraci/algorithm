@@ -1,5 +1,4 @@
 // region bellman-ford
-
 struct Edge {
     int u, v, w;
 };

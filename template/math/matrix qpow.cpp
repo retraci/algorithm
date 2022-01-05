@@ -1,5 +1,4 @@
 // region 矩阵
-
 template<int SZ>
 struct Mat {
     int r, c;

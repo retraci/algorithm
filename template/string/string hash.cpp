@@ -1,7 +1,4 @@
 // region 自然溢出字符串hash
-#define ull unsigned long long
-
-const int N = 300000 + 10;
 const ull P = 131;
 
 int n;
@@ -24,9 +21,6 @@ void init_hash() {
 // endregion
 
 // region 双MOD, 双BASE 字符串hash
-typedef pair<ll, ll> pll;
-
-const int N = 4e5 + 10;
 const ll P = 131, P2 = 233;
 const ll MOD = 998244353, MOD2 = 50331653;
 

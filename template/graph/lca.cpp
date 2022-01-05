@@ -1,5 +1,4 @@
 // region 有边权的lca
-
 vector<pii> g[N];
 int fa[N][31], cost[N][31], dep[N];
 

@@ -1,9 +1,4 @@
 // region 普通方程
-
-#define ld long double
-
-const ld eps = 1e-8;
-
 // 求det: 其符号可由交换行的数量来确定（如果为奇数，则行列式的符号应颠倒）
 // r 为方程数, c 为未知数数目
 int gauss(int r, int c) {
@@ -38,7 +33,6 @@ int gauss(int r, int c) {
 // endregion
 
 // region 异或方程
-
 bitset<N> mat[N];
 
 // r 为方程个数, c 为未知数个数, 返回方程组的解（多解 / 无解返回一个空的 vector）

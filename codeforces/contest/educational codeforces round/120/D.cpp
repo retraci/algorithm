@@ -28,6 +28,7 @@ const int N = 5010;
 ll n, K;
 string str;
 
+// region comb
 ll fac[N], ifac[N];
 
 inline ll qsm(ll a, ll b) {
@@ -53,6 +54,7 @@ inline void init_comb(int lim) {
     fac[0] = ifac[0] = 1;
     for (int i = 1; i <= lim; i++) fac[i] = fac[i - 1] * i % MOD, ifac[i] = inv(fac[i]);
 }
+// endregion
 
 void solve() {
     if (K == 0) {

@@ -1,8 +1,4 @@
 // region comb
-
-const ll MOD = 998244353;
-const int N = 5010;
-
 ll fac[N], ifac[N];
 
 inline ll qsm(ll a, ll b) {

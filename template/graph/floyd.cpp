@@ -1,5 +1,4 @@
 // region 普通floyd
-
 // 初始 (1 - n)
 int f[N][N];
 
@@ -14,10 +13,9 @@ void floyd() {
 }
 // endregion
 
-// region 传递闭包
-
+// region 传递闭包 floyd
 // bitset 优化(1 - n)
-bitset <N> f[N];
+bitset<N> f[N];
 
 void floyd() {
     for (int k = 1; k <= n; k++) {
@@ -28,8 +26,7 @@ void floyd() {
 }
 // endregion
 
-// region 最小环 (1 - n)
-
+// region 最小环 (1 - n) floyd
 // pos[i][j] 表示 i 到 j 经过了 k
 int f[N][N];
 int pos[N][N];
@@ -83,8 +80,7 @@ void floyd() {
 }
 // endregion
 
-// region 强制走 K 个边
-
+// region 强制走 K 个边 floyd
 void floyd(int a[][N], int b[][N]) {
     // temp数组作为相乘的结果
     static int temp[N][N];

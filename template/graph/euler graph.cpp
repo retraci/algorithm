@@ -22,7 +22,7 @@ void dfs(int u) {
 set<int> g[N];
 int du[N];
 vector<int> ans;
-map<pii, int> cnt;
+unordered_map<pii, int, pair_hash> cnt;
 
 void add(int u, int v) {
     g[u].insert(v);

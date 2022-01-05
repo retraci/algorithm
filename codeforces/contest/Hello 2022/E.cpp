@@ -13,78 +13,71 @@
 #include <bitset>
 
 // region hash_func
-namespace hash_func {
-    template<typename TT>
-    struct tuple_hash {
-        size_t operator()(TT const &tt) const {
-            return std::hash<TT>()(tt);
-        }
-    };
-
-    template<class T>
-    inline void hash_combine(std::size_t &seed, T const &v) {
-        seed ^= hash_func::tuple_hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+template<typename TT>
+struct tuple_hash {
+    size_t operator()(TT const &tt) const {
+        return std::hash<TT>()(tt);
     }
+};
 
-    template<class Tuple, size_t Index = std::tuple_size<Tuple>::value - 1>
-    struct HashValueImpl {
-        void operator()(size_t &seed, Tuple const &tuple) const {
-            HashValueImpl<Tuple, Index - 1>{}(seed, tuple);
-            hash_combine(seed, std::get<Index>(tuple));
-        }
-    };
+template<class T>
+inline void hash_combine(std::size_t &seed, T const &v) {
+    seed ^= tuple_hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+}
 
-    template<class Tuple>
-    struct HashValueImpl<Tuple, 0> {
-        void operator()(size_t &seed, Tuple const &tuple) const {
-            hash_combine(seed, std::get<0>(tuple));
-        }
-    };
-
-    template<typename... TT>
-    struct tuple_hash<std::tuple<TT...>> {
-        size_t operator()(std::tuple<TT...> const &tt) const {
-            size_t seed = 0;
-            HashValueImpl<std::tuple<TT...>>{}(seed, tt);
-            return seed;
-        }
-    };
-
-    template<typename T>
-    inline void hash_val(std::size_t &seed, const T &val) {
-        hash_combine(seed, val);
+template<class Tuple, size_t Index = std::tuple_size<Tuple>::value - 1>
+struct HashValueImpl {
+    void operator()(size_t &seed, Tuple const &tuple) const {
+        HashValueImpl<Tuple, Index - 1>{}(seed, tuple);
+        hash_combine(seed, std::get<Index>(tuple));
     }
+};
 
-    template<typename T, typename... Types>
-    inline void hash_val(std::size_t &seed, const T &val, const Types &... args) {
-        hash_combine(seed, val);
-        hash_val(seed, args...);
+template<class Tuple>
+struct HashValueImpl<Tuple, 0> {
+    void operator()(size_t &seed, Tuple const &tuple) const {
+        hash_combine(seed, std::get<0>(tuple));
     }
+};
 
-    template<typename... Types>
-    inline std::size_t hash_val(const Types &... args) {
-        std::size_t seed = 0;
-        hash_val(seed, args...);
+template<typename... TT>
+struct tuple_hash<std::tuple<TT...>> {
+    size_t operator()(std::tuple<TT...> const &tt) const {
+        size_t seed = 0;
+        HashValueImpl<std::tuple<TT...>>{}(seed, tt);
         return seed;
     }
+};
 
-    struct pair_hash {
-        template<class T1, class T2>
-        std::size_t operator()(const std::pair<T1, T2> &p) const {
-            return hash_val(p.first, p.second);
-        }
-    };
+template<typename T>
+inline void hash_val(std::size_t &seed, const T &val) {
+    hash_combine(seed, val);
 }
-// endregion
-// region grid_delta
-namespace grid_delta {
-    // 上, 右, 下, 左  |  左上, 右上, 左下, 右下
-    const int dx[9] = {-1, 0, 1, 0, -1, -1, 1, 1, 0};
-    const int dy[9] = {0, 1, 0, -1, -1, 1, -1, 1, 0};
+
+template<typename T, typename... Types>
+inline void hash_val(std::size_t &seed, const T &val, const Types &... args) {
+    hash_combine(seed, val);
+    hash_val(seed, args...);
 }
+
+template<typename... Types>
+inline std::size_t hash_val(const Types &... args) {
+    std::size_t seed = 0;
+    hash_val(seed, args...);
+    return seed;
+}
+
+struct pair_hash {
+    template<class T1, class T2>
+    std::size_t operator()(const std::pair<T1, T2> &p) const {
+        return hash_val(p.first, p.second);
+    }
+};
 // endregion
 // region general
 #define ll long long
+#define ld long double
+#define ull unsigned long long
 #define fi first
 #define se second
 
@@ -95,90 +88,109 @@ typedef std::tuple<ll, ll, ll> tl3;
 typedef std::tuple<int, int, int, int> ti4;
 typedef std::tuple<ll, ll, ll, ll> tl4;
 // endregion
-// region 区间最小值线段树
-namespace seg {
-#define mid (left + right >> 1)
-#define lson (node << 1)
-#define rson ((node << 1) + 1)
+// region grid_delta
+namespace grid_delta {
+    // 上, 右, 下, 左  |  左上, 右上, 左下, 右下
+    const int dx[9] = {-1, 0, 1, 0, -1, -1, 1, 1, 0};
+    const int dy[9] = {0, 1, 0, -1, -1, 1, -1, 1, 0};
+}
+// endregion
 
-    const int SZ = 2e5;
+using namespace std;
+using namespace grid_delta;
+
+// region 区间最小值线段树
+template<int SZ>
+struct Seg {
+#define mid (left + right >> 1)
+#define ls (node << 1)
+#define rs ((node << 1) + 1)
 
     struct Node {
         int left, right;
         ll sum, lz, mi;
     };
 
-    Node tree[SZ * 4];
-    std::vector<ll> lsh;
-
-    inline int get_id(ll x) {
-        return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin() + 1;
-    }
+    ll vt[SZ + 1];
+    Node tr[SZ * 4];
 
     inline void push_up(int node) {
-        tree[node].sum = tree[lson].sum + tree[rson].sum;
-        tree[node].mi = std::min(tree[lson].mi, tree[rson].mi);
+        tr[node].sum = tr[ls].sum + tr[rs].sum;
+        tr[node].mi = min(tr[ls].mi, tr[rs].mi);
     }
 
     inline void push_down(int node) {
-        ll lsz = tree[lson].right - tree[lson].left + 1;
-        ll rsz = tree[rson].right - tree[rson].left + 1;
-        if (tree[node].lz) {
-            tree[lson].sum = tree[lson].sum + lsz * tree[node].lz;
-            tree[rson].sum = tree[rson].sum + rsz * tree[node].lz;
-            tree[lson].lz = tree[lson].lz + tree[node].lz;
-            tree[rson].lz = tree[rson].lz + tree[node].lz;
-            tree[node].lz = 0;
+        ll lsz = tr[ls].right - tr[ls].left + 1;
+        ll rsz = tr[rs].right - tr[rs].left + 1;
+        if (tr[node].lz) {
+            tr[ls].sum = tr[ls].sum + lsz * tr[node].lz;
+            tr[rs].sum = tr[rs].sum + rsz * tr[node].lz;
+            tr[ls].lz = tr[ls].lz + tr[node].lz;
+            tr[rs].lz = tr[rs].lz + tr[node].lz;
+            tr[node].lz = 0;
         }
     }
 
-    void build(int node, int left, int right) {
-        tree[node].left = left, tree[node].right = right;
-        tree[node].sum = tree[node].mi = tree[node].lz = 0;
+    inline void build(int node, int left, int right) {
+        tr[node].left = left, tr[node].right = right;
+        tr[node].sum = tr[node].mi = tr[node].lz = 0;
 
-        if (left == right) return;
-        build(lson, left, mid);
-        build(rson, mid + 1, right);
+        if (left == right) {
+            tr[node].sum = tr[node].mi = vt[left];
+            return;
+        }
+        build(ls, left, mid);
+        build(rs, mid + 1, right);
+        push_up(node);
     }
 
-    void update(int node, int L, int R, ll val) {
-        int left = tree[node].left, right = tree[node].right;
+    inline void update(int node, int L, int R, ll val) {
+        int left = tr[node].left, right = tr[node].right;
 
         if (right < L || left > R) return;
         if (L <= left && right <= R) {
-            tree[node].sum = tree[node].sum + (R - L + 1) * val;
-            tree[node].lz = tree[node].lz + val;
-            tree[node].mi = tree[node].mi + val;
+            tr[node].sum = tr[node].sum + (R - L + 1) * val;
+            tr[node].lz = tr[node].lz + val;
+            tr[node].mi = tr[node].mi + val;
             return;
         }
 
         push_down(node);
-        update(lson, L, R, val);
-        update(rson, L, R, val);
+        update(ls, L, R, val);
+        update(rs, L, R, val);
         push_up(node);
     }
 
-    ll query(int node, int L, int R) {
-        int left = tree[node].left, right = tree[node].right;
+    inline ll query(int node, int L, int R) {
+        int left = tr[node].left, right = tr[node].right;
 
         if (right < L || left > R) return 1e18;
-        if (L <= left && right <= R) return tree[node].mi;
+        if (L <= left && right <= R) return tr[node].mi;
 
         push_down(node);
-        return std::min(query(lson, L, R), query(rson, L, R));
+        return min(query(ls, L, R), query(rs, L, R));
     }
-}
-// endregion
 
-using namespace std;
-using namespace grid_delta;
-using namespace seg;
+    inline void build(int L, int R) {
+        return build(1, L, R);
+    }
+
+    inline void update(int L, int R, ll val) {
+        update(1, L, R, val);
+    }
+
+    inline ll query(int L, int R) {
+        return query(1, L, R);
+    }
+};
+// endregion
 
 const int N = 1e5 + 10;
 
 int n, m;
 ll va[N];
 vector<ll> vb[N];
+Seg<2 * N> tr;
 
 void solve() {
     int K = 0;
@@ -204,31 +216,31 @@ void solve() {
         suf[i] = suf[i + 1] + (vd[i].se == 2 ? 1 : -1);
     }
 
-    build(1, 1, tt + 1);
-    for (int i = 1; i <= tt; i++) update(1, i, i, suf[i]);
+    for (int i = 1; i <= tt + 1; i++) tr.vt[i] = suf[i];
+    tr.build(1, tt + 1);
 
     string ans(K, '0');
     int idx = 0;
     for (int i = 1; i <= m; i++) {
-        for (int x : vb[i]) {
-            ll sz = vb[i].size() - 1;
+        for (int x: vb[i]) {
             ll s = (vc[i] + vb[i].size() - 1) / vb[i].size();
-            ll ns = ((vc[i] - x + sz - 1) / sz);
+            ll sz = vb[i].size() - 1;
+            ll ns = (vc[i] - x + sz - 1) / sz;
             ll id1 = lower_bound(vd + 1, vd + 1 + tt, (pll) {s, 1}) - vd;
             ll id2 = lower_bound(vd + 1, vd + 1 + tt, (pll) {ns, 1}) - vd;
 
             if (id1 < id2) {
-                update(1, id1 + 1, id2, -1);
-                ll cur = query(1, 1, tt + 1);
+                tr.update(id1 + 1, id2, -1);
+                ll cur = tr.query(1, tt + 1);
                 if (cur >= 0) ans[idx++] = '1';
                 else ans[idx++] = '0';
-                update(1, id1 + 1, id2, 1);
+                tr.update(id1 + 1, id2, 1);
             } else {
-                update(1, id2 + 1, id1, 1);
-                ll cur = query(1, 1, tt + 1);
+                tr.update(id2 + 1, id1, 1);
+                ll cur = tr.query(1, tt + 1);
                 if (cur >= 0) ans[idx++] = '1';
                 else ans[idx++] = '0';
-                update(1, id2 + 1, id1, -1);
+                tr.update(id2 + 1, id1, -1);
             }
         }
     }
