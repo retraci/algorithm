@@ -11,26 +11,27 @@ using namespace std;
 int n;
 
 void bfs() {
-	queue<ull> que;
-	que.push(1);
-	
-	while(!que.empty()) {
-		ull temp = que.front(); que.pop();
-		
-		if(temp % n == 0) {
-			cout << temp << endl;
-			return;
-		}
-		
-		que.push(temp*10);
-		que.push(temp*10+1);
-	}
+    queue<ull> que;
+    que.push(1);
+
+    while (!que.empty()) {
+        ull temp = que.front();
+        que.pop();
+
+        if (temp % n == 0) {
+            cout << temp << endl;
+            return;
+        }
+
+        que.push(temp * 10);
+        que.push(temp * 10 + 1);
+    }
 }
 
 int main() {
-	while(cin >> n && n) {
-		bfs();
-	}
-	
-	return 0;
+    while (cin >> n && n) {
+        bfs();
+    }
+
+    return 0;
 }
