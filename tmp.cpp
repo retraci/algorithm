@@ -245,6 +245,14 @@ int main() {
     prework();
 
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+
+    {
+        cout << 1;
+    }
+    [&]() -> void {
+        cout << 1;
+    }();
+
     int T = 1;
     cin >> T;
     while (T--) {
