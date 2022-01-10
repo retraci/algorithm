@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 add_definitions(-DLOCAL)
 
 add_executable(tmp tmp.cpp)
-add_executable(D atcoder/contest/abc/234/D.cpp)
+add_executable(D "codeforces/contest/round/#764 (Div. 3)/D.cpp")
 add_executable(E atcoder/contest/abc/234/E.cpp)
 
 add_executable(acwing_2060 "acwing/winter daily 2022/week 1/acwing_2060.cpp")
@@ -18,9 +18,11 @@ add_executable(acwing_1027 "acwing/improvement course/1. dp/1.1 number triangle/
 add_executable(acwing_275 "acwing/improvement course/1. dp/1.1 number triangle/acwing_275.cpp")
 add_executable(acwing_2014 "acwing/winter daily 2022/week 1/acwing_2014.cpp")
 add_executable(acwing_2005 "acwing/winter daily 2022/week 1/acwing_2005.cpp")
-add_executable(A atcoder/contest/abc/234/A.cpp)
-add_executable(B atcoder/contest/abc/234/B.cpp)
-add_executable(C atcoder/contest/abc/234/C.cpp)
+add_executable(A "codeforces/contest/round/#764 (Div. 3)/A.cpp")
+add_executable(B "codeforces/contest/round/#764 (Div. 3)/B.cpp")
+add_executable(C "codeforces/contest/round/#764 (Div. 3)/C.cpp")
 
-add_executable(F atcoder/contest/abc/234/F.cpp)
+add_executable(F "codeforces/contest/round/#764 (Div. 3)/F.cpp")
 add_executable(acwing_1996 "acwing/winter daily 2022/week 1/acwing_1996.cpp")
+
+add_executable(G "codeforces/contest/round/#764 (Div. 3)/G.cpp")

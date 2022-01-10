@@ -99,55 +99,38 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-int n;
-int tt;
+const int N = 55;
 
-int ask(int x) {
-    tt += x;
-    cout << "+ " << x << "\n";
-    cout.flush();
-    int res;
-    cin >> res;
-    return res;
-}
+int n;
+int va[N];
 
 void solve() {
-    tt = 0;
-    int lst = ask(n / 2), is_upper = 0;
-
-    int left = 1, right = n - 1;
-    if (lst == 1) right = n / 2, is_upper = 1;
-    else left = n / 2 + 1, is_upper = 0;
-    while (left < right) {
-        int mid = left + right >> 1;
-
-        int cur;
-        if (is_upper) cur = ask(n - right + mid);
-        else cur = ask(-(left - 1) + mid);
-        if (cur > lst) right = mid, is_upper = 1;
-        else left = mid + 1, is_upper = 0;
-        lst = cur;
+    unordered_set<int> st;
+    for (int i = 1; i <= n; i++) {
+        int x = va[i];
+        while (x > n || st.count(x)) x /= 2;
+        if (x > 0) st.insert(x);
     }
 
-    cout << "! " << tt + (n - left) << "\n";
-    cout.flush();
+    cout << (st.size() == n ? "YES" : "NO") << "\n";
 }
 
 void prework() {
 }
 
 int main() {
-//#ifdef LOCAL
-//    freopen("../in.txt", "r", stdin);
-//    freopen("../out.txt", "w", stdout);
-//#endif
+#ifdef LOCAL
+    freopen("../in.txt", "r", stdin);
+    freopen("../out.txt", "w", stdout);
+#endif
 
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
         cin >> n;
+        for (int i = 1; i <= n; i++) cin >> va[i];
         solve();
     }
 

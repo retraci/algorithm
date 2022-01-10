@@ -99,55 +99,61 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-int n;
-int tt;
+const int N = 2e5 + 10;
 
-int ask(int x) {
-    tt += x;
-    cout << "+ " << x << "\n";
-    cout.flush();
-    int res;
-    cin >> res;
-    return res;
+int n, m;
+ti3 es[N];
+int fa[N];
+
+int find(int x) {
+    return x == fa[x] ? x : fa[x] = find(fa[x]);
+}
+
+bool unite(int x, int y) {
+    int tx = find(x), ty = find(y);
+    if (tx == ty) return false;
+    fa[tx] = ty;
+    return true;
 }
 
 void solve() {
-    tt = 0;
-    int lst = ask(n / 2), is_upper = 0;
+    int ans = (1LL << 31) - 1;
+    for (int k = 30; k >= 0; k--) {
+        iota(fa, fa + n + 1, 0);
+        for (int i = 1; i <= m; i++) {
+            auto &[u, v, w] = es[i];
+            if (w >> k & 1 || ~ans & w) continue;
+            unite(u, v);
+        }
 
-    int left = 1, right = n - 1;
-    if (lst == 1) right = n / 2, is_upper = 1;
-    else left = n / 2 + 1, is_upper = 0;
-    while (left < right) {
-        int mid = left + right >> 1;
-
-        int cur;
-        if (is_upper) cur = ask(n - right + mid);
-        else cur = ask(-(left - 1) + mid);
-        if (cur > lst) right = mid, is_upper = 1;
-        else left = mid + 1, is_upper = 0;
-        lst = cur;
+        int cnt = 0;
+        for (int i = 1; i <= n; i++) cnt += i == find(i);
+        if (cnt == 1) ans -= 1 << k;
     }
 
-    cout << "! " << tt + (n - left) << "\n";
-    cout.flush();
+    cout << ans << "\n";
 }
 
 void prework() {
 }
 
 int main() {
-//#ifdef LOCAL
-//    freopen("../in.txt", "r", stdin);
-//    freopen("../out.txt", "w", stdout);
-//#endif
+#ifdef LOCAL
+    freopen("../in.txt", "r", stdin);
+    freopen("../out.txt", "w", stdout);
+#endif
 
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
-        cin >> n;
+        cin >> n >> m;
+        for (int i = 1; i <= m; i++) {
+            int u, v, w;
+            cin >> u >> v >> w;
+            es[i] = {u, v, w};
+        }
         solve();
     }
 

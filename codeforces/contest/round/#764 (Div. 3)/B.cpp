@@ -99,55 +99,59 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-int n;
-int tt;
-
-int ask(int x) {
-    tt += x;
-    cout << "+ " << x << "\n";
-    cout.flush();
-    int res;
-    cin >> res;
-    return res;
-}
+ll a, b, c;
 
 void solve() {
-    tt = 0;
-    int lst = ask(n / 2), is_upper = 0;
+    {
+        ll d = c - b;
+        ll tar = b - d;
+        ll k = tar / a;
+        if (k > 0 && k * a == tar) {
+            cout << "YES" << "\n";
+            return;
+        }
+    }
+    {
+        ll d = c - a;
+        if (~d & 1) {
+            d /= 2;
+            ll tar = c - d;
+            ll k = tar / b;
+            if (k > 0 && k * b == tar) {
+                cout << "YES" << "\n";
+                return;
+            }
+        }
 
-    int left = 1, right = n - 1;
-    if (lst == 1) right = n / 2, is_upper = 1;
-    else left = n / 2 + 1, is_upper = 0;
-    while (left < right) {
-        int mid = left + right >> 1;
-
-        int cur;
-        if (is_upper) cur = ask(n - right + mid);
-        else cur = ask(-(left - 1) + mid);
-        if (cur > lst) right = mid, is_upper = 1;
-        else left = mid + 1, is_upper = 0;
-        lst = cur;
+    }
+    {
+        ll d = b - a;
+        ll tar = b + d;
+        ll k = tar / c;
+        if (k > 0 && k * c == tar) {
+            cout << "YES" << "\n";
+            return;
+        }
     }
 
-    cout << "! " << tt + (n - left) << "\n";
-    cout.flush();
+    cout << "NO" << "\n";
 }
 
 void prework() {
 }
 
 int main() {
-//#ifdef LOCAL
-//    freopen("../in.txt", "r", stdin);
-//    freopen("../out.txt", "w", stdout);
-//#endif
+#ifdef LOCAL
+    freopen("../in.txt", "r", stdin);
+    freopen("../out.txt", "w", stdout);
+#endif
 
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
-        cin >> n;
+        cin >> a >> b >> c;
         solve();
     }
 
