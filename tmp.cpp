@@ -11,145 +11,79 @@
 #include <unordered_map>
 #include <numeric>
 #include <bitset>
+#include <valarray>
+#include <iomanip>
 
-// region hash_func
-template<typename TT>
-struct tuple_hash {
-    size_t operator()(TT const &tt) const {
-        return std::hash<TT>()(tt);
-    }
-};
-
-template<class T>
-inline void hash_combine(std::size_t &seed, T const &v) {
-    seed ^= tuple_hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-}
-
-template<class Tuple, size_t Index = std::tuple_size<Tuple>::value - 1>
-struct HashValueImpl {
-    void operator()(size_t &seed, Tuple const &tuple) const {
-        HashValueImpl<Tuple, Index - 1>{}(seed, tuple);
-        hash_combine(seed, std::get<Index>(tuple));
-    }
-};
-
-template<class Tuple>
-struct HashValueImpl<Tuple, 0> {
-    void operator()(size_t &seed, Tuple const &tuple) const {
-        hash_combine(seed, std::get<0>(tuple));
-    }
-};
-
-template<typename... TT>
-struct tuple_hash<std::tuple<TT...>> {
-    size_t operator()(std::tuple<TT...> const &tt) const {
-        size_t seed = 0;
-        HashValueImpl<std::tuple<TT...>>{}(seed, tt);
-        return seed;
-    }
-};
-
-template<typename T>
-inline void hash_val(std::size_t &seed, const T &val) {
-    hash_combine(seed, val);
-}
-
-template<typename T, typename... Types>
-inline void hash_val(std::size_t &seed, const T &val, const Types &... args) {
-    hash_combine(seed, val);
-    hash_val(seed, args...);
-}
-
-template<typename... Types>
-inline std::size_t hash_val(const Types &... args) {
-    std::size_t seed = 0;
-    hash_val(seed, args...);
-    return seed;
-}
-
-struct pair_hash {
-    template<class T1, class T2>
-    std::size_t operator()(const std::pair<T1, T2> &p) const {
-        return hash_val(p.first, p.second);
-    }
-};
-// endregion
-// region general
-#define ll long long
-#define ld long double
-#define ull unsigned long long
-#define fi first
-#define se second
-
-typedef std::pair<int, int> pii;
-typedef std::pair<ll, ll> pll;
-typedef std::tuple<int, int, int> ti3;
-typedef std::tuple<ll, ll, ll> tl3;
-typedef std::tuple<int, int, int, int> ti4;
-typedef std::tuple<ll, ll, ll, ll> tl4;
-// endregion
-// region grid_delta
-namespace grid_delta {
-    // 上, 右, 下, 左  |  左上, 右上, 左下, 右下
-    const int dx[9] = {-1, 0, 1, 0, -1, -1, 1, 1, 0};
-    const int dy[9] = {0, 1, 0, -1, -1, 1, -1, 1, 0};
-}
-// endregion
+#define IOS ios_base::sync_with_stdio(false);cin.tie(0);cout.tie(0)
+#define endl '\n'
+#define clean(x) memset(x, 0, sizeof(x))
+#define clean(x, n) memset(x, 0, (n) * sizeof *x)
 
 using namespace std;
-using namespace grid_delta;
+const int N = 1e3 + 5;
+struct node {
+    int x, y, z;
+} g[5000000];
+int f[N], f1[N];
 
-int n;
-int tt;
-
-int ask(int x) {
-    tt += x;
-    cout << "+ " << x << "\n";
-    cout.flush();
-    int res;
-    cin >> res;
-    return res;
-}
-
-void solve() {
-    tt = 0;
-    int lst = ask(n / 2), is_upper = 0;
-
-    int left = 1, right = n - 1;
-    if (lst == 1) right = n / 2, is_upper = 1;
-    else left = n / 2 + 1, is_upper = 0;
-    while (left < right) {
-        int mid = left + right >> 1;
-
-        int cur;
-        if (is_upper) cur = ask(n - right + mid);
-        else cur = ask(-(left - 1) + mid);
-        if (cur > lst) right = mid, is_upper = 1;
-        else left = mid + 1, is_upper = 0;
-        lst = cur;
+void write(int m, int k) {
+    if (m == 0) {
+        cout << k << endl;
+        return;
     }
-
-    cout << "! " << tt + (n - left) << "\n";
-    cout.flush();
-}
-
-void prework() {
-}
-
-int main() {
-//#ifdef LOCAL
-//    freopen("../in.txt", "r", stdin);
-//    freopen("../out.txt", "w", stdout);
-//#endif
-
-    prework();
-    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
-    int T = 1;
-//    cin >> T;
-    while (T--) {
-        cin >> n;
-        solve();
+    if (g[f1[m]].x == 2) {
+        write(m - 2, k + 1);
+        cout << g[f1[m]].z << ' ' << g[f1[m]].z + 1 << ' ' << g[f1[m]].y << endl;
+    } else {
+        write(m - 3, k + 1);
+        cout << g[f1[m]].z << ' ' << g[f1[m]].z + 2 << ' ' << g[f1[m]].y << endl;
     }
+}
 
-    return 0;
+int n, m;
+string s;
+
+void slove() {
+    cin >> n >> m;
+    int cnt = 0;
+    unordered_map<string, int> f;
+    for (int i = 1; i <= n; ++i) {
+        cin >> s;
+        for (int j = 1; j < m; ++j) {
+            string now;
+            now += s[i - 1];
+            now += s[i];
+            if (!f[now]) g[++cnt] = {2, i, j}, f[now] = cnt;
+            if (j >= 2) {
+                now = s[j - 2] + now;
+                if (!f[now]) g[++cnt] = {3, i, j - 1}, f[now] = cnt;
+            }
+        }
+    }
+    cin >> s;
+    s = "0" + s;
+    clean(f1, (m + 1));
+    f1[0] = -1;
+    for (int i = 2; i <= m; ++i) {
+        string now;
+        now += s[i - 1];
+        now += s[i];
+        cout << now;
+        if (f.count(now) && f1[i - 2])
+            f1[i] = f[now];
+        now = s[i - 2] + now;
+        if (i >= 3 && f.count(now) && f1[i - 3]) f1[i] = f[now];
+    }
+    if (f1[m] == 0) cout << "-1\n";
+    else write(m, 0);
+}
+
+signed main() {
+#ifdef LOCAL
+    freopen("../in.txt", "r", stdin);
+    freopen("../out.txt", "w", stdout);
+#endif
+    int T;
+    cin >> T;
+    while (T--) slove();
 }

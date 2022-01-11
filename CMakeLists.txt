@@ -26,3 +26,10 @@ add_executable(F "codeforces/contest/round/#764 (Div. 3)/F.cpp")
 add_executable(acwing_1996 "acwing/winter daily 2022/week 1/acwing_1996.cpp")
 
 add_executable(G "codeforces/contest/round/#764 (Div. 3)/G.cpp")
+
+add_executable(acwing_1017 "acwing/improvement course/1. dp/1.2 lis/acwing_1017.cpp")
+add_executable(acwing_1014 "acwing/improvement course/1. dp/1.2 lis/acwing_1014.cpp")
+add_executable(acwing_482 "acwing/improvement course/1. dp/1.2 lis/acwing_482.cpp")
+add_executable(acwing_1012 "acwing/improvement course/1. dp/1.2 lis/acwing_1012.cpp")
+add_executable(acwing_1016 "acwing/improvement course/1. dp/1.2 lis/acwing_1016.cpp")
+add_executable(acwing_1010 "acwing/improvement course/1. dp/1.2 lis/acwing_1010.cpp")

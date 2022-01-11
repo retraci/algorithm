@@ -146,6 +146,19 @@ struct Seg {
         push_up(node);
     }
 
+    inline void modify(int node, int id, ll val) {
+        int left = tr[node].left, right = tr[node].right;
+
+        if (right < id || left > id) return;
+        if (left == right) {
+            tr[node].sum = tr[node].mx = min(tr[node].mx, val);
+            return;
+        }
+        modify(ls, id, val);
+        modify(rs, id, val);
+        push_up(node);
+    }
+
     inline ll query(int node, int L, int R) {
         int left = tr[node].left, right = tr[node].right;
 
@@ -162,6 +175,113 @@ struct Seg {
 
     inline void update(int L, int R, ll val) {
         update(1, L, R, val);
+    }
+
+    inline void modify(int id, ll val) {
+        modify(1, id, val);
+    }
+
+    inline ll query(int L, int R) {
+        return query(1, L, R);
+    }
+};
+// endregion
+
+// region 区间最大值线段树
+template<int SZ>
+struct Seg {
+#define mid (left + right >> 1)
+#define ls (node << 1)
+#define rs ((node << 1) + 1)
+
+    struct Node {
+        int left, right;
+        ll sum, lz, mx;
+    };
+
+    ll vt[SZ + 1];
+    Node tr[SZ * 4];
+
+    inline void push_up(int node) {
+        tr[node].sum = tr[ls].sum + tr[rs].sum;
+        tr[node].mx = max(tr[ls].mx, tr[rs].mx);
+    }
+
+    inline void push_down(int node) {
+        ll lsz = tr[ls].right - tr[ls].left + 1;
+        ll rsz = tr[rs].right - tr[rs].left + 1;
+        if (tr[node].lz) {
+            tr[ls].sum = tr[ls].sum + lsz * tr[node].lz;
+            tr[rs].sum = tr[rs].sum + rsz * tr[node].lz;
+            tr[ls].lz = tr[ls].lz + tr[node].lz;
+            tr[rs].lz = tr[rs].lz + tr[node].lz;
+            tr[node].lz = 0;
+        }
+    }
+
+    inline void build(int node, int left, int right) {
+        tr[node].left = left, tr[node].right = right;
+        tr[node].sum = tr[node].mx = tr[node].lz = 0;
+
+        if (left == right) {
+            tr[node].sum = tr[node].mx = vt[left];
+            return;
+        }
+        build(ls, left, mid);
+        build(rs, mid + 1, right);
+        push_up(node);
+    }
+
+    inline void update(int node, int L, int R, ll val) {
+        int left = tr[node].left, right = tr[node].right;
+
+        if (right < L || left > R) return;
+        if (L <= left && right <= R) {
+            tr[node].sum = tr[node].sum + (R - L + 1) * val;
+            tr[node].lz = tr[node].lz + val;
+            tr[node].mx = tr[node].mx + val;
+            return;
+        }
+
+        push_down(node);
+        update(ls, L, R, val);
+        update(rs, L, R, val);
+        push_up(node);
+    }
+
+    inline void modify(int node, int id, ll val) {
+        int left = tr[node].left, right = tr[node].right;
+
+        if (right < id || left > id) return;
+        if (left == right) {
+            tr[node].sum = tr[node].mx = max(tr[node].mx, val);
+            return;
+        }
+        modify(ls, id, val);
+        modify(rs, id, val);
+        push_up(node);
+    }
+
+    inline ll query(int node, int L, int R) {
+        int left = tr[node].left, right = tr[node].right;
+
+        if (right < L || left > R) return 0;
+        if (L <= left && right <= R) return tr[node].mx;
+
+        push_down(node);
+        return max(query(ls, L, R), query(rs, L, R));
+    }
+
+    inline void build(int L, int R) {
+        return build(1, L, R);
+    }
+
+    inline void update(int L, int R, ll val) {
+        update(1, L, R, val);
+    }
+
+    inline void modify(int id, ll val) {
+        modify(1, id, val);
     }
 
     inline ll query(int L, int R) {
