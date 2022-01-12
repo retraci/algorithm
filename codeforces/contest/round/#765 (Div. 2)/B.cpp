@@ -99,27 +99,30 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1010;
+const int N = 150010;
 
 int n;
 int va[N];
+vector<int> vb[N];
 
 void solve() {
-    int f[n];
-    fill(f, f + n, 1e9);
-    for (int i = n; i >= 1; i--) {
-        *upper_bound(f, f + n, va[i]) = va[i];
-    }
-    int ans1 = lower_bound(f, f + n, 1e9) - f;
-
-    fill(f, f + n, 1e9);
+    for (int i = 1; i < N; i++) vb[i] = {};
     for (int i = 1; i <= n; i++) {
-        *lower_bound(f, f + n, va[i]) = va[i];
+        int x = va[i];
+        vb[x].push_back(i);
     }
-    int ans2 = lower_bound(f, f + n, 1e9) - f;
 
-    cout << ans1 << "\n";
-    cout << ans2 << "\n";
+    int ans = -1;
+    for (int i = 1; i < N; i++) {
+        if (vb[i].size() < 2) continue;
+
+        int mi = 1e9;
+        for (int j = 1; j < vb[i].size(); j++) {
+            mi = min(mi, vb[i][j] - vb[i][j - 1] - 1);
+        }
+        ans = max(ans, n - 2 - mi + 1);
+    }
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -134,10 +137,10 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
-        int x;
-        while (cin >> x) va[++n] = x;
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> va[i];
         solve();
     }
 

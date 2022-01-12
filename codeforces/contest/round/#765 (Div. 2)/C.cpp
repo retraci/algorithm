@@ -99,27 +99,27 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1010;
+const int N = 510;
 
-int n;
-int va[N];
+ll n, m, K;
+ll va[N];
+ll vb[N];
 
 void solve() {
-    int f[n];
-    fill(f, f + n, 1e9);
+    va[n + 1] = m;
+    ll f[n + 2][K + 1];
+    memset(f, 0x3f, sizeof f);
+    f[n + 1][0] = 0;
     for (int i = n; i >= 1; i--) {
-        *upper_bound(f, f + n, va[i]) = va[i];
+        for (int j = 0; j <= K; j++) {
+            for (int k = 0; k <= j && i + 1 + k <= n + 1; k++) {
+                ll len = va[i + 1 + k] - va[i];
+                f[i][j] = min(f[i][j], f[i + 1 + k][j - k] + len * vb[i]);
+            }
+        }
     }
-    int ans1 = lower_bound(f, f + n, 1e9) - f;
 
-    fill(f, f + n, 1e9);
-    for (int i = 1; i <= n; i++) {
-        *lower_bound(f, f + n, va[i]) = va[i];
-    }
-    int ans2 = lower_bound(f, f + n, 1e9) - f;
-
-    cout << ans1 << "\n";
-    cout << ans2 << "\n";
+    cout << *min_element(&f[1][0], &f[1][K + 1]) << "\n";
 }
 
 void prework() {
@@ -136,8 +136,9 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        int x;
-        while (cin >> x) va[++n] = x;
+        cin >> n >> m >> K;
+        for (int i = 1; i <= n; i++) cin >> va[i];
+        for (int i = 1; i <= n; i++) cin >> vb[i];
         solve();
     }
 

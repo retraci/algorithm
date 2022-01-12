@@ -99,27 +99,57 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1010;
+const int N = 1e5 + 10;
 
 int n;
 int va[N];
+string vb[N];
+
+vector<ll> lsh;
+
+int get_id(ll x) {
+    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin() + 1;
+}
 
 void solve() {
-    int f[n];
-    fill(f, f + n, 1e9);
-    for (int i = n; i >= 1; i--) {
-        *upper_bound(f, f + n, va[i]) = va[i];
-    }
-    int ans1 = lower_bound(f, f + n, 1e9) - f;
-
-    fill(f, f + n, 1e9);
+    ll cur = 0;
+    lsh.push_back(cur);
     for (int i = 1; i <= n; i++) {
-        *lower_bound(f, f + n, va[i]) = va[i];
+        if (vb[i] == "R") cur += va[i];
+        else cur -= va[i];
+        lsh.push_back(cur);
     }
-    int ans2 = lower_bound(f, f + n, 1e9) - f;
+    sort(lsh.begin(), lsh.end());
+    lsh.resize(unique(lsh.begin(), lsh.end()) - lsh.begin());
 
-    cout << ans1 << "\n";
-    cout << ans2 << "\n";
+    int tn = lsh.size();
+    int vd[tn + 2];
+    memset(vd, 0, sizeof vd);
+    cur = 0;
+    int lst = get_id(cur);
+    for (int i = 1; i <= n; i++) {
+        if (vb[i] == "R") cur += va[i];
+        else cur -= va[i];
+        int x = get_id(cur);
+
+        int lb = min(lst, x), rb = max(lst, x);
+        vd[lb]++, vd[rb]--;
+        lst = x;
+    }
+
+    for (int i = 1; i <= tn; i++) {
+        vd[i] += vd[i - 1];
+    }
+    ll ans = 0;
+    for (int i = 1; i <= tn; i++) {
+        if (vd[i] < 2) continue;
+        int j = i;
+        while (j <= tn && vd[j] >= 2) j++;
+        ans += lsh[j - 1] - lsh[i - 1];
+
+        i = j - 1;
+    }
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -136,8 +166,8 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        int x;
-        while (cin >> x) va[++n] = x;
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> va[i] >> vb[i];
         solve();
     }
 

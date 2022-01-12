@@ -1,89 +1,59 @@
 #include <iostream>
-#include <cstdio>
 #include <algorithm>
 #include <cstring>
+#include <string>
 #include <vector>
 #include <queue>
-#include <stack>
 #include <set>
 #include <map>
 #include <unordered_set>
 #include <unordered_map>
-#include <numeric>
-#include <bitset>
-#include <valarray>
-#include <iomanip>
-
-#define IOS ios_base::sync_with_stdio(false);cin.tie(0);cout.tie(0)
-#define endl '\n'
-#define clean(x) memset(x, 0, sizeof(x))
-#define clean(x, n) memset(x, 0, (n) * sizeof *x)
+#include <climits>
 
 using namespace std;
-const int N = 1e3 + 5;
-struct node {
-    int x, y, z;
-} g[5000000];
-int f[N], f1[N];
+const int maxn = 500 + 5;
+long long a[maxn], s[maxn];
+long long dp[505][505], idx[505][505];
 
-void write(int m, int k) {
-    if (m == 0) {
-        cout << k << endl;
-        return;
-    }
-    if (g[f1[m]].x == 2) {
-        write(m - 2, k + 1);
-        cout << g[f1[m]].z << ' ' << g[f1[m]].z + 1 << ' ' << g[f1[m]].y << endl;
-    } else {
-        write(m - 3, k + 1);
-        cout << g[f1[m]].z << ' ' << g[f1[m]].z + 2 << ' ' << g[f1[m]].y << endl;
-    }
-}
-
-int n, m;
-string s;
-
-void slove() {
-    cin >> n >> m;
-    int cnt = 0;
-    unordered_map<string, int> f;
-    for (int i = 1; i <= n; ++i) {
-        cin >> s;
-        for (int j = 1; j < m; ++j) {
-            string now;
-            now += s[i - 1];
-            now += s[i];
-            if (!f[now]) g[++cnt] = {2, i, j}, f[now] = cnt;
-            if (j >= 2) {
-                now = s[j - 2] + now;
-                if (!f[now]) g[++cnt] = {3, i, j - 1}, f[now] = cnt;
+int main() {
+    int t = 1;
+    while (t--) {
+        int n, l, k;
+        cin >> n >> l >> k;
+        for (int i = 1; i <= n; i++) cin >> a[i];
+        for (int i = 1; i <= n; i++) cin >> s[i];
+        memset(dp, 0x3f, sizeof(dp));
+        memset(idx, -1, sizeof(idx));
+        dp[0][0] = 0, idx[0][0] = 1;
+        for (int i = 1; i <= n; i++) {
+            for (int j = 0; j <= k; j++) {
+                if (j == 0) {
+                    dp[i][j] = dp[i - 1][j] + (a[i] - a[idx[i - 1][j]]) * s[idx[i - 1][j]];
+                    idx[i][j] = i;
+                } else {
+                    long long ans;
+                    if (idx[i - 1][j] != -1) {
+                        ans = dp[i - 1][j] + (a[i] - a[idx[i - 1][j]]) * s[idx[i - 1][j]];
+                        if (dp[i][j] > ans) {
+                            dp[i][j] = ans;
+                            idx[i][j] = i;
+                        }
+                    }
+                    if (idx[i - 1][j - 1] != -1) {
+                        ans = dp[i - 1][j - 1] + (a[i] - a[idx[i - 1][j - 1]]) * s[idx[i - 1][j - 1]];
+                        if (dp[i][j] > ans) {
+                            dp[i][j] = ans;
+                            idx[i][j] = idx[i - 1][j - 1];
+                        }
+                    }
+                }
             }
         }
+        long long ans = LLONG_MAX;
+        for (int i = 0; i <= k; i++) {
+            ans = min(ans, dp[n][i] + (l - a[idx[n][i]]) * s[idx[n][i]]);
+        }
+        cout << ans << "\n";
     }
-    cin >> s;
-    s = "0" + s;
-    clean(f1, (m + 1));
-    f1[0] = -1;
-    for (int i = 2; i <= m; ++i) {
-        string now;
-        now += s[i - 1];
-        now += s[i];
-        cout << now;
-        if (f.count(now) && f1[i - 2])
-            f1[i] = f[now];
-        now = s[i - 2] + now;
-        if (i >= 3 && f.count(now) && f1[i - 3]) f1[i] = f[now];
-    }
-    if (f1[m] == 0) cout << "-1\n";
-    else write(m, 0);
-}
-
-signed main() {
-#ifdef LOCAL
-    freopen("../in.txt", "r", stdin);
-    freopen("../out.txt", "w", stdout);
-#endif
-    int T;
-    cin >> T;
-    while (T--) slove();
+    return 0;
 }

@@ -99,27 +99,70 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1010;
+const int N = 55;
 
 int n;
 int va[N];
 
+int up[N], down[N];
+int ans;
+
+void dfs(int cur, int su, int sd) {
+    if (su + sd >= ans) return;
+    if (cur > n) {
+        ans = min(ans, su + sd);
+        return;
+    }
+
+    // 贪心找最大的
+    {
+        int tmp = 0, id = 0;
+        for (int i = 1; i <= su; i++) {
+            if (up[i] >= va[cur]) continue;
+
+            if (up[i] > tmp) {
+                tmp = up[i], id = i;
+            }
+        }
+
+        if (id != 0) {
+            up[id] = va[cur];
+            dfs(cur + 1, su, sd);
+            up[id] = tmp;
+        } else {
+            // 自己开一个上升序列
+            up[su + 1] = va[cur];
+            dfs(cur + 1, su + 1, sd);
+        }
+    }
+
+    // 贪心找最小的
+    {
+        int tmp = 1e9, id = 0;
+        for (int i = 1; i <= sd; i++) {
+            if (down[i] <= va[cur]) continue;
+
+            if (down[i] < tmp) {
+                tmp = down[i], id = i;
+            }
+        }
+
+        if (id != 0) {
+            down[id] = va[cur];
+            dfs(cur + 1, su, sd);
+            down[id] = tmp;
+        } else {
+            // 自己开一个下降序列
+            down[sd + 1] = va[cur];
+            dfs(cur + 1, su, sd + 1);
+        }
+    }
+}
+
 void solve() {
-    int f[n];
-    fill(f, f + n, 1e9);
-    for (int i = n; i >= 1; i--) {
-        *upper_bound(f, f + n, va[i]) = va[i];
-    }
-    int ans1 = lower_bound(f, f + n, 1e9) - f;
-
-    fill(f, f + n, 1e9);
-    for (int i = 1; i <= n; i++) {
-        *lower_bound(f, f + n, va[i]) = va[i];
-    }
-    int ans2 = lower_bound(f, f + n, 1e9) - f;
-
-    cout << ans1 << "\n";
-    cout << ans2 << "\n";
+    ans = 1e9;
+    dfs(1, 0, 0);
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -135,9 +178,8 @@ int main() {
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
 //    cin >> T;
-    while (T--) {
-        int x;
-        while (cin >> x) va[++n] = x;
+    while (cin >> n, n) {
+        for (int i = 1; i <= n; i++) cin >> va[i];
         solve();
     }
 

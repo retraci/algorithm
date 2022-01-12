@@ -99,27 +99,30 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1010;
+const int N = 1e5 + 10;
 
 int n;
-int va[N];
+pii va[N];
 
 void solve() {
-    int f[n];
-    fill(f, f + n, 1e9);
-    for (int i = n; i >= 1; i--) {
-        *upper_bound(f, f + n, va[i]) = va[i];
-    }
-    int ans1 = lower_bound(f, f + n, 1e9) - f;
+    sort(va + 1, va + n + 1);
 
-    fill(f, f + n, 1e9);
+    int pre[n + 1], suf[n + 2];
+    pre[0] = -1e9;
     for (int i = 1; i <= n; i++) {
-        *lower_bound(f, f + n, va[i]) = va[i];
+        pre[i] = max(pre[i - 1], va[i].se);
     }
-    int ans2 = lower_bound(f, f + n, 1e9) - f;
 
-    cout << ans1 << "\n";
-    cout << ans2 << "\n";
+    suf[n + 1] = 1e9;
+    for (int i = n; i >= 1; i--) {
+        suf[i] = min(suf[i + 1], va[i].se);
+    }
+
+    int ans = 0;
+    for (int i = 1; i <= n; i++) {
+        ans += pre[i - 1] < va[i].se && suf[i + 1] > va[i].se;
+    }
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -136,8 +139,8 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        int x;
-        while (cin >> x) va[++n] = x;
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> va[i].fi >> va[i].se;
         solve();
     }
 

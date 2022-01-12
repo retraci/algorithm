@@ -99,27 +99,27 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1010;
+const int N = 50010;
+const int M = 1e6 + 10;
 
-int n;
+int n, m;
 int va[N];
+vector<int> vb[M];
 
 void solve() {
-    int f[n];
-    fill(f, f + n, 1e9);
-    for (int i = n; i >= 1; i--) {
-        *upper_bound(f, f + n, va[i]) = va[i];
-    }
-    int ans1 = lower_bound(f, f + n, 1e9) - f;
-
-    fill(f, f + n, 1e9);
     for (int i = 1; i <= n; i++) {
-        *lower_bound(f, f + n, va[i]) = va[i];
+        vb[va[i]].push_back(i);
     }
-    int ans2 = lower_bound(f, f + n, 1e9) - f;
 
-    cout << ans1 << "\n";
-    cout << ans2 << "\n";
+    int ans = -1;
+    for (int i = 0; i <= 1e6; i++) {
+        if (vb[i].size() < 2) continue;
+
+        for (int j = 1; j < vb[i].size(); j++) {
+            if (vb[i][j] - vb[i][j - 1] <= m) ans = i;
+        }
+    }
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -136,8 +136,8 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        int x;
-        while (cin >> x) va[++n] = x;
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) cin >> va[i];
         solve();
     }
 
