@@ -99,140 +99,196 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-// region 动态开点最大值线段树
+// region 快读
+template<typename T>
+inline void rd(T &x) {
+    T ret = 0, sgn = 1;
+    char c = getchar();
+    while (!isdigit(c)) sgn = (c == '-' ? -1 : 1), c = getchar();
+    while (isdigit(c)) ret = (ret << 3) + (ret << 1) + c - '0', c = getchar();
+    x = (sgn == -1 ? -ret : ret);
+}
+// endregion
+
+// region 最大值线段树分裂
 template<int SZ>
 struct Seg {
 #define mid (s + e >> 1)
 #define ls(x) (tr[x].lson)
 #define rs(x) (tr[x].rson)
 
+    const ll MOD = 1e9 + 7;
+
     struct Node {
         int lson, rson;
-        ll sum, lz, mx;
+        pll sum;
     };
 
-    int lb, rb, rt;
-    Node tr[SZ * 4];
+    int lb, rb;
+    Node tr[SZ * 70];
     int nw;
+    int root[SZ + 1], cnt;
 
     inline Seg() {
         lb = 1, rb = SZ;
     }
 
-    inline void init(int L = 1, int R = SZ) {
-        lb = L, rb = R;
+    inline void init(int L = 1, int R = SZ, int _cnt = 0) {
+        lb = L, rb = R, cnt = _cnt;
+    }
+
+    inline void merge(int &x, int y, int s, int e) {
+        if (!x || !y) {
+            x |= y;
+            return;
+        }
+
+        if (s == e) {
+            tr[x].sum.fi += tr[y].sum.fi;
+        } else {
+            merge(ls(x), ls(y), s, mid);
+            merge(rs(x), rs(y), mid + 1, e);
+            push_up(x);
+        }
     }
 
     inline int new_node() {
         int id = ++nw;
-        tr[id].sum = tr[id].lz = tr[id].mx = 0;
         return id;
     }
 
     inline void push_up(int k) {
-        tr[k].sum = tr[ls(k)].sum + tr[rs(k)].sum;
-        tr[k].mx = max(tr[ls(k)].mx, tr[rs(k)].mx);
+        tr[k].sum = max(tr[ls(k)].sum, tr[rs(k)].sum);
     }
 
-    inline void push_down(int k, int s, int e) {
-        if (!ls(k)) ls(k) = new_node();
-        if (!rs(k)) rs(k) = new_node();
-        ll len = e - s + 1;
-        ll lsz = len - len / 2, rsz = len / 2;
-        if (tr[k].lz) {
-            tr[ls(k)].sum = tr[ls(k)].sum + lsz * tr[k].lz;
-            tr[rs(k)].sum = tr[rs(k)].sum + rsz * tr[k].lz;
-            tr[ls(k)].lz = tr[ls(k)].lz + tr[k].lz;
-            tr[rs(k)].lz = tr[rs(k)].lz + tr[k].lz;
-            tr[k].lz = 0;
-        }
-    }
-
-    inline void update(int &k, int s, int e, int L, int R, ll val) {
-        if (!k) k = new_node();
-
-        if (L <= s && e <= R) {
-            tr[k].sum = tr[k].sum + (e - s + 1) * val;
-            tr[k].lz = tr[k].lz + val;
-            return;
-        }
-
-        push_down(k, s, e);
-        if (L <= mid) update(ls(k), s, mid, L, R, val);
-        if (R >= mid + 1) update(rs(k), mid + 1, e, L, R, val);
-        push_up(k);
-    }
-
-    inline void modify(int &k, int s, int e, int id, ll val) {
+    inline void update(int &k, int s, int e, int id, ll val) {
         if (!k) k = new_node();
 
         if (s == e) {
-            tr[k].sum = tr[k].mx = max(tr[k].mx, val);
+            tr[k].sum.fi += val;
+            tr[k].sum.se = -id;
             return;
         }
 
-        push_down(k, s, e);
-        if (id <= mid) modify(ls(k), s, mid, id, val);
-        if (id >= mid + 1) modify(rs(k), mid + 1, e, id, val);
+        if (id <= mid) update(ls(k), s, mid, id, val);
+        if (id >= mid + 1) update(rs(k), mid + 1, e, id, val);
         push_up(k);
     }
 
-    inline ll query(int k, int s, int e, int L, int R) {
-        if (L <= s && e <= R) return tr[k].mx;
+    inline void set(int &k, int s, int e, int id, ll val) {
+        if (!k) k = new_node();
 
-        push_down(k, s, e);
+        if (s == e) {
+            tr[k].sum = tr[k].mx = val;
+            return;
+        }
+
+        if (id <= mid) set(ls(k), s, mid, id, val);
+        if (id >= mid + 1) set(rs(k), mid + 1, e, id, val);
+        push_up(k);
+    }
+
+    inline pll query(int k, int s, int e, int L, int R) {
+        if (L <= s && e <= R) return tr[k].sum;
+
         if (R <= mid) return query(ls(k), s, mid, L, R);
         if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
         return max(query(ls(k), s, mid, L, R), query(rs(k), mid + 1, e, L, R));
     }
 
-    inline void update(int L, int R, ll val) {
-        if (R < L) return;
-        update(rt, lb, rb, L, R, val);
+    inline void merge(int &x, int y) {
+        merge(x, y, lb, rb);
     }
 
-    inline void modify(int id, ll val) {
-        modify(rt, lb, rb, id, val);
+    inline void update(int &k, int id, ll val) {
+        update(k, lb, rb, id, val);
     }
 
-    inline ll query(int L, int R) {
-        if (R < L) return 0;
-        return query(rt, lb, rb, L, R);
+    inline void set(int k, int id, ll val) {
+        set(k, lb, rb, id, val);
+    }
+
+    inline pll query(int k, int L, int R) {
+        if (R < L) return {0, 0};
+        return query(k, lb, rb, L, R);
     }
 };
 // endregion
 
 const int N = 1e5 + 10;
 
-int n;
-ll va[N];
-vector<ll> lsh;
+int n, m;
+int h[N], ne[N * 2], ver[N * 2], tt;
 
 Seg<N> seg;
+int fa[N][22], dep[N];
 
-int get_id(ll x) {
-    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin() + 1;
+int ans[N];
+
+void add(int u, int v) {
+    ver[++tt] = v, ne[tt] = h[u], h[u] = tt;
+}
+
+void dfs_lca(int u, int fno) {
+    fa[u][0] = fno, dep[u] = dep[fno] + 1;
+
+    for (int i = 1; i <= 20; i++) {
+        int pv = fa[u][i - 1];
+        fa[u][i] = fa[pv][i - 1];
+    }
+
+    for (int i = h[u]; i; i = ne[i]) {
+        int v = ver[i];
+        if (v == fno) continue;
+        dfs_lca(v, u);
+    }
+}
+
+int lca(int x, int y) {
+    if (dep[x] < dep[y]) swap(x, y);
+
+    int delta = dep[x] - dep[y];
+    for (int i = 0; delta; i++, delta >>= 1) {
+        if (delta & 1) x = fa[x][i];
+    }
+    if (x == y) return x;
+
+    for (int i = 20; i >= 0; i--) {
+        if (fa[x][i] != fa[y][i]) {
+            x = fa[x][i], y = fa[y][i];
+        }
+    }
+    return fa[x][0];
+}
+
+void dfs(int u) {
+    for (int i = h[u]; i; i = ne[i]) {
+        int v = ver[i];
+        if (v == fa[u][0]) continue;
+        dfs(v);
+        seg.merge(seg.root[u], seg.root[v]);
+    }
+
+    auto[c, id] = seg.query(seg.root[u], 1, N);
+    if (c > 0) ans[u] = -id;
 }
 
 void solve() {
-    for (int i = 1; i <= n; i++) {
-        lsh.push_back(va[i]);
-    }
-    sort(lsh.begin(), lsh.end());
-    lsh.resize(unique(lsh.begin(), lsh.end()) - lsh.begin());
+    dfs_lca(1, 0);
+    seg.init(1, N);
 
-    int sz = lsh.size();
-    seg.init(1, sz);
-    ll f[n + 1];
-    memset(f, 0, sizeof f);
-    for (int i = 1; i <= n; i++) {
-        int x = get_id(va[i]);
-        ll pre = seg.query(1, x - 1);
-        f[i] = pre + va[i];
-        seg.modify(x, f[i]);
+    for (int i = 1; i <= m; i++) {
+        int x, y, z;
+        rd(x), rd(y), rd(z);
+        int lca1 = lca(x, y), lca2 = fa[lca1][0];
+        seg.update(seg.root[x], z, 1);
+        seg.update(seg.root[y], z, 1);
+        seg.update(seg.root[lca1], z, -1);
+        seg.update(seg.root[lca2], z, -1);
     }
 
-    cout << *max_element(f + 1, f + n + 1) << "\n";
+    dfs(1);
+    for (int i = 1; i <= n; i++) cout << ans[i] << "\n";
 }
 
 void prework() {
@@ -245,12 +301,16 @@ int main() {
 #endif
 
     prework();
-    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+//    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n;
-        for (int i = 1; i <= n; i++) cin >> va[i];
+        rd(n), rd(m);
+        for (int i = 1; i <= n - 1; i++) {
+            int u, v;
+            rd(u), rd(v);
+            add(u, v), add(v, u);
+        }
         solve();
     }
 

@@ -6,7 +6,7 @@ add_definitions(-DLOCAL)
 
 add_executable(tmp tmp.cpp)
 add_executable(D "codeforces/contest/round/#764 (Div. 3)/D.cpp")
-add_executable(E "codeforces/contest/round/#764 (Div. 3)/E.cpp")
+add_executable(E "codeforces/contest/Hello 2022/E.cpp")
 
 add_executable(acwing_2060 "acwing/winter daily 2022/week 1/acwing_2060.cpp")
 add_executable(acwing_2019 "acwing/winter daily 2022/week 1/acwing_2019.cpp")
@@ -40,3 +40,8 @@ add_executable(acwing_272 "acwing/improvement course/1. dp/1.2 lis/acwing_272.cp
 add_executable(acwing_1987 "acwing/winter daily 2022/week 2/acwing_1987.cpp")
 add_executable(acwing_1978 "acwing/winter daily 2022/week 2/acwing_1978.cpp")
 add_executable(acwing_1969 "acwing/winter daily 2022/week 2/acwing_1969.cpp")
+add_executable(P5494 "luogu/seg tree split/P5494.cpp")
+
+add_executable(P4556 "luogu/seg tree split/P4556.cpp")
+add_executable(P2824 "luogu/seg tree split/P2824.cpp")
+add_executable(acwing_3419 "acwing/seg tree split/acwing_3419.cpp")

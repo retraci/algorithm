@@ -99,88 +99,124 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-// region 区间最小值线段树
+// region 动态开点最小值线段树
 template<int SZ>
 struct Seg {
-#define mid (left + right >> 1)
-#define ls (node << 1)
-#define rs ((node << 1) + 1)
+#define mid (s + e >> 1)
+#define ls(x) (tr[x].lson)
+#define rs(x) (tr[x].rson)
 
     struct Node {
-        int left, right;
+        int lson, rson;
         ll sum, lz, mi;
     };
 
-    ll vt[SZ + 1];
+    int lb, rb, rt;
     Node tr[SZ * 4];
+    int nw;
 
-    inline void push_up(int node) {
-        tr[node].sum = tr[ls].sum + tr[rs].sum;
-        tr[node].mi = min(tr[ls].mi, tr[rs].mi);
+    inline Seg() {
+        lb = 1, rb = SZ;
     }
 
-    inline void push_down(int node) {
-        ll lsz = tr[ls].right - tr[ls].left + 1;
-        ll rsz = tr[rs].right - tr[rs].left + 1;
-        if (tr[node].lz) {
-            tr[ls].sum = tr[ls].sum + lsz * tr[node].lz;
-            tr[rs].sum = tr[rs].sum + rsz * tr[node].lz;
-            tr[ls].lz = tr[ls].lz + tr[node].lz;
-            tr[rs].lz = tr[rs].lz + tr[node].lz;
-            tr[node].lz = 0;
+    inline void init(int L = 1, int R = SZ) {
+        lb = L, rb = R;
+    }
+
+    inline int new_node() {
+        int id = ++nw;
+        tr[id].sum = tr[id].lz = tr[id].mi = 0;
+        return id;
+    }
+
+    inline void push_up(int k) {
+        tr[k].sum = tr[ls(k)].sum + tr[rs(k)].sum;
+        tr[k].mi = min(tr[ls(k)].mi, tr[rs(k)].mi);
+    }
+
+    inline void push_down(int k, int s, int e) {
+        if (!ls(k)) ls(k) = new_node();
+        if (!rs(k)) rs(k) = new_node();
+        ll len = e - s + 1;
+        ll lsz = len - len / 2, rsz = len / 2;
+        if (tr[k].lz) {
+            tr[ls(k)].sum = tr[ls(k)].sum + lsz * tr[k].lz;
+            tr[rs(k)].sum = tr[rs(k)].sum + rsz * tr[k].lz;
+            tr[ls(k)].lz = tr[ls(k)].lz + tr[k].lz;
+            tr[rs(k)].lz = tr[rs(k)].lz + tr[k].lz;
+            tr[k].lz = 0;
         }
     }
 
-    inline void build(int node, int left, int right) {
-        tr[node].left = left, tr[node].right = right;
-        tr[node].sum = tr[node].mi = tr[node].lz = 0;
+    inline void update(int &k, int s, int e, int L, int R, ll val) {
+        if (!k) k = new_node();
 
-        if (left == right) {
-            tr[node].sum = tr[node].mi = vt[left];
+        if (L <= s && e <= R) {
+            tr[k].sum = tr[k].sum + (e - s + 1) * val;
+            tr[k].mi = tr[k].mi + val;
+            tr[k].lz = tr[k].lz + val;
             return;
         }
-        build(ls, left, mid);
-        build(rs, mid + 1, right);
-        push_up(node);
+
+        push_down(k, s, e);
+        if (L <= mid) update(ls(k), s, mid, L, R, val);
+        if (R >= mid + 1) update(rs(k), mid + 1, e, L, R, val);
+        push_up(k);
     }
 
-    inline void update(int node, int L, int R, ll val) {
-        int left = tr[node].left, right = tr[node].right;
+    inline void modify(int &k, int s, int e, int id, ll val) {
+        if (!k) k = new_node();
 
-        if (right < L || left > R) return;
-        if (L <= left && right <= R) {
-            tr[node].sum = tr[node].sum + (R - L + 1) * val;
-            tr[node].lz = tr[node].lz + val;
-            tr[node].mi = tr[node].mi + val;
+        if (s == e) {
+            tr[k].sum = tr[k].mi = min(tr[k].mi, val);
             return;
         }
 
-        push_down(node);
-        update(ls, L, R, val);
-        update(rs, L, R, val);
-        push_up(node);
+        push_down(k, s, e);
+        if (id <= mid) modify(ls(k), s, mid, id, val);
+        if (id >= mid + 1) modify(rs(k), mid + 1, e, id, val);
+        push_up(k);
     }
 
-    inline ll query(int node, int L, int R) {
-        int left = tr[node].left, right = tr[node].right;
+    inline void set(int &k, int s, int e, int id, ll val) {
+        if (!k) k = new_node();
 
-        if (right < L || left > R) return 1e18;
-        if (L <= left && right <= R) return tr[node].mi;
+        if (s == e) {
+            tr[k].sum = tr[k].mi = val;
+            return;
+        }
 
-        push_down(node);
-        return min(query(ls, L, R), query(rs, L, R));
+        push_down(k, s, e);
+        if (id <= mid) set(ls(k), s, mid, id, val);
+        if (id >= mid + 1) set(rs(k), mid + 1, e, id, val);
+        push_up(k);
     }
 
-    inline void build(int L, int R) {
-        return build(1, L, R);
+    inline ll query(int k, int s, int e, int L, int R) {
+        if (L <= s && e <= R) return tr[k].mi;
+
+        push_down(k, s, e);
+        if (R <= mid) return query(ls(k), s, mid, L, R);
+        if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
+        return min(query(ls(k), s, mid, L, R), query(rs(k), mid + 1, e, L, R));
     }
 
     inline void update(int L, int R, ll val) {
-        update(1, L, R, val);
+        if (R < L) return;
+        update(rt, lb, rb, L, R, val);
+    }
+
+    inline void modify(int id, ll val) {
+        modify(rt, lb, rb, id, val);
+    }
+
+    inline void set(int id, ll val) {
+        set(rt, lb, rb, id, val);
     }
 
     inline ll query(int L, int R) {
-        return query(1, L, R);
+        if (R < L) return 1e18;
+        return query(rt, lb, rb, L, R);
     }
 };
 // endregion
@@ -190,7 +226,7 @@ const int N = 1e5 + 10;
 int n, m;
 ll va[N];
 vector<ll> vb[N];
-Seg<2 * N> tr;
+Seg<2 * N> seg;
 
 void solve() {
     int K = 0;
@@ -216,8 +252,8 @@ void solve() {
         suf[i] = suf[i + 1] + (vd[i].se == 2 ? 1 : -1);
     }
 
-    for (int i = 1; i <= tt + 1; i++) tr.vt[i] = suf[i];
-    tr.build(1, tt + 1);
+    seg.init(1, tt + 1);
+    for (int i = 1; i <= tt + 1; i++) seg.set(i, suf[i]);
 
     string ans(K, '0');
     int idx = 0;
@@ -230,17 +266,17 @@ void solve() {
             ll id2 = lower_bound(vd + 1, vd + 1 + tt, (pll) {ns, 1}) - vd;
 
             if (id1 < id2) {
-                tr.update(id1 + 1, id2, -1);
-                ll cur = tr.query(1, tt + 1);
+                seg.update(id1 + 1, id2, -1);
+                ll cur = seg.query(1, tt + 1);
                 if (cur >= 0) ans[idx++] = '1';
                 else ans[idx++] = '0';
-                tr.update(id1 + 1, id2, 1);
+                seg.update(id1 + 1, id2, 1);
             } else {
-                tr.update(id2 + 1, id1, 1);
-                ll cur = tr.query(1, tt + 1);
+                seg.update(id2 + 1, id1, 1);
+                ll cur = seg.query(1, tt + 1);
                 if (cur >= 0) ans[idx++] = '1';
                 else ans[idx++] = '0';
-                tr.update(id2 + 1, id1, -1);
+                seg.update(id2 + 1, id1, -1);
             }
         }
     }
@@ -253,10 +289,6 @@ int main() {
     freopen("../in.txt", "r", stdin);
     freopen("../out.txt", "w", stdout);
 #endif
-
-    auto prework = [&]() -> void {
-    };
-    prework();
 
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;

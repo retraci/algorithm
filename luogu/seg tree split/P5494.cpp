@@ -99,39 +99,66 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-// region 动态开点最大值线段树
+// region 普通线段树分裂
 template<int SZ>
 struct Seg {
 #define mid (s + e >> 1)
 #define ls(x) (tr[x].lson)
 #define rs(x) (tr[x].rson)
 
+    const ll MOD = 1e9 + 7;
+
     struct Node {
         int lson, rson;
-        ll sum, lz, mx;
+        ll sum, lz;
     };
 
-    int lb, rb, rt;
-    Node tr[SZ * 4];
+    int lb, rb;
+    Node tr[SZ * 40];
     int nw;
+    int root[SZ + 1], cnt;
 
     inline Seg() {
         lb = 1, rb = SZ;
     }
 
-    inline void init(int L = 1, int R = SZ) {
-        lb = L, rb = R;
+    inline void init(int L = 1, int R = SZ, int _cnt = 0) {
+        lb = L, rb = R, cnt = _cnt;
+    }
+
+    inline void merge(int &x, int y) {
+        if (!x || !y) {
+            x |= y;
+            return;
+        }
+
+        tr[x].sum += tr[y].sum;
+        tr[x].lz += tr[y].lz;
+        merge(ls(x), ls(y));
+        merge(rs(x), rs(y));
+    }
+
+    inline int split(int &k, int s, int e, int L, int R) {
+        int id = new_node();
+        if (L <= s && R >= e) {
+            tr[id] = tr[k];
+            k = 0;
+        } else {
+            if (L <= mid) tr[id].lson = split(ls(k), s, mid, L, R);
+            if (R >= mid + 1) tr[id].rson = split(rs(k), mid + 1, e, L, R);
+            push_up(k), push_up(id);
+        }
+        return id;
     }
 
     inline int new_node() {
         int id = ++nw;
-        tr[id].sum = tr[id].lz = tr[id].mx = 0;
+        tr[id].sum = tr[id].lz = 0;
         return id;
     }
 
     inline void push_up(int k) {
         tr[k].sum = tr[ls(k)].sum + tr[rs(k)].sum;
-        tr[k].mx = max(tr[ls(k)].mx, tr[rs(k)].mx);
     }
 
     inline void push_down(int k, int s, int e) {
@@ -157,82 +184,84 @@ struct Seg {
             return;
         }
 
-        push_down(k, s, e);
+//        push_down(k, s, e);
         if (L <= mid) update(ls(k), s, mid, L, R, val);
         if (R >= mid + 1) update(rs(k), mid + 1, e, L, R, val);
         push_up(k);
     }
 
-    inline void modify(int &k, int s, int e, int id, ll val) {
-        if (!k) k = new_node();
-
-        if (s == e) {
-            tr[k].sum = tr[k].mx = max(tr[k].mx, val);
-            return;
-        }
-
-        push_down(k, s, e);
-        if (id <= mid) modify(ls(k), s, mid, id, val);
-        if (id >= mid + 1) modify(rs(k), mid + 1, e, id, val);
-        push_up(k);
-    }
-
     inline ll query(int k, int s, int e, int L, int R) {
-        if (L <= s && e <= R) return tr[k].mx;
+        if (L <= s && e <= R) return tr[k].sum;
 
-        push_down(k, s, e);
+//        push_down(k, s, e);
         if (R <= mid) return query(ls(k), s, mid, L, R);
         if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
-        return max(query(ls(k), s, mid, L, R), query(rs(k), mid + 1, e, L, R));
+        return query(ls(k), s, mid, L, R) + query(rs(k), mid + 1, e, L, R);
     }
 
-    inline void update(int L, int R, ll val) {
-        if (R < L) return;
-        update(rt, lb, rb, L, R, val);
+    inline ll query(int k, int s, int e, int x) {
+        if (s == e) return s;
+        if (x <= tr[ls(k)].sum) return query(ls(k), s, mid, x);
+        else return query(rs(k), mid + 1, e, x - tr[ls(k)].sum);
     }
 
-    inline void modify(int id, ll val) {
-        modify(rt, lb, rb, id, val);
+    inline int split(int &k, int L, int R) {
+        return split(k, lb, rb, L, R);
     }
 
-    inline ll query(int L, int R) {
-        if (R < L) return 0;
-        return query(rt, lb, rb, L, R);
+    inline void update(int &k, int L, int R, ll val) {
+        update(k, lb, rb, L, R, val);
+    }
+
+    inline ll query(int k, int L, int R) {
+        return query(k, lb, rb, L, R);
+    }
+
+    inline ll query(int k, int x) {
+        return query(k, lb, rb, x);
     }
 };
 // endregion
 
-const int N = 1e5 + 10;
+const int N = 2e5 + 10;
 
-int n;
-ll va[N];
-vector<ll> lsh;
+int n, m;
+int va[N];
 
 Seg<N> seg;
 
-int get_id(ll x) {
-    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin() + 1;
-}
-
 void solve() {
+    seg.init(1, n, 1);
     for (int i = 1; i <= n; i++) {
-        lsh.push_back(va[i]);
-    }
-    sort(lsh.begin(), lsh.end());
-    lsh.resize(unique(lsh.begin(), lsh.end()) - lsh.begin());
-
-    int sz = lsh.size();
-    seg.init(1, sz);
-    ll f[n + 1];
-    memset(f, 0, sizeof f);
-    for (int i = 1; i <= n; i++) {
-        int x = get_id(va[i]);
-        ll pre = seg.query(1, x - 1);
-        f[i] = pre + va[i];
-        seg.modify(x, f[i]);
+        seg.update(seg.root[1], i, i, va[i]);
     }
 
-    cout << *max_element(f + 1, f + n + 1) << "\n";
+    while (m--) {
+        int op, p, x, y;
+        cin >> op >> p;
+        if (op == 0) {
+            cin >> x >> y;
+            int rt = seg.root[p];
+            seg.root[++seg.cnt] = seg.split(rt, x, y);
+        } else if (op == 1) {
+            cin >> x;
+            int rt1 = seg.root[p], rt2 = seg.root[x];
+            seg.merge(rt1, rt2);
+        } else if (op == 2) {
+            cin >> x >> y;
+            int rt = seg.root[p];
+            seg.update(rt, y, y, x);
+        } else if (op == 3) {
+            cin >> x >> y;
+            int rt = seg.root[p];
+            cout << seg.query(rt, x, y) << "\n";
+        } else {
+            cin >> x;
+            int rt = seg.root[p];
+            if (seg.tr[rt].sum < x) cout << -1 << "\n";
+            else cout << seg.query(rt, x) << "\n";
+        }
+    }
 }
 
 void prework() {
@@ -249,7 +278,7 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n;
+        cin >> n >> m;
         for (int i = 1; i <= n; i++) cin >> va[i];
         solve();
     }
