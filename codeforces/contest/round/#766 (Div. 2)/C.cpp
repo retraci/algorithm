@@ -83,10 +83,6 @@ struct pair_hash {
 
 typedef std::pair<int, int> pii;
 typedef std::pair<ll, ll> pll;
-typedef std::tuple<int, int, int> ti3;
-typedef std::tuple<ll, ll, ll> tl3;
-typedef std::tuple<int, int, int, int> ti4;
-typedef std::tuple<ll, ll, ll, ll> tl4;
 typedef std::array<int, 2> ai2;
 typedef std::array<ll, 2> al2;
 typedef std::array<int, 3> ai3;
@@ -105,59 +101,51 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e3 + 10;
+const int N = 2e5 + 10;
 
-int n, m;
-string va[N];
-string t;
+int n;
+vector<pii> g[N];
+int du[N];
+
+void add(int u, int v, int id) {
+    g[u].push_back({v, id});
+    du[v]++;
+}
 
 void solve() {
-    unordered_map<string, ai3> mp;
     for (int i = 1; i <= n; i++) {
-        for (int j = 2; j <= m; j++) {
-            int lb = j - 2 + 1, rb = j;
-            mp[va[i].substr(lb, 2)] = {lb, rb, i};
-        }
-
-        for (int j = 3; j <= m; j++) {
-            int lb = j - 3 + 1, rb = j;
-            mp[va[i].substr(lb, 3)] = {lb, rb, i};
+        if (du[i] > 2) {
+            cout << -1 << "\n";
+            return;
         }
     }
 
-    ai3 none = {(int) 1e9, (int) 1e9, (int) 1e9};
-    ai3 f[m + 1];
-    fill(f, f + m + 1, none);
-    f[0] = {0, 0, 0};
-    for (int i = 2; i <= m; i++) {
-        if (i - 2 >= 0 && f[i - 2] != none) {
-            string sub = t.substr(i - 2 + 1, 2);
-            if (mp.count(sub)) f[i] = mp[sub];
+    int s = 1;
+    for (int i = 1; i <= n; i++) {
+        if (du[i] == 1) s = i;
+    }
+
+    int vis[n + 1];
+    memset(vis, 0, sizeof vis);
+    int ans[n + 1];
+    int flag = 0;
+    queue<int> que;
+    que.push(s);
+    vis[s] = 1;
+    while (!que.empty()) {
+        auto u = que.front(); que.pop();
+
+        for (auto [v, id] : g[u]) {
+            if (vis[v]) continue;
+            vis[v] = 1;
+            ans[id] = flag ? 2 : 5;
+            flag = !flag;
+            que.push(v);
         }
-        if (i - 3 >= 0 && f[i - 3] != none) {
-            string sub = t.substr(i - 3 + 1, 3);
-            if (mp.count(sub)) f[i] = mp[sub];
-        }
     }
 
-    if (f[m] == none) {
-        cout << -1 << "\n";
-        return;
-    }
-
-    vector<ai3> ans;
-    int cur = m;
-    while (cur > 0) {
-        auto [lb, rb, id] = f[cur];
-        ans.push_back(f[cur]);
-        cur -= rb - lb + 1;
-    }
-
-    cout << ans.size() << "\n";
-    for (int i = ans.size() - 1; i >= 0; i--) {
-        auto [lb, rb, id] = ans[i];
-        cout << lb << " " << rb << " " << id << "\n";
-    }
+    for (int i = 1; i <= n - 1; i++) cout << ans[i] << " ";
+    cout << "\n";
 }
 
 void prework() {
@@ -174,13 +162,13 @@ int main() {
     int T = 1;
     cin >> T;
     while (T--) {
-        cin >> n >> m;
-        for (int i = 1; i <= n; i++) {
-            cin >> va[i];
-            va[i] = ' ' + va[i];
+        cin >> n;
+        for (int i = 1; i <= n; i++) du[i] = 0, g[i] = {};
+        for (int i = 1; i <= n - 1; i++) {
+            int u, v;
+            cin >> u >> v;
+            add(u, v, i), add(v, u, i);
         }
-        cin >> t;
-        t = ' ' + t;
         solve();
     }
 

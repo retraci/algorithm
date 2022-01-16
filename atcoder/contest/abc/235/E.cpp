@@ -25,6 +25,24 @@ inline void hash_combine(std::size_t &seed, T const &v) {
     seed ^= tuple_hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 }
 
+template<typename T>
+inline void hash_val(std::size_t &seed, const T &val) {
+    hash_combine(seed, val);
+}
+
+template<typename T, typename... Types>
+inline void hash_val(std::size_t &seed, const T &val, const Types &... args) {
+    hash_combine(seed, val);
+    hash_val(seed, args...);
+}
+
+template<typename... Types>
+inline std::size_t hash_val(const Types &... args) {
+    std::size_t seed = 0;
+    hash_val(seed, args...);
+    return seed;
+}
+
 template<class Tuple, size_t Index = std::tuple_size<Tuple>::value - 1>
 struct HashValueImpl {
     void operator()(size_t &seed, Tuple const &tuple) const {
@@ -49,24 +67,6 @@ struct tuple_hash<std::tuple<TT...>> {
     }
 };
 
-template<typename T>
-inline void hash_val(std::size_t &seed, const T &val) {
-    hash_combine(seed, val);
-}
-
-template<typename T, typename... Types>
-inline void hash_val(std::size_t &seed, const T &val, const Types &... args) {
-    hash_combine(seed, val);
-    hash_val(seed, args...);
-}
-
-template<typename... Types>
-inline std::size_t hash_val(const Types &... args) {
-    std::size_t seed = 0;
-    hash_val(seed, args...);
-    return seed;
-}
-
 struct pair_hash {
     template<class T1, class T2>
     std::size_t operator()(const std::pair<T1, T2> &p) const {
@@ -87,12 +87,6 @@ typedef std::tuple<int, int, int> ti3;
 typedef std::tuple<ll, ll, ll> tl3;
 typedef std::tuple<int, int, int, int> ti4;
 typedef std::tuple<ll, ll, ll, ll> tl4;
-typedef std::array<int, 2> ai2;
-typedef std::array<ll, 2> al2;
-typedef std::array<int, 3> ai3;
-typedef std::array<ll, 3> al3;
-typedef std::array<int, 4> ai4;
-typedef std::array<ll, 4> al4;
 // endregion
 // region grid_delta
 namespace grid_delta {
@@ -105,59 +99,60 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e3 + 10;
+const int N = 2e5 + 10;
 
-int n, m;
-string va[N];
-string t;
+int n, m, q;
+ti3 es[N];
+ti3 qs[N];
+
+int fa[N];
+
+int find(int x) {
+    return x == fa[x] ? x : fa[x] = find(fa[x]);
+}
+
+bool unite(int x, int y) {
+    int tx = find(x), ty = find(y);
+    if (tx == ty) return false;
+    fa[tx] = ty;
+    return true;
+}
 
 void solve() {
-    unordered_map<string, ai3> mp;
-    for (int i = 1; i <= n; i++) {
-        for (int j = 2; j <= m; j++) {
-            int lb = j - 2 + 1, rb = j;
-            mp[va[i].substr(lb, 2)] = {lb, rb, i};
+    sort(es + 1, es + m + 1, [&](auto &a, auto &b) {
+        auto [u1, v1, c1] = a;
+        auto [u2, v2, c2] = b;
+        return c1 < c2;
+    });
+    int idx[q + 1];
+    iota(idx, idx + q + 1, 0);
+    sort(idx + 1, idx + q + 1, [&](auto &a, auto &b) {
+        auto [u1, v1, c1] = qs[a];
+        auto [u2, v2, c2] = qs[b];
+        return c1 < c2;
+    });
+
+    iota(fa, fa + n + 1, 0);
+    int ans[q + 1];
+    memset(ans, 0, sizeof ans);
+    int cur = 1;
+    for (int i = 1; i <= m; i++) {
+        auto &[u, v, cost] = es[i];
+
+        while (cur <= q) {
+            int id = idx[cur];
+            auto &[nu, nv, nc] = qs[id];
+            if (nc > cost) break;
+
+            int tx = find(nu), ty = find(nv);
+            if (tx != ty) ans[id] = 1;
+            cur++;
         }
 
-        for (int j = 3; j <= m; j++) {
-            int lb = j - 3 + 1, rb = j;
-            mp[va[i].substr(lb, 3)] = {lb, rb, i};
-        }
+        unite(u, v);
     }
 
-    ai3 none = {(int) 1e9, (int) 1e9, (int) 1e9};
-    ai3 f[m + 1];
-    fill(f, f + m + 1, none);
-    f[0] = {0, 0, 0};
-    for (int i = 2; i <= m; i++) {
-        if (i - 2 >= 0 && f[i - 2] != none) {
-            string sub = t.substr(i - 2 + 1, 2);
-            if (mp.count(sub)) f[i] = mp[sub];
-        }
-        if (i - 3 >= 0 && f[i - 3] != none) {
-            string sub = t.substr(i - 3 + 1, 3);
-            if (mp.count(sub)) f[i] = mp[sub];
-        }
-    }
-
-    if (f[m] == none) {
-        cout << -1 << "\n";
-        return;
-    }
-
-    vector<ai3> ans;
-    int cur = m;
-    while (cur > 0) {
-        auto [lb, rb, id] = f[cur];
-        ans.push_back(f[cur]);
-        cur -= rb - lb + 1;
-    }
-
-    cout << ans.size() << "\n";
-    for (int i = ans.size() - 1; i >= 0; i--) {
-        auto [lb, rb, id] = ans[i];
-        cout << lb << " " << rb << " " << id << "\n";
-    }
+    for (int i = 1; i <= q; i++) cout << (ans[i] ? "Yes" : "No") << "\n";
 }
 
 void prework() {
@@ -172,15 +167,19 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
-        cin >> n >> m;
-        for (int i = 1; i <= n; i++) {
-            cin >> va[i];
-            va[i] = ' ' + va[i];
+        cin >> n >> m >> q;
+        for (int i = 1; i <= m; i++) {
+            int u, v, cost;
+            cin >> u >> v >> cost;
+            es[i] = {u, v, cost};
         }
-        cin >> t;
-        t = ' ' + t;
+        for (int i = 1; i <= q; i++) {
+            int u, v, cost;
+            cin >> u >> v >> cost;
+            qs[i] = {u, v, cost};
+        }
         solve();
     }
 

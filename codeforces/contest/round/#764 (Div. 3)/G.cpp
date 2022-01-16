@@ -87,6 +87,12 @@ typedef std::tuple<int, int, int> ti3;
 typedef std::tuple<ll, ll, ll> tl3;
 typedef std::tuple<int, int, int, int> ti4;
 typedef std::tuple<ll, ll, ll, ll> tl4;
+typedef std::array<int, 2> ai2;
+typedef std::array<ll, 2> al2;
+typedef std::array<int, 3> ai3;
+typedef std::array<ll, 3> al3;
+typedef std::array<int, 4> ai4;
+typedef std::array<ll, 4> al4;
 // endregion
 // region grid_delta
 namespace grid_delta {
@@ -102,7 +108,7 @@ using namespace grid_delta;
 const int N = 2e5 + 10;
 
 int n, m;
-ti3 es[N];
+ai3 es[N];
 int fa[N];
 
 int find(int x) {

@@ -107,10 +107,8 @@ inline void debug() {
 
 template<class T, class... OtherArgs>
 inline void debug(T &&var, OtherArgs &&... args) {
-#ifdef LOCAL
     std::cout << std::forward<T>(var) << " ";
     debug(std::forward<OtherArgs>(args)...);
-#endif
 }
 // endregion
 // region grid_delta
@@ -123,113 +121,45 @@ namespace grid_delta {
 
 using namespace std;
 using namespace grid_delta;
-#define ll long long
 
-const ll MOD = 1e9 + 7;
+int n, m;
 
-// region 矩阵
-template<int SZ>
-struct Mat {
-    int r, c;
-    vector<vector<ll>> a;
+int get_d(int x1, int y1, int x2, int y2) {
+    return abs(x1 - x2) + abs(y1 - y2);
+}
 
-    inline Mat(int r = SZ, int c = SZ) : r(r), c(c) {
-        a = vector<vector<ll>>(SZ, vector<ll>(SZ));
-    }
-
-    inline Mat operator-(const Mat &T) const {
-        Mat res(r, c);
-        for (int i = 0; i < r; i++) {
-            for (int j = 0; j < c; j++) {
-                res.a[i][j] = (a[i][j] - T.a[i][j]) % MOD;
-            }
-        }
-        return res;
-    }
-
-    inline Mat operator+(const Mat &T) const {
-        Mat res(r, c);
-        for (int i = 0; i < r; i++) {
-            for (int j = 0; j < c; j++) {
-                res.a[i][j] = (a[i][j] + T.a[i][j]) % MOD;
-            }
-        }
-        return res;
-    }
-
-    inline Mat operator*(const Mat &T) const {
-        Mat res(r, T.c);
-        for (int i = 0; i < res.r; i++) {
-            for (int j = 0; j < T.c; j++) {
-                for (int k = 1; k < c; k++) {
-                    res.a[i][j] = (res.a[i][j] + a[i][k] * T.a[k][j] % MOD) % MOD;
-                }
-            }
-        }
-        return res;
-    }
-
-    inline Mat operator*(ll x) const {
-        Mat res(r, c);
-        for (int i = 0; i < r; i++) {
-            for (int j = 0; j < c; j++) {
-                res.a[i][j] = (a[i][j] * x) % MOD;
-            }
-        }
-        return res;
-    }
-
-    inline Mat operator^(ll x) const {
-        Mat res(r, c), bas(r, c);
-        for (int i = 0; i < r; i++) res.a[i][i] = 1;
-        bas.a = a;
-
-        while (x) {
-            if (x & 1) res = res * bas;
-            bas = bas * bas;
-            x >>= 1;
-        }
-        return res;
-    }
-
-    inline bool operator==(const Mat &T) const {
-        for (int i = 1; i < r; i++) {
-            for (int j = 1; j < c; j++) {
-                if (a[i][j] != T.a[i][j]) return false;
-            }
-        }
-        return true;
-    }
-
-    inline void print() const {
-        for (int i = 0; i < r; i++) {
-            for (int j = 0; j < c; j++) {
-                cout << a[i][j] << " ";
-            }
-            cout << "\n";
+void solve() {
+    vector<int> tmp;
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            int d1 = get_d(i, j, 1, 1), d2 = get_d(i, j, 1, m), d3 = get_d(i, j, n, 1), d4 = get_d(i, j, n, m);
+            tmp.push_back(max({d1, d2, d3, d4}));
         }
     }
-};
-// endregion
-
-class Solution {
- public:
-    int countVowelPermutation(int n) {
-        Mat<5> mat = Mat<5>(5, 5);
-        mat.a = {
-                {0, 1, 0, 0, 0},
-                {1, 0, 1, 0, 0},
-                {1, 1, 0, 1, 1},
-                {0, 0, 1, 0, 1},
-                {1, 0, 0, 0, 0}
-        };
-        mat = mat ^ (1LL * n - 1);
-
-        ll ans = 0;
-        for (int i = 1; i <= 5; i++) {
-            ans += accumulate(mat.a[i].begin() + 1, mat.a[i].end(), 0LL);
-            ans %= MOD;
-        }
-        return  ans;
+    sort(tmp.begin(), tmp.end());
+    for (int k = 0; k < n * m; k++) {
+        cout << tmp[k] << " ";
     }
-};
+    cout << "\n";
+}
+
+void prework() {
+}
+
+int main() {
+#ifdef LOCAL
+    freopen("../in.txt", "r", stdin);
+    freopen("../out.txt", "w", stdout);
+#endif
+
+    prework();
+    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+    int T = 1;
+    cin >> T;
+    while (T--) {
+        cin >> n >> m;
+        solve();
+    }
+
+    return 0;
+}

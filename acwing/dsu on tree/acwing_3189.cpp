@@ -87,12 +87,6 @@ typedef std::tuple<int, int, int> ti3;
 typedef std::tuple<ll, ll, ll> tl3;
 typedef std::tuple<int, int, int, int> ti4;
 typedef std::tuple<ll, ll, ll, ll> tl4;
-typedef std::array<int, 2> ai2;
-typedef std::array<ll, 2> al2;
-typedef std::array<int, 3> ai3;
-typedef std::array<ll, 3> al3;
-typedef std::array<int, 4> ai4;
-typedef std::array<ll, 4> al4;
 // endregion
 // region grid_delta
 namespace grid_delta {
@@ -105,59 +99,61 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e3 + 10;
+const int N = 1e5 + 10;
 
-int n, m;
-string va[N];
-string t;
+int n;
+int va[N];
+vector<int> g[N];
+
+int sz[N], son[N];
+ll cnt[N], cur, mx;
+ll ans[N];
+
+void add(int u, int v) {
+    g[u].push_back(v);
+}
+
+void dfs1(int u, int fno) {
+    sz[u] = 1;
+
+    for (int v : g[u]) {
+        if (v == fno) continue;
+        dfs1(v, u);
+        sz[u] += sz[v];
+        if (sz[v] > sz[son[u]]) son[u] = v;
+    }
+}
+
+void work(int u, int fno, int val, int so) {
+    int col = va[u];
+    cnt[col] += val;
+    if (cnt[col] > mx) mx = cnt[col], cur = col;
+    else if (cnt[col] == mx) cur += col;
+
+    for (int v : g[u]) {
+        if (v == fno || v == so) continue;
+        work(v, u, val, so);
+    }
+}
+
+void dfs(int u, int fno, int op) {
+    for (int v : g[u]) {
+        if (v == fno || v == son[u]) continue;
+        dfs(v, u, 0);
+    }
+
+    if (son[u]) dfs(son[u], u, 1);
+    work(u, fno, 1, son[u]);
+    ans[u] = cur;
+    if (!op) work(u, fno, -1, 0), mx = 0, cur = 0;
+}
 
 void solve() {
-    unordered_map<string, ai3> mp;
-    for (int i = 1; i <= n; i++) {
-        for (int j = 2; j <= m; j++) {
-            int lb = j - 2 + 1, rb = j;
-            mp[va[i].substr(lb, 2)] = {lb, rb, i};
-        }
+    dfs1(1, 0);
+    dfs(1, 0, 0);
 
-        for (int j = 3; j <= m; j++) {
-            int lb = j - 3 + 1, rb = j;
-            mp[va[i].substr(lb, 3)] = {lb, rb, i};
-        }
-    }
-
-    ai3 none = {(int) 1e9, (int) 1e9, (int) 1e9};
-    ai3 f[m + 1];
-    fill(f, f + m + 1, none);
-    f[0] = {0, 0, 0};
-    for (int i = 2; i <= m; i++) {
-        if (i - 2 >= 0 && f[i - 2] != none) {
-            string sub = t.substr(i - 2 + 1, 2);
-            if (mp.count(sub)) f[i] = mp[sub];
-        }
-        if (i - 3 >= 0 && f[i - 3] != none) {
-            string sub = t.substr(i - 3 + 1, 3);
-            if (mp.count(sub)) f[i] = mp[sub];
-        }
-    }
-
-    if (f[m] == none) {
-        cout << -1 << "\n";
-        return;
-    }
-
-    vector<ai3> ans;
-    int cur = m;
-    while (cur > 0) {
-        auto [lb, rb, id] = f[cur];
-        ans.push_back(f[cur]);
-        cur -= rb - lb + 1;
-    }
-
-    cout << ans.size() << "\n";
-    for (int i = ans.size() - 1; i >= 0; i--) {
-        auto [lb, rb, id] = ans[i];
-        cout << lb << " " << rb << " " << id << "\n";
-    }
+    for (int i = 1; i <= n; i++) cout << ans[i] << " ";
+    cout << "\n";
 }
 
 void prework() {
@@ -172,15 +168,15 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
-        cin >> n >> m;
-        for (int i = 1; i <= n; i++) {
-            cin >> va[i];
-            va[i] = ' ' + va[i];
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> va[i];
+        for (int i = 1; i <= n - 1; i++) {
+            int u, v;
+            cin >> u >> v;
+            add(u, v), add(v, u);
         }
-        cin >> t;
-        t = ' ' + t;
         solve();
     }
 
