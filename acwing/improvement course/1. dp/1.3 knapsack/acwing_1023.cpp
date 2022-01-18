@@ -109,7 +109,18 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+int n;
+int va[5] = {0, 10, 20, 50, 100};
+
 void solve() {
+    vector<int> f(n + 1);
+    f[0] = 1;
+    for (int i = 1; i <= 4; i++) {
+        for (int j = va[i]; j <= n; j++) {
+            f[j] += f[j - va[i]];
+        }
+    }
+    cout << f[n] << "\n";
 }
 
 void prework() {
@@ -126,6 +137,7 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> n;
         solve();
     }
 

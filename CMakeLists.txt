@@ -7,7 +7,7 @@ MATH(EXPR stack_size "102400000")
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,--stack,${stack_size}")
 
 add_executable(tmp tmp.cpp)
-add_executable(D "codeforces/contest/round/#765 (Div. 2)/D.cpp")
+add_executable(D "codeforces/contest/educational codeforces round/121/D.cpp")
 add_executable(E "codeforces/contest/round/#766 (Div. 2)/E.cpp")
 
 add_executable(acwing_2060 "acwing/winter daily 2022/week 1/acwing_2060.cpp")
@@ -61,3 +61,9 @@ add_executable(acwing_1024 "acwing/improvement course/1. dp/1.3 knapsack/acwing_
 add_executable(acwing_1022 "acwing/improvement course/1. dp/1.3 knapsack/acwing_1022.cpp")
 
 add_executable(acwing_278 "acwing/improvement course/1. dp/1.3 knapsack/acwing_278.cpp")
+
+add_executable(acwing_1023 "acwing/improvement course/1. dp/1.3 knapsack/acwing_1023.cpp")
+add_executable(acwing_1021 "acwing/improvement course/1. dp/1.3 knapsack/acwing_1021.cpp")
+add_executable(acwing_532 "acwing/improvement course/1. dp/1.3 knapsack/acwing_532.cpp")
+add_executable(acwing_6 "acwing/improvement course/1. dp/1.3 knapsack/acwing_6.cpp")
+add_executable(acwing_1019 "acwing/improvement course/1. dp/1.3 knapsack/acwing_1019.cpp")

@@ -109,7 +109,32 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 510;
+
+int n, m;
+ti3 va[N];
+
 void solve() {
+    int f[2][m + 1];
+    memset(f, 0, sizeof f);
+
+    for (int i = 1; i <= n; i++) {
+        auto &[v, w, s] = va[i];
+        for (int r = 0; r < v; r++) {
+            deque<int> que;
+            for (int j = r; j <= m; j += v) {
+                auto &pre = f[i - 1 & 1];
+                auto &cur = f[i & 1];
+
+                while (!que.empty() && (j - que.front()) / v > s) que.pop_front();
+                while (!que.empty() && pre[que.back()] + (j - que.back()) / v * w <= pre[j]) que.pop_back();
+                que.push_back(j);
+                cur[j] = pre[que.front()] + (j - que.front()) / v * w;
+            }
+        }
+    }
+
+    cout << f[n & 1][m] << "\n";
 }
 
 void prework() {
@@ -126,6 +151,12 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) {
+            int v, w, s;
+            cin >> v >> w >> s;
+            va[i] = {v, w, s};
+        }
         solve();
     }
 
