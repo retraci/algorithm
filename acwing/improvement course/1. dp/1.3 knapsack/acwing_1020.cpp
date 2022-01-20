@@ -11,7 +11,6 @@
 #include <unordered_map>
 #include <numeric>
 #include <bitset>
-#include <iomanip>
 
 // region hash_func
 template<typename TT>
@@ -110,15 +109,29 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 1010;
+
+int n, m, K;
+ti3 va[N];
+
 void solve() {
+    ll f[n + 1][m + 1];
+    memset(f, 0x3f, sizeof f);
+    f[0][0] = 0;
+
+    for (int i = 1; i <= K; i++) {
+        auto &[v1, v2, w] = va[i];
+        for (int j = n; j >= 0; j--) {
+            for (int k = m; k >= 0; k--) {
+                f[j][k] = min(f[j][k], f[max(0, j - v1)][max(0, k - v2)] + w);
+            }
+        }
+    }
+
+    cout << f[n][m] << "\n";
 }
 
 void prework() {
-    string str = "rhutt";
-    std::sort(str.begin(), str.end());
-    do {
-        cout << str << "\n";
-    } while (next_permutation(str.begin(), str.end()));
 }
 
 int main() {
@@ -132,6 +145,12 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> n >> m >> K;
+        for (int i = 1; i <= K; i++) {
+            int v1, v2, w;
+            cin >> v1 >> v2 >> w;
+            va[i] = {v1, v2, w};
+        }
         solve();
     }
 

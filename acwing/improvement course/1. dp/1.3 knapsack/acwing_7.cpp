@@ -11,7 +11,6 @@
 #include <unordered_map>
 #include <numeric>
 #include <bitset>
-#include <iomanip>
 
 // region hash_func
 template<typename TT>
@@ -110,15 +109,36 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 1010;
+
+int n, m;
+ti3 va[N];
+
 void solve() {
+    int f[2][m + 1];
+    memset(f, 0, sizeof f);
+
+    int que[m + 1];
+    for (int i = 1; i <= n; i++) {
+        auto &[v, w, s] = va[i];
+        auto &pre = f[i - 1 & 1];
+        auto &cur = f[i & 1];
+
+        for (int r = 0; r < v; r++) {
+            int tt = 0, hh = 1;
+            for (int j = r; j <= m; j += v) {
+                while (tt >= hh && (j - que[hh]) / v > s) hh++;
+                while (tt >= hh && pre[que[tt]] + (j - que[tt]) / v * w <= pre[j]) tt--;
+                que[++tt] = j;
+                cur[j] = pre[que[hh]] + (j - que[hh]) / v * w;
+            }
+        }
+    }
+
+    cout << f[n & 1][m] << "\n";
 }
 
 void prework() {
-    string str = "rhutt";
-    std::sort(str.begin(), str.end());
-    do {
-        cout << str << "\n";
-    } while (next_permutation(str.begin(), str.end()));
 }
 
 int main() {
@@ -132,6 +152,13 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) {
+            int v, w, s;
+            cin >> v >> w >> s;
+            s = s > 0 ? s : s == -1 ? 1 : 1e9L;
+            va[i] = {v, w, s};
+        }
         solve();
     }
 

@@ -67,3 +67,7 @@ add_executable(acwing_1021 "acwing/improvement course/1. dp/1.3 knapsack/acwing_
 add_executable(acwing_532 "acwing/improvement course/1. dp/1.3 knapsack/acwing_532.cpp")
 add_executable(acwing_6 "acwing/improvement course/1. dp/1.3 knapsack/acwing_6.cpp")
 add_executable(acwing_1019 "acwing/improvement course/1. dp/1.3 knapsack/acwing_1019.cpp")
+add_executable(acwing_7 "acwing/improvement course/1. dp/1.3 knapsack/acwing_7.cpp")
+add_executable(acwing_8 "acwing/improvement course/1. dp/1.3 knapsack/acwing_8.cpp")
+add_executable(acwing_1020 "acwing/improvement course/1. dp/1.3 knapsack/acwing_1020.cpp")
+add_executable(acwing_1945 "acwing/winter daily 2022/week 2/acwing_1945.cpp")
