@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <numeric>
 #include <bitset>
+#include <iomanip>
 
 // region hash_func
 template<typename TT>
@@ -109,34 +110,30 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 2e5 + 10;
-
 int n;
-int va[N];
+vector<int> va, vb;
 
 void solve() {
-    vector<int> vb(n + 1);
-    for (int i = 1; i <= n; i++) vb[va[i]]++;
-    for (int i = 1; i <= n; i++) vb[i] += vb[i - 1];
+    vb.push_back(1000);
+    sort(va.begin(), va.end());
+    sort(vb.begin(), vb.end());
 
-    int ans = 1e9;
-    int lim = __lg(n) + 1;
-    for (int i = 0; i <= lim; i++) {
-        for (int j = 0; j <= lim; j++) {
-            int x = 1 << i, y = 1 << j;
-
-            int id1 = upper_bound(vb.begin(), vb.end(), x) - vb.begin();
-            int id2 = lower_bound(vb.begin(), vb.end(), n - y) - vb.begin();
-            int s1 = vb[id1 - 1], s2 = vb[id2] - s1, s3 = vb[n] - s1 - s2;
-
-            int z = 1;
-            while (z < s2) z <<= 1;
-            int tmp = (x - s1) + (y - s3) + (z - s2);
-            ans = min(ans, tmp);
+    double x = 0, t = 0, v = 1;
+    int i = 0, j = 0;
+    while (i < va.size() || j < vb.size()) {
+        if (j >= vb.size() || i < va.size() && va[i] - t < (vb[j] - x) * v) {
+            x += (va[i] - t) / v;
+            t = va[i];
+            v++, i++;
+        } else {
+            t += (vb[j] - x) * v;
+            x = vb[j];
+            v++, j++;
         }
     }
 
-    cout << ans << "\n";
+    cout << fixed << setprecision(0);
+    cout << t << "\n";
 }
 
 void prework() {
@@ -151,10 +148,16 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
         cin >> n;
-        for (int i = 1; i <= n; i++) cin >> va[i];
+        string op;
+        int x;
+        while (n--) {
+            cin >> op >> x;
+            if (op == "T") va.push_back(x);
+            else vb.push_back(x);
+        }
         solve();
     }
 

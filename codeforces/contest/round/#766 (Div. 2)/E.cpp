@@ -108,16 +108,17 @@ unordered_map<ll, vector<tl3>> vb[N];
 
 void solve() {
     map<int, ll> f[n + 1];
-    f[1][1] = 0, f[n][m] = 1e18L;
+    f[1][1] = 0, f[n][m] = 1e18;
     for (int i = 1; i <= n; i++) {
         for (auto &[c, _] : vb[i]) {
-            if (!f[i].count(c)) f[i][c] = 1e18L;
+            if (!f[i].count(c)) f[i][c] = 1e18;
         }
 
         {
             ll pre = 0;
             for (auto [c, _] : f[i]) {
-                ll pv = f[i].count(pre) ? f[i][pre] : 1e18L;
+                ll pv = 1e18;
+                if (f[i].count(pre)) pv = f[i][pre];
 
                 if (pv != 1e18L) f[i][c] = min(f[i][c], pv + (c - pre) * va[i]);
                 pre = c;
@@ -127,24 +128,25 @@ void solve() {
             ll pre = m + 1;
             for (auto it = f[i].rbegin(); it != f[i].rend(); it++) {
                 auto [c, _] = *it;
-                ll pv = f[i].count(pre) ? f[i][pre] : 1e18L;
+                ll pv = 1e18;
+                if (f[i].count(pre)) pv = f[i][pre];
 
-                if (pv != 1e18L) f[i][c] = min(f[i][c], pv + (pre - c) * va[i]);
+                if (pv != 1e18) f[i][c] = min(f[i][c], pv + (pre - c) * va[i]);
                 pre = c;
             }
         }
 
         for (auto &[b, vec] : vb[i]) {
             for (auto &[c, d, h] : vec) {
-                if (f[i][b] == 1e18L) continue;
+                if (f[i][b] == 1e18) continue;
 
-                if (!f[c].count(d)) f[c][d] = 1e18L;
+                if (!f[c].count(d)) f[c][d] = 1e18;
                 f[c][d] = min(f[c][d], f[i][b] - h);
             }
         }
     }
 
-    if (f[n][m] == 1e18L) cout << "NO ESCAPE" << "\n";
+    if (f[n][m] == 1e18) cout << "NO ESCAPE" << "\n";
     else cout << f[n][m] << "\n";
 }
 

@@ -109,33 +109,23 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 2e5 + 10;
+const int N = 1e6 + 10;
 
-int n;
-int va[N];
+int n, m;
+ll va[N];
 
 void solve() {
-    vector<int> vb(n + 1);
-    for (int i = 1; i <= n; i++) vb[va[i]]++;
-    for (int i = 1; i <= n; i++) vb[i] += vb[i - 1];
+    for (int i = 1; i <= 1e6; i++) va[i] += va[i - 1];
 
-    int ans = 1e9;
-    int lim = __lg(n) + 1;
-    for (int i = 0; i <= lim; i++) {
-        for (int j = 0; j <= lim; j++) {
-            int x = 1 << i, y = 1 << j;
-
-            int id1 = upper_bound(vb.begin(), vb.end(), x) - vb.begin();
-            int id2 = lower_bound(vb.begin(), vb.end(), n - y) - vb.begin();
-            int s1 = vb[id1 - 1], s2 = vb[id2] - s1, s3 = vb[n] - s1 - s2;
-
-            int z = 1;
-            while (z < s2) z <<= 1;
-            int tmp = (x - s1) + (y - s3) + (z - s2);
-            ans = min(ans, tmp);
-        }
+    if (2 * m + 1 > 1e6) {
+        cout << va[(int) 1e6] << "\n";
+        return;
     }
 
+    ll ans = 0;
+    for (int i = 2 * m + 1; i <= 1e6; i++) {
+        ans = max(ans, va[i] - va[i - (2 * m + 1)]);
+    }
     cout << ans << "\n";
 }
 
@@ -151,10 +141,14 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
-        cin >> n;
-        for (int i = 1; i <= n; i++) cin >> va[i];
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) {
+            int g, x;
+            cin >> g >> x;
+            va[x] += g;
+        }
         solve();
     }
 

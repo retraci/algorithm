@@ -109,34 +109,41 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 2e5 + 10;
+const int N = 22;
 
-int n;
-int va[N];
+int n, m;
+int va[N][N];
+pii pre[N][N];
 
 void solve() {
-    vector<int> vb(n + 1);
-    for (int i = 1; i <= n; i++) vb[va[i]]++;
-    for (int i = 1; i <= n; i++) vb[i] += vb[i - 1];
+    int f[n + 1][m + 1];
+    memset(f, 0, sizeof f);
 
-    int ans = 1e9;
-    int lim = __lg(n) + 1;
-    for (int i = 0; i <= lim; i++) {
-        for (int j = 0; j <= lim; j++) {
-            int x = 1 << i, y = 1 << j;
-
-            int id1 = upper_bound(vb.begin(), vb.end(), x) - vb.begin();
-            int id2 = lower_bound(vb.begin(), vb.end(), n - y) - vb.begin();
-            int s1 = vb[id1 - 1], s2 = vb[id2] - s1, s3 = vb[n] - s1 - s2;
-
-            int z = 1;
-            while (z < s2) z <<= 1;
-            int tmp = (x - s1) + (y - s3) + (z - s2);
-            ans = min(ans, tmp);
+    for (int i = 1; i <= n; i++) {
+        for (int j = 0; j <= m; j++) {
+            f[i][j] = f[i - 1][j];
+            pre[i][j] = {i - 1, j};
+            for (int k = 1; k <= j; k++) {
+                if (f[i][j] < f[i - 1][j - k] + va[i][k]) {
+                    f[i][j] = f[i - 1][j - k] + va[i][k];
+                    pre[i][j] = {i - 1, j - k};
+                }
+            }
         }
     }
 
-    cout << ans << "\n";
+    int path[n + 1];
+    int t1 = n, t2 = m;
+    while (t1 > 0) {
+        auto &[t3, t4] = pre[t1][t2];
+        path[t1] = t2 - t4;
+        t1 = t3, t2 = t4;
+    }
+
+    cout << f[n][m] << "\n";
+    for (int i = 1; i <= n; i++) {
+        cout << i << " " << path[i] << "\n";
+    }
 }
 
 void prework() {
@@ -151,10 +158,14 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
-        cin >> n;
-        for (int i = 1; i <= n; i++) cin >> va[i];
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= m; j++) {
+                cin >> va[i][j];
+            }
+        }
         solve();
     }
 

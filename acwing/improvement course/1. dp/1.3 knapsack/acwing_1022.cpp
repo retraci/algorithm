@@ -125,7 +125,7 @@ void solve() {
         }
     }
 
-    int ans1 = f[n][m - 1], ans2 = 1e9L;
+    int ans1 = f[n][m - 1], ans2 = 1e9;
     for (int k = 0; k <= m - 1; k++) {
         if (f[n][k] == ans1) ans2 = min(ans2, k);
     }

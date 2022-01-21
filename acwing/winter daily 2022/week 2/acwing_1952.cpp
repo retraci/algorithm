@@ -110,7 +110,7 @@ int get_id(int v) {
 }
 
 void solve() {
-    lsh.push_back(-1), lsh.push_back(1e9L + 1);
+    lsh.push_back(-1), lsh.push_back(1e9 + 1);
     for (int i = 1; i <= n; i++) {
         int L = va[i], R = vb[i];
         lsh.push_back(L);

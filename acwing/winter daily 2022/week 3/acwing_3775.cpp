@@ -115,28 +115,52 @@ int n;
 int va[N];
 
 void solve() {
-    vector<int> vb(n + 1);
-    for (int i = 1; i <= n; i++) vb[va[i]]++;
-    for (int i = 1; i <= n; i++) vb[i] += vb[i - 1];
+    int vis[n + 1], vb[n + 1];
+    memset(vis, 0, sizeof vis);
+    memset(vb, 0, sizeof vb);
+    for (int i = 1; i <= n; i++) vb[va[i]] = i;
 
-    int ans = 1e9;
-    int lim = __lg(n) + 1;
-    for (int i = 0; i <= lim; i++) {
-        for (int j = 0; j <= lim; j++) {
-            int x = 1 << i, y = 1 << j;
+    int flag = 0;
+    for (int i = 1; i <= n; i++) {
+        if (va[i] == 0 || vis[i]) continue;
 
-            int id1 = upper_bound(vb.begin(), vb.end(), x) - vb.begin();
-            int id2 = lower_bound(vb.begin(), vb.end(), n - y) - vb.begin();
-            int s1 = vb[id1 - 1], s2 = vb[id2] - s1, s3 = vb[n] - s1 - s2;
-
-            int z = 1;
-            while (z < s2) z <<= 1;
-            int tmp = (x - s1) + (y - s3) + (z - s2);
-            ans = min(ans, tmp);
+        int x = i, y = i;
+        vis[i] = 1;
+        while (vb[x] != 0 && !vis[vb[x]]) {
+            x = vb[x], vis[x] = 1;
         }
+        while (va[y] != 0 && !vis[va[y]]) {
+            y = va[y], vis[y] = 1;
+        }
+
+        if (va[y] == x) continue;
+
+        if (!flag) {
+            flag = 1;
+            for (int j = 1; j <= n; j++) {
+                if (va[j] != 0 || vb[j] != 0) continue;
+                vis[j] = 1;
+                va[y] = j, y = j;
+            }
+        }
+        va[y] = x;
     }
 
-    cout << ans << "\n";
+    if (!flag) {
+        int x = 0, y;
+        for (int j = 1; j <= n; j++) {
+            if (va[j] != 0) continue;
+            if (x == 0) {
+                x = y = j;
+            } else {
+                va[y] = j, y = j;
+            }
+        }
+        va[y] = x;
+    }
+
+    for (int i = 1; i <= n; i++) cout << va[i] << " ";
+    cout << "\n";
 }
 
 void prework() {

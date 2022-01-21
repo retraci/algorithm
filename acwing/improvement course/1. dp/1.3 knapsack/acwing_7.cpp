@@ -156,7 +156,7 @@ int main() {
         for (int i = 1; i <= n; i++) {
             int v, w, s;
             cin >> v >> w >> s;
-            s = s > 0 ? s : s == -1 ? 1 : 1e9L;
+            s = s > 0 ? s : s == -1 ? 1 : (int) 1e9;
             va[i] = {v, w, s};
         }
         solve();

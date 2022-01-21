@@ -109,34 +109,38 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 2e5 + 10;
+const int N = 1010;
 
-int n;
-int va[N];
+int n, m;
+pii va[N];
+pii pre[N][N];
 
 void solve() {
-    vector<int> vb(n + 1);
-    for (int i = 1; i <= n; i++) vb[va[i]]++;
-    for (int i = 1; i <= n; i++) vb[i] += vb[i - 1];
+    int f[m + 1];
+    memset(f, 0, sizeof f);
 
-    int ans = 1e9;
-    int lim = __lg(n) + 1;
-    for (int i = 0; i <= lim; i++) {
-        for (int j = 0; j <= lim; j++) {
-            int x = 1 << i, y = 1 << j;
-
-            int id1 = upper_bound(vb.begin(), vb.end(), x) - vb.begin();
-            int id2 = lower_bound(vb.begin(), vb.end(), n - y) - vb.begin();
-            int s1 = vb[id1 - 1], s2 = vb[id2] - s1, s3 = vb[n] - s1 - s2;
-
-            int z = 1;
-            while (z < s2) z <<= 1;
-            int tmp = (x - s1) + (y - s3) + (z - s2);
-            ans = min(ans, tmp);
+    for (int i = n; i >= 1; i--) {
+        auto &[v, w] = va[i];
+        for (int j = m; j >= 0; j--) {
+            f[j] = f[j];
+            pre[i][j] = {i + 1, j};
+            if (j - v >= 0 && f[j] <= f[j - v] + w) {
+                f[j] = f[j - v] + w;
+                pre[i][j] = {i + 1, j - v};
+            }
         }
     }
 
-    cout << ans << "\n";
+    vector<int> ans;
+    int t1 = 1, t2 = m;
+    while (t1 <= n) {
+        auto [t3, t4] = pre[t1][t2];
+        if (t2 != t4) ans.push_back(t1);
+        t1 = t3, t2 = t4;
+    }
+    
+    for (int x : ans) cout << x << " ";
+    cout << "\n";
 }
 
 void prework() {
@@ -151,10 +155,14 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
-        cin >> n;
-        for (int i = 1; i <= n; i++) cin >> va[i];
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) {
+            int v, w;
+            cin >> v >> w;
+            va[i] = {v, w};
+        }
         solve();
     }
 
