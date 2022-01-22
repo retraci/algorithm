@@ -533,6 +533,13 @@ struct Seg {
         return query(ls(k), s, mid, L, R) + query(rs(k), mid + 1, e, L, R);
     }
 
+    inline ll query_k(int k, int s, int e, int x) {
+        if (s == e) return s;
+
+        if (x <= tr[ls(k)].sum) return query_k(ls(k), s, mid, x);
+        else return query_k(rs(k), mid + 1, e, x - tr[ls(k)].sum);
+    }
+
     inline void update(int L, int R, ll val) {
         if (R < L) return;
         update(rt, lb, rb, L, R, val);
@@ -545,6 +552,10 @@ struct Seg {
     inline ll query(int L, int R) {
         if (R < L) return 0;
         return query(rt, lb, rb, L, R);
+    }
+
+    inline ll query_k(int k, int x) {
+        return query_k(1, lb, rb, x);
     }
 };
 // endregion
