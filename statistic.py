@@ -1,12 +1,12 @@
 import os
 
-root_path = r'E:\workspace\cpp\clion\algorithm'
-ignore_path = {os.path.join(root_path, '.idea'),
-               os.path.join(root_path, '.git'),
-               os.path.join(root_path, 'cmake-build-debug'),
-               os.path.join(root_path, 'template')}
+root_path = os.path.abspath(os.path.join(__file__, '../'))
+ignore_path = {os.path.abspath(os.path.join(root_path, '.idea')),
+               os.path.abspath(os.path.join(root_path, '.git')),
+               os.path.abspath(os.path.join(root_path, 'cmake-build-debug')),
+               os.path.abspath(os.path.join(root_path, 'template'))}
 
-cpp_template_path = r'E:\workspace\cpp\clion\algorithm\template\tool\template.cpp'
+cpp_template_path = os.path.abspath(os.path.join(root_path, r'template\tool\template.cpp'))
 cpp_template = None
 
 
@@ -36,7 +36,7 @@ def countFiles(root_path):
     if len(item_list) == 0:
         return total_files, total_lines, valid_lines
     for item in item_list:
-        next_path = os.path.join(root_path, item)
+        next_path = os.path.abspath(os.path.join(root_path, item))
         if os.path.isfile(next_path):
             if item[-4::] == '.cpp':
                 total_files += 1
@@ -54,7 +54,9 @@ def countFiles(root_path):
 
 
 if __name__ == '__main__':
-    cpp_template_file = open(file=cpp_template_path, encoding='utf-8')
+    print(root_path)
+    print(cpp_template_path)
+    cpp_template_file = open(cpp_template_path, 'r', encoding='utf-8')
     cpp_template = set(cpp_template_file.readlines())
 
     total_files, total_lines, valid_lines = countFiles(root_path)
