@@ -19,7 +19,7 @@ ll va[N];
 ll r[N], f[N];
 ll c[31];
 
-ll qsm(ll a, ll b) {
+ll ksm(ll a, ll b) {
     ll res = 1;
     while (b) {
         if (b & 1) res = (res * a) % MOD;
@@ -30,7 +30,7 @@ ll qsm(ll a, ll b) {
 }
 
 ll inv(ll x) {
-    return qsm(x, MOD - 2);
+    return ksm(x, MOD - 2);
 }
 
 ll C(ll a, ll b) {

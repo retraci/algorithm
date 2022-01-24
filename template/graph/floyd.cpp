@@ -97,7 +97,7 @@ void floyd(int a[][N], int b[][N]) {
     memcpy(a, temp, sizeof temp);
 }
 
-void qsm() {
+void ksm() {
     memset(ans, 0x3f, sizeof ans);
     for (int i = 0; i < n; i++) ans[i][i] = 0;
 

@@ -27,7 +27,7 @@ int n;
 string va[N];
 ll fac[N];
 
-ll qsm(ll x, ll y) {
+ll ksm(ll x, ll y) {
     ll res = 1;
     while (y) {
         if (y & 1) res = (res * x) % MOD;
@@ -38,7 +38,7 @@ ll qsm(ll x, ll y) {
 }
 
 ll inv(ll x) {
-    return qsm(x, MOD - 2);
+    return ksm(x, MOD - 2);
 }
 
 ll C(ll x, ll y) {

@@ -17,7 +17,7 @@ const ll MOD = 1e9 + 7;
 int n, m;
 ll ls[N], rs[N], va[N];
 
-ll qsm(ll a, ll b) {
+ll ksm(ll a, ll b) {
     ll res = 1;
     while (b > 0) {
         if (b & 1) res = res * a % MOD;
@@ -30,7 +30,7 @@ ll qsm(ll a, ll b) {
 void solve() {
     ll ans = 0;
     for (int i = 1; i <= m; i++) ans |= va[i];
-    ans = ans * qsm(2, n - 1) % MOD;
+    ans = ans * ksm(2, n - 1) % MOD;
 
     cout << ans << endl;
 }

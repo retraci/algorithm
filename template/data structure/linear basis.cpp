@@ -1,10 +1,14 @@
 // region 线性基
 vector<ll> bas;
 
-void insert(ll x) {
+bool insert(ll x) {
     for (auto b: bas) x = min(x, b ^ x);
     for (auto &b: bas) b = min(b, b ^ x);
-    if (x) bas.push_back(x);
+    if (x) {
+        bas.push_back(x);
+        return true;
+    }
+    return false;
 }
 
 ll query(ll k) {
@@ -24,6 +28,5 @@ void init_lbas() {
     for (int i = 1; i <= n; i++) insert(va[i]);
     // 排序
     sort(bas.begin(), bas.end());
-
 }
 // endregion

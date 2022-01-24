@@ -109,7 +109,34 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 66;
+
+int n, m;
+pii va[N];
+vector<pii> vb[N];
+
 void solve() {
+    int f[m + 1];
+    memset(f, 0, sizeof f);
+
+    for (int i = 1; i <= n; i++) {
+        auto &[v1, w1] = va[i];
+        for (int j = m; j >= 0; j--) {
+            int lim = 1 << vb[i].size();
+            for (int mask = 0; mask < lim; mask++) {
+                int sv = v1, sw = w1;
+                for (int k = 0; k < vb[i].size(); k++) {
+                    if (mask >> k & 1) {
+                        auto &[v2, w2] = vb[i][k];
+                        sv += v2, sw += w2;
+                    }
+                }
+                if (j - sv >= 0) f[j] = max(f[j], f[j - sv] + sw);
+            }
+        }
+    }
+
+    cout << f[m] << "\n";
 }
 
 void prework() {
@@ -124,8 +151,15 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
+        cin >> m >> n;
+        for (int i = 1; i <= n; i++) {
+            int v, p, q;
+            cin >> v >> p >> q;
+            if (!q) va[i] = {v, v * p};
+            else vb[q].push_back({v, v * p});
+        }
         solve();
     }
 

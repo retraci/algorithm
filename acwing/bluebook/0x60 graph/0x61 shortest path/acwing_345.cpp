@@ -51,7 +51,7 @@ void floyd(int a[][N], int b[][N]) {
     memcpy(a, temp, sizeof temp);
 }
 
-void qsm() {
+void ksm() {
     memset(ans, 0x3f, sizeof ans);
     for (int i = 0; i < n; i++) ans[i][i] = 0;
 
@@ -91,7 +91,7 @@ void solve() {
         f[u][v] = f[v][u] = min(f[u][v], w);
     }
 
-    qsm();
+    ksm();
     printf("%d\n", ans[s][t]);
 
     // T 了

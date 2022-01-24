@@ -30,7 +30,7 @@ ll qsc(ll a, ll b, ll m) {
 }
 
 // 快速幂
-ll qsm(ll a, ll b, ll m) {
+ll ksm(ll a, ll b, ll m) {
     ll ans = 1;
     a %= m;
     while (b) {
@@ -56,7 +56,7 @@ bool Miller_Rabin() {
     // Times就是我们事先定义的s（要找a的个数）
     for (int i = 0; i < times; i++) {
         ll a = rand() % (n - 1) + 1;  // 找一个[1,n-1]内的任意数
-        ll x = qsm(a, m, n);
+        ll x = ksm(a, m, n);
         ll y = 0;
         for (int j = 0; j < k; j++) {
             y = qsc(x, x, n);

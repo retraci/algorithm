@@ -10,6 +10,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <numeric>
+#include <iomanip>
 #include <bitset>
 
 // region hash_func
@@ -23,6 +24,24 @@ struct tuple_hash {
 template<class T>
 inline void hash_combine(std::size_t &seed, T const &v) {
     seed ^= tuple_hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+}
+
+template<typename T>
+inline void hash_val(std::size_t &seed, const T &val) {
+    hash_combine(seed, val);
+}
+
+template<typename T, typename... Types>
+inline void hash_val(std::size_t &seed, const T &val, const Types &... args) {
+    hash_combine(seed, val);
+    hash_val(seed, args...);
+}
+
+template<typename... Types>
+inline std::size_t hash_val(const Types &... args) {
+    std::size_t seed = 0;
+    hash_val(seed, args...);
+    return seed;
 }
 
 template<class Tuple, size_t Index = std::tuple_size<Tuple>::value - 1>
@@ -49,24 +68,6 @@ struct tuple_hash<std::tuple<TT...>> {
     }
 };
 
-template<typename T>
-inline void hash_val(std::size_t &seed, const T &val) {
-    hash_combine(seed, val);
-}
-
-template<typename T, typename... Types>
-inline void hash_val(std::size_t &seed, const T &val, const Types &... args) {
-    hash_combine(seed, val);
-    hash_val(seed, args...);
-}
-
-template<typename... Types>
-inline std::size_t hash_val(const Types &... args) {
-    std::size_t seed = 0;
-    hash_val(seed, args...);
-    return seed;
-}
-
 struct pair_hash {
     template<class T1, class T2>
     std::size_t operator()(const std::pair<T1, T2> &p) const {
@@ -87,6 +88,16 @@ typedef std::tuple<int, int, int> ti3;
 typedef std::tuple<ll, ll, ll> tl3;
 typedef std::tuple<int, int, int, int> ti4;
 typedef std::tuple<ll, ll, ll, ll> tl4;
+
+inline void debug() {
+    std::cout << "\n";
+}
+
+template<class T, class... OtherArgs>
+inline void debug(T &&var, OtherArgs &&... args) {
+    std::cout << std::forward<T>(var) << " ";
+    debug(std::forward<OtherArgs>(args)...);
+}
 // endregion
 // region grid_delta
 namespace grid_delta {
@@ -99,65 +110,61 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 5010;
-const ll MOD = 998244353;
+const int N = (1 << 16) + 1;
 
-string str;
+int n;
+ll va[N];
 
-ll fac[N], ifac[N];
+// region 线性基
+vector<ll> bas;
 
-inline ll ksm(ll a, ll b) {
-    ll res = 1;
-    while (b) {
-        if (b & 1) res = res * a % MOD;
-        a = a * a % MOD;
-        b >>= 1;
+bool insert(ll x) {
+    for (auto b: bas) x = min(x, b ^ x);
+    for (auto &b: bas) b = min(b, b ^ x);
+    if (x) {
+        bas.push_back(x);
+        return true;
     }
-    return res;
+    return false;
 }
 
-inline ll inv(ll x) {
-    return ksm(x, MOD - 2);
+ll query(ll k) {
+    ll res = 0;
+    if (bas.size() < n) k--;
+    for (auto b: bas) {
+        if (k & 1) res ^= b;
+        k >>= 1;
+    }
+
+    if (k == 0) return res;
+    else return -1;
 }
 
-inline ll C(ll a, ll b) {
-    if (a < 0 || b < 0 || a - b < 0) return 0;
-    return fac[a] * ifac[b] % MOD * ifac[a - b] % MOD;
+void init_lbas() {
+    bas = {};
+    for (int i = 1; i <= n; i++) insert(va[i]);
+    // 排序
+    sort(bas.begin(), bas.end());
 }
-
-inline void init_comb(int lim) {
-    fac[0] = ifac[0] = 1;
-    for (int i = 1; i <= lim; i++) fac[i] = fac[i - 1] * i % MOD, ifac[i] = inv(fac[i]);
-}
+// endregion
 
 void solve() {
-    int cnt[27];
-    memset(cnt, 0, sizeof cnt);
-    for (char ch : str) cnt[ch - 'a' + 1]++;
+    int m = (1 << n) - 1;
+    int idx[m + 1];
+    iota(idx, idx + m + 1, 0);
 
-    int n = str.size();
-    ll f[27][n + 1];
-    memset(f, 0, sizeof f);
-    f[0][0] = 1;
-    for (int i = 1; i <= 26; i++) {
-        for (int j = 0; j <= n; j++) {
-            for (int k = 0; k <= min(j, cnt[i]); k++) {
-                f[i][j] += f[i - 1][j - k] * C(j, k) % MOD;
-                f[i][j] %= MOD;
-            }
-        }
-    }
-
+    sort(idx + 1, idx + m + 1, [&](auto &a, auto &b) {
+        return va[a] < va[b];
+    });
     ll ans = 0;
-    for (int j = 1; j <= n; j++) {
-        ans += f[26][j];
-        ans %= MOD;
+    for (int i = 1; i <= m; i++) {
+        int id = idx[i];
+        if (insert(id)) ans += va[id];
     }
     cout << ans << "\n";
 }
 
 void prework() {
-    init_comb(5000);
 }
 
 int main() {
@@ -171,7 +178,8 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> str;
+        cin >> n;
+        for (int i = 1; i <= (1 << n) - 1; i++) cin >> va[i];
         solve();
     }
 

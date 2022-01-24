@@ -554,8 +554,8 @@ struct Seg {
         return query(rt, lb, rb, L, R);
     }
 
-    inline ll query_k(int k, int x) {
-        return query_k(1, lb, rb, x);
+    inline ll query_k(int x) {
+        return query_k(rt, lb, rb, x);
     }
 };
 // endregion

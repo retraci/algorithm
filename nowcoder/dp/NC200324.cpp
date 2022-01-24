@@ -16,7 +16,7 @@ int n, m, K;
 PII va[N];
 ll mp[M][M], f[M][M];
 
-ll qsm(ll a, ll b) {
+ll ksm(ll a, ll b) {
     ll res = 1;
     while (b) {
         if (b & 1) res = (res * a) % MOD;
@@ -28,7 +28,7 @@ ll qsm(ll a, ll b) {
 }
 
 ll inv(ll a, ll mod) {
-    return qsm(a, mod - 2);
+    return ksm(a, mod - 2);
 }
 
 ll C(ll a, ll b) {

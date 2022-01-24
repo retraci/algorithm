@@ -29,7 +29,7 @@ ll n, m;
 ll x1, y1, x2, y2;
 ll p;
 
-inline ll qsm(ll a, ll b) {
+inline ll ksm(ll a, ll b) {
     ll res = 1;
     while (b) {
         if (b & 1) res = res * a % MOD;
@@ -40,7 +40,7 @@ inline ll qsm(ll a, ll b) {
 }
 
 inline ll inv(ll x) {
-    return qsm(x, MOD - 2);
+    return ksm(x, MOD - 2);
 }
 
 void solve() {

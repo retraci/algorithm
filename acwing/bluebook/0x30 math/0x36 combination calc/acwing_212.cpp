@@ -17,7 +17,7 @@ ll fac[N], f[N], inv[N];
 int vis[N];
 vector<ll> ls;
 
-ll qsm(ll a, ll b) {
+ll ksm(ll a, ll b) {
     ll res = 1;
     while (b) {
         if (b & 1) res = (res * a) % MOD;
@@ -31,8 +31,8 @@ void init() {
     fac[0] = 1;
     for (int i = 1; i < N; i++) fac[i] = fac[i - 1] * i % MOD;
     f[1] = 1;
-    for (int i = 2; i < N; i++) f[i] = qsm(i, i - 2);
-    for (int i = 0; i < N; i++) inv[i] = qsm(fac[i], MOD - 2);
+    for (int i = 2; i < N; i++) f[i] = ksm(i, i - 2);
+    for (int i = 0; i < N; i++) inv[i] = ksm(fac[i], MOD - 2);
 }
 
 ll dfs(int u) {

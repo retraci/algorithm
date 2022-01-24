@@ -31,7 +31,7 @@ string str;
 // region comb
 ll fac[N], ifac[N];
 
-inline ll qsm(ll a, ll b) {
+inline ll ksm(ll a, ll b) {
     ll res = 1;
     while (b) {
         if (b & 1) res = res * a % MOD;
@@ -42,7 +42,7 @@ inline ll qsm(ll a, ll b) {
 }
 
 inline ll inv(ll x) {
-    return qsm(x, MOD - 2);
+    return ksm(x, MOD - 2);
 }
 
 inline ll C(ll a, ll b) {
