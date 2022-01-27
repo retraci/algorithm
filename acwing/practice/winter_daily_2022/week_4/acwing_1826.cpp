@@ -1,17 +1,17 @@
-#[[#includ]]# <iostream>
-#[[#includ]]# <cstdio>
-#[[#includ]]# <algorithm>
-#[[#includ]]# <cstring>
-#[[#includ]]# <numeric>
-#[[#includ]]# <iomanip>
-#[[#includ]]# <vector>
-#[[#includ]]# <queue>
-#[[#includ]]# <stack>
-#[[#includ]]# <set>
-#[[#includ]]# <map>
-#[[#includ]]# <unordered_set>
-#[[#includ]]# <unordered_map>
-#[[#includ]]# <bitset>
+#include <iostream>
+#include <cstdio>
+#include <algorithm>
+#include <cstring>
+#include <numeric>
+#include <iomanip>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <set>
+#include <map>
+#include <unordered_set>
+#include <unordered_map>
+#include <bitset>
 
 // region hash_func
 template<typename TT>
@@ -76,11 +76,11 @@ struct pair_hash {
 };
 // endregion
 // region general
-#[[#define]]# ll long long
-#[[#define]]# ld long double
-#[[#define]]# ull unsigned long long
-#[[#define]]# fi first
-#[[#define]]# se second
+#define ll long long
+#define ld long double
+#define ull unsigned long long
+#define fi first
+#define se second
 
 typedef std::pair<int, int> pii;
 typedef std::pair<ll, ll> pll;
@@ -110,23 +110,55 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 50010;
+
+int n;
+pii va[N];
+
 void solve() {
+    int idx1[n + 1], idx2[n + 1];
+    iota(idx1, idx1 + n + 1, 0);
+    sort(idx1 + 1, idx1 + n + 1, [&](auto &a, auto &b) {
+        return va[a].fi < va[b].fi;
+    });
+    iota(idx2, idx2 + n + 1, 0);
+    sort(idx2 + 1, idx2 + n + 1, [&](auto &a, auto &b) {
+        return va[a].se < va[b].se;
+    });
+
+    int ans = 2e9;
+    for (int i = 1; i <= n; i++) {
+        int lbx1 = idx1[1], lbx2 = idx1[2], rbx1 = idx1[n], rbx2 = idx1[n - 1];
+        int lby1 = idx2[1], lby2 = idx2[2], rby1 = idx2[n], rby2 = idx2[n - 1];
+        int x1 = lbx1 == i ? va[lbx2].fi : va[lbx1].fi;
+        int x2 = rbx1 == i ? va[rbx2].fi : va[rbx1].fi;
+        int y1 = lby1 == i ? va[lby2].se : va[lby1].se;
+        int y2 = rby1 == i ? va[rby2].se : va[rby1].se;
+        ans = min(ans, (x2 - x1) * (y2 - y1));
+    }
+    cout << ans << "\n";
 }
 
 void prework() {
 }
 
 int main() {
-#[[#ifdef]]# LOCAL
+#ifdef LOCAL
     freopen("../in.txt", "r", stdin);
     freopen("../out.txt", "w", stdout);
-#[[#endif]]#
+#endif
 
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
+        cin >> n;
+        for (int i = 1; i <= n; i++) {
+            int x, y;
+            cin >> x >> y;
+            va[i] = {x, y};
+        }
         solve();
     }
 

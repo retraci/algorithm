@@ -1,17 +1,17 @@
-#[[#includ]]# <iostream>
-#[[#includ]]# <cstdio>
-#[[#includ]]# <algorithm>
-#[[#includ]]# <cstring>
-#[[#includ]]# <numeric>
-#[[#includ]]# <iomanip>
-#[[#includ]]# <vector>
-#[[#includ]]# <queue>
-#[[#includ]]# <stack>
-#[[#includ]]# <set>
-#[[#includ]]# <map>
-#[[#includ]]# <unordered_set>
-#[[#includ]]# <unordered_map>
-#[[#includ]]# <bitset>
+#include <iostream>
+#include <cstdio>
+#include <algorithm>
+#include <cstring>
+#include <numeric>
+#include <iomanip>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <set>
+#include <map>
+#include <unordered_set>
+#include <unordered_map>
+#include <bitset>
 
 // region hash_func
 template<typename TT>
@@ -76,11 +76,11 @@ struct pair_hash {
 };
 // endregion
 // region general
-#[[#define]]# ll long long
-#[[#define]]# ld long double
-#[[#define]]# ull unsigned long long
-#[[#define]]# fi first
-#[[#define]]# se second
+#define ll long long
+#define ld long double
+#define ull unsigned long long
+#define fi first
+#define se second
 
 typedef std::pair<int, int> pii;
 typedef std::pair<ll, ll> pll;
@@ -110,23 +110,55 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+int n;
+unordered_map<char, int> va[2];
+
 void solve() {
+    string str = "BESIGOM";
+    unordered_map<char, int> mp;
+    for (char ch : str) mp[ch] = mp.size();
+
+    int ans = 0;
+    int lim = 1 << 7;
+    for (int mask = 0; mask < lim; mask++) {
+        int a = (mask >> mp['B'] & 1) + (mask >> mp['I'] & 1);
+        int b = (mask >> mp['G'] & 1) + (mask >> mp['O'] & 1) + (mask >> mp['E'] & 1) + (mask >> mp['S'] & 1);
+        int c = (mask >> mp['M'] & 1);
+        int sum = a * b * c;
+        if (sum & 1) continue;
+
+        int tmp = 1;
+        for (int i = 0; i < 7; i++) {
+            char ch = str[i];
+            tmp *= va[mask >> i & 1][ch];
+        }
+        ans += tmp;
+    }
+
+    cout << ans << "\n";
 }
 
 void prework() {
 }
 
 int main() {
-#[[#ifdef]]# LOCAL
+#ifdef LOCAL
     freopen("../in.txt", "r", stdin);
     freopen("../out.txt", "w", stdout);
-#[[#endif]]#
+#endif
 
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
+        cin >> n;
+        for (int i = 1; i <= n; i++) {
+            char ch;
+            int x;
+            cin >> ch >> x;
+            va[x & 1][ch]++;
+        }
         solve();
     }
 

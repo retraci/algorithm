@@ -1,17 +1,17 @@
-#[[#includ]]# <iostream>
-#[[#includ]]# <cstdio>
-#[[#includ]]# <algorithm>
-#[[#includ]]# <cstring>
-#[[#includ]]# <numeric>
-#[[#includ]]# <iomanip>
-#[[#includ]]# <vector>
-#[[#includ]]# <queue>
-#[[#includ]]# <stack>
-#[[#includ]]# <set>
-#[[#includ]]# <map>
-#[[#includ]]# <unordered_set>
-#[[#includ]]# <unordered_map>
-#[[#includ]]# <bitset>
+#include <iostream>
+#include <cstdio>
+#include <algorithm>
+#include <cstring>
+#include <numeric>
+#include <iomanip>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <set>
+#include <map>
+#include <unordered_set>
+#include <unordered_map>
+#include <bitset>
 
 // region hash_func
 template<typename TT>
@@ -76,11 +76,11 @@ struct pair_hash {
 };
 // endregion
 // region general
-#[[#define]]# ll long long
-#[[#define]]# ld long double
-#[[#define]]# ull unsigned long long
-#[[#define]]# fi first
-#[[#define]]# se second
+#define ll long long
+#define ld long double
+#define ull unsigned long long
+#define fi first
+#define se second
 
 typedef std::pair<int, int> pii;
 typedef std::pair<ll, ll> pll;
@@ -110,23 +110,62 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 1.5e5 + 1;
+
+int n, m;
+pii g[N];
+int h[N], ne[N], tt;
+int dist[N], vis[N];
+
+void add(int u, int v, int cost) {
+    g[tt] = {v, cost};
+    ne[tt] = h[u], h[u] = tt++;
+}
+
 void solve() {
+    fill(dist + 1, dist + n + 1, 2e9);
+    fill(vis + 1, vis + n + 1, 0);
+    priority_queue<pii> pq;
+    dist[1] = 0;
+    pq.push({0, 1});
+    while (!pq.empty()) {
+        auto [d, u] = pq.top(); pq.pop(); d = -d;
+        if (vis[u]) continue;
+        vis[u] = 1;
+
+        for (int i = h[u]; ~i; i = ne[i]) {
+            auto &[v, cost] = g[i];
+            if (dist[v] > dist[u] + cost) {
+                dist[v] = dist[u] + cost;
+                pq.push({-dist[v], v});
+            }
+        }
+    }
+
+    cout << (dist[n] == 2e9 ? -1 : dist[n]) << "\n";
 }
 
 void prework() {
 }
 
 int main() {
-#[[#ifdef]]# LOCAL
+#ifdef LOCAL
     freopen("../in.txt", "r", stdin);
     freopen("../out.txt", "w", stdout);
-#[[#endif]]#
+#endif
 
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
+        cin >> n >> m;
+        fill(h + 1, h + n + 1, -1);
+        for (int i = 1; i <= m; i++) {
+            int u, v, cost;
+            cin >> u >> v >> cost;
+            add(u, v, cost);
+        }
         solve();
     }
 

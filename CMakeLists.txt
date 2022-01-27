@@ -7,3 +7,11 @@ MATH(EXPR stack_size "102400000")
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,--stack,${stack_size}")
 
 add_executable(tmp tmp.cpp)
+
+
+add_executable(acwing_1884 acwing/practice/winter_daily_2022/week_3/acwing_1884.cpp)
+add_executable(acwing_1875 acwing/practice/winter_daily_2022/week_4/acwing_1875.cpp)
+add_executable(acwing_1855 acwing/practice/winter_daily_2022/week_4/acwing_1855.cpp)
+add_executable(acwing_850 "acwing/practice/shortest path/acwing_850.cpp")
+add_executable(acwing_1843 acwing/practice/winter_daily_2022/week_4/acwing_1843.cpp)
+add_executable(acwing_1826 acwing/practice/winter_daily_2022/week_4/acwing_1826.cpp)

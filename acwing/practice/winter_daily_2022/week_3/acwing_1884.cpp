@@ -1,17 +1,17 @@
-#[[#includ]]# <iostream>
-#[[#includ]]# <cstdio>
-#[[#includ]]# <algorithm>
-#[[#includ]]# <cstring>
-#[[#includ]]# <numeric>
-#[[#includ]]# <iomanip>
-#[[#includ]]# <vector>
-#[[#includ]]# <queue>
-#[[#includ]]# <stack>
-#[[#includ]]# <set>
-#[[#includ]]# <map>
-#[[#includ]]# <unordered_set>
-#[[#includ]]# <unordered_map>
-#[[#includ]]# <bitset>
+#include <iostream>
+#include <cstdio>
+#include <algorithm>
+#include <cstring>
+#include <numeric>
+#include <iomanip>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <set>
+#include <map>
+#include <unordered_set>
+#include <unordered_map>
+#include <bitset>
 
 // region hash_func
 template<typename TT>
@@ -76,11 +76,11 @@ struct pair_hash {
 };
 // endregion
 // region general
-#[[#define]]# ll long long
-#[[#define]]# ld long double
-#[[#define]]# ull unsigned long long
-#[[#define]]# fi first
-#[[#define]]# se second
+#define ll long long
+#define ld long double
+#define ull unsigned long long
+#define fi first
+#define se second
 
 typedef std::pair<int, int> pii;
 typedef std::pair<ll, ll> pll;
@@ -110,23 +110,34 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+int n;
+string str;
+
 void solve() {
+    ll a = 0, b = 0, c = 0;
+    for (int i = 0; i < n; i++) {
+        if (str[i] == 'C') a++;
+        else if (str[i] == 'O') b += a;
+        else c += b;
+    }
+    cout << c << "\n";
 }
 
 void prework() {
 }
 
 int main() {
-#[[#ifdef]]# LOCAL
+#ifdef LOCAL
     freopen("../in.txt", "r", stdin);
     freopen("../out.txt", "w", stdout);
-#[[#endif]]#
+#endif
 
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
+        cin >> n >> str;
         solve();
     }
 

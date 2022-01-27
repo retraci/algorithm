@@ -2,6 +2,8 @@
 #include <cstdio>
 #include <algorithm>
 #include <cstring>
+#include <numeric>
+#include <iomanip>
 #include <vector>
 #include <queue>
 #include <stack>
@@ -9,8 +11,6 @@
 #include <map>
 #include <unordered_set>
 #include <unordered_map>
-#include <numeric>
-#include <iomanip>
 #include <bitset>
 
 // region hash_func
@@ -110,77 +110,7 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e5 + 10;
-const double eps = 1e-5;
-
-int n;
-double va[N];
-
-bool check1(double mid) {
-    double f[n + 1][2];
-    fill(&f[0][0], &f[n][2], -1e18);
-
-    f[0][0] = f[0][1] = 0;
-    for (int i = 1; i <= n; i++) {
-        f[i][0] = f[i - 1][1];
-        f[i][1] = max(f[i - 1][0], f[i - 1][1]) + va[i] - mid;
-    }
-
-    return max(f[n][0], f[n][1]) >= 0;
-}
-
-bool check2(int mid) {
-    int cnt = 0;
-    int vis[n + 1];
-    memset(vis, 0, sizeof vis);
-    for (int i = 1; i <= n; i++) {
-        if (va[i] >= mid) {
-            cnt++;
-            vis[i] = 1;
-        }
-    }
-
-    int lb = 0;
-    for (int i = 1; i <= n; i++) {
-        if (vis[i]) continue;
-
-        int j = i;
-        while (j <= n && !vis[j]) j++;
-
-        lb += (j - i) / 2;
-        i = j - 1;
-    }
-
-    int need = cnt - 1;
-    return need >= lb;
-}
-
 void solve() {
-    {
-        double left = 0, right = 1e9;
-        while (left + eps < right) {
-            double mid = (left + right) / 2;
-            if (check1(mid)) left = mid;
-            else right = mid;
-        }
-
-        cout << left << "\n";
-    }
-
-    {
-        set<int> st;
-        for (int i = 1; i <= n; i++) st.insert(va[i]);
-        vector<int> tmp(st.begin(), st.end());
-
-        int left = 0, right = tmp.size() - 1;
-        while (left < right) {
-            int mid = left + right + 1 >> 1;
-            if (check2(tmp[mid])) left = mid;
-            else right = mid - 1;
-        }
-
-        cout << tmp[left] << "\n";
-    }
 }
 
 void prework() {
@@ -195,10 +125,8 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
-        cin >> n;
-        for (int i = 1; i <= n; i++) cin >> va[i];
         solve();
     }
 
