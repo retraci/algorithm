@@ -12,6 +12,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <bitset>
+#include <cmath>
 
 // region hash_func
 template<typename TT>
@@ -110,12 +111,22 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+ll h1, d1, h2, d2;
+ll k, w, a;
+
 void solve() {
+    for (int i = 0; i <= k; i++) {
+        ll nh = h1 + i * a, nd = d1 + (k - i) * w;
+        ll r1 = ceil(1.0 * nh / d2), r2 = ceil(1.0 * h2 / nd);
+        if (r1 >= r2) {
+            cout << "YES" << "\n";
+            return;
+        }
+    }
+    cout << "NO" << "\n";
 }
 
 void prework() {
-    int a[10][10][10];
-    fill(&a[0][0][0], &a[9][9][10], 0);
 }
 
 int main() {
@@ -127,8 +138,10 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
+        cin >> h1 >> d1 >> h2 >> d2;
+        cin >> k >> w >> a;
         solve();
     }
 

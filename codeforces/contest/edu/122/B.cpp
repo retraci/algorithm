@@ -110,12 +110,23 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+string str;
+
 void solve() {
+    int c1 = 0, c2 = 0;
+    for (char ch : str) {
+        c1 += ch == '0';
+        c2 += ch == '1';
+    }
+
+    if (c1 == c2) {
+        cout << c1 - 1 << "\n";
+    } else {
+        cout << min(c1, c2) << "\n";
+    }
 }
 
 void prework() {
-    int a[10][10][10];
-    fill(&a[0][0][0], &a[9][9][10], 0);
 }
 
 int main() {
@@ -127,8 +138,9 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
+        cin >> str;
         solve();
     }
 

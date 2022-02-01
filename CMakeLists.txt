@@ -15,3 +15,8 @@ add_executable(acwing_1855 acwing/practice/winter_daily_2022/week_4/acwing_1855.
 add_executable(acwing_850 "acwing/practice/shortest path/acwing_850.cpp")
 add_executable(acwing_1843 acwing/practice/winter_daily_2022/week_4/acwing_1843.cpp)
 add_executable(acwing_1826 acwing/practice/winter_daily_2022/week_4/acwing_1826.cpp)
+add_executable(acwing_1813 acwing/practice/winter_daily_2022/week_4/acwing_1813.cpp)
+add_executable(A codeforces/contest/edu/122/A.cpp)
+add_executable(B codeforces/contest/edu/122/B.cpp)
+add_executable(C codeforces/contest/edu/122/C.cpp)
+add_executable(D codeforces/contest/edu/122/D.cpp)

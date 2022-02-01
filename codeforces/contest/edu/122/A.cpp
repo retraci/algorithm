@@ -110,12 +110,25 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+int n;
+
 void solve() {
+    if (n % 7 == 0) {
+        cout << n << "\n";
+        return;
+    }
+    string str = to_string(n);
+    for (int j = 0; j <= 9; j++) {
+        str.back() = j + '0';
+        int tmp = stoi(str);
+        if (tmp % 7 == 0) {
+            cout << tmp << "\n";
+            return;
+        }
+    }
 }
 
 void prework() {
-    int a[10][10][10];
-    fill(&a[0][0][0], &a[9][9][10], 0);
 }
 
 int main() {
@@ -127,8 +140,9 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
+        cin >> n;
         solve();
     }
 

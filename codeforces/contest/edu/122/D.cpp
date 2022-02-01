@@ -110,12 +110,36 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 1e5 + 10;
+
+int n, k;
+int vb[N], vc[N];
+int f[N];
+
 void solve() {
+    int m = *max_element(f + 1, f + (int) 1e3 + 1);
+    m *= n;
+    m = min(m, k);
+
+    int g[m + 1];
+    memset(g, 0, sizeof g);
+    for (int i = 1; i <= n; i++) {
+        int w = f[vb[i]], v = vc[i];
+        for (int j = m; j >= w; j--) {
+            g[j] = max(g[j], g[j - w] + v);
+        }
+    }
+    cout << g[m] << "\n";
 }
 
 void prework() {
-    int a[10][10][10];
-    fill(&a[0][0][0], &a[9][9][10], 0);
+    memset(f, 0x3f, sizeof f);
+    f[1] = 0;
+    for (int i = 1; i <= 1e3; i++) {
+        for (int j = 1; j <= i; j++) {
+            f[i + i / j] = min(f[i + i / j], f[i] + 1);
+        }
+    }
 }
 
 int main() {
@@ -127,8 +151,11 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
+        cin >> n >> k;
+        for (int i = 1; i <= n; i++) cin >> vb[i];
+        for (int i = 1; i <= n; i++) cin >> vc[i];
         solve();
     }
 

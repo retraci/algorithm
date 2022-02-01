@@ -110,12 +110,25 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 110;
+
+int n;
+string va[N], vb[N];
+
 void solve() {
+    int cnt[26] = {0};
+    for (int i = 1; i <= n; i++) {
+        string a = va[i], b = vb[i];
+        int c1[26] = {0}, c2[26] = {0};
+        for (char ch : a) c1[ch - 'a']++;
+        for (char ch : b) c2[ch - 'a']++;
+        for (int j = 0; j < 26; j++) cnt[j] += max(c1[j], c2[j]);
+    }
+
+    for (int i = 0; i < 26; i++) cout << cnt[i] << "\n";
 }
 
 void prework() {
-    int a[10][10][10];
-    fill(&a[0][0][0], &a[9][9][10], 0);
 }
 
 int main() {
@@ -129,6 +142,8 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> va[i] >> vb[i];
         solve();
     }
 

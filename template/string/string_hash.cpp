@@ -10,12 +10,10 @@ ull get(int L, int R) {
 }
 
 void init_hash() {
-    n = s.size();
     p[0] = 1;
     for (int i = 1; i <= n; i++) {
-        h[i] = h[i - 1] * P + s[i - 1];
+        h[i] = h[i - 1] * P + s[i];
         p[i] = p[i - 1] * P;
-        sa[i] = i;
     }
 }
 // endregion
