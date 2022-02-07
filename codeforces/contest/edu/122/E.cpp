@@ -110,94 +110,99 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-struct dsu{
-    dsu(int n){p.resize(n+1); for(int i=1;i<=n;i++) p[i] = i;}
-    vector<int> p;
-    int find(int x){if(p[x]!=x) p[x] = find(p[x]); return p[x];}
-    void merge(int x, int y){p[find(x)] = find(y);}
-};
+const int N = 1e5 + 10;
+const int M = 310;
 
-int main()
-{
+int n, m;
+tl3 es[M];
+ll p, k, a, b, c;
+ll vp[N];
+
+int fa[M];
+
+int find(int x) {
+    return x == fa[x] ? x : fa[x] = find(fa[x]);
+}
+
+bool unite(int x, int y) {
+    int tx = find(x), ty = find(y);
+    if (tx == ty) return false;
+    fa[tx] = ty;
+    return true;
+}
+
+void solve() {
+    ll vq[k + 1];
+    for (int i = 1; i <= p; i++) vq[i] = vp[i];
+    for (int i = p + 1; i <= k; i++) vq[i] = (vq[i - 1] * a + b) % c;
+    sort(vq + 1, vq + k + 1);
+
+    set<int> st;
+    for (int i = 1; i <= m; i++) {
+        auto &[w1, u1, v1] = es[i];
+        // 数目左右会变化
+        st.insert(w1);
+        for (int j = i + 1; j <= m; j++) {
+            auto &[w2, u2, v2] = es[j];
+            // 边权会变化
+            st.insert((w1 + w2) / 2 + 1);
+        }
+    }
+
+    st.insert(0);
+    ll ans = 0, cur = 0, pre = 0, c1 = 0, c2 = 0;
+    for (int i = 1; i <= k; i++) {
+        ll x = vq[i];
+        if (!st.empty() && *st.begin() <= x) {
+            while (!st.empty() && *st.begin() <= x) st.erase(st.begin());
+
+            sort(es + 1, es + m + 1, [&](auto &a, auto &b) {
+                auto &[w1, u1, v1] = a;
+                auto &[w2, u2, v2] = b;
+                return abs(w1 - x) < abs(w2 - x);
+            });
+            iota(fa, fa + n + 1, 0);
+            cur = c1 = c2 = 0;
+            for (int j = 1; j <= m; j++) {
+                auto [w, u, v] = es[j];
+                if (!unite(u, v)) continue;
+                cur += abs(w - x);
+                w <= x ? c1++ : c2++;
+            }
+        } else {
+            cur += (x - pre) * (c1 - c2);
+        }
+
+        ans ^= cur, pre = x;
+    }
+
+    cout << ans << "\n";
+}
+
+void prework() {
+}
+
+int main() {
 #ifdef LOCAL
     freopen("../in.txt", "r", stdin);
     freopen("../out.txt", "w", stdout);
 #endif
 
-    ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
-
-    int n, m; cin>>n>>m;
-    array<int, 3> e[m];
-    for(int i=0, s, t, w;i<m;i++)
-    {
-        cin>>s>>t>>w;
-        e[i] = {w, s, t};
-    }
-
-    set<int> s; // 分界点
-    for(int i=0;i<m;i++) for(int j=i+1;j<m;j++)
-            s.insert((e[i][0] + e[j][0]) / 2 + 1);
-
-    for(int i=0;i<m;i++) s.insert(e[i][0]);
-
-    ll p, k, a, b, c; cin>>p>>k>>a>>b>>c;
-
-    vector<int> query(k); // 这里用map存询问会超时
-    ll t;
-    for(int i=0;i<p;i++)
-    {
-        cin>>t; query[i] = t;
-    }
-    for(int i=p;i<k;i++)
-    {
-        t = (t * a + b) % c;
-        query[i] = t;
-    }
-    sort(query.begin(), query.end());
-
-
-    s.insert(0); //s是需要更新的分界点，而初始x=0处必须重新求最小生成树。
-    int num1 = 0, num2 = 0; //记录在x以上的边的数量和x以下边的数量，以便O(1)更新
-    ll ans = 0, cost = 0, pre_x = -999;
-
-    int id = 0;
-    for(auto x: query)
-    {
-        id++;
-        if(!s.empty() && *s.begin() <= x)
-        {
-            while(!s.empty() && *s.begin() <= x) s.erase(s.begin());
-            //kruskal算法重新求最小生成树
-            sort(e,e+m, [&](auto e1, auto e2){return abs(e1[0]-x) < abs(e2[0]-x);});
-            //按照边权排序
-            dsu g(n);
-            cost = 0; num1 = num2 = 0;
-            int tmp = 0; // kruskal记录边数
-            for(auto [w, s, t]: e)
-            {
-                if(tmp == n-1) break;
-                if(g.find(s) != g.find(t))
-                {
-                    tmp++;
-                    g.merge(s, t);
-                    if(w <= x) num1++;
-                    else num2++;
-                    cost += abs(w-x);
-
-                    debug(id, x, s, t, w, cost, num1, num2);
-                }
-            }
+    prework();
+    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+    int T = 1;
+//    cin >> T;
+    while (T--) {
+        cin >> n >> m;
+        for (int i = 1; i <= m; i++) {
+            ll u, v, w;
+            cin >> u >> v >> w;
+            es[i] = {w, u, v};
         }
-        else cost += (x - pre_x) * (num1 - num2);
-
-        ans ^= cost;
-        pre_x = x;
+        cin >> p >> k >> a >> b >> c;
+        for (int i = 1; i <= p; i++) cin >> vp[i];
+        solve();
     }
 
-    cout<<ans;
     return 0;
-}
-
-void prework() {
-
 }
