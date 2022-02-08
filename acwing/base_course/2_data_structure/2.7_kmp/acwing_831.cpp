@@ -110,7 +110,27 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+int n, m;
+string s1, s2;
+
 void solve() {
+    int ne[n + 1];
+    memset(ne, 0, sizeof ne);
+    for (int i = 2, j = 0; i <= n; i++) {
+        while (j && s1[i] != s1[j + 1]) j = ne[j];
+        if (s1[i] == s1[j + 1]) j++;
+        ne[i] = j;
+    }
+
+    for (int i = 1, j = 0; i <= m; i++) {
+        while (j && s2[i] != s1[j + 1]) j = ne[j];
+        if (s2[i] == s1[j + 1]) j++;
+
+        if (j == n) {
+            cout << i - n << " ";
+            j = ne[j];
+        }
+    }
 }
 
 void prework() {
@@ -127,6 +147,8 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> n >> s1 >> m >> s2;
+        s1 = ' ' + s1, s2 = ' ' + s2;
         solve();
     }
 

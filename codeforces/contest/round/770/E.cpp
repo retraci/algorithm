@@ -110,7 +110,79 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 3e5 + 10;
+
+int n;
+vector<vector<int>> va;
+
+vector<int> lsh;
+
+ti3 g[2 * N];
+int h[N], ne[N], tt;
+int du[N];
+int vis[2 * N];
+queue<int> que[N];
+
+vector<string> ans;
+
+void add(int u, int v, int type, int idx) {
+    g[tt] = {v, type, idx};
+    ne[tt] = h[u], h[u] = tt;
+    que[u].push(tt);
+    du[v]++;
+
+    tt++;
+}
+
+int get_id(int x) {
+    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin() + 1;
+}
+
+void dfs(int u) {
+    while (!que[u].empty()) {
+        int ed_id = que[u].front(); que[u].pop();
+        if (vis[ed_id]) continue;
+        vis[ed_id] = vis[ed_id ^ 1] = 1;
+        auto &[v, type, idx] = g[ed_id];
+        if (type) ans[-lsh[v - 1]][idx] = 'R';
+        else ans[-lsh[u - 1]][idx] = 'L';
+        dfs(v);
+    }
+}
+
 void solve() {
+    for (int i = 1; i <= n; i++) {
+        for (int x : va[i]) lsh.push_back(x);
+    }
+    for (int i = 1; i <= n; i++) lsh.push_back(-i);
+    sort(lsh.begin(), lsh.end());
+    lsh.resize(unique(lsh.begin(), lsh.end()) - lsh.begin());
+
+    int nl = lsh.size();
+
+    fill(h + 1, h + nl + 1, -1);
+    for (int i = 1; i <= n; i++) {
+        for (int j = 0; j < va[i].size(); j++) {
+            int u = get_id(-i), v = get_id(va[i][j]);
+            add(u, v, 0, j), add(v, u, 1, j);
+        }
+    }
+
+    for (int i = 1; i <= nl; i++) {
+        if (du[i] & 1) {
+            cout << "NO" << "\n";
+            return;
+        }
+    }
+
+    ans = vector<string>(n + 1);
+    for (int i = 1; i <= n; i++) ans[i] = string(va[i].size(), 'L');
+    for (int i = 1; i <= nl; i++) {
+        dfs(i);
+    }
+
+    cout << "YES" << "\n";
+    for (int i = 1; i <= n; i++) cout << ans[i] << "\n";
 }
 
 void prework() {
@@ -127,6 +199,14 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> n;
+        va = vector<vector<int>>(n + 1);
+        for (int i = 1; i <= n; i++) {
+            int m;
+            cin >> m;
+            va[i].resize(m);
+            for (int j = 0; j < m; j++) cin >> va[i][j];
+        }
         solve();
     }
 

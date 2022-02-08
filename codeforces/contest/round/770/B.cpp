@@ -110,7 +110,18 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 1e5 + 10;
+
+ll n, x, y;
+int va[N];
+
 void solve() {
+    for (int i = 1; i <= n; i++) {
+        y ^= va[i];
+    }
+    x &= 1, y &= 1;
+    if (x == y) cout << "Alice" << "\n";
+    else cout << "Bob" << "\n";
 }
 
 void prework() {
@@ -125,8 +136,10 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
+        cin >> n >> x >> y;
+        for (int i = 1; i <= n; i++) cin >> va[i];
         solve();
     }
 

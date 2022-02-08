@@ -110,7 +110,56 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 11, M = 1 << 10;
+
+int n, m;
+vector<int> g[M];
+vector<int> state;
+int cnt[M];
+
+bool check(int mask) {
+    for (int i = 0; i < n; i++) {
+        if ((mask >> i & 3) == 3) return false;
+    }
+    return true;
+}
+
+void init() {
+    int lim = 1 << n;
+    for (int mask = 0; mask < lim; mask++) {
+        if (check(mask)) {
+            cnt[mask] = __builtin_popcount(mask);
+            state.push_back(mask);
+        }
+    }
+
+    for (int u : state) {
+        for (int v : state) {
+            if ((u & v) == 0 && (u << 1 & v) == 0 && (v << 1 & u) == 0) {
+                g[u].push_back(v);
+            }
+        }
+    }
+}
+
 void solve() {
+    init();
+
+    int lim = 1 << n;
+    ll f[n + 1][m + 1][lim];
+    memset(f, 0, sizeof f);
+    f[0][0][0] = 1;
+    for (int i = 0; i < n; i++) {
+        for (int u : state) {
+            for (int v : g[u]) {
+                for (int j = 0; j <= m - cnt[v]; j++) {
+                    f[i + 1][j + cnt[v]][v] += f[i][j][u];
+                }
+            }
+        }
+    }
+
+    cout << accumulate(&f[n][m][0], &f[n][m][lim], 0LL) << "\n";
 }
 
 void prework() {
@@ -127,6 +176,7 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> n >> m;
         solve();
     }
 
