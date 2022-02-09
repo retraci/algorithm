@@ -110,58 +110,48 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 11, M = 1 << 10;
+const int N = 33;
 
-int n, m;
-vector<int> g[M];
-vector<int> state;
-int cnt[M];
+int n;
+int va[N];
 
-bool check(int mask) {
-    for (int i = 0; i < n; i++) {
-        if ((mask >> i & 3) == 3) return false;
-    }
-    return true;
-}
+int f[N][N];
+int g[N][N];
 
-void init() {
-    int lim = 1 << n;
-    for (int mask = 0; mask < lim; mask++) {
-        if (check(mask)) {
-            cnt[mask] = __builtin_popcount(mask);
-            state.push_back(mask);
-        }
-    }
+void dfs(int L, int R) {
+    if (L > R) return;
 
-    for (int u = 0; u < state.size(); u++) {
-        for (int v = 0; v < state.size(); v++) {
-            int su = state[u], sv = state[v];
-            if ((su & sv) == 0 && (su << 1 & sv) == 0 && (sv << 1 & su) == 0) {
-                g[u].push_back(v);
-            }
-        }
-    }
+    int rt = g[L][R];
+    cout << rt << " ";
+    dfs(L, rt - 1);
+    dfs(rt + 1, R);
 }
 
 void solve() {
-    init();
-
-    int ns = state.size();
-    ll f[n + 1][m + 1][ns];
     memset(f, 0, sizeof f);
-    f[0][0][0] = 1;
-    for (int i = 0; i < n; i++) {
-        for (int u = 0; u < ns; u++) {
-            for (int v : g[u]) {
-                int sv = state[v];
-                for (int j = 0; j <= m - cnt[sv]; j++) {
-                    f[i + 1][j + cnt[sv]][v] += f[i][j][u];
+    for (int i = 1; i <= n; i++) {
+        f[i][i] = va[i];
+        g[i][i] = i;
+    }
+
+    for (int len = 2; len <= n; len++) {
+        for (int L = 1; L + len - 1 <= n; L++) {
+            int R = L + len - 1;
+
+            for (int k = L; k <= R; k++) {
+                int ls = L > k - 1 ? 1 : f[L][k - 1];
+                int rs = k + 1 > R ? 1 : f[k + 1][R];
+                int tmp = ls * rs + va[k];
+                if (tmp > f[L][R]) {
+                    f[L][R] = tmp;
+                    g[L][R] = k;
                 }
             }
         }
     }
 
-    cout << accumulate(&f[n][m][0], &f[n][m][ns], 0LL) << "\n";
+    cout << f[1][n] << "\n";
+    dfs(1, n);
 }
 
 void prework() {
@@ -178,7 +168,8 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n >> m;
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> va[i];
         solve();
     }
 

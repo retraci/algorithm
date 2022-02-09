@@ -12,6 +12,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <bitset>
+#include <cmath>
 
 // region hash_func
 template<typename TT>
@@ -110,35 +111,37 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 11, M = 1 << 10;
+typedef pair<double, double> pdd;
+
+const int N = 19;
+const double eps = 1e-8;
 
 int n, m;
-vector<int> g[M];
-vector<int> state;
-int cnt[M];
+pdd vp[N];
 
-bool check(int mask) {
-    for (int i = 0; i < n; i++) {
-        if ((mask >> i & 3) == 3) return false;
-    }
-    return true;
-}
+vector<int> path[N];
 
 void init() {
-    int lim = 1 << n;
-    for (int mask = 0; mask < lim; mask++) {
-        if (check(mask)) {
-            cnt[mask] = __builtin_popcount(mask);
-            state.push_back(mask);
-        }
-    }
+    for (int i = 0; i < n; i++) path[i] = {};
 
-    for (int u = 0; u < state.size(); u++) {
-        for (int v = 0; v < state.size(); v++) {
-            int su = state[u], sv = state[v];
-            if ((su & sv) == 0 && (su << 1 & sv) == 0 && (sv << 1 & su) == 0) {
-                g[u].push_back(v);
+    for (int i = 0; i < n; i++) {
+        path[i].push_back(1 << i);
+        for (int j = 0; j < n; j++) {
+            auto &[x1, y1] = vp[i];
+            auto &[x2, y2] = vp[j];
+
+            if (fabs(x1 - x2) < eps) continue;
+            double a = (y1 / x1 - y2 / x2) / (x1 - x2);
+            double b = y1 / x1 - a * x1;
+            if (fabs(a - 0) < eps || a > 0) continue;
+
+            int stat = 0;
+            for (int k = 0; k < n; k++) {
+                auto &[x, y] = vp[k];
+                double fy = a * x * x + b * x;
+                if (fabs(fy - y) < eps) stat |= 1 << k;
             }
+            path[i].push_back(stat);
         }
     }
 }
@@ -146,22 +149,25 @@ void init() {
 void solve() {
     init();
 
-    int ns = state.size();
-    ll f[n + 1][m + 1][ns];
-    memset(f, 0, sizeof f);
-    f[0][0][0] = 1;
-    for (int i = 0; i < n; i++) {
-        for (int u = 0; u < ns; u++) {
-            for (int v : g[u]) {
-                int sv = state[v];
-                for (int j = 0; j <= m - cnt[sv]; j++) {
-                    f[i + 1][j + cnt[sv]][v] += f[i][j][u];
-                }
-            }
+    int lim = 1 << n;
+    int f[lim];
+    memset(f, 0x3f, sizeof f);
+    f[0] = 0;
+    for (int mask = 0; mask < lim - 1; mask++) {
+        int x = 0;
+        for (int i = 0; i < n; i++) {
+            if (mask >> i & 1) continue;
+            x = i;
+            break;
+        }
+
+        for (int p : path[x]) {
+            int ns = mask | p;
+            f[ns] = min(f[ns], f[mask] + 1);
         }
     }
 
-    cout << accumulate(&f[n][m][0], &f[n][m][ns], 0LL) << "\n";
+    cout << f[lim - 1] << "\n";
 }
 
 void prework() {
@@ -176,9 +182,12 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
         cin >> n >> m;
+        for (int i = 0; i < n; i++) {
+            cin >> vp[i].fi >> vp[i].se;
+        }
         solve();
     }
 

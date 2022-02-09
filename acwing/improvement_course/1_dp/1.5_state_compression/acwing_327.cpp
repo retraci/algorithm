@@ -110,35 +110,33 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 11, M = 1 << 10;
+const int N = 13, M = 1 << 12;
+const int MOD = 1e8;
 
 int n, m;
-vector<int> g[M];
+int g[N];
+
 vector<int> state;
-int cnt[M];
+vector<int> nex[M];
 
 bool check(int mask) {
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < m; i++) {
         if ((mask >> i & 3) == 3) return false;
     }
     return true;
 }
 
 void init() {
-    int lim = 1 << n;
+    int lim = 1 << m;
     for (int mask = 0; mask < lim; mask++) {
-        if (check(mask)) {
-            cnt[mask] = __builtin_popcount(mask);
-            state.push_back(mask);
-        }
+        if (check(mask)) state.push_back(mask);
     }
 
     for (int u = 0; u < state.size(); u++) {
         for (int v = 0; v < state.size(); v++) {
             int su = state[u], sv = state[v];
-            if ((su & sv) == 0 && (su << 1 & sv) == 0 && (sv << 1 & su) == 0) {
-                g[u].push_back(v);
-            }
+            if (su & sv) continue;
+            nex[u].push_back(v);
         }
     }
 }
@@ -147,21 +145,25 @@ void solve() {
     init();
 
     int ns = state.size();
-    ll f[n + 1][m + 1][ns];
+    int f[n + 1][ns];
     memset(f, 0, sizeof f);
-    f[0][0][0] = 1;
+    f[0][0] = 1;
     for (int i = 0; i < n; i++) {
         for (int u = 0; u < ns; u++) {
-            for (int v : g[u]) {
-                int sv = state[v];
-                for (int j = 0; j <= m - cnt[sv]; j++) {
-                    f[i + 1][j + cnt[sv]][v] += f[i][j][u];
-                }
+            for (int v : nex[u]) {
+                if (state[v] & g[i + 1]) continue;
+                f[i + 1][v] += f[i][u];
+                f[i + 1][v] %= MOD;
             }
         }
     }
 
-    cout << accumulate(&f[n][m][0], &f[n][m][ns], 0LL) << "\n";
+    int ans = 0;
+    for (int s = 0; s < ns; s++) {
+        ans += f[n][s];
+        ans %= MOD;
+    }
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -179,6 +181,15 @@ int main() {
 //    cin >> T;
     while (T--) {
         cin >> n >> m;
+        for (int i = 1; i <= n; i++) {
+            int stat = 0;
+            for (int j = 0; j < m; j++) {
+                int x;
+                cin >> x;
+                stat |= !x << j;
+            }
+            g[i] = stat;
+        }
         solve();
     }
 

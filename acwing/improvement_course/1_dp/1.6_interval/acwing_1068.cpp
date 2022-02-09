@@ -110,58 +110,37 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 11, M = 1 << 10;
+const int N = 410;
 
-int n, m;
-vector<int> g[M];
-vector<int> state;
-int cnt[M];
-
-bool check(int mask) {
-    for (int i = 0; i < n; i++) {
-        if ((mask >> i & 3) == 3) return false;
-    }
-    return true;
-}
-
-void init() {
-    int lim = 1 << n;
-    for (int mask = 0; mask < lim; mask++) {
-        if (check(mask)) {
-            cnt[mask] = __builtin_popcount(mask);
-            state.push_back(mask);
-        }
-    }
-
-    for (int u = 0; u < state.size(); u++) {
-        for (int v = 0; v < state.size(); v++) {
-            int su = state[u], sv = state[v];
-            if ((su & sv) == 0 && (su << 1 & sv) == 0 && (sv << 1 & su) == 0) {
-                g[u].push_back(v);
-            }
-        }
-    }
-}
+int n;
+int va[N];
+int s[N];
 
 void solve() {
-    init();
+    for (int i = 1; i <= 2 * n; i++) s[i] = s[i - 1] + va[i];
 
-    int ns = state.size();
-    ll f[n + 1][m + 1][ns];
-    memset(f, 0, sizeof f);
-    f[0][0][0] = 1;
-    for (int i = 0; i < n; i++) {
-        for (int u = 0; u < ns; u++) {
-            for (int v : g[u]) {
-                int sv = state[v];
-                for (int j = 0; j <= m - cnt[sv]; j++) {
-                    f[i + 1][j + cnt[sv]][v] += f[i][j][u];
-                }
+    int f1[2 * n + 1][2 * n + 1], f2[2 * n + 1][2 * n + 1];
+    memset(f1, 0x3f, sizeof f1), memset(f2, 0, sizeof f2);
+    for (int i = 1; i <= 2 * n; i++) f1[i][i] = f2[i][i] = 0;
+    for (int len = 2; len <= n; len++) {
+        for (int L = 1; L + len - 1 <= 2 * n; L++) {
+            int R = L + len - 1;
+
+            for (int k = L; k < R; k++) {
+                f1[L][R] = min(f1[L][R], f1[L][k] + f1[k + 1][R] + s[R] - s[L - 1]);
+                f2[L][R] = max(f2[L][R], f2[L][k] + f2[k + 1][R] + s[R] - s[L - 1]);
             }
         }
     }
 
-    cout << accumulate(&f[n][m][0], &f[n][m][ns], 0LL) << "\n";
+    int ans1 = 1e9, ans2 = 0;
+    for (int L = 1; L + n - 1 <= 2 * n; L++) {
+        int R = L + n - 1;
+        ans1 = min(ans1, f1[L][R]);
+        ans2 = max(ans2, f2[L][R]);
+    }
+    cout << ans1 << "\n";
+    cout << ans2 << "\n";
 }
 
 void prework() {
@@ -178,7 +157,8 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n >> m;
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> va[i], va[i + n] = va[i];
         solve();
     }
 

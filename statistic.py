@@ -38,7 +38,7 @@ def countFiles(root_path):
     for item in item_list:
         next_path = os.path.abspath(os.path.join(root_path, item))
         if os.path.isfile(next_path):
-            if item[-4::] == '.cpp':
+            if item[-4::] == '.cpp' or item[-3::] == '.py':
                 total_files += 1
                 ret1, ret2 = countLines(next_path)
                 total_lines += ret1
