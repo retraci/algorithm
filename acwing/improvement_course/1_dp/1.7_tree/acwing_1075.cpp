@@ -12,7 +12,6 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <bitset>
-#include <cmath>
 
 // region hash_func
 template<typename TT>
@@ -111,68 +110,62 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 50010;
+
+int n;
+int g[N];
+int h[N], ne[N], edm;
+
+int st[N];
+int s[N];
+int ans;
+
+void add(int u, int v) {
+    g[edm] = v;
+    ne[edm] = h[u], h[u] = edm++;
+}
+
+void init() {
+    fill(h, h + n + 1, -1);
+    for (int i = 1; i <= n; i++) {
+        for (int j = 2 * i; j <= n; j += i) {
+            s[j] += i;
+        }
+    }
+
+    for (int i = 2; i <= n; i++) {
+        if (i > s[i]) add(s[i], i), st[i] = 1;
+    }
+}
+
+int dfs(int u) {
+    int d1 = 0, d2 = 0;
+
+    for (int i = h[u]; ~i; i = ne[i]) {
+        auto &v = g[i];
+
+        int ret = dfs(v) + 1;
+        if (ret > d1) swap(ret, d1);
+        if (ret > d2) swap(ret, d2);
+    }
+    ans = max(ans, d1 + d2);
+
+    return d1;
+}
+
 void solve() {
-}
+    init();
 
-const int N = 15, M = 9;
-const double INF = 1e9;
-
-int n, m = 8;
-int s[M][M];
-double f[M][M][M][M][N];
-double X;
-
-int get_sum(int x1, int y1, int x2, int y2) {
-    return s[x2][y2] - s[x2][y1 - 1] - s[x1 - 1][y2] + s[x1 - 1][y1 - 1];
-}
-
-double get(int x1, int y1, int x2, int y2) {
-    double sum = get_sum(x1, y1, x2, y2);
-    return sum * sum;
-}
-
-double dfs(int x1, int y1, int x2, int y2, int k) {
-    double &v = f[x1][y1][x2][y2][k];
-    if (v >= 0) return v;
-    if (k == 1) return v = get(x1, y1, x2, y2);
-
-    v = INF;
-    for (int i = x1; i < x2; i++) {
-        v = min(v, get(x1, y1, i, y2) + dfs(i + 1, y1, x2, y2, k - 1));
-        v = min(v, get(i + 1, y1, x2, y2) + dfs(x1, y1, i, y2, k - 1));
+    ans = 0;
+    for (int i = 1; i <= n; i++) {
+        if (st[i]) continue;
+        dfs(i);
     }
 
-    for (int j = y1; j < y2; j++) {
-        v = min(v, get(x1, y1, x2, j) + dfs(x1, j + 1, x2, y2, k - 1));
-        v = min(v, get(x1, j + 1, x2, y2) + dfs(x1, y1, x2, j, k - 1));
-    }
-
-    return v;
+    cout << ans << "\n";
 }
 
 void prework() {
-    cin >> n;
-    for (int i = 1; i <= m; i++)
-        for (int j = 1; j <= m; j++) {
-            cin >> s[i][j];
-            s[i][j] += s[i - 1][j] + s[i][j - 1] - s[i - 1][j - 1];
-        }
-
-    X = (double) s[m][m] / n;
-    memset(f, -1, sizeof f);
-    double ans = dfs(1, 1, 8, 8, n);
-    
-    for (int i = 2; i <= n; i++) {
-        for (int j = 1; j <= m; j++) {
-            for (int k = 1; k <= m; k++) {
-                cout << f[]
-            }
-        }
-    }
-    
-    cout << ans << "\n";
-    ans = sqrt(ans / n - X * X);
-    printf("%.3lf\n", ans);
 }
 
 int main() {
@@ -186,6 +179,7 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> n;
         solve();
     }
 
