@@ -1,24 +1,24 @@
-#include <iostream>
-#include <cstdio>
-#include <algorithm>
-#include <cstring>
-#include <numeric>
-#include <iomanip>
-#include <vector>
-#include <queue>
-#include <stack>
-#include <set>
-#include <map>
-#include <unordered_set>
-#include <unordered_map>
-#include <bitset>
+#[[#includ]]# <iostream>
+#[[#includ]]# <cstdio>
+#[[#includ]]# <algorithm>
+#[[#includ]]# <cstring>
+#[[#includ]]# <numeric>
+#[[#includ]]# <iomanip>
+#[[#includ]]# <vector>
+#[[#includ]]# <queue>
+#[[#includ]]# <stack>
+#[[#includ]]# <set>
+#[[#includ]]# <map>
+#[[#includ]]# <unordered_set>
+#[[#includ]]# <unordered_map>
+#[[#includ]]# <bitset>
 
 // region general
-#define ll long long
-#define ld long double
-#define ull unsigned long long
-#define fi first
-#define se second
+#[[#define]]# ll long long
+#[[#define]]# ld long double
+#[[#define]]# ull unsigned long long
+#[[#define]]# fi first
+#[[#define]]# se second
 
 typedef std::pair<int, int> pii;
 typedef std::pair<ll, ll> pll;
@@ -55,10 +55,10 @@ void prework() {
 }
 
 int main() {
-#ifdef LOCAL
+#[[#ifdef]]# LOCAL
     freopen("../in.txt", "r", stdin);
     freopen("../out.txt", "w", stdout);
-#endif
+#[[#endif]]#
 
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);

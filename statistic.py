@@ -6,7 +6,8 @@ ignore_path = {os.path.abspath(os.path.join(root_path, '.idea')),
                os.path.abspath(os.path.join(root_path, 'cmake-build-debug')),
                os.path.abspath(os.path.join(root_path, 'template'))}
 
-cpp_template_path = os.path.abspath(os.path.join(root_path, r'template\tool\template.cpp'))
+cpp_template_path1 = os.path.abspath(os.path.join(root_path, r'template\tool\template.cpp'))
+cpp_template_path2 = os.path.abspath(os.path.join(root_path, r'template\tool\hash_func.cpp'))
 cpp_template = None
 
 
@@ -55,9 +56,9 @@ def countFiles(root_path):
 
 if __name__ == '__main__':
     print(root_path)
-    print(cpp_template_path)
-    cpp_template_file = open(cpp_template_path, 'r', encoding='utf-8')
-    cpp_template = set(cpp_template_file.readlines())
+    cpp_template_file1 = open(cpp_template_path1, 'r', encoding='utf-8')
+    cpp_template_file2 = open(cpp_template_path2, 'r', encoding='utf-8')
+    cpp_template = set(cpp_template_file1.readlines()).union(set(cpp_template_file2.readlines()))
 
     total_files, total_lines, valid_lines = countFiles(root_path)
     print(f'total files: {total_files}')

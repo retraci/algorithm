@@ -48,7 +48,17 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 110;
+
+int n;
+int vx[N], vy[N];
+
 void solve() {
+    int c1 = 0, c2 = 0;
+
+    for (int i = 1; i <= n; i++) c1 += vx[i] < 0, c2 += vx[i] > 0;
+
+    cout << (c1 <= 1 || c2 <= 1 ? "Yes" : "No") << "\n";
 }
 
 void prework() {
@@ -63,8 +73,12 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
+        cin >> n;
+        for (int i = 1; i <= n; i++) {
+            cin >> vx[i] >> vy[i];
+        }
         solve();
     }
 

@@ -48,7 +48,56 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 110;
+
+int n;
+string str;
+
 void solve() {
+    unordered_set<int> st;
+    int tt;
+    for (int i = 1; i <= n; i++) {
+        for (int j = i; j <= n; j++) {
+            int sum = 0;
+            for (int k = i; k <= j; k++) {
+                sum += str[k] - '0';
+            }
+            if (i == 1 && j == n) tt = sum;
+            if (sum > 0) st.insert(sum);
+        }
+    }
+
+    if (tt == 0 && str.size() - 1 >= 2) {
+        cout << "YES" << "\n";
+        return;
+    }
+
+    for (int x : st) {
+        int flag = 0, i = 1;
+        int cnt = 0;
+
+        while (i <= n) {
+            if (str[i] == '0') {
+                i++;
+                continue;
+            }
+
+            int sum = 0;
+            while (i <= n && sum < x) sum += str[i++] - '0';
+            if (sum != x) {
+                flag = 1;
+                break;
+            }
+            cnt++;
+        }
+
+        if (!flag && cnt >= 2) {
+            cout << "YES" << "\n";
+            return;
+        }
+    }
+
+    cout << "NO" << "\n";
 }
 
 void prework() {
@@ -63,8 +112,11 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
+        cin >> n;
+        cin >> str;
+        str = ' ' + str;
         solve();
     }
 

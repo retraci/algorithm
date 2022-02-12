@@ -48,7 +48,22 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+ll n, m;
+
 void solve() {
+    if (m < n) {
+        cout << n - m << "\n";
+        return;
+    }
+
+    int ans = 0;
+    while (m > n) {
+        if (m & 1) m++;
+        else m /= 2;
+        ans++;
+    }
+    ans += n - m;
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -63,8 +78,9 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
+        cin >> n >> m;
         solve();
     }
 

@@ -48,7 +48,26 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 1e5 + 10;
+
+int n;
+ll va[N];
+
 void solve() {
+    ll c1 = 0, c2 = 0;
+    for (int i = 2; i <= n - 1; i++) {
+        c1 += va[i] & 1;
+        c2 += va[i] == 1;
+    }
+
+    if (c2 == n - 2 || n == 3 && (va[2] & 1)) {
+        cout << -1 << "\n";
+        return;
+    }
+
+    ll sum = accumulate(&va[2], &va[n - 1] + 1, 0LL);
+    ll ans = c1 + (sum - c1) / 2;
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -65,6 +84,8 @@ int main() {
     int T = 1;
     cin >> T;
     while (T--) {
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> va[i];
         solve();
     }
 

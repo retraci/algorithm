@@ -16,7 +16,7 @@ inline ll inv(ll x) {
 }
 
 inline ll C(ll a, ll b) {
-    if (a < 0 || b < 0 || a - b < 0) return 0;
+    if (a < 0 || b < 0 || a < b) return 0;
     return fac[a] * ifac[b] % MOD * ifac[a - b] % MOD;
 }
 

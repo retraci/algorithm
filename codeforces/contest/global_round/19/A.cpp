@@ -48,7 +48,20 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 1e4 + 10;
+
+int n;
+int va[N];
+
 void solve() {
+    for (int i = 2; i <= n; i++) {
+        if (va[i] < va[i - 1]) {
+            cout << "YES" << "\n";
+            return;
+        }
+    }
+
+    cout << "NO" << "\n";
 }
 
 void prework() {
@@ -65,6 +78,8 @@ int main() {
     int T = 1;
     cin >> T;
     while (T--) {
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> va[i];
         solve();
     }
 
