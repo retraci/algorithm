@@ -40,14 +40,33 @@ inline void debug(T &&var, OtherArgs &&... args) {
 // region grid_delta
 namespace grid_delta {
     // 上, 右, 下, 左  |  左上, 右上, 左下, 右下
-    const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}, {0, 0}};
+    const int dx[9] = {-1, 0, 1, 0, -1, -1, 1, 1, 0};
+    const int dy[9] = {0, 1, 0, -1, -1, 1, -1, 1, 0};
 }
 // endregion
 
 using namespace std;
 using namespace grid_delta;
 
+const int N = 1e5 + 10;
+
+int n;
+int va[N];
+
 void solve() {
+    multiset<int> seq[2];
+    for (int i = 1; i <= n; i++) {
+        int x = va[i];
+
+        if (seq[x & 1].upper_bound(x) != seq[x & 1].end()) {
+            cout << "No" << "\n";
+            return;
+        }
+
+        seq[x & 1].insert(x);
+    }
+
+    cout << "Yes" << "\n";
 }
 
 void prework() {
@@ -64,6 +83,8 @@ int main() {
     int T = 1;
     cin >> T;
     while (T--) {
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> va[i];
         solve();
     }
 

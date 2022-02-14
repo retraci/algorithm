@@ -90,7 +90,7 @@ void solve() {
             ll sum = 0, pow = 1;
             for (int j = 0; j < va.size(); j++, pow *= 10) {
                 if (va[j] == m) res += sum + 1;
-                sum = sum + va[j] * pow;
+                sum += va[j] * pow;
             }
         }
     }

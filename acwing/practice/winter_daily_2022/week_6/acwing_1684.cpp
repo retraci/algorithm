@@ -40,14 +40,45 @@ inline void debug(T &&var, OtherArgs &&... args) {
 // region grid_delta
 namespace grid_delta {
     // 上, 右, 下, 左  |  左上, 右上, 左下, 右下
-    const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}, {0, 0}};
+    const int dx[9] = {-1, 0, 1, 0, -1, -1, 1, 1, 0};
+    const int dy[9] = {0, 1, 0, -1, -1, 1, -1, 1, 0};
 }
 // endregion
 
 using namespace std;
 using namespace grid_delta;
 
+const int N = 160;
+
+int n, m;
+int g[2 * N];
+int h[N], ne[2 * N], edm;
+
+void add(int u, int v) {
+    g[edm] = v;
+    ne[edm] = h[u], h[u] = edm++;
+}
+
 void solve() {
+    int vis[n + 1][5];
+    memset(vis, 0, sizeof vis);
+
+    vector<int> ans;
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= 4; j++) {
+            if (vis[i][j]) continue;
+
+            ans.push_back(j);
+            for (int k = h[i]; ~k; k = ne[k]) {
+                int v = g[k];
+                vis[v][j] = 1;
+            }
+            break;
+        }
+    }
+
+    for (int x : ans) cout << x;
+    cout << "\n";
 }
 
 void prework() {
@@ -62,8 +93,15 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
+        cin >> n >> m;
+        fill(h, h + n + 1, -1);
+        for (int i = 1; i <= m; i++) {
+            int u, v;
+            cin >> u >> v;
+            add(u, v), add(v, u);
+        }
         solve();
     }
 

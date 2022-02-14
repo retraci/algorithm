@@ -48,7 +48,68 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 15;
+
+ll L, R;
+ll f[N][10][10];
+
+void init() {
+    for (int i = 0; i <= 9; i++) f[1][i][i] = 1;
+
+    ll cur = 10;
+    for (int i = 2; i < N; i++, cur *= 10) {
+        for (int j = 0; j <= 9; j++) {
+            for (int k = 0; k <= 9; k++) {
+                for (int q = 0; q <= 9; q++) f[i][j][k] += f[i - 1][q][k];
+                if (j == k) f[i][j][k] += cur;
+            }
+        }
+    }
+}
+
+vector<ll> work(ll n) {
+    if (n == 0) return vector<ll>(10, 0);
+
+    vector<int> va;
+    while (n) va.push_back(n % 10), n /= 10;
+
+    vector<ll> res(10, 0);
+    for (int i = 1; i < va.size(); i++) {
+        for (int j = 1; j <= 9; j++) {
+            for (int k = 0; k <= 9; k++) {
+                res[k] += f[i][j][k];
+            }
+        }
+    }
+
+    for (int i = va.size() - 1; i >= 0; i--) {
+        int x = va[i];
+
+        for (int j = 0; j < x; j++) {
+            if (j == 0 && i == va.size() - 1) continue;
+            for (int k = 0; k <= 9; k++) {
+                res[k] += f[i + 1][j][k];
+            }
+        }
+
+        if (i == 0) {
+            ll sum = 0, pow = 1;
+            for (int k = 0; k < va.size(); k++, pow *= 10) {
+                res[va[k]] += sum + 1;
+                sum += va[k] * pow;
+            }
+        }
+    }
+    
+    return res;
+}
+
 void solve() {
+    init();
+    vector<ll> ret1 = work(R), ret2 = work(L - 1);
+
+    for (int i = 0; i <= 9; i++) cout << ret1[i] - ret2[i] << " ";
+    cout << "\n";
 }
 
 void prework() {
@@ -63,8 +124,9 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
+        cin >> L >> R;
         solve();
     }
 

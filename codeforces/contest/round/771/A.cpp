@@ -40,14 +40,44 @@ inline void debug(T &&var, OtherArgs &&... args) {
 // region grid_delta
 namespace grid_delta {
     // 上, 右, 下, 左  |  左上, 右上, 左下, 右下
-    const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}, {0, 0}};
+    const int dx[9] = {-1, 0, 1, 0, -1, -1, 1, 1, 0};
+    const int dy[9] = {0, 1, 0, -1, -1, 1, -1, 1, 0};
 }
 // endregion
 
 using namespace std;
 using namespace grid_delta;
 
+const int N = 510;
+
+int n;
+int va[N];
+
 void solve() {
+    priority_queue<int> pq;
+    unordered_map<int, int> cnt;
+    for (int i = 1; i <= n; i++) {
+        pq.push(-va[i]);
+    }
+
+    vector<int> ans;
+    for (int i = 1; i <= n; i++) {
+        if (-pq.top() == va[i]) {
+            ans.push_back(va[i]);
+            pq.pop();
+            continue;
+        }
+
+        int j = i;
+        while (j <= n && va[j] > -pq.top()) j++;
+        for (int k = j; k >= i; k--) ans.push_back(va[k]);
+        j++;
+        while (j <= n) ans.push_back(va[j++]);
+        break;
+    }
+
+    for (int x : ans) cout << x << " ";
+    cout << "\n";
 }
 
 void prework() {
@@ -64,6 +94,8 @@ int main() {
     int T = 1;
     cin >> T;
     while (T--) {
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> va[i];
         solve();
     }
 
