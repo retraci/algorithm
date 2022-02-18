@@ -40,25 +40,44 @@ inline void debug(T &&var, OtherArgs &&... args) {
 // region grid_delta
 namespace grid_delta {
     // 上, 右, 下, 左  |  左上, 右上, 左下, 右下
-    const int dx[9] = {-1, 0, 1, 0, -1, -1, 1, 1, 0};
-    const int dy[9] = {0, 1, 0, -1, -1, 1, -1, 1, 0};
+    const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}, {0, 0}};
 }
 // endregion
 
 using namespace std;
 using namespace grid_delta;
 
-const int N = 110;
+const int N = 2e5 + 10;
 
-int n;
-int du[N];
+int n, m;
+int dist[N];
 
 void solve() {
-    int cnt = 0, id = 0;
-    for (int i = 1; i <= n; i++) {
-        if (du[i] == 0) cnt++, id = i;
+    memset(dist, -1, sizeof dist);
+
+    queue<int> que;
+    que.push(n);
+    dist[n] = 0;
+    while (!que.empty()) {
+        int u = que.front(); que.pop();
+        if (u == m) {
+            cout << dist[u] << "\n";
+            return;
+        }
+
+        if (u - 1 >= 0 && dist[u - 1] == -1) {
+            dist[u - 1] = dist[u] + 1;
+            que.push(u - 1);
+        }
+        if (u + 1 <= 2 * m && dist[u + 1] == -1) {
+            dist[u + 1] = dist[u] + 1;
+            que.push(u + 1);
+        }
+        if (u * 2 <= 2 * m && dist[2 * u] == -1) {
+            dist[2 * u] = dist[u] + 1;
+            que.push(2 * u);
+        }
     }
-    cout << (cnt == 1 ? id : -1) << "\n";
 }
 
 void prework() {
@@ -75,12 +94,7 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n;
-        for (int i = 1; i <= n - 1; i++) {
-            int u, v;
-            cin >> u >> v;
-            du[u]++;
-        }
+        cin >> n >> m;
         solve();
     }
 

@@ -40,25 +40,52 @@ inline void debug(T &&var, OtherArgs &&... args) {
 // region grid_delta
 namespace grid_delta {
     // 上, 右, 下, 左  |  左上, 右上, 左下, 右下
-    const int dx[9] = {-1, 0, 1, 0, -1, -1, 1, 1, 0};
-    const int dy[9] = {0, 1, 0, -1, -1, 1, -1, 1, 0};
+    const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}, {0, 0}};
 }
 // endregion
 
 using namespace std;
-using namespace grid_delta;
+//using namespace grid_delta;
 
-const int N = 110;
+const int dir[9][2] = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}, {0, 0}};
+const int N = 55;
 
-int n;
-int du[N];
+int n, m;
+int va[N][N];
+int vis[N][N];
+
+int bfs(int sx, int sy) {
+    queue<pii> que;
+    que.push({sx, sy});
+    vis[sx][sy] = 1;
+    int res = 1;
+    while (!que.empty()) {
+        auto [x, y] = que.front(); que.pop();
+
+        for (int k = 0; k < 4; k++) {
+            int nx = x + dir[k][0], ny = y + dir[k][1];
+            if (nx >= 1 && nx <= n && ny >= 1 && ny <= m) {
+                if (va[x][y] >> k & 1 || vis[nx][ny]) continue;
+
+                vis[nx][ny] = 1, res++;
+                que.push({nx, ny});
+            }
+        }
+    }
+    return res;
+}
 
 void solve() {
-    int cnt = 0, id = 0;
+    int mx = 0, cnt = 0;
     for (int i = 1; i <= n; i++) {
-        if (du[i] == 0) cnt++, id = i;
+        for (int j = 1; j <= m; j++) {
+            if (vis[i][j]) continue;
+            mx = max(mx, bfs(i, j));
+            cnt++;
+        }
     }
-    cout << (cnt == 1 ? id : -1) << "\n";
+    cout << cnt << "\n";
+    cout << mx << "\n";
 }
 
 void prework() {
@@ -75,11 +102,11 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n;
-        for (int i = 1; i <= n - 1; i++) {
-            int u, v;
-            cin >> u >> v;
-            du[u]++;
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= m; j++) {
+                cin >> va[i][j];
+            }
         }
         solve();
     }

@@ -40,25 +40,52 @@ inline void debug(T &&var, OtherArgs &&... args) {
 // region grid_delta
 namespace grid_delta {
     // 上, 右, 下, 左  |  左上, 右上, 左下, 右下
-    const int dx[9] = {-1, 0, 1, 0, -1, -1, 1, 1, 0};
-    const int dy[9] = {0, 1, 0, -1, -1, 1, -1, 1, 0};
+    const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}, {0, 0}};
 }
 // endregion
 
 using namespace std;
 using namespace grid_delta;
 
-const int N = 110;
+const int N = 1e6 + 10;
 
 int n;
-int du[N];
+int o[N], d[N];
 
 void solve() {
-    int cnt = 0, id = 0;
-    for (int i = 1; i <= n; i++) {
-        if (du[i] == 0) cnt++, id = i;
+    vector<int> ans(n + 1, 0);
+
+    // 顺时针
+    {
+        vector<ll> s(2 * n + 1, 0);
+        for (int i = 1; i <= n; i++) s[i] = s[i + n] = o[i] - d[i];
+        for (int i = 1; i <= 2 * n; i++) s[i] += s[i - 1];
+        deque<int> que;
+        for (int i = 2 * n; i >= 1; i--) {
+            while (!que.empty() && que.front() - i + 1 > n) que.pop_front();
+            while (!que.empty() && s[que.back()] >= s[i]) que.pop_back();
+            que.push_back(i);
+            if (i <= n) ans[i] |= s[que.front()] - s[i - 1] >= 0;
+        }
     }
-    cout << (cnt == 1 ? id : -1) << "\n";
+    // 逆时针
+    {
+        vector<ll> s(2 * n + 1, 0);
+        d[0] = d[n];
+        for (int i = 1; i <= n; i++) s[i] = s[i + n] = o[i] - d[i - 1];
+        for (int i = 1; i <= 2 * n; i++) s[i] += s[i - 1];
+        deque<int> que;
+        for (int i = 1; i <= 2 * n; i++) {
+            while (!que.empty() && i - que.front() > n) que.pop_front();
+            if (i > n) ans[i - n] |= s[i] - s[que.front()] >= 0;
+            while (!que.empty() && s[que.back()] <= s[i]) que.pop_back();
+            que.push_back(i);
+        }
+    }
+
+    for (int i = 1; i <= n; i++) {
+        cout << (ans[i] ? "TAK" : "NIE") << "\n";
+    }
 }
 
 void prework() {
@@ -76,11 +103,7 @@ int main() {
 //    cin >> T;
     while (T--) {
         cin >> n;
-        for (int i = 1; i <= n - 1; i++) {
-            int u, v;
-            cin >> u >> v;
-            du[u]++;
-        }
+        for (int i = 1; i <= n; i++) cin >> o[i] >> d[i];
         solve();
     }
 

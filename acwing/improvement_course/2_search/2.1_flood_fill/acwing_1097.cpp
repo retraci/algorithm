@@ -40,25 +40,48 @@ inline void debug(T &&var, OtherArgs &&... args) {
 // region grid_delta
 namespace grid_delta {
     // 上, 右, 下, 左  |  左上, 右上, 左下, 右下
-    const int dx[9] = {-1, 0, 1, 0, -1, -1, 1, 1, 0};
-    const int dy[9] = {0, 1, 0, -1, -1, 1, -1, 1, 0};
+    const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}, {0, 0}};
 }
 // endregion
 
 using namespace std;
 using namespace grid_delta;
 
-const int N = 110;
+const int N = 1010;
 
-int n;
-int du[N];
+int n, m;
+string g[N];
+int vis[N][N];
+
+void bfs(int sx, int sy) {
+    queue<pii> que;
+    que.push({sx, sy});
+    vis[sx][sy] = 1;
+    while (!que.empty()) {
+        auto [x, y] = que.front(); que.pop();
+
+        for (int k = 0; k < 8; k++) {
+            int nx = x + dir[k][0], ny = y + dir[k][1];
+            if (nx >= 1 && nx <= n && ny >= 1 && ny <= m) {
+                if (g[nx][ny] == 'W' && !vis[nx][ny]) {
+                    vis[nx][ny] = 1;
+                    que.push({nx, ny});
+                }
+            }
+        }
+    }
+}
 
 void solve() {
-    int cnt = 0, id = 0;
+    int ans = 0;
     for (int i = 1; i <= n; i++) {
-        if (du[i] == 0) cnt++, id = i;
+        for (int j = 1; j <= m; j++) {
+            if (vis[i][j] || g[i][j] != 'W') continue;
+            ans++;
+            bfs(i, j);
+        }
     }
-    cout << (cnt == 1 ? id : -1) << "\n";
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -75,11 +98,10 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n;
-        for (int i = 1; i <= n - 1; i++) {
-            int u, v;
-            cin >> u >> v;
-            du[u]++;
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) {
+            cin >> g[i];
+            g[i] = ' ' + g[i];
         }
         solve();
     }

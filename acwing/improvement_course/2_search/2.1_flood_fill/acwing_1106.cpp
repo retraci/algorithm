@@ -40,25 +40,56 @@ inline void debug(T &&var, OtherArgs &&... args) {
 // region grid_delta
 namespace grid_delta {
     // 上, 右, 下, 左  |  左上, 右上, 左下, 右下
-    const int dx[9] = {-1, 0, 1, 0, -1, -1, 1, 1, 0};
-    const int dy[9] = {0, 1, 0, -1, -1, 1, -1, 1, 0};
+    const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}, {0, 0}};
 }
 // endregion
 
 using namespace std;
 using namespace grid_delta;
 
-const int N = 110;
+const int N = 1010;
 
 int n;
-int du[N];
+int g[N][N];
+int vis[N][N];
+
+pii bfs(int sx, int sy) {
+    int res1 = 0, res2 = 0;
+    queue<pii> que;
+    que.push({sx, sy});
+    vis[sx][sy] = 1;
+    while (!que.empty()) {
+        auto [x, y] = que.front(); que.pop();
+
+        for (int k = 0; k < 8; k++) {
+            int nx = x + dir[k][0], ny = y + dir[k][1];
+            if (nx >= 1 && nx <= n && ny >= 1 && ny <= n) {
+                if (g[nx][ny] != g[sx][sy]) {
+                    if (g[nx][ny] > g[sx][sy]) res1++;
+                    else res2++;
+                    continue;
+                }
+
+                if (vis[nx][ny]) continue;
+                vis[nx][ny] = 1;
+                que.push({nx, ny});
+            }
+        }
+    }
+
+    return {res1, res2};
+}
 
 void solve() {
-    int cnt = 0, id = 0;
+    int c1 = 0, c2 = 0;
     for (int i = 1; i <= n; i++) {
-        if (du[i] == 0) cnt++, id = i;
+        for (int j = 1; j <= n; j++) {
+            if (vis[i][j]) continue;
+            auto [r1, r2] = bfs(i, j);
+            c1 += r1 == 0, c2 += r2 == 0;
+        }
     }
-    cout << (cnt == 1 ? id : -1) << "\n";
+    cout << c1 << " " << c2 << "\n";
 }
 
 void prework() {
@@ -76,10 +107,10 @@ int main() {
 //    cin >> T;
     while (T--) {
         cin >> n;
-        for (int i = 1; i <= n - 1; i++) {
-            int u, v;
-            cin >> u >> v;
-            du[u]++;
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                cin >> g[i][j];
+            }
         }
         solve();
     }

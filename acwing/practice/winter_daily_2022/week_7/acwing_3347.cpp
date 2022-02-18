@@ -39,9 +39,8 @@ inline void debug(T &&var, OtherArgs &&... args) {
 // endregion
 // region grid_delta
 namespace grid_delta {
-    // 上, 右, 下, 左  |  左上, 右上, 左下, 右下
-    const int dx[9] = {-1, 0, 1, 0, -1, -1, 1, 1, 0};
-    const int dy[9] = {0, 1, 0, -1, -1, 1, -1, 1, 0};
+    // 上, 右, 下, 左  |  左上, 右上, 右下, 左下
+    const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
 }
 // endregion
 
@@ -51,14 +50,22 @@ using namespace grid_delta;
 const int N = 110;
 
 int n;
-int du[N];
+int va[N];
 
 void solve() {
-    int cnt = 0, id = 0;
-    for (int i = 1; i <= n; i++) {
-        if (du[i] == 0) cnt++, id = i;
+    int ans = 0;
+    for (int L = 1; L <= n; L++) {
+        unordered_set<int> st;
+        int sum = 0;
+        for (int R = L; R <= n; R++) {
+            st.insert(va[R]), sum += va[R];
+
+            int len = R - L + 1;
+            if (sum % len == 0 && st.count(sum / len)) ans++;
+        }
     }
-    cout << (cnt == 1 ? id : -1) << "\n";
+
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -76,11 +83,7 @@ int main() {
 //    cin >> T;
     while (T--) {
         cin >> n;
-        for (int i = 1; i <= n - 1; i++) {
-            int u, v;
-            cin >> u >> v;
-            du[u]++;
-        }
+        for (int i = 1; i <= n; i++) cin >> va[i];
         solve();
     }
 

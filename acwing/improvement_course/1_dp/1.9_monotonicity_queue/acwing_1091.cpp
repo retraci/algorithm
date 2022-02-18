@@ -49,62 +49,45 @@ using namespace grid_delta;
 
 const int N = 1010;
 
-int n, m;
+int n, m, k;
 int g[N][N];
 
-bool check(int x, int y) {
-    int tar = g[x][y] | g[x + 1][y] | g[x][y + 1] | g[x + 1][y + 1];
-
-    return tar != 0
-    && (g[x][y] == 0 || g[x][y] == tar)
-    && (g[x + 1][y] == 0 || g[x + 1][y] == tar)
-    && (g[x][y + 1] == 0 || g[x][y + 1] == tar)
-    && (g[x + 1][y + 1] == 0 || g[x + 1][y + 1] == tar);
-}
-
 void solve() {
-    queue<ti3> que;
-    for (int i = 1; i < n; i++) {
-        for (int j = 1; j < m; j++) {
-            if (check(i, j)) que.push({i, j, g[i][j]});
-        }
-    }
-
-    vector<ti3> ans;
-    int vis[n + 1][m + 1];
-    memset(vis, 0, sizeof vis);
-    while (!que.empty()) {
-        auto [x, y, k] = que.front(); que.pop();
-        if (vis[x][y]) continue;
-        vis[x][y] = 1;
-        g[x][y] = g[x + 1][y] = g[x][y + 1] = g[x + 1][y + 1] = 0;
-        ans.push_back({x, y, k});
-
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dy = -1; dy <= 1; dy++) {
-                int nx = x + dx, ny = y + dy;
-                if (nx >= 1 && nx < n && ny >= 1 && ny < m) {
-                    if (check(nx, ny)) {
-                        int nk = g[nx][ny] | g[nx + 1][ny] | g[nx][ny + 1] | g[nx + 1][ny + 1];
-                        que.push({nx, ny, nk});
-                    }
-                }
-            }
-        }
-    }
-
+    int va[n + 1][m + 1], vb[n + 1][m + 1];
     for (int i = 1; i <= n; i++) {
+        deque<int> que1, que2;
         for (int j = 1; j <= m; j++) {
-            if (g[i][j]) {
-                cout << -1 << "\n";
-                return;
-            }
+            while (!que1.empty() && j - que1.front() + 1 > k) que1.pop_front();
+            while (!que2.empty() && j - que2.front() + 1 > k) que2.pop_front();
+            while (!que1.empty() && g[i][que1.back()] <= g[i][j]) que1.pop_back();
+            while (!que2.empty() && g[i][que2.back()] >= g[i][j]) que2.pop_back();
+            que1.push_back(j), que2.push_back(j);
+
+            va[i][j] = g[i][que1.front()], vb[i][j] = g[i][que2.front()];
         }
     }
 
-    cout << ans.size() << "\n";
-    reverse(ans.begin(), ans.end());
-    for (auto [x, y, k] : ans) cout << x << " " << y << " " << k << "\n";
+    int vc[n + 1][m + 1], vd[n + 1][m + 1];
+    for (int j = 1; j <= m; j++) {
+        deque<int> que1, que2;
+        for (int i = 1; i <= n; i++) {
+            while (!que1.empty() && i - que1.front() + 1 > k) que1.pop_front();
+            while (!que2.empty() && i - que2.front() + 1 > k) que2.pop_front();
+            while (!que1.empty() && va[que1.back()][j] <= va[i][j]) que1.pop_back();
+            while (!que2.empty() && vb[que2.back()][j] >= vb[i][j]) que2.pop_back();
+            que1.push_back(i), que2.push_back(i);
+
+            vc[i][j] = va[que1.front()][j], vd[i][j] = vb[que2.front()][j];
+        }
+    }
+
+    int ans = 1e9;
+    for (int i = k; i <= n; i++) {
+        for (int j = k; j <= m; j++) {
+            ans = min(ans, vc[i][j] - vd[i][j]);
+        }
+    }
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -121,7 +104,7 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n >> m;
+        cin >> n >> m >> k;
         for (int i = 1; i <= n; i++) {
             for (int j = 1; j <= m; j++) {
                 cin >> g[i][j];

@@ -40,25 +40,53 @@ inline void debug(T &&var, OtherArgs &&... args) {
 // region grid_delta
 namespace grid_delta {
     // 上, 右, 下, 左  |  左上, 右上, 左下, 右下
-    const int dx[9] = {-1, 0, 1, 0, -1, -1, 1, 1, 0};
-    const int dy[9] = {0, 1, 0, -1, -1, 1, -1, 1, 0};
+    const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}, {0, 0}};
 }
 // endregion
 
 using namespace std;
-using namespace grid_delta;
+//using namespace grid_delta;
 
-const int N = 110;
+const int dir[8][2] = {{-1,-2}, {-1,2}, {1,-2}, {1,2}, {-2,1}, {-2,-1}, {2,1}, {2,-1}};
 
-int n;
-int du[N];
+const int N = 155;
+
+int n, m;
+string g[N];
+int dist[N][N];
 
 void solve() {
-    int cnt = 0, id = 0;
+    int sx = 1, sy = 1;
     for (int i = 1; i <= n; i++) {
-        if (du[i] == 0) cnt++, id = i;
+        for (int j = 1; j <= m; j++) {
+            if (g[i][j] == 'K') {
+                sx = i, sy = j;
+                break;
+            }
+        }
     }
-    cout << (cnt == 1 ? id : -1) << "\n";
+
+    memset(dist, -1, sizeof dist);
+    queue<pii> que;
+    que.push({sx, sy});
+    dist[sx][sy] = 0;
+    while (!que.empty()) {
+        auto [x, y] = que.front(); que.pop();
+
+        for (int k = 0; k < 8; k++) {
+            int nx = x + dir[k][0], ny = y + dir[k][1];
+            if (nx >= 1 && nx <= n && ny >= 1 && ny <= m) {
+                if (g[nx][ny] == '*' || dist[nx][ny] != -1) continue;
+
+                dist[nx][ny] = dist[x][y] + 1;
+                que.push({nx, ny});
+                if (g[nx][ny] == 'H') {
+                    cout << dist[nx][ny] << "\n";
+                    return;
+                }
+            }
+        }
+    }
 }
 
 void prework() {
@@ -75,11 +103,10 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n;
-        for (int i = 1; i <= n - 1; i++) {
-            int u, v;
-            cin >> u >> v;
-            du[u]++;
+        cin >> m >> n;
+        for (int i = 1; i <= n; i++) {
+            cin >> g[i];
+            g[i] = ' ' + g[i];
         }
         solve();
     }

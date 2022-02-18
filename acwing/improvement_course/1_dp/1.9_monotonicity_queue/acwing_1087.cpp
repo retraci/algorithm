@@ -40,25 +40,37 @@ inline void debug(T &&var, OtherArgs &&... args) {
 // region grid_delta
 namespace grid_delta {
     // 上, 右, 下, 左  |  左上, 右上, 左下, 右下
-    const int dx[9] = {-1, 0, 1, 0, -1, -1, 1, 1, 0};
-    const int dy[9] = {0, 1, 0, -1, -1, 1, -1, 1, 0};
+    const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}, {0, 0}};
 }
 // endregion
 
 using namespace std;
 using namespace grid_delta;
 
-const int N = 110;
+const int N = 1e5 + 10;
 
-int n;
-int du[N];
+int n, m;
+int va[N];
+ll s[N];
+ll f[N];
+
+ll get(int x) {
+    if (x == 0) return 0;
+    return f[x - 1] - s[x];
+}
 
 void solve() {
-    int cnt = 0, id = 0;
+    for (int i = 1; i <= n; i++) s[i] = s[i - 1] + va[i];
+
+    deque<int> que;
+    que.push_back(0);
     for (int i = 1; i <= n; i++) {
-        if (du[i] == 0) cnt++, id = i;
+        while (i - que.front() > m) que.pop_front();
+        f[i] = max(f[i - 1], s[i] + get(que.front()));
+        while (!que.empty() && get(que.back()) <= get(i)) que.pop_back();
+        que.push_back(i);
     }
-    cout << (cnt == 1 ? id : -1) << "\n";
+    cout << f[n] << "\n";
 }
 
 void prework() {
@@ -75,12 +87,8 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n;
-        for (int i = 1; i <= n - 1; i++) {
-            int u, v;
-            cin >> u >> v;
-            du[u]++;
-        }
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) cin >> va[i];
         solve();
     }
 

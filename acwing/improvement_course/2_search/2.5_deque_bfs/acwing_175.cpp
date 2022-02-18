@@ -47,7 +47,54 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 510;
+const int dt[4][2] = {{-1, -1}, {-1, 0}, {0, 0}, {0, -1}};
+const string mp = "\\/\\/";
+
+int n, m;
+string g[N];
+int dist[N][N];
+int vis[N][N];
+
+int bfs() {
+    fill(&dist[0][0], &dist[n][m] + 1, 1e9);
+    fill(&vis[0][0], &vis[n][m] + 1, 0);
+
+    deque<pii> que;
+    dist[0][0] = 0;
+    que.push_back({0, 0});
+    while (!que.empty()) {
+        auto [x, y] = que.front(); que.pop_front();
+        if (vis[x][y]) continue;
+        vis[x][y] = 1;
+        if (x == n && y == m) return dist[n][m];
+
+        for (int k = 0; k < 4; k++) {
+            int nx = x + dir[k + 4][0], ny = y + dir[k + 4][1];
+            int a = x + dt[k][0], b = y + dt[k][1];
+
+            if (nx >= 0 && nx <= n && ny >= 0 && ny <= m) {
+                int cost = g[a][b] != mp[k];
+
+                if (dist[nx][ny] > dist[x][y] + cost) {
+                    dist[nx][ny] = dist[x][y] + cost;
+                    if (cost == 0) que.push_front({nx, ny});
+                    else que.push_back({nx, ny});
+                }
+            }
+        }
+    }
+
+    return -1;
+}
+
 void solve() {
+    if (n + m & 1) {
+        cout << "NO SOLUTION" << "\n";
+        return;
+    }
+
+    cout << bfs() << "\n";
 }
 
 void prework() {
@@ -64,6 +111,8 @@ int main() {
     int T = 1;
     cin >> T;
     while (T--) {
+        cin >> n >> m;
+        for (int i = 0; i < n; i++) cin >> g[i];
         solve();
     }
 
