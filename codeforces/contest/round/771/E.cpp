@@ -37,10 +37,15 @@ inline void debug(T &&var, OtherArgs &&... args) {
     debug(std::forward<OtherArgs>(args)...);
 }
 // endregion
+// region grid_delta
+namespace grid_delta {
+    // 上, 右, 下, 左  |  左上, 右上, 右下, 左下
+    const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+}
+// endregion
 
 using namespace std;
-
-const int N = 1e6 + 10;
+using namespace grid_delta;
 
 // region 动态开点普通线段树
 template<int SZ>
@@ -154,81 +159,61 @@ struct Seg {
 };
 // endregion
 
+const int N = 1e6 + 10;
+
+int n, m;
+ll cnt[N];
+
+map<int, int> odt;
 Seg<N> seg;
 
-    vector<ll> lazy;
-    set< ti3 > st;
+void split(int pos) {
+    auto [L, c] = *prev(odt.upper_bound(pos));
+    odt[pos] = c;
+}
 
-    auto split(int pos)
-    {  //[l, pos), (pos, r]
-        auto it = st.lower_bound((ti3) {pos, 0, 0});
-        if (it != st.end()) {
-            auto [L, R, c] = *it;
-            if (L == pos) return it;
-        }
+void assign(int L, int R, int c) {
+    split(L), split(R + 1);
 
-        it = prev(it);
-        auto [L, R, c] = *it;
-        st.erase(it);
-        return st.insert({L, pos - 1, c}), st.insert({pos, R, c}).fi;
+    auto it = odt.find(L);
+    while (it->fi != R + 1) {
+        auto [tl, tc] = *it;
+        int tr = next(it)->fi - 1;
+        seg.update(tl, tr, cnt[tc] + -cnt[c]);
+        it = odt.erase(it);
     }
+    odt[L] = c;
+}
 
-    void assign(int l, int r, ll val)
-    {
-        auto itr = split(r + 1), itl = split(l);
-        for(auto it = itl; it!=itr; it++) {
-            auto [L, R, c] = *it;
+ll query(int id) {
+    split(id);
+    return seg.query(id, id) + cnt[odt[id]];
+}
 
-            seg.update(L, R, lazy[c] - lazy[val]);
-        }
-        st.erase(itl, itr);
-        st.insert({ l, r, val });
-    }
-
-    ll sum(int l, int r)
-    {
-        auto itr = split(r + 1), itl = split(l);
-        ll res = 0;
-        for (auto it = itl; it != itr; ++it) {
-            auto [L, R, c] = *it;
-
-            res += (R - L + 1) * c;
-        }
-        return res;
-    }
-
-    void add(int col, ll val){lazy[col]+=val;}
-    ll query(int x)
-    {
-        return seg.query(x, x) + lazy[sum(x, x)];
-    }
-
-
-void solve()
-{
-    int n, m; cin>>n>>m;
-    lazy.resize(n+1);
-    st.insert({1, n, 1});
+void solve() {
+    odt[1] = 1;
     seg.init(1, n);
-    while(m--)
-    {
-        string s; cin>>s;
-        if(s == "Color")
-        {
-            int x,y,z; cin>>x>>y>>z;
-            assign(x, y, z);
-        }
-        if(s == "Add")
-        {
-            int x, y; cin>>x>>y;
-            add(x, y);
-        }
-        if(s == "Query")
-        {
-            int x; cin>>x;
-            cout<<query(x)<<'\n';
+
+    while (m--) {
+        string op;
+        cin >> op;
+        if (op == "Color") {
+            int L, R, c;
+            cin >> L >> R >> c;
+            assign(L, R, c);
+        } else if (op == "Add") {
+            int c, x;
+            cin >> c >> x;
+            cnt[c] += x;
+        } else {
+            int id;
+            cin >> id;
+            cout << query(id) << "\n";
         }
     }
+}
+
+void prework() {
 }
 
 int main() {
@@ -237,10 +222,12 @@ int main() {
     freopen("../out.txt", "w", stdout);
 #endif
 
+    prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> n >> m;
         solve();
     }
 
