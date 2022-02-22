@@ -22,13 +22,13 @@ add_executable(acwing_1083 acwing/improvement_course/1_dp/1.8_digit/acwing_1083.
 add_executable(acwing_1084 acwing/improvement_course/1_dp/1.8_digit/acwing_1084.cpp)
 add_executable(acwing_1085 acwing/improvement_course/1_dp/1.8_digit/acwing_1085.cpp)
 add_executable(P1980 luogu/practice/dp/digit/P1980.cpp)
-add_executable(A codeforces/contest/round/772/A.cpp)
-add_executable(B codeforces/contest/round/772/B.cpp)
-add_executable(C codeforces/contest/round/772/C.cpp)
+add_executable(A codeforces/contest/edu/123/A.cpp)
+add_executable(B codeforces/contest/edu/123/B.cpp)
+add_executable(C codeforces/contest/edu/123/C.cpp)
 
-add_executable(D codeforces/contest/round/772/D.cpp)
+add_executable(D codeforces/contest/edu/123/D.cpp)
 add_executable(P2602 luogu/practice/dp/digit/P2602.cpp)
-add_executable(E codeforces/contest/round/771/E.cpp)
+add_executable(E codeforces/contest/edu/123/E.cpp)
 add_executable(acwing_1086 acwing/improvement_course/1_dp/1.8_digit/acwing_1086.cpp)
 
 add_executable(acwing_1684 acwing/practice/winter_daily_2022/week_6/acwing_1684.cpp)
@@ -87,7 +87,7 @@ add_executable(acwing_342 acwing/improvement_course/3_graph/3.2_single_source_ap
 add_executable(acwing_341 acwing/improvement_course/3_graph/3.2_single_source_applications/acwing_341.cpp)
 add_executable(acwing_341_gt acwing/improvement_course/3_graph/3.2_single_source_applications/acwing_341_gt.cpp)
 
-add_executable(F atcoder/contest/abc/240/F.cpp)
+add_executable(F codeforces/contest/global_round/19/F.cpp)
 
 add_executable(CF896C codeforces/practice/ODT/CF896C.cpp)
 add_executable(acwing_1137 acwing/improvement_course/3_graph/3.3_single_source_extensions/acwing_1137.cpp)
@@ -95,3 +95,17 @@ add_executable(acwing_1131 acwing/improvement_course/3_graph/3.3_single_source_e
 add_executable(acwing_1134 acwing/improvement_course/3_graph/3.3_single_source_extensions/acwing_1134.cpp)
 add_executable(acwing_383 acwing/improvement_course/3_graph/3.3_single_source_extensions/acwing_383.cpp)
 add_executable(poj_3255 poj/shortest_path/poj_3255.cpp)
+add_executable(acwing_343 acwing/improvement_course/3_graph/3.4_floyd/acwing_343.cpp)
+add_executable(acwing_1125 acwing/improvement_course/3_graph/3.4_floyd/acwing_1125.cpp)
+add_executable(acwing_344 acwing/improvement_course/3_graph/3.4_floyd/acwing_344.cpp)
+add_executable(acwing_345 acwing/improvement_course/3_graph/3.4_floyd/acwing_345.cpp)
+
+add_executable(acwing_1140 acwing/improvement_course/3_graph/3.5_mininum_spanning_tree/acwing_1140.cpp)
+add_executable(G atcoder/contest/abc/240/G.cpp)
+add_executable(acwing_1141 acwing/improvement_course/3_graph/3.5_mininum_spanning_tree/acwing_1141.cpp)
+add_executable(acwing_1142 acwing/improvement_course/3_graph/3.5_mininum_spanning_tree/acwing_1142.cpp)
+add_executable(acwing_1143 acwing/improvement_course/3_graph/3.5_mininum_spanning_tree/acwing_1143.cpp)
+add_executable(acwing_1144 acwing/improvement_course/3_graph/3.5_mininum_spanning_tree/acwing_1144.cpp)
+
+add_executable(acwing_1146 acwing/improvement_course/3_graph/3.6_mininum_spanning_tree_extensions/acwing_1146.cpp)
+add_executable(acwing_1145 acwing/improvement_course/3_graph/3.6_mininum_spanning_tree_extensions/acwing_1145.cpp)

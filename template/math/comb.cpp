@@ -22,6 +22,8 @@ inline ll C(ll a, ll b) {
 
 inline void init_comb(int lim) {
     fac[0] = ifac[0] = 1;
-    for (int i = 1; i <= lim; i++) fac[i] = fac[i - 1] * i % MOD, ifac[i] = inv(fac[i]);
+    for (int i = 1; i <= lim; i++) fac[i] = fac[i - 1] * i % MOD;
+    ifac[lim] = inv(fac[lim]);
+    for (int i = lim - 1; i >= 1; i--) ifac[i] = ifac[i + 1] * (i + 1) % MOD;
 }
 // endregion
