@@ -49,22 +49,9 @@ using namespace grid_delta;
 
 int n;
 
-bool check(int x) {
-    int x1 = x, x2 = x + 1, x3 = x + 3;
-    while (x3) {
-        int s = x1 % 10 + x2 % 10 + x3 % 10;
-        if (x >= 10) return false;
-        x1 /= 10, x2 /= 10, x3 /= 10;
-    }
-    return true;
-}
-
 void solve() {
-    int ans = 0;
-    for (int i = 0; i < n; i++) {
-        ans += check(i);
-    }
-    cout << ans << "\n";
+    for (int i = n; i >= 1; i--) cout << i << " ";
+    cout << "\n";
 }
 
 void prework() {
@@ -79,7 +66,7 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
         cin >> n;
         solve();

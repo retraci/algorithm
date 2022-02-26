@@ -22,7 +22,7 @@ add_executable(acwing_1083 acwing/improvement_course/1_dp/1.8_digit/acwing_1083.
 add_executable(acwing_1084 acwing/improvement_course/1_dp/1.8_digit/acwing_1084.cpp)
 add_executable(acwing_1085 acwing/improvement_course/1_dp/1.8_digit/acwing_1085.cpp)
 add_executable(P1980 luogu/practice/dp/digit/P1980.cpp)
-add_executable(A codeforces/contest/edu/123/A.cpp)
+add_executable(A codeforces/contest/round/663/A.cpp)
 add_executable(B codeforces/contest/edu/123/B.cpp)
 add_executable(C codeforces/contest/edu/123/C.cpp)
 
@@ -109,3 +109,5 @@ add_executable(acwing_1144 acwing/improvement_course/3_graph/3.5_mininum_spannin
 
 add_executable(acwing_1146 acwing/improvement_course/3_graph/3.6_mininum_spanning_tree_extensions/acwing_1146.cpp)
 add_executable(acwing_1145 acwing/improvement_course/3_graph/3.6_mininum_spanning_tree_extensions/acwing_1145.cpp)
+add_executable(acwing_346 acwing/improvement_course/3_graph/3.6_mininum_spanning_tree_extensions/acwing_346.cpp)
+add_executable(acwing_1148 acwing/improvement_course/3_graph/3.6_mininum_spanning_tree_extensions/acwing_1148.cpp)

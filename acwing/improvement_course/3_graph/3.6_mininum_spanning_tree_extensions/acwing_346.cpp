@@ -47,23 +47,40 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-int n;
+const int N = 6010;
 
-bool check(int x) {
-    int x1 = x, x2 = x + 1, x3 = x + 3;
-    while (x3) {
-        int s = x1 % 10 + x2 % 10 + x3 % 10;
-        if (x >= 10) return false;
-        x1 /= 10, x2 /= 10, x3 /= 10;
-    }
+int n;
+vector<ti3> es;
+
+int fa[N];
+int sz[N];
+ll ans;
+
+int find(int x) {
+    return x == fa[x] ? x : fa[x] = find(fa[x]);
+}
+
+bool unite(int x, int y, int cost) {
+    x = find(x), y = find(y);
+    if (x == y) return false;
+
+    ans += (sz[x] * sz[y] - 1) * (cost + 1);
+    sz[y] += sz[x];
+
+    fa[x] = y;
     return true;
 }
 
 void solve() {
-    int ans = 0;
-    for (int i = 0; i < n; i++) {
-        ans += check(i);
+    sort(es.begin(), es.end());
+
+    ans = 0;
+    iota(fa, fa + n + 1, 0);
+    fill(sz, sz + n + 1, 1);
+    for (auto [cost, u, v] : es) {
+        unite(u, v, cost);
     }
+
     cout << ans << "\n";
 }
 
@@ -79,9 +96,16 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
         cin >> n;
+        es.clear();
+
+        for (int i = 1; i <= n - 1; i++) {
+            int u, v, cost;
+            cin >> u >> v >> cost;
+            es.push_back({cost, u, v});
+        }
         solve();
     }
 
