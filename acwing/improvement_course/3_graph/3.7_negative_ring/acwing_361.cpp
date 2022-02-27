@@ -61,7 +61,7 @@ void add(int u, int v, int cost) {
     ne[edm] = h[u], h[u] = edm++;
 }
 
-bool spfa(double mid) {
+bool check(double mid) {
     vector<int> st(n + 1, 0), cnt(n + 1, 0);
     vector<double> dist(n + 1, 0);
 
@@ -95,7 +95,7 @@ void solve() {
     double left = 0, right = 1000;
     while (left + eps < right) {
         double mid = (left + right) / 2;
-        if (spfa(mid)) left = mid;
+        if (check(mid)) left = mid;
         else right = mid;
     }
 

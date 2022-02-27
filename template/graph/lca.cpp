@@ -1,47 +1,101 @@
-// region 有边权的lca
-vector<pii> g[N];
-int fa[N][31], cost[N][31], dep[N];
+// region 无边权的lca
+int rt;
+int dep[N], fa[N][32];
 
-// dfs, 用来为 lca 算法做准备, 接受两个参数: dfs 起始节点和它的父亲节点
-void dfs_lca(int u, int fno) {
-    fa[u][0] = fno, dep[u] = dep[fno] + 1;
+void lca_init() {
+    memset(dep, -1, sizeof dep), memset(fa, 0, sizeof fa);
 
-    for (int i = 1; i < 31; i++) {
-        int pv = fa[u][i - 1];
-        fa[u][i] = fa[pv][i - 1];
-        cost[u][i] = cost[pv][i - 1] + cost[u][i - 1];
-    }
+    queue<int> que;
+    que.push(rt);
+    dep[0] = 0, dep[rt] = 1;
+    while (!que.empty()) {
+        auto u = que.front(); que.pop();
 
-    for (auto &[v, w] : g[u]) {
-        if (v == fno) continue;
-        cost[v][0] = w;
-        dfs_lca(v, u);
+        for (int i = h[u]; ~i; i = ne[i]) {
+            auto v = g[i];
+
+            if (dep[v] == -1) {
+                dep[v] = dep[u] + 1;
+                fa[v][0] = u;
+                que.push(v);
+
+                for (int k = 1; k <= 31; k++) {
+                    fa[v][k] = fa[fa[v][k - 1]][k - 1];
+                }
+            }
+        }
     }
 }
 
-// lca, 用倍增算法算取 x 和 y 的 lca 节点
-// 可以返回2种答案:
-// 1.返回 ans, x 与 y 的路径和;
-// 2.返回 fa[x][0], 则返回 lca(x, y)
 int lca(int x, int y) {
     if (dep[x] < dep[y]) swap(x, y);
-
-    int delta = dep[x] - dep[y], res = 0;
-    for (int i = 0; delta; i++, delta >>= 1) {
-        if (delta & 1) x = fa[x][i], res += cost[x][i];
+    for (int k = 31; k >= 0; k--) {
+        if (dep[fa[x][k]] >= dep[y]) x = fa[x][k];
     }
-    // 可返回2种答案
     if (x == y) return x;
 
-    for (int i = 30; i >= 0; i--) {
-        if (fa[x][i] != fa[y][i]) {
-            res += cost[x][i] + cost[y][i];
-            x = fa[x][i], y = fa[y][i];
+    for (int k = 31; k >= 0; k--) {
+        if (fa[x][k] != fa[y][k]) {
+            x = fa[x][k], y = fa[y][k];
         }
     }
-
-    // 可返回2种答案
-    res += cost[x][0] + cost[y][0];
     return fa[x][0];
+}
+// endregion
+
+// region 有边权的lca
+int rt;
+int dep[N], fa[N][32], w[N][32];
+
+void add(int u, int v, int cost) {
+    g[edm] = {cost, v};
+    ne[edm] = h[u], h[u] = edm++;
+}
+
+void lca_init() {
+    memset(dep, -1, sizeof dep), memset(fa, 0, sizeof fa), memset(w, 0x3f, sizeof w);
+
+    queue<int> que;
+    que.push(rt);
+    dep[0] = 0, dep[rt] = 1;
+    while (!que.empty()) {
+        auto u = que.front(); que.pop();
+
+        for (int i = h[u]; ~i; i = ne[i]) {
+            auto [cost, v] = g[i];
+
+            if (dep[v] == -1) {
+                dep[v] = dep[u] + 1;
+                fa[v][0] = u, w[v][0] = cost;
+                que.push(v);
+
+                for (int k = 1; k <= 31; k++) {
+                    fa[v][k] = fa[fa[v][k - 1]][k - 1];
+                    w[v][k] = w[v][k - 1] + w[fa[v][k - 1]][k - 1];
+                }
+            }
+        }
+    }
+}
+
+int lca(int x, int y) {
+    if (dep[x] < dep[y]) swap(x, y);
+    int res = 0;
+    for (int k = 31; k >= 0; k--) {
+        if (dep[fa[x][k]] >= dep[y]) {
+            res += w[x][k];
+            x = fa[x][k];
+        }
+    }
+    if (x == y) return res;
+
+    for (int k = 31; k >= 0; k--) {
+        if (fa[x][k] != fa[y][k]) {
+            res += w[x][k] + w[y][k];
+            x = fa[x][k], y = fa[y][k];
+        }
+    }
+    res += w[x][0] + w[y][0];
+    return res;
 }
 // endregion

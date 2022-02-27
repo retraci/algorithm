@@ -47,127 +47,29 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1010;
-
-int n;
-string g[N];
+const int N = 85;
+int n, K, m, u, v, c, cc[N][N], f[N][N][N][2], i, j, k, nw, ans = 1 << 30;
 
 void solve() {
-    for (int i = 1; i <= n; i++) {
-        int sum = 0;
-        for (int j = 1; j <= n; j++) {
-            if (j < 6) {
-                sum += g[i][j] == '.';
-                continue;
-            }
-            sum += g[i][j] == '.';
-            sum -= g[i][j - 6] == '.';
-
-            if (sum <= 2) {
-                cout << "Yes" << "\n";
-                return;
-            }
-        }
-    }
-    for (int j = 1; j <= n; j++) {
-        int sum = 0;
-        for (int i = 1; i <= n; i++) {
-            if (i < 6) {
-                sum += g[i][j] == '.';
-                continue;
-            }
-            sum += g[i][j] == '.';
-            sum -= g[i - 6][j] == '.';
-
-            if (sum <= 2) {
-                debug('?');
-                cout << "Yes" << "\n";
-                return;
+    memset(cc, 1, sizeof cc);
+    scanf("%d%d%d", &n, &K, &m);
+    while (m--)scanf("%d%d%d", &u, &v, &c), cc[u][v] = min(cc[u][v], c);
+    memset(f[0], 1, sizeof f[0]);
+    for (i = 1; i <= n; ++i)f[0][0][i][1] = f[0][i][n + 1][0] = 0;
+    while(--K) {
+        nw ^= 1; memset(f[nw],1,sizeof f[nw]);
+        for (int L = 0; L <= n + 1; L++) {
+            for (int R = L + 2; R <= n + 1; R++) {
+                for (v = L + 1; v < R; v++) {
+                    f[nw][L][v][1]=min(f[nw][L][v][1],min(f[!nw][L][R][1]+cc[R][v],f[!nw][L][R][0]+cc[L][v]));
+                    f[nw][v][R][0]=min(f[nw][v][R][0],min(f[!nw][L][R][0]+cc[L][v],f[!nw][L][R][1]+cc[R][v]));
+                }
             }
         }
     }
-
-    for (int i = n; i >= 1; i--) {
-        int sx = i, sy = 1, sum = 0;
-        for (int k = 0; ; k++) {
-            int nx = sx + k, ny = sy + k;
-            if (nx < 1 || nx > n || ny < 1 || ny > n) break;
-
-            if (k < 6) {
-                sum += g[nx][ny] == '.';
-                continue;
-            }
-            sum += g[nx][ny] == '.';
-            sum -= g[nx - 6][ny - 6] == '.';
-
-            if (sum <= 2) {
-                cout << "Yes" << "\n";
-                return;
-            }
-        }
-    }
-
-    for (int j = 1; j <= n; j++) {
-        int sx = 1, sy = j, sum = 0;
-        for (int k = 0; ; k++) {
-            int nx = sx + k, ny = sy + k;
-            if (nx < 1 || nx > n || ny < 1 || ny > n) break;
-
-            if (k < 6) {
-                sum += g[nx][ny] == '.';
-                continue;
-            }
-            sum += g[nx][ny] == '.';
-            sum -= g[nx - 6][ny - 6] == '.';
-
-            if (sum <= 2) {
-                cout << "Yes" << "\n";
-                return;
-            }
-        }
-    }
-
-    for (int j = 1; j <= n; j++) {
-        int sx = 1, sy = j, sum = 0;
-        for (int k = 0; ; k++) {
-            int nx = sx + k, ny = sy - k;
-            if (nx < 1 || nx > n || ny < 1 || ny > n) break;
-
-            if (k < 6) {
-                sum += g[nx][ny] == '.';
-                continue;
-            }
-            sum += g[nx][ny] == '.';
-            sum -= g[nx - 6][ny + 6] == '.';
-
-            if (sum <= 2) {
-                cout << "Yes" << "\n";
-                return;
-            }
-        }
-    }
-
-    for (int i = 1; i <= n; i++) {
-        int sx = i, sy = n, sum = 0;
-        for (int k = 0; ; k++) {
-            int nx = sx + k, ny = sy - k;
-            if (nx < 1 || nx > n || ny < 1 || ny > n) break;
-
-            if (k < 6) {
-                sum += g[nx][ny] == '.';
-                continue;
-            }
-            sum += g[nx][ny] == '.';
-            sum -= g[nx - 6][ny + 6] == '.';
-
-            if (sum <= 2) {
-                cout << "Yes" << "\n";
-                return;
-            }
-        }
-    }
-
-    cout << "No" << "\n";
+    for (i = 0; i <= n + 1; ++i)for (j = 0; j <= n + 1; ++j)ans = min(ans, min(f[nw][i][j][0], f[nw][i][j][1]));
+    if (ans > 1 << 20)ans = -1;
+    printf("%d\n", ans);
 }
 
 void prework() {
@@ -186,12 +88,7 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-//        cin >> n;
-//        for (int i = 1; i <= n; i++) {
-//            cin >> g[i];
-//            g[i] = ' ' + g[i];
-//        }
-//        solve();
+        solve();
     }
 
     return 0;

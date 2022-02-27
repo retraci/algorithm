@@ -47,50 +47,72 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 510;
-const int M = 5210;
+const int N = 4e4 + 10;
 
-int n, m1, m2;
-pii g[M];
-int ne[M], h[N], edm;
+int n, m;
 
-void add(int u, int v, int cost) {
-    g[edm] = {cost, v};
+int rt;
+int g[N * 2], ne[N * 2], h[N], edm;
+
+int dep[N], fa[N][32];
+
+void add(int u, int v) {
+    g[edm] = v;
     ne[edm] = h[u], h[u] = edm++;
 }
 
-bool spfa() {
-    vector<int> st(n + 1, 0), cnt(n + 1, 0), dist(n + 1, 0);
+void lca_init() {
+    memset(dep, -1, sizeof dep), memset(fa, 0, sizeof fa);
 
-    deque<int> que;
-    for (int i = 1; i <= n; i++) que.push_back(i), st[i] = 1;
+    queue<int> que;
+    que.push(rt);
+    dep[0] = 0, dep[rt] = 1;
     while (!que.empty()) {
-        auto u = que.front(); que.pop_front();
-        st[u] = 0;
+        auto u = que.front(); que.pop();
 
         for (int i = h[u]; ~i; i = ne[i]) {
-            auto [cost, v] = g[i];
+            auto v = g[i];
 
-            if (dist[v] > dist[u] + cost) {
-                dist[v] = dist[u] + cost;
-                cnt[v] = cnt[u] + 1;
-                if (cnt[v] >= n) return true;
+            if (dep[v] == -1) {
+                dep[v] = dep[u] + 1;
+                fa[v][0] = u;
+                que.push(v);
 
-                if (!st[v]) {
-                    st[v] = 1;
-                    if (!que.empty() && dist[v] < dist[que.front()]) que.push_front(v);
-                    else que.push_back(v);
+                for (int k = 1; k <= 31; k++) {
+                    fa[v][k] = fa[fa[v][k - 1]][k - 1];
                 }
             }
         }
     }
+}
 
-    return false;
+int lca(int x, int y) {
+    if (dep[x] < dep[y]) swap(x, y);
+    for (int k = 31; k >= 0; k--) {
+        if (dep[fa[x][k]] >= dep[y]) x = fa[x][k];
+    }
+    if (x == y) return x;
+
+    for (int k = 31; k >= 0; k--) {
+        if (fa[x][k] != fa[y][k]) {
+            x = fa[x][k], y = fa[y][k];
+        }
+    }
+    return fa[x][0];
 }
 
 void solve() {
-    if (spfa()) cout << "YES" << "\n";
-    else cout << "NO" << "\n";
+    lca_init();
+
+    cin >> m;
+    while (m--) {
+        int x, y;
+        cin >> x >> y;
+        int ret = lca(x, y);
+        if (ret == x) cout << 1 << "\n";
+        else if (ret == y) cout << 2 << "\n";
+        else cout << 0 << "\n";
+    }
 }
 
 void prework() {
@@ -105,21 +127,18 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
-        cin >> n >> m1 >> m2;
-        fill(h, h + n + 1, -1), edm = 0;
+        cin >> n;
+        memset(h, -1, sizeof h), edm = 0;
 
-        while (m1--) {
-            int u, v, cost;
-            cin >> u >> v >> cost;
-            add(u, v, cost), add(v, u, cost);
+        for (int i = 1; i <= n; i++) {
+            int u, v;
+            cin >> u >> v;
+            if (v == -1) rt = u;
+            else add(u, v), add(v, u);
         }
-        while (m2--) {
-            int u, v, cost;
-            cin >> u >> v >> cost;
-            add(u, v, -cost);
-        }
+
         solve();
     }
 

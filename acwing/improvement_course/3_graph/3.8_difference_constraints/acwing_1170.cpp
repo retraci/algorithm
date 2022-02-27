@@ -47,23 +47,32 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 510;
-const int M = 5210;
+const int N = 1010;
+const int M = 2e4 + N;
 
 int n, m1, m2;
 pii g[M];
 int ne[M], h[N], edm;
+
+int dist[N], cnt[N], st[N];
 
 void add(int u, int v, int cost) {
     g[edm] = {cost, v};
     ne[edm] = h[u], h[u] = edm++;
 }
 
-bool spfa() {
-    vector<int> st(n + 1, 0), cnt(n + 1, 0), dist(n + 1, 0);
+void init() {
+    for (int i = 1; i <= n - 1; i++) add(i + 1, i, 0);
+}
 
+bool spfa(int sz) {
+    fill(dist, dist + n + 1, 1e9), fill(cnt, cnt + n + 1, 0), fill(st, st + n + 1, 0);
     deque<int> que;
-    for (int i = 1; i <= n; i++) que.push_back(i), st[i] = 1;
+    for (int i = 1; i <= sz; i++) {
+        dist[i] = 0;
+        que.push_back(i), st[i] = 1;
+    }
+
     while (!que.empty()) {
         auto u = que.front(); que.pop_front();
         st[u] = 0;
@@ -72,9 +81,9 @@ bool spfa() {
             auto [cost, v] = g[i];
 
             if (dist[v] > dist[u] + cost) {
-                dist[v] = dist[u] + cost;
+                if (dist[u] < 1e9) dist[v] = dist[u] + cost;
                 cnt[v] = cnt[u] + 1;
-                if (cnt[v] >= n) return true;
+                if (cnt[v] >= n) return false;
 
                 if (!st[v]) {
                     st[v] = 1;
@@ -85,12 +94,20 @@ bool spfa() {
         }
     }
 
-    return false;
+    return true;
 }
 
 void solve() {
-    if (spfa()) cout << "YES" << "\n";
-    else cout << "NO" << "\n";
+    init();
+
+    if (!spfa(n)) {
+        cout << -1 << "\n";
+        return;
+    }
+
+    spfa(n);
+    int ans = dist[n];
+    cout << (ans == 1e9 ? -2 : ans) << "\n";
 }
 
 void prework() {
@@ -105,7 +122,7 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
         cin >> n >> m1 >> m2;
         fill(h, h + n + 1, -1), edm = 0;
@@ -113,13 +130,16 @@ int main() {
         while (m1--) {
             int u, v, cost;
             cin >> u >> v >> cost;
-            add(u, v, cost), add(v, u, cost);
+            if (u > v) swap(u, v);
+            add(u, v, cost);
         }
         while (m2--) {
             int u, v, cost;
             cin >> u >> v >> cost;
-            add(u, v, -cost);
+            if (u > v) swap(u, v);
+            add(v, u, -cost);
         }
+
         solve();
     }
 

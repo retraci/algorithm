@@ -47,50 +47,32 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 510;
-const int M = 5210;
+const int N = 110;
 
-int n, m1, m2;
-pii g[M];
-int ne[M], h[N], edm;
+int n, K, m;
+int g[N][N];
 
-void add(int u, int v, int cost) {
-    g[edm] = {cost, v};
-    ne[edm] = h[u], h[u] = edm++;
-}
+void solve() {
+    int f[K + 1][n + 2][n + 2][2];
+    fill(&f[0][0][0][0], &f[K][n + 1][n + 1][1] + 1, 1e9);
+    for (int i = 1; i <= n; i++) f[1][0][i][1] = f[1][i][n + 1][0] = 0;
 
-bool spfa() {
-    vector<int> st(n + 1, 0), cnt(n + 1, 0), dist(n + 1, 0);
+    for (int k = 1; k < K; k++) {
+        for (int L = 0; L <= n + 1; L++) {
+            for (int R = L + 2; R <= n + 1; R++) {
+                for (int v = L + 1; v < R; v++) {
+                    f[k + 1][L][v][1] = min(f[k + 1][L][v][1], f[k][L][R][1] + g[R][v]);
+                    f[k + 1][v][R][0] = min(f[k + 1][v][R][0], f[k][L][R][1] + g[R][v]);
 
-    deque<int> que;
-    for (int i = 1; i <= n; i++) que.push_back(i), st[i] = 1;
-    while (!que.empty()) {
-        auto u = que.front(); que.pop_front();
-        st[u] = 0;
-
-        for (int i = h[u]; ~i; i = ne[i]) {
-            auto [cost, v] = g[i];
-
-            if (dist[v] > dist[u] + cost) {
-                dist[v] = dist[u] + cost;
-                cnt[v] = cnt[u] + 1;
-                if (cnt[v] >= n) return true;
-
-                if (!st[v]) {
-                    st[v] = 1;
-                    if (!que.empty() && dist[v] < dist[que.front()]) que.push_front(v);
-                    else que.push_back(v);
+                    f[k + 1][L][v][1] = min(f[k + 1][L][v][1], f[k][L][R][0] + g[L][v]);
+                    f[k + 1][v][R][0] = min(f[k + 1][v][R][0], f[k][L][R][0] + g[L][v]);
                 }
             }
         }
     }
 
-    return false;
-}
-
-void solve() {
-    if (spfa()) cout << "YES" << "\n";
-    else cout << "NO" << "\n";
+    int ans = *min_element(&f[K][0][0][0], &f[K][n + 1][n + 1][1] + 1);
+    cout << (ans == 1e9 ? -1: ans) << "\n";
 }
 
 void prework() {
@@ -105,20 +87,15 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
-        cin >> n >> m1 >> m2;
-        fill(h, h + n + 1, -1), edm = 0;
+        cin >> n >> K >> m;
+        memset(g, 0x3f, sizeof g);
 
-        while (m1--) {
+        while (m--) {
             int u, v, cost;
             cin >> u >> v >> cost;
-            add(u, v, cost), add(v, u, cost);
-        }
-        while (m2--) {
-            int u, v, cost;
-            cin >> u >> v >> cost;
-            add(u, v, -cost);
+            g[u][v] = min(g[u][v], cost);
         }
         solve();
     }
