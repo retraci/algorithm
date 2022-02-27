@@ -22,13 +22,12 @@ add_executable(acwing_1083 acwing/improvement_course/1_dp/1.8_digit/acwing_1083.
 add_executable(acwing_1084 acwing/improvement_course/1_dp/1.8_digit/acwing_1084.cpp)
 add_executable(acwing_1085 acwing/improvement_course/1_dp/1.8_digit/acwing_1085.cpp)
 add_executable(P1980 luogu/practice/dp/digit/P1980.cpp)
-add_executable(A codeforces/contest/round/663/A.cpp)
-add_executable(B codeforces/contest/edu/123/B.cpp)
-add_executable(C codeforces/contest/edu/123/C.cpp)
+add_executable(B atcoder/contest/abc/241/B.cpp)
+add_executable(C atcoder/contest/abc/241/C.cpp)
 
-add_executable(D codeforces/contest/edu/123/D.cpp)
+add_executable(D atcoder/contest/abc/241/D.cpp)
 add_executable(P2602 luogu/practice/dp/digit/P2602.cpp)
-add_executable(E codeforces/contest/edu/123/E.cpp)
+add_executable(E atcoder/contest/abc/241/E.cpp)
 add_executable(acwing_1086 acwing/improvement_course/1_dp/1.8_digit/acwing_1086.cpp)
 
 add_executable(acwing_1684 acwing/practice/winter_daily_2022/week_6/acwing_1684.cpp)
@@ -111,3 +110,13 @@ add_executable(acwing_1146 acwing/improvement_course/3_graph/3.6_mininum_spannin
 add_executable(acwing_1145 acwing/improvement_course/3_graph/3.6_mininum_spanning_tree_extensions/acwing_1145.cpp)
 add_executable(acwing_346 acwing/improvement_course/3_graph/3.6_mininum_spanning_tree_extensions/acwing_346.cpp)
 add_executable(acwing_1148 acwing/improvement_course/3_graph/3.6_mininum_spanning_tree_extensions/acwing_1148.cpp)
+
+add_executable(101 daimayuan/mamomo_spring_camp_2022_daily/61.cpp)
+add_executable(323 daimayuan/mamomo_spring_camp_2022_daily/323.cpp)
+add_executable(436 daimayuan/mamomo_spring_camp_2022_daily/436.cpp)
+add_executable(A atcoder/contest/abc/241/A.cpp)
+
+add_executable(acwing_904 acwing/improvement_course/3_graph/3.7_negative_ring/acwing_904.cpp)
+add_executable(acwing_361 acwing/improvement_course/3_graph/3.7_negative_ring/acwing_361.cpp)
+add_executable(1165 acwing/improvement_course/3_graph/3.7_negative_ring/acwing_1165.cpp)
+add_executable(poj_2949 poj/negative_ring/poj_2949.cpp)

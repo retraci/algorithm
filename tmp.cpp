@@ -47,27 +47,132 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-int n;
+const int N = 1010;
 
-bool check(int x) {
-    int x1 = x, x2 = x + 1, x3 = x + 3;
-    while (x3) {
-        int s = x1 % 10 + x2 % 10 + x3 % 10;
-        if (x >= 10) return false;
-        x1 /= 10, x2 /= 10, x3 /= 10;
-    }
-    return true;
-}
+int n;
+string g[N];
 
 void solve() {
-    int ans = 0;
-    for (int i = 0; i < n; i++) {
-        ans += check(i);
+    for (int i = 1; i <= n; i++) {
+        int sum = 0;
+        for (int j = 1; j <= n; j++) {
+            if (j < 6) {
+                sum += g[i][j] == '.';
+                continue;
+            }
+            sum += g[i][j] == '.';
+            sum -= g[i][j - 6] == '.';
+
+            if (sum <= 2) {
+                cout << "Yes" << "\n";
+                return;
+            }
+        }
     }
-    cout << ans << "\n";
+    for (int j = 1; j <= n; j++) {
+        int sum = 0;
+        for (int i = 1; i <= n; i++) {
+            if (i < 6) {
+                sum += g[i][j] == '.';
+                continue;
+            }
+            sum += g[i][j] == '.';
+            sum -= g[i - 6][j] == '.';
+
+            if (sum <= 2) {
+                debug('?');
+                cout << "Yes" << "\n";
+                return;
+            }
+        }
+    }
+
+    for (int i = n; i >= 1; i--) {
+        int sx = i, sy = 1, sum = 0;
+        for (int k = 0; ; k++) {
+            int nx = sx + k, ny = sy + k;
+            if (nx < 1 || nx > n || ny < 1 || ny > n) break;
+
+            if (k < 6) {
+                sum += g[nx][ny] == '.';
+                continue;
+            }
+            sum += g[nx][ny] == '.';
+            sum -= g[nx - 6][ny - 6] == '.';
+
+            if (sum <= 2) {
+                cout << "Yes" << "\n";
+                return;
+            }
+        }
+    }
+
+    for (int j = 1; j <= n; j++) {
+        int sx = 1, sy = j, sum = 0;
+        for (int k = 0; ; k++) {
+            int nx = sx + k, ny = sy + k;
+            if (nx < 1 || nx > n || ny < 1 || ny > n) break;
+
+            if (k < 6) {
+                sum += g[nx][ny] == '.';
+                continue;
+            }
+            sum += g[nx][ny] == '.';
+            sum -= g[nx - 6][ny - 6] == '.';
+
+            if (sum <= 2) {
+                cout << "Yes" << "\n";
+                return;
+            }
+        }
+    }
+
+    for (int j = 1; j <= n; j++) {
+        int sx = 1, sy = j, sum = 0;
+        for (int k = 0; ; k++) {
+            int nx = sx + k, ny = sy - k;
+            if (nx < 1 || nx > n || ny < 1 || ny > n) break;
+
+            if (k < 6) {
+                sum += g[nx][ny] == '.';
+                continue;
+            }
+            sum += g[nx][ny] == '.';
+            sum -= g[nx - 6][ny + 6] == '.';
+
+            if (sum <= 2) {
+                cout << "Yes" << "\n";
+                return;
+            }
+        }
+    }
+
+    for (int i = 1; i <= n; i++) {
+        int sx = i, sy = n, sum = 0;
+        for (int k = 0; ; k++) {
+            int nx = sx + k, ny = sy - k;
+            if (nx < 1 || nx > n || ny < 1 || ny > n) break;
+
+            if (k < 6) {
+                sum += g[nx][ny] == '.';
+                continue;
+            }
+            sum += g[nx][ny] == '.';
+            sum -= g[nx - 6][ny + 6] == '.';
+
+            if (sum <= 2) {
+                cout << "Yes" << "\n";
+                return;
+            }
+        }
+    }
+
+    cout << "No" << "\n";
 }
 
 void prework() {
+    map<int, vector<int>> a;
+    auto it = lower_bound(a[0].begin(), a[0].end(), 3);
 }
 
 int main() {
@@ -81,8 +186,12 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n;
-        solve();
+//        cin >> n;
+//        for (int i = 1; i <= n; i++) {
+//            cin >> g[i];
+//            g[i] = ' ' + g[i];
+//        }
+//        solve();
     }
 
     return 0;
