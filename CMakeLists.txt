@@ -126,3 +126,5 @@ add_executable(acwing_362 acwing/improvement_course/3_graph/3.8_difference_const
 add_executable(acwing_393 acwing/improvement_course/3_graph/3.8_difference_constraints/acwing_393.cpp)
 add_executable(acwing_1172 acwing/improvement_course/3_graph/3.9_lca/acwing_1172.cpp)
 add_executable(acwing_1171 acwing/improvement_course/3_graph/3.9_lca/acwing_1171.cpp)
+add_executable(451 daimayuan/namomo_spring_camp_2022_daily/451.cpp)
+add_executable(acwing_356 acwing/improvement_course/3_graph/3.9_lca/acwing_356.cpp)

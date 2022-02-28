@@ -62,7 +62,7 @@ void add(int u, int v, int cost) {
 }
 
 void lca_init() {
-    memset(dep, -1, sizeof dep), memset(fa, 0, sizeof fa), memset(w, 0x3f, sizeof w);
+    memset(dep, -1, sizeof dep);
 
     queue<int> que;
     que.push(rt);

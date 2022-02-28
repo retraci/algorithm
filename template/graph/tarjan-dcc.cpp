@@ -1,4 +1,4 @@
-// region 无向图 割点
+// region v-dcc
 int n, m;
 vector<int> g[N];
 
@@ -28,7 +28,7 @@ void tarjan(int u, int fno) {
 }
 // endregion
 
-// region 无向图 割边
+// region e-dcc
 int n, m;
 vector<int> g[N];
 
@@ -52,43 +52,6 @@ void tarjan(int u, int fno) {
         // 遇到走过的, 证明 u 可以回到 v, 把 dfn[v] 维护到 low[u]
         if (dfn[v] != 0 && v != fno) {
             low[u] = min(low[u], dfn[v]);
-        }
-    }
-}
-// endregion
-
-// region e-dcc 缩点
-int n, m;
-vector<int> g[N];
-
-int dcc, c[N], sz[N];
-vector<int> gc[N];
-
-void add_c(int u, int v) {
-    gc[u].push_back(v);
-}
-
-void dfs_suodian(int u) {
-    c[u] = dcc, sz[dcc]++;
-    for (int v : g[u]) {
-        if (c[v] || bs[u].count(v)) continue;
-        dfs_suodian(v);
-    }
-}
-
-void suodian() {
-    dcc = 0;
-    for (int i = 1; i <= n; i++) {
-        if (!c[i]) {
-            ++dcc;
-            dfs_suodian(i);
-        }
-    }
-
-    for (int u = 1; u <= n; u++) {
-        for (int v : g[u]) {
-            if (c[u] == c[v]) continue;
-            add_c(c[u], c[v]), add_c(c[v], c[u]);
         }
     }
 }

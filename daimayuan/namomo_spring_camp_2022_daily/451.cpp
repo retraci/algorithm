@@ -47,11 +47,10 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 4e4 + 10;
+const int N = 200010;
 
 int n, m;
-
-int rt;
+int a[N], b[N];
 int g[N * 2], ne[N * 2], h[N], edm;
 
 int dep[N], fa[N][32];
@@ -62,11 +61,11 @@ void add(int u, int v) {
 }
 
 void lca_init() {
-    memset(dep, -1, sizeof dep);
+    fill(dep, dep + n + 1, -1);
 
+    dep[0] = 0, dep[1] = 1;
     queue<int> que;
-    que.push(rt);
-    dep[0] = 0, dep[rt] = 1;
+    que.push(1);
     while (!que.empty()) {
         auto u = que.front(); que.pop();
 
@@ -101,17 +100,31 @@ int lca(int x, int y) {
     return fa[x][0];
 }
 
-void solve() {
-    lca_init();
+void dfs(int u, int fno, int s) {
+    b[u] = s;
 
-    cin >> m;
+    for (int i = h[u]; ~i; i = ne[i]) {
+        auto v = g[i];
+
+        if (v == fno) continue;
+        dfs(v, u, s ^ a[v]);
+    }
+}
+
+void init() {
+    lca_init();
+    dfs(1, 0, a[1]);
+}
+
+void solve() {
+    init();
+
     while (m--) {
-        int x, y;
-        cin >> x >> y;
-        int ret = lca(x, y);
-        if (ret == x) cout << 1 << "\n";
-        else if (ret == y) cout << 2 << "\n";
-        else cout << 0 << "\n";
+        int u, v;
+        cin >> u >> v;
+        int pa = lca(u, v);
+        int tmp = b[u] ^ b[v] ^ a[pa];
+        cout << tmp << "\n";
     }
 }
 
@@ -129,16 +142,15 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n;
-        memset(h, -1, sizeof h), edm = 0;
+        cin >> n >> m;
+        fill(h, h + n + 1, -1), edm = 0;
 
-        for (int i = 1; i <= n; i++) {
+        for (int i = 1; i <= n; i++) cin >> a[i];
+        for (int i = 1; i <= n - 1; i++) {
             int u, v;
             cin >> u >> v;
-            if (v == -1) rt = u;
-            else add(u, v), add(v, u);
+            add(u, v), add(v, u);
         }
-
         solve();
     }
 
