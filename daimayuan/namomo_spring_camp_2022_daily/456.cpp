@@ -47,61 +47,29 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e5 + 10;
-const int M = 3e5 + 10;
+const int N = 100010;
 
-int n, m;
-pii g[M];
-int ne[M], h[N], edm;
-
-ll dist[N], st[N], cnt[N];
-
-void add(int u, int v, int cost) {
-    g[edm] = {cost, v};
-    ne[edm] = h[u], h[u] = edm++;
-}
-
-void init() {
-    for (int i = 1; i <= n; i++) add(0, i, 1);
-}
-
-bool spfa() {
-    vector<int> que;
-    dist[0] = 0;
-    que.push_back(0), st[0] = 1;
-    while (!que.empty()) {
-        auto u = que.back(); que.pop_back();
-        st[u] = 0;
-
-        for (int i = h[u]; ~i; i = ne[i]) {
-            auto [cost, v] = g[i];
-
-            if (dist[v] < dist[u] + cost) {
-                dist[v] = dist[u] + cost;
-                cnt[v] = cnt[u] + 1;
-                if (cnt[v] >= n + 1) return false;
-
-                if (!st[v]) {
-                    st[v] = 1;
-                    que.push_back(v);
-                }
-            }
-        }
-    }
-
-    return true;
-}
+int n;
+ll a[N];
 
 void solve() {
-    init();
+    for (int i = 1; i <= n; i++) a[i] += a[i - 1];
 
-    if (!spfa()) {
-        cout << -1 << "\n";
-        return;
+    vector<int> mp(n, -1);
+    mp[0] = 0;
+    for (int i = 1; i <= n; i++) {
+        int x = a[i] % n;
+        if (mp[x] != -1) {
+            int lb = mp[x] + 1;
+            cout << i - lb + 1 << "\n";
+            for (int j = lb; j <= i; j++) {
+                cout << j << " ";
+            }
+            cout << "\n";
+            return;
+        }
+        mp[x] = i;
     }
-
-    ll ans = accumulate(&dist[1], &dist[n] + 1, 0LL);
-    cout << ans << "\n";
 }
 
 void prework() {
@@ -118,18 +86,8 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n >> m;
-        fill(h, h + n + 1, -1), edm = 0;
-
-        while (m--) {
-            int x, u, v;
-            cin >> x >> u >> v;
-            if (x == 1) add(u, v, 0), add(v, u, 0);
-            else if (x == 2) add(u, v, 1);
-            else if (x == 3) add(v, u, 0);
-            else if (x == 4) add(v, u, 1);
-            else add(u, v, 0);
-        }
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 

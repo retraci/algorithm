@@ -47,61 +47,73 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e5 + 10;
-const int M = 3e5 + 10;
+const int N = 5010;
+const int M = 10010;
 
 int n, m;
-pii g[M];
-int ne[M], h[N], edm;
+int g[M * 4], ne[M * 4], h1[N], h2[N], edm;
 
-ll dist[N], st[N], cnt[N];
+int dfn[N], low[N], ti;
+vector<int> stk;
+int co[N], sz[N], dcc;
+int br[M * 2];
 
-void add(int u, int v, int cost) {
-    g[edm] = {cost, v};
+void add(int h[], int u, int v) {
+    g[edm] = v;
     ne[edm] = h[u], h[u] = edm++;
 }
 
-void init() {
-    for (int i = 1; i <= n; i++) add(0, i, 1);
+void tarjan(int u, int pe) {
+    dfn[u] = low[u] = ++ti;
+    stk.push_back(u);
+
+    for (int i = h1[u]; ~i; i = ne[i]) {
+        int v = g[i];
+        if ((i ^ 1) == pe) continue;
+
+        if (!dfn[v]) {
+            tarjan(v, i);
+            low[u] = min(low[u], low[v]);
+
+            if (low[v] > dfn[u]) br[i] = br[i ^ 1] = 1;
+        } else {
+            low[u] = min(low[u], dfn[v]);
+        }
+    }
+
+    if (dfn[u] == low[u]) {
+        dcc++;
+        int t;
+        do {
+            t = stk.back(); stk.pop_back();
+            co[t] = dcc;
+            sz[dcc]++;
+        } while (t != u);
+    }
 }
 
-bool spfa() {
-    vector<int> que;
-    dist[0] = 0;
-    que.push_back(0), st[0] = 1;
-    while (!que.empty()) {
-        auto u = que.back(); que.pop_back();
-        st[u] = 0;
+void solve() {
+    fill(dfn, dfn + n + 1, 0);
+    for (int i = 1; i <= n; i++) {
+        if (!dfn[i]) tarjan(i, -1);
+    }
 
-        for (int i = h[u]; ~i; i = ne[i]) {
-            auto [cost, v] = g[i];
-
-            if (dist[v] < dist[u] + cost) {
-                dist[v] = dist[u] + cost;
-                cnt[v] = cnt[u] + 1;
-                if (cnt[v] >= n + 1) return false;
-
-                if (!st[v]) {
-                    st[v] = 1;
-                    que.push_back(v);
-                }
+    vector<int> du(dcc + 1, 0);
+    for (int u = 1; u <= n; u++) {
+        for (int i = h1[u]; ~i; i = ne[i]) {
+            if (br[i]) {
+                int v = g[i];
+                int cu = co[u], cv = co[v];
+                du[cv]++;
             }
         }
     }
 
-    return true;
-}
-
-void solve() {
-    init();
-
-    if (!spfa()) {
-        cout << -1 << "\n";
-        return;
+    int cnt = 0;
+    for (int i = 1; i <= dcc; i++) {
+        cnt += du[i] == 1;
     }
-
-    ll ans = accumulate(&dist[1], &dist[n] + 1, 0LL);
-    cout << ans << "\n";
+    cout << (cnt + 1) / 2 << "\n";
 }
 
 void prework() {
@@ -119,17 +131,14 @@ int main() {
 //    cin >> T;
     while (T--) {
         cin >> n >> m;
-        fill(h, h + n + 1, -1), edm = 0;
+        fill(h1, h1 + n + 1, -1), edm = 0;
 
-        while (m--) {
-            int x, u, v;
-            cin >> x >> u >> v;
-            if (x == 1) add(u, v, 0), add(v, u, 0);
-            else if (x == 2) add(u, v, 1);
-            else if (x == 3) add(v, u, 0);
-            else if (x == 4) add(v, u, 1);
-            else add(u, v, 0);
+        for (int i = 1; i <= m; i++) {
+            int u, v;
+            cin >> u >> v;
+            add(h1, u, v), add(h1, v, u);
         }
+
         solve();
     }
 

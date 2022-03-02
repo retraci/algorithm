@@ -50,57 +50,94 @@ using namespace grid_delta;
 const int N = 1e5 + 10;
 const int M = 3e5 + 10;
 
-int n, m;
-pii g[M];
-int ne[M], h[N], edm;
+int n, m, mod;
+pii g[2 * M];
+int ne[2 * M], h1[N], h2[N], edm;
 
-ll dist[N], st[N], cnt[N];
+int flag;
 
-void add(int u, int v, int cost) {
+// region scc 缩点
+int dfn[N], low[N], ti;
+vector<int> stk;
+int ins[N];
+int co[N], sz[N], scc;
+
+void tarjan(int u) {
+    dfn[u] = low[u] = ++ti;
+    stk.push_back(u), ins[u] = 1;
+
+    for (int i = h1[u]; ~i; i = ne[i]) {
+        auto [cost, v] = g[i];
+        if (!dfn[v]) {
+            tarjan(v);
+            low[u] = min(low[u], low[v]);
+        } else if (ins[v]) {
+            low[u] = min(low[u], dfn[v]);
+        }
+    }
+
+    if (dfn[u] == low[u]) {
+        scc++;
+        int t;
+        do {
+            t = stk.back(); stk.pop_back(); ins[t] = 0;
+            co[t] = scc;
+            sz[scc]++;
+        } while (t != u);
+    }
+}
+// endregion
+
+void add(int h[], int u, int v, int cost) {
     g[edm] = {cost, v};
     ne[edm] = h[u], h[u] = edm++;
 }
 
 void init() {
-    for (int i = 1; i <= n; i++) add(0, i, 1);
-}
+    for (int i = 1; i <= n; i++) add(h1, 0, i, 1);
 
-bool spfa() {
-    vector<int> que;
-    dist[0] = 0;
-    que.push_back(0), st[0] = 1;
-    while (!que.empty()) {
-        auto u = que.back(); que.pop_back();
-        st[u] = 0;
+    fill(dfn, dfn + n + 1, 0);
+    for (int i = 0; i <= n; i++) {
+        if (!dfn[i]) tarjan(i);
+    }
 
-        for (int i = h[u]; ~i; i = ne[i]) {
+    flag = 0;
+    fill(h2, h2 + scc + 1, -1);
+    for (int u = 0; u <= n; u++) {
+        for (int i = h1[u]; ~i; i = ne[i]) {
             auto [cost, v] = g[i];
+            int su = co[u], sv = co[v];
 
-            if (dist[v] < dist[u] + cost) {
-                dist[v] = dist[u] + cost;
-                cnt[v] = cnt[u] + 1;
-                if (cnt[v] >= n + 1) return false;
-
-                if (!st[v]) {
-                    st[v] = 1;
-                    que.push_back(v);
+            if (su == sv) {
+                if (cost > 0) {
+                    flag = 1;
+                    return;
                 }
+            } else {
+                add(h2, su, sv, cost);
             }
         }
     }
-
-    return true;
 }
 
 void solve() {
     init();
 
-    if (!spfa()) {
+    if (flag) {
         cout << -1 << "\n";
         return;
     }
 
-    ll ans = accumulate(&dist[1], &dist[n] + 1, 0LL);
+    vector<ll> f(scc + 1, 0);
+    for (int u = scc; u >= 1; u--) {
+        for (int i = h2[u]; ~i; i = ne[i]) {
+            auto [cost, v] = g[i];
+            f[v] = max(f[v], f[u] + cost);
+        }
+    }
+
+    ll ans = 0;
+    for (int i = 1; i <= scc; i++) ans += sz[i] * f[i];
     cout << ans << "\n";
 }
 
@@ -119,16 +156,16 @@ int main() {
 //    cin >> T;
     while (T--) {
         cin >> n >> m;
-        fill(h, h + n + 1, -1), edm = 0;
+        fill(h1, h1 + n + 1, -1), edm = 0;
 
         while (m--) {
             int x, u, v;
             cin >> x >> u >> v;
-            if (x == 1) add(u, v, 0), add(v, u, 0);
-            else if (x == 2) add(u, v, 1);
-            else if (x == 3) add(v, u, 0);
-            else if (x == 4) add(v, u, 1);
-            else add(u, v, 0);
+            if (x == 1) add(h1, u, v, 0), add(h1, v, u, 0);
+            else if (x == 2) add(h1, u, v, 1);
+            else if (x == 3) add(h1, v, u, 0);
+            else if (x == 4) add(h1, v, u, 1);
+            else add(h1, u, v, 0);
         }
         solve();
     }

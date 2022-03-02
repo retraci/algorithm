@@ -1,56 +1,76 @@
-// region v-dcc
-int n, m;
-vector<int> g[N];
+// region e-dcc
+int dfn[N], low[N], ti;
+vector<int> stk;
+int co[N], sz[N], dcc;
+int br[M * 2];
 
-int dfn[N], low[N], num;
-int cut[N];
+void tarjan(int u, int pe) {
+    dfn[u] = low[u] = ++ti;
+    stk.push_back(u);
 
-void tarjan(int u, int fno) {
-    dfn[u] = low[u] = ++num;
-    int cnt = 0;
-    for (int v : g[u]) {
-        if (dfn[v] == 0) {
-            tarjan(v);
+    for (int i = h1[u]; ~i; i = ne[i]) {
+        int v = g[i];
+        if ((i ^ 1) == pe) continue;
+
+        if (!dfn[v]) {
+            tarjan(v, i);
             low[u] = min(low[u], low[v]);
 
-            // 发现割点 u
-            if (low[v] >= dfn[u]) {
-                cnt++;
-                if (fno != 0 || cnt >= 2) cut[u] = 1;
-            }
-        }
-
-        // 遇到走过的, 证明 u 可以回到 v, 把 dfn[v] 维护到 low[u]
-        if (dfn[v] != 0 && v != fno) {
+            if (low[v] > dfn[u]) br[i] = br[i ^ 1] = 1;
+        } else {
             low[u] = min(low[u], dfn[v]);
         }
+    }
+
+    if (dfn[u] == low[u]) {
+        dcc++;
+        int t;
+        do {
+            t = stk.back(); stk.pop_back();
+            co[t] = dcc;
+            sz[dcc]++;
+        } while (t != u);
     }
 }
 // endregion
 
-// region e-dcc
-int n, m;
-vector<int> g[N];
+// region v-dcc
+int dfn[N], low[N], ti, rt;
+vector<int> stk;
+vector<int> cc[N];
+int cut[N], dcc;
 
-int dfn[N], low[N], num;
-unordered_set<int> bs[N];
+void tarjan(int u, int pe) {
+    dfn[u] = low[u] = ++ti;
+    stk.push_back(u);
 
-void tarjan(int u, int fno) {
-    dfn[u] = low[u] = ++num;
-    for (int v : g[u]) {
-        if (dfn[v] == 0) {
-            tarjan(v, u);
+    if (u == rt && h1[u] == -1) {
+        dcc++;
+        cc[dcc].push_back(u);
+        return;
+    }
+
+    int cnt = 0;
+    for (int i = h1[u]; ~i; i = ne[i]) {
+        int v = g[i];
+        if ((i ^ 1) == pe) continue;
+
+        if (!dfn[v]) {
+            tarjan(v, i);
             low[u] = min(low[u], low[v]);
 
-            // 发现割边 u -> v
-            if (low[v] > dfn[u]) {
-                bs[u].insert(v);
-                bs[v].insert(u);
-            }
-        }
+            if (low[v] >= dfn[u]) {
+                if (++cnt >= 2 || u != rt) cut[u] = 1;
 
-        // 遇到走过的, 证明 u 可以回到 v, 把 dfn[v] 维护到 low[u]
-        if (dfn[v] != 0 && v != fno) {
+                dcc++;
+                int t;
+                do {
+                    t = stk.back(); stk.pop_back();
+                    cc[dcc].push_back(t);
+                } while (t != v);
+                cc[dcc].push_back(u);
+            }
+        } else {
             low[u] = min(low[u], dfn[v]);
         }
     }

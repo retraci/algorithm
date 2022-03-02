@@ -47,60 +47,87 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e5 + 10;
-const int M = 3e5 + 10;
+const int N = 100010;
+const int M = 200010;
 
 int n, m;
-pii g[M];
-int ne[M], h[N], edm;
+pii es[M];
+int g[N * 2], ne[N * 2], h[N], edm;
+int d[N];
+int ans;
 
-ll dist[N], st[N], cnt[N];
+int dep[N], fa[N][17];
 
-void add(int u, int v, int cost) {
-    g[edm] = {cost, v};
+void add(int u, int v) {
+    g[edm] = v;
     ne[edm] = h[u], h[u] = edm++;
 }
 
-void init() {
-    for (int i = 1; i <= n; i++) add(0, i, 1);
-}
+void lca_init() {
+    fill(dep, dep + n + 1, -1);
 
-bool spfa() {
-    vector<int> que;
-    dist[0] = 0;
-    que.push_back(0), st[0] = 1;
+    dep[0] = 0, dep[1] = 1;
+    queue<int> que;
+    que.push(1);
     while (!que.empty()) {
-        auto u = que.back(); que.pop_back();
-        st[u] = 0;
+        auto u = que.front(); que.pop();
 
         for (int i = h[u]; ~i; i = ne[i]) {
-            auto [cost, v] = g[i];
+            int v = g[i];
 
-            if (dist[v] < dist[u] + cost) {
-                dist[v] = dist[u] + cost;
-                cnt[v] = cnt[u] + 1;
-                if (cnt[v] >= n + 1) return false;
+            if (dep[v] == -1) {
+                dep[v] = dep[u] + 1;
+                fa[v][0] = u;
+                que.push(v);
 
-                if (!st[v]) {
-                    st[v] = 1;
-                    que.push_back(v);
+                for (int k = 1; k <= 16; k++) {
+                    fa[v][k] = fa[fa[v][k - 1]][k - 1];
                 }
             }
         }
     }
+}
 
-    return true;
+int lca(int x, int y) {
+    if (dep[x] < dep[y]) swap(x, y);
+    for (int k = 16; k >= 0; k--) {
+        if (dep[fa[x][k]] >= dep[y]) x = fa[x][k];
+    }
+    if (x == y) return x;
+
+    for (int k = 16; k >= 0; k--) {
+        if (fa[x][k] != fa[y][k]) x = fa[x][k], y = fa[y][k];
+    }
+    return fa[x][0];
+}
+
+int dfs(int u, int fno) {
+    int res = d[u];
+
+    for (int i = h[u]; ~i; i = ne[i]) {
+        int v = g[i];
+        if (v == fno) continue;
+
+        int ret = dfs(v, u);
+        if (ret == 0) ans += m;
+        else if (ret == 1) ans += 1;
+        res += ret;
+    }
+
+    return res;
 }
 
 void solve() {
-    init();
+    lca_init();
 
-    if (!spfa()) {
-        cout << -1 << "\n";
-        return;
+    for (int i = 1; i <= m; i++) {
+        auto [u, v] = es[i];
+        int p = lca(u, v);
+        d[u]++, d[v]++, d[p] -= 2;
     }
 
-    ll ans = accumulate(&dist[1], &dist[n] + 1, 0LL);
+    ans = 0;
+    dfs(1, 0);
     cout << ans << "\n";
 }
 
@@ -121,15 +148,13 @@ int main() {
         cin >> n >> m;
         fill(h, h + n + 1, -1), edm = 0;
 
-        while (m--) {
-            int x, u, v;
-            cin >> x >> u >> v;
-            if (x == 1) add(u, v, 0), add(v, u, 0);
-            else if (x == 2) add(u, v, 1);
-            else if (x == 3) add(v, u, 0);
-            else if (x == 4) add(v, u, 1);
-            else add(u, v, 0);
+        for (int i = 1; i <= n - 1; i++) {
+            int u, v;
+            cin >> u >> v;
+            add(u, v), add(v, u);
         }
+        for (int i = 1; i <= m; i++) cin >> es[i].fi >> es[i].se;
+
         solve();
     }
 
