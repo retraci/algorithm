@@ -47,59 +47,49 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 20010;
-const int M = 100010;
+const int N = 510;
 
 int n, m;
-pii g[M * 2];
-int ne[M * 2], h[N], edm;
+vector<int> g[N];
+int du[N];
 
-int co[N];
+int vis[N][N];
+vector<int> ans;
 
-void add(int u, int v, int cost) {
-    g[edm] = {cost, v};
-    ne[edm] = h[u], h[u] = edm++;
+void add(int u, int v) {
+    g[u].push_back(v);
 }
 
-bool dfs(int u, int color, int mid) {
-    co[u] = color;
-
-    for (int i = h[u]; ~i; i = ne[i]) {
-        auto [cost, v] = g[i];
-        if (cost <= mid) continue;
-
-        if (!co[v]) {
-            if (!dfs(v, -color, mid)) return false;
-        } else {
-            if (co[v] != -color) return false;
-        }
+void dfs(int u) {
+    while (!g[u].empty()) {
+        int v = g[u].back(); g[u].pop_back();
+        if (vis[u][v] == 0) continue;
+        vis[u][v]--, vis[v][u]--;
+        dfs(v);
     }
-
-    return true;
-}
-
-bool check(int mid) {
-    fill(co, co + n + 1, 0);
-    for (int i = 1; i <= n; i++) {
-        if (!co[i]) {
-            if (!dfs(i, 1, mid)) return false;
-        }
-    }
-    return true;
+    ans.push_back(u);
 }
 
 void solve() {
-    int left = 0, right = 1e9;
-    while (left < right) {
-        int mid = left + right >> 1;
-        if (check(mid)) right = mid;
-        else left = mid + 1;
+    for (int i = 1; i <= n; i++) {
+        sort(g[i].begin(), g[i].end(), greater<>());
     }
 
-    cout << left << "\n";
+    int st = 1;
+    for (int i = 1; i <= n; i++) {
+        if (du[i] & 1) {
+            st = i;
+            break;
+        }
+    }
+    dfs(st);
+
+    reverse(ans.begin(), ans.end());
+    for (int x : ans) cout << x << "\n";
 }
 
 void prework() {
+    n = 500;
 }
 
 int main() {
@@ -113,15 +103,15 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n >> m;
-        fill(h, h + n + 1, -1), edm = 0;
+        cin >> m;
 
-        while (m--) {
-            int u, v, cost;
-            cin >> u >> v >> cost;
-            add(u, v, cost), add(v, u, cost);
+        for (int i = 1; i <= m; i++) {
+            int u, v;
+            cin >> u >> v;
+            add(u, v), add(v, u);
+            vis[u][v]++, vis[v][u]++;
+            du[u]++, du[v]++;
         }
-
         solve();
     }
 

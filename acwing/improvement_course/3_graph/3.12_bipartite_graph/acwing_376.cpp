@@ -47,56 +47,37 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 20010;
-const int M = 100010;
+const int N = 110;
 
-int n, m;
-pii g[M * 2];
-int ne[M * 2], h[N], edm;
+int n, m, K;
+int g[N][N];
 
-int co[N];
+int match[N], st[N];
 
-void add(int u, int v, int cost) {
-    g[edm] = {cost, v};
-    ne[edm] = h[u], h[u] = edm++;
-}
+bool dfs(int u) {
+    for (int v = 0; v <= m; v++) {
+        if (st[v] || !g[u][v]) continue;
+        st[v] = 1;
 
-bool dfs(int u, int color, int mid) {
-    co[u] = color;
-
-    for (int i = h[u]; ~i; i = ne[i]) {
-        auto [cost, v] = g[i];
-        if (cost <= mid) continue;
-
-        if (!co[v]) {
-            if (!dfs(v, -color, mid)) return false;
-        } else {
-            if (co[v] != -color) return false;
+        int t = match[v];
+        if (t == -1 || dfs(t)) {
+            match[v] = u;
+            return true;
         }
     }
 
-    return true;
-}
-
-bool check(int mid) {
-    fill(co, co + n + 1, 0);
-    for (int i = 1; i <= n; i++) {
-        if (!co[i]) {
-            if (!dfs(i, 1, mid)) return false;
-        }
-    }
-    return true;
+    return false;
 }
 
 void solve() {
-    int left = 0, right = 1e9;
-    while (left < right) {
-        int mid = left + right >> 1;
-        if (check(mid)) right = mid;
-        else left = mid + 1;
-    }
+    fill(match, match + m + 1, -1);
 
-    cout << left << "\n";
+    int ans = 0;
+    for (int i = 1; i <= n; i++) {
+        fill(st, st + m + 1, 0);
+        if (dfs(i)) ans++;
+    }
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -112,14 +93,15 @@ int main() {
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
 //    cin >> T;
-    while (T--) {
-        cin >> n >> m;
-        fill(h, h + n + 1, -1), edm = 0;
+    while (cin >> n, n) {
+        cin >> m >> K;
+        fill(&g[0][0], &g[n][m] + 1, 0);
 
-        while (m--) {
-            int u, v, cost;
-            cin >> u >> v >> cost;
-            add(u, v, cost), add(v, u, cost);
+        for (int i = 1; i <= K; i++) {
+            int _, a, b;
+            cin >> _ >> a >> b;
+            if (a == 0 || b == 0) continue;
+            g[a][b] = 1;
         }
 
         solve();

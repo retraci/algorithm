@@ -47,34 +47,90 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 85;
-int n, K, m, u, v, c, cc[N][N], f[N][N][N][2], i, j, k, nw, ans = 1 << 30;
+const int BASE = 3000;
+const int N = 3000 + 10;
+const int mod = 998244353;
 
-void solve() {
-    memset(cc, 1, sizeof cc);
-    scanf("%d%d%d", &n, &K, &m);
-    while (m--)scanf("%d%d%d", &u, &v, &c), cc[u][v] = min(cc[u][v], c);
-    memset(f[0], 1, sizeof f[0]);
-    for (i = 1; i <= n; ++i)f[0][0][i][1] = f[0][i][n + 1][0] = 0;
-    while(--K) {
-        nw ^= 1; memset(f[nw],1,sizeof f[nw]);
-        for (int L = 0; L <= n + 1; L++) {
-            for (int R = L + 2; R <= n + 1; R++) {
-                for (v = L + 1; v < R; v++) {
-                    f[nw][L][v][1]=min(f[nw][L][v][1],min(f[!nw][L][R][1]+cc[R][v],f[!nw][L][R][0]+cc[L][v]));
-                    f[nw][v][R][0]=min(f[nw][v][R][0],min(f[!nw][L][R][0]+cc[L][v],f[!nw][L][R][1]+cc[R][v]));
+vector<int> g[N];
+int n, m;
+int val[N], c[N], vis[N];
+
+ll f[N][N * 2];
+ll pre[N * 2];
+ll dp1[N][N], dp2[N][N], dp3[N];
+ll tmp1[N][N], tmp2[N][N], tmp3[N];
+ll res;
+
+int dfs(int u, int fa) {
+    int p = 1;
+    if (val[u] == 1) f[u][1 + BASE] = 1;
+    else f[u][-1 + BASE] = 1;
+    for (auto v: g[u]) {
+        if (v == fa) continue;
+        int sz = dfs(v, u);
+        for (int i = -min(p, m); i <= min(p, m); i++) {
+            pre[i + BASE] = f[u][i + BASE];
+        }
+
+        f[u][BASE] = (f[u][BASE] + pre[BASE] * f[v][BASE]) % mod;
+        for (int j = -min(sz, m); j <= min(sz, m); j++) {
+            if (j == 0) continue;
+
+            f[u][j + BASE] = (f[u][j + BASE] + pre[BASE] * f[v][j + BASE]) % mod;
+        }
+        for (int i = -min(p, m); i <= min(p, m); i++) {
+            if (i == 0) continue;
+
+            f[u][i + BASE] = (f[u][i + BASE] + pre[i + BASE] * f[v][BASE]) % mod;
+            for (int j = -min(sz, m); j <= min(sz, m); j++) {
+                if (j == 0) continue;
+
+                if (i + j >= -m && i + j <= m) {
+                    f[u][i + j + BASE] = (f[u][i + j + BASE] + pre[i + BASE] * f[v][j + BASE]) % mod;
                 }
             }
         }
+
+        p += sz;
     }
-    for (i = 0; i <= n + 1; ++i)for (j = 0; j <= n + 1; ++j)ans = min(ans, min(f[nw][i][j][0], f[nw][i][j][1]));
-    if (ans > 1 << 20)ans = -1;
-    printf("%d\n", ans);
+    for (int i = 1; i <= min(p, m); i++) {
+        res = (res + f[u][i + BASE]) % mod;
+    }
+    return p;
 }
 
+void solve() {
+    cin >> n;
+    for (int i = 1; i <= n; i++) {
+        cin >> c[i];
+    }
+    for (int i = 1; i < n; i++) {
+        int u, v;
+        cin >> v >> u;
+        g[u].push_back(v);
+        g[v].push_back(u);
+    }
+    for (int i = 1; i <= n; i++) {
+        if (vis[c[i]]) continue;
+        vis[c[i]] = 1;
+        m = 0;
+        for (int j = 1; j <= n; j++) {
+            val[j] = (c[j] == c[i] ? 1 : -1);
+            if (c[j] == c[i]) m++;
+        }
+        for (int j = 1; j <= n; j++) {
+            for (int k = 0; k <= m; k++) {
+                dp1[j][k] = dp2[j][k] = dp3[j] = 0;
+            }
+        }
+        fill(&f[0][0], &f[n][m * 2] + 1, 0);
+        dfs(1, 0);
+    }
+    cout << res << "\n";
+}
+
+
 void prework() {
-    map<int, vector<int>> a;
-    auto it = lower_bound(a[0].begin(), a[0].end(), 3);
 }
 
 int main() {

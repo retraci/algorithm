@@ -47,56 +47,55 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 20010;
-const int M = 100010;
+const int N = 1e5 + 10;
 
-int n, m;
-pii g[M * 2];
-int ne[M * 2], h[N], edm;
+int n;
+int a[N], b[N];
+int g[N * 2], ne[N * 2], h[N], edm;
 
-int co[N];
+ll f[N], sum[N];
 
-void add(int u, int v, int cost) {
-    g[edm] = {cost, v};
+void add(int u, int v) {
+    g[edm] = v;
     ne[edm] = h[u], h[u] = edm++;
 }
 
-bool dfs(int u, int color, int mid) {
-    co[u] = color;
-
+void dfs(int u, int fno) {
+    int mx = 0, mx1 = 0, mx2 = 0;
     for (int i = h[u]; ~i; i = ne[i]) {
-        auto [cost, v] = g[i];
-        if (cost <= mid) continue;
+        int v = g[i];
+        if (v == fno) continue;
+        dfs(v, u);
 
-        if (!co[v]) {
-            if (!dfs(v, -color, mid)) return false;
-        } else {
-            if (co[v] != -color) return false;
+        sum[u] += f[v];
+        mx = max(mx, a[v]);
+        if (b[v] == 3) {
+            if (a[v] > mx1) {
+                mx2 = mx1;
+                mx1 = a[v];
+            } else if (a[v] > mx2) {
+                mx2 = a[v];
+            }
         }
     }
 
-    return true;
-}
+    f[u] = sum[u] + mx;
+    for (int i = h[u]; ~i; i = ne[i]) {
+        int v = g[i];
+        if (v == fno) continue;
 
-bool check(int mid) {
-    fill(co, co + n + 1, 0);
-    for (int i = 1; i <= n; i++) {
-        if (!co[i]) {
-            if (!dfs(i, 1, mid)) return false;
-        }
+        ll tmp = sum[u] - f[v] + a[v] + sum[v];
+        if (b[v] == 3 && a[v] == mx1) tmp += mx2;
+        else tmp += mx1;
+        f[u] = max(f[u], tmp);
     }
-    return true;
 }
 
 void solve() {
-    int left = 0, right = 1e9;
-    while (left < right) {
-        int mid = left + right >> 1;
-        if (check(mid)) right = mid;
-        else left = mid + 1;
-    }
+    fill(sum, sum + n + 1, 0);
+    dfs(1, -1);
 
-    cout << left << "\n";
+    cout << f[1] + a[1] << "\n";
 }
 
 void prework() {
@@ -111,15 +110,17 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
-        cin >> n >> m;
+        cin >> n;
         fill(h, h + n + 1, -1), edm = 0;
 
-        while (m--) {
-            int u, v, cost;
-            cin >> u >> v >> cost;
-            add(u, v, cost), add(v, u, cost);
+        for (int i = 1; i <= n; i++) cin >> a[i];
+        for (int i = 1; i <= n; i++) cin >> b[i];
+        for (int i = 1; i <= n - 1; i++) {
+            int u, v;
+            cin >> u >> v;
+            add(u, v), add(v, u);
         }
 
         solve();

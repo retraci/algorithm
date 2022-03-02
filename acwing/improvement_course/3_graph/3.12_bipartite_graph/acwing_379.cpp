@@ -47,56 +47,48 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 20010;
-const int M = 100010;
+const int N = 210;
 
 int n, m;
-pii g[M * 2];
-int ne[M * 2], h[N], edm;
+int g[N][N];
 
-int co[N];
+// region 匈牙利算法
+// 最大匹配 = 最小点覆盖 = N - 最大独立集 = N - 最小路径点覆盖(最小路径重复点覆盖)
+int match[N], st[N];
 
-void add(int u, int v, int cost) {
-    g[edm] = {cost, v};
-    ne[edm] = h[u], h[u] = edm++;
-}
+bool dfs(int u) {
+    for (int v = 1; v <= n; v++) {
+        if (st[v] || !g[u][v]) continue;
+        st[v] = 1;
 
-bool dfs(int u, int color, int mid) {
-    co[u] = color;
-
-    for (int i = h[u]; ~i; i = ne[i]) {
-        auto [cost, v] = g[i];
-        if (cost <= mid) continue;
-
-        if (!co[v]) {
-            if (!dfs(v, -color, mid)) return false;
-        } else {
-            if (co[v] != -color) return false;
+        int t = match[v];
+        if (!t || dfs(t)) {
+            match[v] = u;
+            return true;
         }
     }
 
-    return true;
+    return false;
 }
-
-bool check(int mid) {
-    fill(co, co + n + 1, 0);
-    for (int i = 1; i <= n; i++) {
-        if (!co[i]) {
-            if (!dfs(i, 1, mid)) return false;
-        }
-    }
-    return true;
-}
+// endregion
 
 void solve() {
-    int left = 0, right = 1e9;
-    while (left < right) {
-        int mid = left + right >> 1;
-        if (check(mid)) right = mid;
-        else left = mid + 1;
+    for (int k = 1; k <= n; k++) {
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                g[i][j] |= g[i][k] & g[k][j];
+            }
+        }
     }
 
-    cout << left << "\n";
+    int cnt = 0;
+    for (int i = 1; i <= n; i++) {
+        fill(st, st + n + 1, 0);
+        if (dfs(i)) cnt++;
+    }
+
+    int ans = n - cnt;
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -114,14 +106,13 @@ int main() {
 //    cin >> T;
     while (T--) {
         cin >> n >> m;
-        fill(h, h + n + 1, -1), edm = 0;
+        fill(&g[0][0], &g[n][n] + 1, 0);
 
         while (m--) {
-            int u, v, cost;
-            cin >> u >> v >> cost;
-            add(u, v, cost), add(v, u, cost);
+            int u, v;
+            cin >> u >> v;
+            g[u][v] = 1;
         }
-
         solve();
     }
 

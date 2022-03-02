@@ -12,6 +12,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <bitset>
+#include <cmath>
 
 // region general
 #define ll long long
@@ -47,56 +48,7 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 20010;
-const int M = 100010;
-
-int n, m;
-pii g[M * 2];
-int ne[M * 2], h[N], edm;
-
-int co[N];
-
-void add(int u, int v, int cost) {
-    g[edm] = {cost, v};
-    ne[edm] = h[u], h[u] = edm++;
-}
-
-bool dfs(int u, int color, int mid) {
-    co[u] = color;
-
-    for (int i = h[u]; ~i; i = ne[i]) {
-        auto [cost, v] = g[i];
-        if (cost <= mid) continue;
-
-        if (!co[v]) {
-            if (!dfs(v, -color, mid)) return false;
-        } else {
-            if (co[v] != -color) return false;
-        }
-    }
-
-    return true;
-}
-
-bool check(int mid) {
-    fill(co, co + n + 1, 0);
-    for (int i = 1; i <= n; i++) {
-        if (!co[i]) {
-            if (!dfs(i, 1, mid)) return false;
-        }
-    }
-    return true;
-}
-
 void solve() {
-    int left = 0, right = 1e9;
-    while (left < right) {
-        int mid = left + right >> 1;
-        if (check(mid)) right = mid;
-        else left = mid + 1;
-    }
-
-    cout << left << "\n";
 }
 
 void prework() {
@@ -113,15 +65,21 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n >> m;
-        fill(h, h + n + 1, -1), edm = 0;
+        double x1, y1, x2, y2;
+        cin >> x1 >> y1;
 
-        while (m--) {
-            int u, v, cost;
-            cin >> u >> v >> cost;
-            add(u, v, cost), add(v, u, cost);
+        double sum = 0;
+        while (cin >> x1 >> y1 >> x2 >> y2) {
+            double dx = x1 - x2;
+            double dy = y1 - y2;
+            sum += sqrt(dx * dx + dy * dy) * 2;
         }
 
+        int ms = round(sum / 1000 / 20 * 60);
+        int hs = ms / 60;
+        ms %= 60;
+
+        printf("%d:%02d\n", hs, ms);
         solve();
     }
 

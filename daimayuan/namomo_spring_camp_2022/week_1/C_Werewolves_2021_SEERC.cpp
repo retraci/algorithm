@@ -47,56 +47,73 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 20010;
-const int M = 100010;
+const int N = 3010;
+const int MOD = 998244353;
 
-int n, m;
-pii g[M * 2];
-int ne[M * 2], h[N], edm;
+int n;
+int a[N];
+int g[N * 2], ne[N * 2], h[N], edm;
 
-int co[N];
+int cnt[N];
+ll f[N][N * 2];
+ll pre[N * 2];
 
-void add(int u, int v, int cost) {
-    g[edm] = {cost, v};
+void add(int u, int v) {
+    g[edm] = v;
     ne[edm] = h[u], h[u] = edm++;
 }
 
-bool dfs(int u, int color, int mid) {
-    co[u] = color;
+int dfs(int u, int fno, int color, int lim) {
+    int cur = a[u] == color ? 1 : -1;
 
+    int p = 1;
+    f[u][cur + lim] = 1;
     for (int i = h[u]; ~i; i = ne[i]) {
-        auto [cost, v] = g[i];
-        if (cost <= mid) continue;
+        int v = g[i];
+        if (v == fno) continue;
 
-        if (!co[v]) {
-            if (!dfs(v, -color, mid)) return false;
-        } else {
-            if (co[v] != -color) return false;
+        int sz = dfs(v, u, color, lim);
+
+        for (int j = -min(p, lim); j <= min(p, lim); j++) {
+            pre[j + lim] = f[u][j + lim];
         }
+
+        for (int j = -min(p, lim); j <= min(p, lim); j++) {
+            for (int k = -min(sz, lim); k <= min(sz, lim); k++) {
+                if (j + k >= -lim && j + k <= lim) {
+                    f[u][j + k + lim] += pre[j + lim] * f[v][k + lim] ;
+                    f[u][j + k + lim] %= MOD;
+                }
+            }
+        }
+
+        p += sz;
     }
 
-    return true;
-}
-
-bool check(int mid) {
-    fill(co, co + n + 1, 0);
-    for (int i = 1; i <= n; i++) {
-        if (!co[i]) {
-            if (!dfs(i, 1, mid)) return false;
-        }
-    }
-    return true;
+    return p;
 }
 
 void solve() {
-    int left = 0, right = 1e9;
-    while (left < right) {
-        int mid = left + right >> 1;
-        if (check(mid)) right = mid;
-        else left = mid + 1;
-    }
+    for (int i = 1; i <= n; i++) cnt[a[i]]++;
 
-    cout << left << "\n";
+    ll ans = 0;
+    for (int i = 1; i <= n; i++) {
+        int lim = cnt[i];
+        for (int u = 1; u <= n; u++) {
+            for (int j = -lim; j <= lim; j++) {
+                f[u][j + lim] = 0;
+            }
+        }
+        dfs(1, -1, i, lim);
+
+        for (int u = 1; u <= n; u++) {
+            for (int j = 1; j <= lim; j++) {
+                ans += f[u][j + lim];
+                ans %= MOD;
+            }
+        }
+    }
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -113,15 +130,15 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n >> m;
+        cin >> n;
         fill(h, h + n + 1, -1), edm = 0;
 
-        while (m--) {
-            int u, v, cost;
-            cin >> u >> v >> cost;
-            add(u, v, cost), add(v, u, cost);
+        for (int i = 1; i <= n; i++) cin >> a[i];
+        for (int i = 1; i <= n - 1; i++) {
+            int u, v;
+            cin >> u >> v;
+            add(u, v), add(v, u);
         }
-
         solve();
     }
 

@@ -45,58 +45,49 @@ namespace grid_delta {
 // endregion
 
 using namespace std;
-using namespace grid_delta;
+//using namespace grid_delta;
 
-const int N = 20010;
-const int M = 100010;
+const int dir[8][2] = {{-2, 1}, {-1, 2}, {1, 2}, {2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, -1}};
 
-int n, m;
-pii g[M * 2];
-int ne[M * 2], h[N], edm;
+const int N = 110;
 
-int co[N];
+int n, m, P;
+int g[N][N];
 
-void add(int u, int v, int cost) {
-    g[edm] = {cost, v};
-    ne[edm] = h[u], h[u] = edm++;
-}
+pii match[N][N];
+int st[N][N];
 
-bool dfs(int u, int color, int mid) {
-    co[u] = color;
+bool dfs(int x, int y) {
+    for (int k = 0; k < 8; k++) {
+        int ta = x + dir[k][0], tb = y + dir[k][1];
+        if (ta >= 1 && ta <= n && tb >= 1 && tb <= m) {
+            if (st[ta][tb] || g[ta][tb]) continue;
+            st[ta][tb] = 1;
 
-    for (int i = h[u]; ~i; i = ne[i]) {
-        auto [cost, v] = g[i];
-        if (cost <= mid) continue;
-
-        if (!co[v]) {
-            if (!dfs(v, -color, mid)) return false;
-        } else {
-            if (co[v] != -color) return false;
+            auto [tx, ty] = match[ta][tb];
+            if (tx == 0 || dfs(tx, ty)) {
+                match[ta][tb] = {x, y};
+                return true;
+            }
         }
     }
 
-    return true;
-}
-
-bool check(int mid) {
-    fill(co, co + n + 1, 0);
-    for (int i = 1; i <= n; i++) {
-        if (!co[i]) {
-            if (!dfs(i, 1, mid)) return false;
-        }
-    }
-    return true;
+    return false;
 }
 
 void solve() {
-    int left = 0, right = 1e9;
-    while (left < right) {
-        int mid = left + right >> 1;
-        if (check(mid)) right = mid;
-        else left = mid + 1;
+    int cnt = 0;
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            if (i + j & 1 && !g[i][j]) {
+                fill(&st[0][0], &st[n][m] + 1, 0);
+                if (dfs(i, j)) cnt++;
+            }
+        }
     }
 
-    cout << left << "\n";
+    int ans = n * m - P - cnt;
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -113,13 +104,13 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n >> m;
-        fill(h, h + n + 1, -1), edm = 0;
+        cin >> n >> m >> P;
+        fill(&g[0][0], &g[n][m] + 1, 0);
 
-        while (m--) {
-            int u, v, cost;
-            cin >> u >> v >> cost;
-            add(u, v, cost), add(v, u, cost);
+        for (int i = 1; i <= P; i++) {
+            int x, y;
+            cin >> x >> y;
+            g[x][y] = 1;
         }
 
         solve();
