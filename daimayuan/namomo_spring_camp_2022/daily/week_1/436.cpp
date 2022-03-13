@@ -60,9 +60,9 @@ void solve() {
         for (int i = 1; i <= n; i++) {
             if (a[stk.back()] >= a[i]) {
                 while (a[stk.back()] >= a[i]) stk.pop_back();
-                mil[i] = stk.back();
+                mil[i] = stk.back() + 1;
             } else {
-                mil[i] = i - 1;
+                mil[i] = i;
             }
             stk.push_back(i);
         }
@@ -73,9 +73,9 @@ void solve() {
         for (int i = n; i >= 1; i--) {
             if (a[stk.back()] > a[i]) {
                 while (a[stk.back()] > a[i]) stk.pop_back();
-                mir[i] = stk.back();
+                mir[i] = stk.back() - 1;
             } else {
-                mir[i] = i + 1;
+                mir[i] = i;
             }
             stk.push_back(i);
         }
@@ -88,9 +88,9 @@ void solve() {
         for (int i = 1; i <= n; i++) {
             if (a[stk.back()] <= a[i]) {
                 while (a[stk.back()] <= a[i]) stk.pop_back();
-                mxl[i] = stk.back();
+                mxl[i] = stk.back() + 1;
             } else {
-                mxl[i] = i - 1;
+                mxl[i] = i;
             }
             stk.push_back(i);
         }
@@ -101,9 +101,9 @@ void solve() {
         for (int i = n; i >= 1; i--) {
             if (a[stk.back()] < a[i]) {
                 while (a[stk.back()] < a[i]) stk.pop_back();
-                mxr[i] = stk.back();
+                mxr[i] = stk.back() - 1;
             } else {
-                mxr[i] = i + 1;
+                mxr[i] = i;
             }
             stk.push_back(i);
         }
@@ -111,10 +111,10 @@ void solve() {
 
     ll ans = 0;
     for (int i = 1; i <= n; i++) {
-        ll lsz1 = i - mil[i], rsz1 = mir[i] - i;
+        ll lsz1 = i - mil[i] + 1, rsz1 = mir[i] - i + 1;
         ans += -a[i] * lsz1 * rsz1;
 
-        ll lsz2 = i - mxl[i], rsz2 = mxr[i] - i;
+        ll lsz2 = i - mxl[i] + 1, rsz2 = mxr[i] - i + 1;
         ans += a[i] * lsz2 * rsz2;
     }
     cout << ans << "\n";

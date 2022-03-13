@@ -468,8 +468,9 @@ struct Seg {
         lb = 1, rb = SZ;
     }
 
-    inline void init(int L = 1, int R = SZ) {
+    inline void init(int L = 1, int R = SZ, int val = 0) {
         lb = L, rb = R;
+        for (int i = L; i <= R; i++) set(i, val);
     }
 
     inline int new_node() {
@@ -580,8 +581,9 @@ struct Seg {
         lb = 1, rb = SZ;
     }
 
-    inline void init(int L = 1, int R = SZ) {
+    inline void init(int L = 1, int R = SZ, int val = 0) {
         lb = L, rb = R;
+        for (int i = L; i <= R; i++) set(i, val);
     }
 
     inline int new_node() {
@@ -702,8 +704,9 @@ struct Seg {
         lb = 1, rb = SZ;
     }
 
-    inline void init(int L = 1, int R = SZ) {
+    inline void init(int L = 1, int R = SZ, int val = 0) {
         lb = L, rb = R;
+        for (int i = L; i <= R; i++) set(i, val);
     }
 
     inline int new_node() {

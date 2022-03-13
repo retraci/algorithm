@@ -47,88 +47,170 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int BASE = 3000;
-const int N = 3000 + 10;
-const int mod = 998244353;
+// region 动态开点普通线段树
+template<int SZ>
+struct Seg {
+#define mid (s + e >> 1)
+#define ls(x) (tr[x].lson)
+#define rs(x) (tr[x].rson)
 
-vector<int> g[N];
+    struct Node {
+        int lson, rson;
+        ll sum, lz;
+    };
+
+    int lb, rb, rt;
+    Node tr[SZ * 4];
+    int nw;
+
+    inline Seg() {
+        lb = 1, rb = SZ;
+    }
+
+    inline void init(int L = 1, int R = SZ, int val = 0) {
+        lb = L, rb = R;
+        for (int i = L; i <= R; i++) set(i, val);
+    }
+
+    inline int new_node() {
+        int id = ++nw;
+        return id;
+    }
+
+    inline void push_up(int k) {
+        tr[k].sum = tr[ls(k)].sum + tr[rs(k)].sum;
+    }
+
+    inline void push_down(int k, int s, int e) {
+        if (!ls(k)) ls(k) = new_node();
+        if (!rs(k)) rs(k) = new_node();
+        ll len = e - s + 1;
+        ll lsz = len - len / 2, rsz = len / 2;
+        if (tr[k].lz) {
+            tr[ls(k)].sum = tr[ls(k)].sum + lsz * tr[k].lz;
+            tr[rs(k)].sum = tr[rs(k)].sum + rsz * tr[k].lz;
+            tr[ls(k)].lz = tr[ls(k)].lz + tr[k].lz;
+            tr[rs(k)].lz = tr[rs(k)].lz + tr[k].lz;
+            tr[k].lz = 0;
+        }
+    }
+
+    inline void update(int &k, int s, int e, int L, int R, ll val) {
+        if (!k) k = new_node();
+
+        if (L <= s && e <= R) {
+            tr[k].sum = tr[k].sum + (e - s + 1) * val;
+            tr[k].lz = tr[k].lz + val;
+            return;
+        }
+
+        push_down(k, s, e);
+        if (L <= mid) update(ls(k), s, mid, L, R, val);
+        if (R >= mid + 1) update(rs(k), mid + 1, e, L, R, val);
+        push_up(k);
+    }
+
+    inline void set(int &k, int s, int e, int id, ll val) {
+        if (!k) k = new_node();
+
+        if (s == e) {
+            tr[k].sum = val;
+            return;
+        }
+
+        push_down(k, s, e);
+        if (id <= mid) set(ls(k), s, mid, id, val);
+        if (id >= mid + 1) set(rs(k), mid + 1, e, id, val);
+        push_up(k);
+    }
+
+    inline ll query(int k, int s, int e, int L, int R) {
+        if (L <= s && e <= R) return tr[k].sum;
+
+        push_down(k, s, e);
+        if (R <= mid) return query(ls(k), s, mid, L, R);
+        if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
+        return query(ls(k), s, mid, L, R) + query(rs(k), mid + 1, e, L, R);
+    }
+
+    inline ll query_k(int k, int s, int e, int x) {
+        if (s == e) return s;
+
+        if (x <= tr[ls(k)].sum) return query_k(ls(k), s, mid, x);
+        else return query_k(rs(k), mid + 1, e, x - tr[ls(k)].sum);
+    }
+
+    inline void update(int L, int R, ll val) {
+        if (R < L) return;
+        update(rt, lb, rb, L, R, val);
+    }
+
+    inline void set(int id, ll val) {
+        set(rt, lb, rb, id, val);
+    }
+
+    inline ll query(int L, int R) {
+        if (R < L) return 0;
+        return query(rt, lb, rb, L, R);
+    }
+
+    inline ll query_k(int x) {
+        return query_k(rt, lb, rb, x);
+    }
+};
+// endregion
+
+const int N = 1e5 + 10;
+
 int n, m;
-int val[N], c[N], vis[N];
+int a[N];
+ti3 b[N];
 
-ll f[N][N * 2];
-ll pre[N * 2];
-ll dp1[N][N], dp2[N][N], dp3[N];
-ll tmp1[N][N], tmp2[N][N], tmp3[N];
-ll res;
+vector<int> lsh;
+Seg<N * 2> seg;
 
-int dfs(int u, int fa) {
-    int p = 1;
-    if (val[u] == 1) f[u][1 + BASE] = 1;
-    else f[u][-1 + BASE] = 1;
-    for (auto v: g[u]) {
-        if (v == fa) continue;
-        int sz = dfs(v, u);
-        for (int i = -min(p, m); i <= min(p, m); i++) {
-            pre[i + BASE] = f[u][i + BASE];
-        }
-
-        f[u][BASE] = (f[u][BASE] + pre[BASE] * f[v][BASE]) % mod;
-        for (int j = -min(sz, m); j <= min(sz, m); j++) {
-            if (j == 0) continue;
-
-            f[u][j + BASE] = (f[u][j + BASE] + pre[BASE] * f[v][j + BASE]) % mod;
-        }
-        for (int i = -min(p, m); i <= min(p, m); i++) {
-            if (i == 0) continue;
-
-            f[u][i + BASE] = (f[u][i + BASE] + pre[i + BASE] * f[v][BASE]) % mod;
-            for (int j = -min(sz, m); j <= min(sz, m); j++) {
-                if (j == 0) continue;
-
-                if (i + j >= -m && i + j <= m) {
-                    f[u][i + j + BASE] = (f[u][i + j + BASE] + pre[i + BASE] * f[v][j + BASE]) % mod;
-                }
-            }
-        }
-
-        p += sz;
-    }
-    for (int i = 1; i <= min(p, m); i++) {
-        res = (res + f[u][i + BASE]) % mod;
-    }
-    return p;
+int get(int x) {
+    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin();
 }
 
 void solve() {
-    cin >> n;
-    for (int i = 1; i <= n; i++) {
-        cin >> c[i];
+    lsh.clear();
+    for (int i = 1; i <= n; i++) lsh.push_back(a[i]);
+    for (int i = 1; i <= m; i++) {
+        auto [L, R, h] = b[i];
+        lsh.push_back(h);
     }
-    for (int i = 1; i < n; i++) {
-        int u, v;
-        cin >> v >> u;
-        g[u].push_back(v);
-        g[v].push_back(u);
-    }
-    for (int i = 1; i <= n; i++) {
-        if (vis[c[i]]) continue;
-        vis[c[i]] = 1;
-        m = 0;
-        for (int j = 1; j <= n; j++) {
-            val[j] = (c[j] == c[i] ? 1 : -1);
-            if (c[j] == c[i]) m++;
-        }
-        for (int j = 1; j <= n; j++) {
-            for (int k = 0; k <= m; k++) {
-                dp1[j][k] = dp2[j][k] = dp3[j] = 0;
-            }
-        }
-        fill(&f[0][0], &f[n][m * 2] + 1, 0);
-        dfs(1, 0);
-    }
-    cout << res << "\n";
-}
+    sort(lsh.begin(), lsh.end());
+    lsh.resize(unique(lsh.begin(), lsh.end()) - lsh.begin());
 
+    seg.init(1, lsh.size());
+    vector<int> qs[n + 1];
+    unordered_map<int, int> ask[n + 1];
+    for (int i = 1; i <= m; i++) {
+        auto [L, R, h] = b[i];
+        h = get(h) + 1;
+
+        qs[L - 1].push_back(h);
+        qs[R].push_back(h);
+    }
+
+    for (int i = 1; i <= n; i++) {
+        int x = get(a[i]) + 1;
+        seg.update(x, x, 1);
+
+        for (int h : qs[i]) {
+            ask[i][h] = seg.query(1, h);
+        }
+    }
+
+    for (int i = 1; i <= m; i++) {
+        auto [L, R, h] = b[i];
+        h = get(h) + 1;
+
+        cout << ask[R][h] - ask[L - 1][h] << " ";
+    }
+    cout << "\n";
+}
 
 void prework() {
 }
@@ -142,8 +224,16 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) cin >> a[i];
+        for (int i = 1; i <= m; i++) {
+            int L, R, h;
+            cin >> L >> R >> h;
+            b[i] = {L, R, h};
+        }
+
         solve();
     }
 
