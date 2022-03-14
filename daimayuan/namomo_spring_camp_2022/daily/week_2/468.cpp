@@ -47,31 +47,25 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 5010;
+const int N = 110;
+const int MOD = 998244353;
 
-int n;
-ll v[N], c[N];
+int n, k;
+ll a[N];
 
 void solve() {
-    ll s[n + 1];
-    s[0] = 0;
-    for (int i = 1; i <= n; i++) s[i] = s[i - 1] + v[i] * c[i];
+    ll mask = 0, ans = 0;
+    for (int i = 1; i <= n; i++) {
+        int c = __builtin_popcountll(mask);
+        mask |= a[i];
+        int nc = __builtin_popcountll(mask);
 
-    ll delta = 0;
-    ll f[n + 1][n + 1];
-    memset(f, 0, sizeof f);
-    for (int i = 1; i <= n; i++) f[i][i] = v[i] * c[i];
-    for (int len = 2; len <= n; len++) {
-        for (int L = 1; L + len - 1 <= n; L++) {
-            int R = L + len - 1;
-
-            f[L][R] = f[L + 1][R - 1] + v[L] * c[R] + v[R] * c[L];
-            ll tmp = f[L][R] - (s[R] - s[L - 1]);
-            delta = max(delta, tmp);
-        }
+        ll tmp = ((1LL << (k - c)) % MOD - (1LL << (k - nc)) % MOD + MOD) % MOD;
+        ans += i * tmp % MOD;
+        ans %= MOD;
     }
 
-    cout << s[n] + delta << "\n";
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -88,9 +82,8 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n;
-        for (int i = 1; i <= n; i++) cin >> v[i];
-        for (int i = 1; i <= n; i++) cin >> c[i];
+        cin >> n >> k;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 

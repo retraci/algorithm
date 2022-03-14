@@ -47,31 +47,54 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 5010;
+const int N = 3e5 + 10;
 
 int n;
-ll v[N], c[N];
+int a[N];
+
+int tr[31 * N][2], mem;
+vector<int> b[31 * N];
+ll f[33][2];
+
+void add(int x, int pos) {
+    int u = 0;
+    for (int i = 30; i >= 0; i--) {
+        int bi = x >> i & 1;
+        if (!tr[u][bi]) tr[u][bi] = ++mem;
+        u = tr[u][bi];
+        b[u].push_back(pos);
+    }
+}
+
+void dfs(int u, int lev) {
+    int ls = tr[u][0], rs = tr[u][1];
+    if (!ls && !rs) return;
+
+    ll id = 0, c1 = 0;
+    for (int x : b[ls]) {
+        while (id < b[rs].size() && x > b[rs][id]) id++;
+        c1 += id;
+    }
+    ll c2 = 1LL * b[ls].size() * b[rs].size() - c1;
+
+    f[lev][0] += c1, f[lev][1] += c2;
+
+    if (ls) dfs(ls, lev - 1);
+    if (rs) dfs(rs, lev - 1);
+}
 
 void solve() {
-    ll s[n + 1];
-    s[0] = 0;
-    for (int i = 1; i <= n; i++) s[i] = s[i - 1] + v[i] * c[i];
+    for (int i = 1; i <= n; i++) add(a[i], i);
 
-    ll delta = 0;
-    ll f[n + 1][n + 1];
-    memset(f, 0, sizeof f);
-    for (int i = 1; i <= n; i++) f[i][i] = v[i] * c[i];
-    for (int len = 2; len <= n; len++) {
-        for (int L = 1; L + len - 1 <= n; L++) {
-            int R = L + len - 1;
+    dfs(0, 30);
 
-            f[L][R] = f[L + 1][R - 1] + v[L] * c[R] + v[R] * c[L];
-            ll tmp = f[L][R] - (s[R] - s[L - 1]);
-            delta = max(delta, tmp);
-        }
+    ll ans = 0, cnt = 0;
+    for (int i = 0; i <= 30; i++) {
+        if (f[i][1] < f[i][0]) ans |= 1 << i;
+        cnt += min(f[i][0], f[i][1]);
     }
 
-    cout << s[n] + delta << "\n";
+    cout << cnt << " " << ans << "\n";
 }
 
 void prework() {
@@ -89,8 +112,7 @@ int main() {
 //    cin >> T;
     while (T--) {
         cin >> n;
-        for (int i = 1; i <= n; i++) cin >> v[i];
-        for (int i = 1; i <= n; i++) cin >> c[i];
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 

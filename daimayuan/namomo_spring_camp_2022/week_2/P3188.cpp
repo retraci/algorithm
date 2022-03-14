@@ -47,31 +47,43 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 5010;
+const int N = 110;
 
-int n;
-ll v[N], c[N];
+int n, w;
+pii a[N];
 
 void solve() {
-    ll s[n + 1];
-    s[0] = 0;
-    for (int i = 1; i <= n; i++) s[i] = s[i - 1] + v[i] * c[i];
+    int s = 0;
+    vector<pii> b[33];
+    for (int i = 1; i <= n; i++) {
+        auto [tw, tv] = a[i];
+        int lev = __builtin_ctz(tw);
+        tw >>= lev;
+        b[lev].push_back({tw, tv});
+        s += tw;
+    }
 
-    ll delta = 0;
-    ll f[n + 1][n + 1];
+    int m = __lg(w);
+    int f[m + 1][s + 1];
     memset(f, 0, sizeof f);
-    for (int i = 1; i <= n; i++) f[i][i] = v[i] * c[i];
-    for (int len = 2; len <= n; len++) {
-        for (int L = 1; L + len - 1 <= n; L++) {
-            int R = L + len - 1;
-
-            f[L][R] = f[L + 1][R - 1] + v[L] * c[R] + v[R] * c[L];
-            ll tmp = f[L][R] - (s[R] - s[L - 1]);
-            delta = max(delta, tmp);
+    for (int k = 0; k <= 30; k++) {
+        for (auto [tw, tv] : b[k]) {
+            for (int i = s; i >= tw; i--) {
+                f[k][i] = max(f[k][i], f[k][i - tw] + tv);
+            }
         }
     }
 
-    cout << s[n] + delta << "\n";
+    for (int k = 1; k <= m; k++) {
+        for (int i = s; i >= 0; i--) {
+            for (int j = 0; j <= i; j++) {
+                int pi = min(s, 2 * j + (w >> (k - 1) & 1));
+                f[k][i] = max(f[k][i], f[k][i - j] + f[k - 1][pi]);
+            }
+        }
+    }
+
+    cout << f[m][1] << "\n";
 }
 
 void prework() {
@@ -87,10 +99,9 @@ int main() {
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
 //    cin >> T;
-    while (T--) {
-        cin >> n;
-        for (int i = 1; i <= n; i++) cin >> v[i];
-        for (int i = 1; i <= n; i++) cin >> c[i];
+    while (cin >> n >> w, n != -1) {
+        for (int i = 1; i <= n; i++) cin >> a[i].fi >> a[i].se;
+
         solve();
     }
 

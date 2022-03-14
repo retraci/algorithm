@@ -47,34 +47,65 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 5010;
+const int N = 2e6 + 10;
+const int MOD = 1e9 + 7;
 
-int n;
-ll v[N], c[N];
+// region comb
+ll fac[N], ifac[N];
+
+inline ll ksm(ll a, ll b) {
+    ll res = 1;
+    while (b) {
+        if (b & 1) res = res * a % MOD;
+        a = a * a % MOD;
+        b >>= 1;
+    }
+    return res;
+}
+
+inline ll inv(ll x) {
+    return ksm(x, MOD - 2);
+}
+
+inline ll C(ll a, ll b) {
+    if (a < 0 || b < 0 || a < b) return 0;
+    return fac[a] * ifac[b] % MOD * ifac[a - b] % MOD;
+}
+
+inline void init_comb(int lim) {
+    fac[0] = ifac[0] = 1;
+    for (int i = 1; i <= lim; i++) fac[i] = fac[i - 1] * i % MOD;
+    ifac[lim] = inv(fac[lim]);
+    for (int i = lim - 1; i >= 1; i--) ifac[i] = ifac[i + 1] * (i + 1) % MOD;
+}
+// endregion
+
+int n, m;
+pii a[N];
 
 void solve() {
-    ll s[n + 1];
-    s[0] = 0;
-    for (int i = 1; i <= n; i++) s[i] = s[i - 1] + v[i] * c[i];
+    sort(a + 1, a + m + 1);
+    a[m + 1] = {n, n};
 
-    ll delta = 0;
-    ll f[n + 1][n + 1];
-    memset(f, 0, sizeof f);
-    for (int i = 1; i <= n; i++) f[i][i] = v[i] * c[i];
-    for (int len = 2; len <= n; len++) {
-        for (int L = 1; L + len - 1 <= n; L++) {
-            int R = L + len - 1;
+    vector<ll> f(m + 2, 0);
+    for (int i = 1; i <= m + 1; i++) {
+        auto [x1, y1] = a[i];
+        f[i] = C(x1 - 1 + y1 - 1, x1 - 1);
 
-            f[L][R] = f[L + 1][R - 1] + v[L] * c[R] + v[R] * c[L];
-            ll tmp = f[L][R] - (s[R] - s[L - 1]);
-            delta = max(delta, tmp);
+        for (int j = 1; j <= i - 1; j++) {
+            auto [x2, y2] = a[j];
+            if (x2 <= x1 && y2 <= y1) {
+                f[i] -= f[j] * C(x1 - x2 + y1 - y2, x1 - x2);
+                f[i] = (f[i] % MOD + MOD) % MOD;
+            }
         }
     }
 
-    cout << s[n] + delta << "\n";
+    cout << f[m + 1] << "\n";
 }
 
 void prework() {
+    init_comb(2e6);
 }
 
 int main() {
@@ -88,9 +119,8 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n;
-        for (int i = 1; i <= n; i++) cin >> v[i];
-        for (int i = 1; i <= n; i++) cin >> c[i];
+        cin >> n >> m;
+        for (int i = 1; i <= m; i++) cin >> a[i].fi >> a[i].se;
         solve();
     }
 

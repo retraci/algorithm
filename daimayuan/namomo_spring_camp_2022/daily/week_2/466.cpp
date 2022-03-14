@@ -47,31 +47,33 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 5010;
+const int N = 2e5 + 10;
 
-int n;
-ll v[N], c[N];
+int n, k;
+ll a[N];
+
+int get(int id) {
+    return (a[id] % k - id % k + k) % k;
+}
 
 void solve() {
-    ll s[n + 1];
-    s[0] = 0;
-    for (int i = 1; i <= n; i++) s[i] = s[i - 1] + v[i] * c[i];
-
-    ll delta = 0;
-    ll f[n + 1][n + 1];
-    memset(f, 0, sizeof f);
-    for (int i = 1; i <= n; i++) f[i][i] = v[i] * c[i];
-    for (int len = 2; len <= n; len++) {
-        for (int L = 1; L + len - 1 <= n; L++) {
-            int R = L + len - 1;
-
-            f[L][R] = f[L + 1][R - 1] + v[L] * c[R] + v[R] * c[L];
-            ll tmp = f[L][R] - (s[R] - s[L - 1]);
-            delta = max(delta, tmp);
+    ll ans = 0;
+    map<int, int> cnt;
+    cnt[0] = 1;
+    for (int i = 1; i <= n; i++) a[i] += a[i - 1];
+    for (int i = 1; i <= n; i++) {
+        int cur = get(i);
+        int lb = i - k;
+        if (i - k >= 0) {
+            int tmp = get(i - k);
+            cnt[tmp]--;
         }
+        ans += cnt[cur];
+
+        cnt[cur]++;
     }
 
-    cout << s[n] + delta << "\n";
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -88,9 +90,8 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n;
-        for (int i = 1; i <= n; i++) cin >> v[i];
-        for (int i = 1; i <= n; i++) cin >> c[i];
+        cin >> n >> k;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 
