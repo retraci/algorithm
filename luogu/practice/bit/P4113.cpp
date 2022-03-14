@@ -47,12 +47,12 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e6 + 10;
+const int N = 2e6 + 10;
 
-int n, m;
+int n, m, Q;
 int a[N];
 ti3 qs[N];
-int lst[N];
+int ans[N];
 
 int bit[N];
 
@@ -67,25 +67,26 @@ int query(int id) {
 }
 
 void solve() {
-    sort(qs + 1, qs + m + 1, [](auto &a, auto &b) {
+    sort(qs + 1, qs + Q + 1, [](auto &a, auto &b) {
         return get<1>(a) < get<1>(b);
     });
 
-    vector<int> ans(m + 1, 0);
     int pos = 1;
-    for (int i = 1; i <= m; i++) {
+    vector<int> lst1(n + 1), lst2(n + 1);
+    for (int i = 1; i <= Q; i++) {
         auto [L, R, id] = qs[i];
         while (pos <= R) {
             int x = a[pos];
-            if (lst[x]) add(lst[x], -1);
-            add(pos, 1);
-            lst[x] = pos++;
+            if (lst2[x]) add(lst2[x], -1);
+            lst2[x] = lst1[x];
+            lst1[x] = pos++;
+            if (lst2[x]) add(lst2[x], 1);
         }
 
         ans[id] = query(R) - query(L - 1);
     }
 
-    for (int i = 1; i <= m; i++) cout << ans[i] << "\n";
+    for (int i = 1; i <= Q; i++) cout << ans[i] << "\n";
 }
 
 void prework() {
@@ -102,10 +103,9 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n;
+        cin >> n >> m >> Q;
         for (int i = 1; i <= n; i++) cin >> a[i];
-        cin >> m;
-        for (int i = 1; i <= m; i++) {
+        for (int i = 1; i <= Q; i++) {
             int L, R;
             cin >> L >> R;
             qs[i] = {L, R, i};
