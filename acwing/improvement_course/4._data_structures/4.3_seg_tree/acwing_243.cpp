@@ -47,7 +47,7 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-// region 区间最小值段树
+// region 普通线段树
 template<int SZ>
 struct Seg {
 #define mid (s + e >> 1)
@@ -79,40 +79,42 @@ struct Seg {
     inline int new_node() {
         int id = ++nw;
         tr[id].lson = tr[id].rson = 0;
-        tr[id].sum = tr[id].lz = 1e18;
+        tr[id].sum = tr[id].lz = 0;
         return id;
     }
 
-    inline void work(Node &t, ll val) {
-        t.sum = min(t.sum, val);
-        t.lz = min(t.lz, val);
+    inline void work(Node &t, ll sz, ll val) {
+        t.sum = t.sum + sz * val;
+        t.lz = t.lz + val;
     }
 
     inline void push_up(int k) {
-        tr[k].sum = min(tr[ls(k)].sum, tr[rs(k)].sum);
+        tr[k].sum = tr[ls(k)].sum + tr[rs(k)].sum;
     }
 
     inline void push_down(int k, int s, int e) {
         if (!ls(k)) ls(k) = new_node();
         if (!rs(k)) rs(k) = new_node();
+        ll len = e - s + 1;
+        ll lsz = len - len / 2, rsz = len / 2;
         if (tr[k].lz) {
-            work(tr[ls(k)], tr[k].lz);
-            work(tr[rs(k)], tr[k].lz);
-            tr[k].lz = 1e18;
+            work(tr[ls(k)], lsz, tr[k].lz);
+            work(tr[rs(k)], rsz, tr[k].lz);
+            tr[k].lz = 0;
         }
     }
 
-    inline void update(int &k, int s, int e, int L, int R, ll val) {
+    inline void add(int &k, int s, int e, int L, int R, ll val) {
         if (!k) k = new_node();
 
         if (L <= s && e <= R) {
-            work(tr[k], val);
+            work(tr[k], e - s + 1, val);
             return;
         }
 
         push_down(k, s, e);
-        if (L <= mid) update(ls(k), s, mid, L, R, val);
-        if (R >= mid + 1) update(rs(k), mid + 1, e, L, R, val);
+        if (L <= mid) add(ls(k), s, mid, L, R, val);
+        if (R >= mid + 1) add(rs(k), mid + 1, e, L, R, val);
         push_up(k);
     }
 
@@ -136,12 +138,19 @@ struct Seg {
         push_down(k, s, e);
         if (R <= mid) return query(ls(k), s, mid, L, R);
         if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
-        return min(query(ls(k), s, mid, L, R), query(rs(k), mid + 1, e, L, R));
+        return query(ls(k), s, mid, L, R) + query(rs(k), mid + 1, e, L, R);
     }
 
-    inline void update(int L, int R, ll val) {
+    inline ll query_k(int k, int s, int e, int x) {
+        if (s == e) return s;
+
+        if (x <= tr[ls(k)].sum) return query_k(ls(k), s, mid, x);
+        else return query_k(rs(k), mid + 1, e, x - tr[ls(k)].sum);
+    }
+
+    inline void add(int L, int R, ll val) {
         if (R < L) return;
-        update(rt, lb, rb, L, R, val);
+        add(rt, lb, rb, L, R, val);
     }
 
     inline void set(int id, ll val) {
@@ -152,39 +161,39 @@ struct Seg {
         if (R < L) return 0;
         return query(rt, lb, rb, L, R);
     }
+
+    inline ll query_k(int x) {
+        return query_k(rt, lb, rb, x);
+    }
 };
 // endregion
 
-const int N = 5e5 + 10;
+const int N = 1e5 + 10;
 
 int n, Q;
 int a[N];
-ti3 qs[N];
-int ans[N];
 
 Seg<N> seg;
 
 void solve() {
-    sort(qs + 1, qs + Q + 1, [](auto &a, auto &b) {
-        return get<1>(a) < get<1>(b);
-    });
+    seg.init(1, n);
+    for (int i = 1; i <= n; i++) seg.set(i, a[i]);
 
-    seg.init(1, n, 1e9);
-    int pos = 1;
-    unordered_map<int, int> lst;
-    for (int i = 1; i <= Q; i++) {
-        auto [L, R, id] = qs[i];
-        while (pos <= R) {
-            int x = a[pos];
-            if (lst.count(x)) seg.update(1, lst[x], pos - lst[x]);
-            lst[x] = pos++;
+    while (Q--) {
+        string op;
+        cin >> op;
+        if (op == "C") {
+            int L, R, x;
+            cin >> L >> R >> x;
+
+            seg.add(L, R, x);
+        } else {
+            int L, R;
+            cin >> L >> R;
+
+            cout << seg.query(L, R) << "\n";
         }
-
-        int ret = seg.query(L, R);
-        ans[id] = ret == 1e9 ? -1 : ret;
     }
-
-    for (int i = 1; i <= Q; i++) cout << ans[i] << "\n";
 }
 
 void prework() {
@@ -203,12 +212,6 @@ int main() {
     while (T--) {
         cin >> n >> Q;
         for (int i = 1; i <= n; i++) cin >> a[i];
-        for (int i = 1; i <= Q; i++) {
-            int L, R;
-            cin >> L >> R;
-            qs[i] = {L, R, i};
-        }
-
         solve();
     }
 

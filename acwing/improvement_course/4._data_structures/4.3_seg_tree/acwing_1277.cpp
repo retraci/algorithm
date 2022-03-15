@@ -47,7 +47,7 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-// region 区间最小值段树
+// region 普通线段树
 template<int SZ>
 struct Seg {
 #define mid (s + e >> 1)
@@ -56,63 +56,69 @@ struct Seg {
 
     struct Node {
         int lson, rson;
-        ll sum, lz;
+        ll sum, ad_lz, mu_lz;
     };
+
+    int MOD;
 
     int lb, rb, rt;
     Node tr[SZ * 4];
     int nw;
 
     inline Seg() {
-        init(1, SZ);
+        init(1, SZ, 0);
     }
 
-    inline void init(int L, int R) {
-        rt = 0, nw = 0, lb = L, rb = R;
+    inline void init(int L, int R, int _MOD) {
+        nw = 0, lb = L, rb = R, MOD = _MOD;
     }
 
     inline void init(int L, int R, ll val) {
-        rt = 0, nw = 0, lb = L, rb = R;
+        nw = 0, lb = L, rb = R;
         for (int i = L; i <= R; i++) set(i, val);
     }
 
     inline int new_node() {
         int id = ++nw;
         tr[id].lson = tr[id].rson = 0;
-        tr[id].sum = tr[id].lz = 1e18;
+        tr[id].sum = tr[id].ad_lz = 0;
+        tr[id].mu_lz = 1;
         return id;
     }
 
-    inline void work(Node &t, ll val) {
-        t.sum = min(t.sum, val);
-        t.lz = min(t.lz, val);
+    inline void work(Node &t, ll sz, ll ad, ll mu) {
+        t.sum = (t.sum * mu % MOD + ad * sz % MOD) % MOD;
+        t.ad_lz = (t.ad_lz * mu % MOD + ad) % MOD;
+        t.mu_lz = t.mu_lz * mu % MOD;
     }
 
     inline void push_up(int k) {
-        tr[k].sum = min(tr[ls(k)].sum, tr[rs(k)].sum);
+        tr[k].sum = (tr[ls(k)].sum + tr[rs(k)].sum) % MOD;
     }
 
     inline void push_down(int k, int s, int e) {
         if (!ls(k)) ls(k) = new_node();
         if (!rs(k)) rs(k) = new_node();
-        if (tr[k].lz) {
-            work(tr[ls(k)], tr[k].lz);
-            work(tr[rs(k)], tr[k].lz);
-            tr[k].lz = 1e18;
+        ll len = e - s + 1;
+        ll lsz = len - len / 2, rsz = len / 2;
+        if (tr[k].ad_lz != 0 || tr[k].mu_lz != 1) {
+            work(tr[ls(k)], lsz, tr[k].ad_lz, tr[k].mu_lz);
+            work(tr[rs(k)], rsz, tr[k].ad_lz, tr[k].mu_lz);
+            tr[k].ad_lz = 0, tr[k].mu_lz = 1;
         }
     }
 
-    inline void update(int &k, int s, int e, int L, int R, ll val) {
+    inline void update(int &k, int s, int e, int L, int R, ll ad, ll mu) {
         if (!k) k = new_node();
 
         if (L <= s && e <= R) {
-            work(tr[k], val);
+            work(tr[k], e - s + 1, ad, mu);
             return;
         }
 
         push_down(k, s, e);
-        if (L <= mid) update(ls(k), s, mid, L, R, val);
-        if (R >= mid + 1) update(rs(k), mid + 1, e, L, R, val);
+        if (L <= mid) update(ls(k), s, mid, L, R, ad, mu);
+        if (R >= mid + 1) update(rs(k), mid + 1, e, L, R, ad, mu);
         push_up(k);
     }
 
@@ -136,12 +142,12 @@ struct Seg {
         push_down(k, s, e);
         if (R <= mid) return query(ls(k), s, mid, L, R);
         if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
-        return min(query(ls(k), s, mid, L, R), query(rs(k), mid + 1, e, L, R));
+        return (query(ls(k), s, mid, L, R) + query(rs(k), mid + 1, e, L, R)) % MOD;
     }
 
-    inline void update(int L, int R, ll val) {
+    inline void update(int L, int R, ll ad, ll mu) {
         if (R < L) return;
-        update(rt, lb, rb, L, R, val);
+        update(rt, lb, rb, L, R, ad, mu);
     }
 
     inline void set(int id, ll val) {
@@ -155,36 +161,38 @@ struct Seg {
 };
 // endregion
 
-const int N = 5e5 + 10;
+const int N = 1e5 + 10;
 
-int n, Q;
+int n, Q, P;
 int a[N];
-ti3 qs[N];
-int ans[N];
 
 Seg<N> seg;
 
 void solve() {
-    sort(qs + 1, qs + Q + 1, [](auto &a, auto &b) {
-        return get<1>(a) < get<1>(b);
-    });
+    seg.init(1, n, P);
+    for (int i = 1; i <= n; i++) seg.set(i, a[i]);
 
-    seg.init(1, n, 1e9);
-    int pos = 1;
-    unordered_map<int, int> lst;
-    for (int i = 1; i <= Q; i++) {
-        auto [L, R, id] = qs[i];
-        while (pos <= R) {
-            int x = a[pos];
-            if (lst.count(x)) seg.update(1, lst[x], pos - lst[x]);
-            lst[x] = pos++;
+    cin >> Q;
+    while (Q--) {
+        int op;
+        cin >> op;
+        if (op == 1) {
+            int L, R, x;
+            cin >> L >> R >> x;
+
+            seg.update(L, R, 0, x);
+        } else if (op == 2) {
+            int L, R, x;
+            cin >> L >> R >> x;
+
+            seg.update(L, R, x, 1);
+        } else {
+            int L, R;
+            cin >> L >> R;
+
+            cout << seg.query(L, R) << "\n";
         }
-
-        int ret = seg.query(L, R);
-        ans[id] = ret == 1e9 ? -1 : ret;
     }
-
-    for (int i = 1; i <= Q; i++) cout << ans[i] << "\n";
 }
 
 void prework() {
@@ -201,14 +209,8 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n >> Q;
+        cin >> n >> P;
         for (int i = 1; i <= n; i++) cin >> a[i];
-        for (int i = 1; i <= Q; i++) {
-            int L, R;
-            cin >> L >> R;
-            qs[i] = {L, R, i};
-        }
-
         solve();
     }
 

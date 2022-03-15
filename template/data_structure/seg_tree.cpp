@@ -1,459 +1,9 @@
 // region 普通线段树
 template<int SZ>
 struct Seg {
-#define mid (left + right >> 1)
-#define ls (k << 1)
-#define rs ((k << 1) + 1)
-
-    const ll MOD = 1e9 + 7;
-
-    struct Node {
-        int left, right;
-        ll sum, lz;
-    };
-
-    ll vt[SZ + 1];
-    Node tr[SZ * 4];
-
-    inline void push_up(int k) {
-        tr[k].sum = (tr[ls].sum + tr[rs].sum) % MOD;
-    }
-
-    inline void push_down(int k) {
-        ll lsz = tr[ls].right - tr[ls].left + 1;
-        ll rsz = tr[rs].right - tr[rs].left + 1;
-        if (tr[k].lz) {
-            tr[ls].sum = (tr[ls].sum + lsz * tr[k].lz % MOD) % MOD;
-            tr[rs].sum = (tr[rs].sum + rsz * tr[k].lz % MOD) % MOD;
-            tr[ls].lz = (tr[ls].lz + tr[k].lz) % MOD;
-            tr[rs].lz = (tr[rs].lz + tr[k].lz) % MOD;
-            tr[k].lz = 0;
-        }
-    }
-
-    inline void build(int k, int left, int right) {
-        tr[k].left = left, tr[k].right = right;
-        tr[k].sum = tr[k].lz = 0;
-
-        if (left == right) {
-            tr[k].sum = vt[left];
-            return;
-        }
-        build(ls, left, mid);
-        build(rs, mid + 1, right);
-        push_up(k);
-    }
-
-    inline void update(int k, int L, int R, ll val) {
-        int left = tr[k].left, right = tr[k].right;
-
-        if (right < L || left > R) return;
-        if (L <= left && right <= R) {
-            tr[k].sum = (tr[k].sum + (right - left + 1) * val % MOD) % MOD;
-            tr[k].lz = (tr[k].lz + val) % MOD;
-            return;
-        }
-
-        push_down(k);
-        update(ls, L, R, val);
-        update(rs, L, R, val);
-        push_up(k);
-    }
-
-    inline ll query(int k, int L, int R) {
-        int left = tr[k].left, right = tr[k].right;
-
-        if (right < L || left > R) return 0;
-        if (L <= left && right <= R) return tr[k].sum;
-
-        push_down(k);
-        return (query(ls, L, R) + query(rs, L, R)) % MOD;
-    }
-
-    inline void build(int L, int R) {
-        return build(1, L, R);
-    }
-
-    inline void update(int L, int R, ll val) {
-        update(1, L, R, val);
-    }
-
-    inline ll query(int L, int R) {
-        return query(1, L, R);
-    }
-};
-// endregion
-
-// region 区间最小值线段树
-template<int SZ>
-struct Seg {
-#define mid (left + right >> 1)
-#define ls (k << 1)
-#define rs ((k << 1) + 1)
-
-    struct Node {
-        int left, right;
-        ll sum, lz, mi;
-    };
-
-    ll vt[SZ + 1];
-    Node tr[SZ * 4];
-
-    inline void push_up(int k) {
-        tr[k].sum = tr[ls].sum + tr[rs].sum;
-        tr[k].mi = min(tr[ls].mi, tr[rs].mi);
-    }
-
-    inline void push_down(int k) {
-        ll lsz = tr[ls].right - tr[ls].left + 1;
-        ll rsz = tr[rs].right - tr[rs].left + 1;
-        if (tr[k].lz) {
-            tr[ls].sum = tr[ls].sum + lsz * tr[k].lz;
-            tr[rs].sum = tr[rs].sum + rsz * tr[k].lz;
-            tr[ls].lz = tr[ls].lz + tr[k].lz;
-            tr[rs].lz = tr[rs].lz + tr[k].lz;
-            tr[k].lz = 0;
-        }
-    }
-
-    inline void build(int k, int left, int right) {
-        tr[k].left = left, tr[k].right = right;
-        tr[k].sum = tr[k].mi = tr[k].lz = 0;
-
-        if (left == right) {
-            tr[k].sum = tr[k].mi = vt[left];
-            return;
-        }
-        build(ls, left, mid);
-        build(rs, mid + 1, right);
-        push_up(k);
-    }
-
-    inline void update(int k, int L, int R, ll val) {
-        int left = tr[k].left, right = tr[k].right;
-
-        if (right < L || left > R) return;
-        if (L <= left && right <= R) {
-            tr[k].sum = tr[k].sum + (right - left + 1) * val;
-            tr[k].lz = tr[k].lz + val;
-            tr[k].mi = tr[k].mi + val;
-            return;
-        }
-
-        push_down(k);
-        update(ls, L, R, val);
-        update(rs, L, R, val);
-        push_up(k);
-    }
-
-    inline void modify(int k, int id, ll val) {
-        int left = tr[k].left, right = tr[k].right;
-
-        if (right < id || left > id) return;
-        if (left == right) {
-            tr[k].sum = tr[k].mx = min(tr[k].mx, val);
-            return;
-        }
-        modify(ls, id, val);
-        modify(rs, id, val);
-        push_up(k);
-    }
-
-    inline ll query(int k, int L, int R) {
-        int left = tr[k].left, right = tr[k].right;
-
-        if (right < L || left > R) return 1e18;
-        if (L <= left && right <= R) return tr[k].mi;
-
-        push_down(k);
-        return min(query(ls, L, R), query(rs, L, R));
-    }
-
-    inline void build(int L, int R) {
-        return build(1, L, R);
-    }
-
-    inline void update(int L, int R, ll val) {
-        update(1, L, R, val);
-    }
-
-    inline void modify(int id, ll val) {
-        modify(1, id, val);
-    }
-
-    inline ll query(int L, int R) {
-        return query(1, L, R);
-    }
-};
-// endregion
-
-// region 区间最大值线段树
-template<int SZ>
-struct Seg {
-#define mid (left + right >> 1)
-#define ls (k << 1)
-#define rs ((k << 1) + 1)
-
-    struct Node {
-        int left, right;
-        ll sum, lz, mx;
-    };
-
-    ll vt[SZ + 1];
-    Node tr[SZ * 4];
-
-    inline void push_up(int k) {
-        tr[k].sum = tr[ls].sum + tr[rs].sum;
-        tr[k].mx = max(tr[ls].mx, tr[rs].mx);
-    }
-
-    inline void push_down(int k) {
-        ll lsz = tr[ls].right - tr[ls].left + 1;
-        ll rsz = tr[rs].right - tr[rs].left + 1;
-        if (tr[k].lz) {
-            tr[ls].sum = tr[ls].sum + lsz * tr[k].lz;
-            tr[rs].sum = tr[rs].sum + rsz * tr[k].lz;
-            tr[ls].lz = tr[ls].lz + tr[k].lz;
-            tr[rs].lz = tr[rs].lz + tr[k].lz;
-            tr[k].lz = 0;
-        }
-    }
-
-    inline void build(int k, int left, int right) {
-        tr[k].left = left, tr[k].right = right;
-        tr[k].sum = tr[k].mx = tr[k].lz = 0;
-
-        if (left == right) {
-            tr[k].sum = tr[k].mx = vt[left];
-            return;
-        }
-        build(ls, left, mid);
-        build(rs, mid + 1, right);
-        push_up(k);
-    }
-
-    inline void update(int k, int L, int R, ll val) {
-        int left = tr[k].left, right = tr[k].right;
-
-        if (right < L || left > R) return;
-        if (L <= left && right <= R) {
-            tr[k].sum = tr[k].sum + (right - left + 1) * val;
-            tr[k].lz = tr[k].lz + val;
-            tr[k].mx = tr[k].mx + val;
-            return;
-        }
-
-        push_down(k);
-        update(ls, L, R, val);
-        update(rs, L, R, val);
-        push_up(k);
-    }
-
-    inline void modify(int k, int id, ll val) {
-        int left = tr[k].left, right = tr[k].right;
-
-        if (right < id || left > id) return;
-        if (left == right) {
-            tr[k].sum = tr[k].mx = max(tr[k].mx, val);
-            return;
-        }
-        modify(ls, id, val);
-        modify(rs, id, val);
-        push_up(k);
-    }
-
-    inline ll query(int k, int L, int R) {
-        int left = tr[k].left, right = tr[k].right;
-
-        if (right < L || left > R) return 0;
-        if (L <= left && right <= R) return tr[k].mx;
-
-        push_down(k);
-        return max(query(ls, L, R), query(rs, L, R));
-    }
-
-    inline void build(int L, int R) {
-        return build(1, L, R);
-    }
-
-    inline void update(int L, int R, ll val) {
-        update(1, L, R, val);
-    }
-
-    inline void modify(int id, ll val) {
-        modify(1, id, val);
-    }
-
-    inline ll query(int L, int R) {
-        return query(1, L, R);
-    }
-};
-// endregion
-
-// region 线段树维护矩阵
-template<int SZ>
-struct Mat {
-    int r, c;
-    ll a[SZ + 1][SZ + 1];
-
-    inline Mat(int r = 0, int c = 0) : r(r), c(c) {
-        memset(a, 0, sizeof a);
-    }
-
-    inline Mat operator-(const Mat &T) const {
-        Mat res(r, c);
-        for (int i = 1; i <= r; i++) {
-            for (int j = 1; j <= c; j++) {
-                res.a[i][j] = (a[i][j] - T.a[i][j]) % MOD;
-            }
-        }
-        return res;
-    }
-
-    inline Mat operator+(const Mat &T) const {
-        Mat res(r, c);
-        for (int i = 1; i <= r; i++) {
-            for (int j = 1; j <= c; j++) {
-                res.a[i][j] = (a[i][j] + T.a[i][j]) % MOD;
-            }
-        }
-        return res;
-    }
-
-    inline Mat operator*(const Mat &T) const {
-        Mat res(r, T.c);
-        for (int i = 1; i <= res.r; i++) {
-            for (int j = 1; j <= T.c; j++) {
-                for (int k = 1; k <= c; k++) {
-                    res.a[i][j] = (res.a[i][j] + a[i][k] * T.a[k][j] % MOD) % MOD;
-                }
-            }
-        }
-        return res;
-    }
-
-    inline Mat operator*(ll x) const {
-        Mat res(r, c);
-        for (int i = 1; i <= r; i++) {
-            for (int j = 1; j <= c; j++) {
-                res.a[i][j] = (a[i][j] * x) % MOD;
-            }
-        }
-        return res;
-    }
-
-    inline Mat operator^(ll x) const {
-        Mat res(r, c), bas(r, c);
-        for (int i = 1; i <= r; i++) res.a[i][i] = 1;
-        memcpy(bas.a, a, sizeof a);
-
-        while (x) {
-            if (x & 1) res = res * bas;
-            bas = bas * bas;
-            x >>= 1;
-        }
-        return res;
-    }
-
-    inline bool operator==(const Mat &T) const {
-        for (int i = 1; i <= r; i++) {
-            for (int j = 1; j <= c; j++) {
-                if (a[i][j] != T.a[i][j]) return false;
-            }
-        }
-        return true;
-    }
-
-    inline void print() const {
-        for (int i = 1; i <= r; i++) {
-            for (int j = 1; j <= c; j++) {
-                cout << a[i][j] << " ";
-            }
-            cout << "\n";
-        }
-    }
-};
-
-template<int SZ>
-struct Seg {
-#define mid (left + right >> 1)
-#define ls (k << 1)
-#define rs ((k << 1) + 1)
-
-    struct Node {
-        int left, right;
-        Mat<4> sum = Mat<4>(1, 4);
-        Mat<4> lz = Mat<4>(4, 4);
-    };
-
-    Node tr[SZ * 4];
-    Mat<4> E;
-
-    inline void push_up(int k) {
-        for (int j = 1; j <= 4; j++) {
-            tr[k].sum.a[1][j] = (tr[ls].sum.a[1][j] + tr[rs].sum.a[1][j]) % MOD;
-        }
-    }
-
-    inline void push_down(int k) {
-        if (!(tr[k].lz == E)) {
-            tr[ls].sum = tr[ls].sum * tr[k].lz;
-            tr[ls].lz = tr[ls].lz * tr[k].lz;
-            tr[rs].sum = tr[rs].sum * tr[k].lz;
-            tr[rs].lz = tr[rs].lz * tr[k].lz;
-            tr[k].lz = E;
-        }
-    }
-
-    inline void build(int k, int left, int right) {
-        tr[k].left = left, tr[k].right = right;
-        tr[k].lz = E;
-
-        if (left == right) {
-            tr[k].sum.a[1][4] = 1;
-            return;
-        }
-        build(ls, left, mid);
-        build(rs, mid + 1, right);
-        tr[k].sum.a[1][4] = tr[ls].sum.a[1][4] + tr[rs].sum.a[1][4];
-    }
-
-    inline void update(int k, int L, int R, Mat<4> &val) {
-        int left = tr[k].left, right = tr[k].right;
-
-        if (right < L || left > R) return;
-        if (L <= left && right <= R) {
-            tr[k].sum = tr[k].sum * val;
-            tr[k].lz = tr[k].lz * val;
-            return;
-        }
-
-        push_down(k);
-        update(ls, L, R, val);
-        update(rs, L, R, val);
-        push_up(k);
-    }
-
-    inline ll query(int k, int L, int R, int x) {
-        int left = tr[k].left, right = tr[k].right;
-
-        if (right < L || left > R) return 0;
-        if (L <= left && right <= R) return tr[k].sum.a[1][x];
-
-        push_down(k);
-        return (query(ls, L, R, x) + query(rs, L, R, x)) % MOD;
-    }
-}
-// endregion
-
-// region 动态开点普通线段树
-template<int SZ>
-struct Seg {
 #define mid (s + e >> 1)
 #define ls(x) (tr[x].lson)
 #define rs(x) (tr[x].rson)
-
-    const ll MOD = 1e9 + 7;
 
     struct Node {
         int lson, rson;
@@ -465,17 +15,28 @@ struct Seg {
     int nw;
 
     inline Seg() {
-        lb = 1, rb = SZ;
+        init(1, SZ);
     }
 
-    inline void init(int L = 1, int R = SZ, ll val = 0) {
-        lb = L, rb = R;
+    inline void init(int L, int R) {
+        rt = 0, nw = 0, lb = L, rb = R;
+    }
+
+    inline void init(int L, int R, ll val) {
+        rt = 0, nw = 0, lb = L, rb = R;
         for (int i = L; i <= R; i++) set(i, val);
     }
 
     inline int new_node() {
         int id = ++nw;
+        tr[id].lson = tr[id].rson = 0;
+        tr[id].sum = tr[id].lz = 0;
         return id;
+    }
+
+    inline void work(Node &t, ll sz, ll val) {
+        t.sum = t.sum + sz * val;
+        t.lz = t.lz + val;
     }
 
     inline void push_up(int k) {
@@ -488,26 +49,23 @@ struct Seg {
         ll len = e - s + 1;
         ll lsz = len - len / 2, rsz = len / 2;
         if (tr[k].lz) {
-            tr[ls(k)].sum = tr[ls(k)].sum + lsz * tr[k].lz;
-            tr[rs(k)].sum = tr[rs(k)].sum + rsz * tr[k].lz;
-            tr[ls(k)].lz = tr[ls(k)].lz + tr[k].lz;
-            tr[rs(k)].lz = tr[rs(k)].lz + tr[k].lz;
+            work(tr[ls(k)], lsz, tr[k].lz);
+            work(tr[rs(k)], rsz, tr[k].lz);
             tr[k].lz = 0;
         }
     }
 
-    inline void update(int &k, int s, int e, int L, int R, ll val) {
+    inline void add(int &k, int s, int e, int L, int R, ll val) {
         if (!k) k = new_node();
 
         if (L <= s && e <= R) {
-            tr[k].sum = tr[k].sum + (e - s + 1) * val;
-            tr[k].lz = tr[k].lz + val;
+            work(tr[k], e - s + 1, val);
             return;
         }
 
         push_down(k, s, e);
-        if (L <= mid) update(ls(k), s, mid, L, R, val);
-        if (R >= mid + 1) update(rs(k), mid + 1, e, L, R, val);
+        if (L <= mid) add(ls(k), s, mid, L, R, val);
+        if (R >= mid + 1) add(rs(k), mid + 1, e, L, R, val);
         push_up(k);
     }
 
@@ -541,9 +99,9 @@ struct Seg {
         else return query_k(rs(k), mid + 1, e, x - tr[ls(k)].sum);
     }
 
-    inline void update(int L, int R, ll val) {
+    inline void add(int L, int R, ll val) {
         if (R < L) return;
-        update(rt, lb, rb, L, R, val);
+        add(rt, lb, rb, L, R, val);
     }
 
     inline void set(int id, ll val) {
@@ -561,7 +119,7 @@ struct Seg {
 };
 // endregion
 
-// region 动态开点区间最大值段树
+// region 区间最大值段树
 template<int SZ>
 struct Seg {
 #define mid (s + e >> 1)
@@ -578,17 +136,28 @@ struct Seg {
     int nw;
 
     inline Seg() {
-        lb = 1, rb = SZ;
+        init(1, SZ);
     }
 
-    inline void init(int L = 1, int R = SZ, ll val = 0) {
-        lb = L, rb = R;
+    inline void init(int L, int R) {
+        rt = 0, nw = 0, lb = L, rb = R;
+    }
+
+    inline void init(int L, int R, ll val) {
+        rt = 0, nw = 0, lb = L, rb = R;
         for (int i = L; i <= R; i++) set(i, val);
     }
 
     inline int new_node() {
         int id = ++nw;
+        tr[id].lson = tr[id].rson = 0;
+        tr[id].sum = tr[id].lz = 0;
         return id;
+    }
+
+    inline void work(Node &t, ll val) {
+        t.sum = max(t.sum, val);
+        t.lz = max(t.lz, val);
     }
 
     inline void push_up(int k) {
@@ -599,10 +168,8 @@ struct Seg {
         if (!ls(k)) ls(k) = new_node();
         if (!rs(k)) rs(k) = new_node();
         if (tr[k].lz) {
-            tr[ls(k)].sum = max(tr[ls(k)].sum, tr[k].lz);
-            tr[rs(k)].sum = max(tr[rs(k)].sum, tr[k].lz);
-            tr[ls(k)].lz = max(tr[ls(k)].lz, tr[k].lz);
-            tr[rs(k)].lz = max(tr[rs(k)].lz, tr[k].lz);
+            work(tr[ls(k)], tr[k].lz);
+            work(tr[rs(k)], tr[k].lz);
             tr[k].lz = 0;
         }
     }
@@ -611,8 +178,7 @@ struct Seg {
         if (!k) k = new_node();
 
         if (L <= s && e <= R) {
-            tr[k].sum = max(tr[k].sum, val);
-            tr[k].lz = max(tr[k].lz, val);
+            work(tr[k], val);
             return;
         }
 
@@ -661,7 +227,7 @@ struct Seg {
 };
 // endregion
 
-// region 动态开点区间最小值段树
+// region 区间最小值段树
 template<int SZ>
 struct Seg {
 #define mid (s + e >> 1)
@@ -678,18 +244,28 @@ struct Seg {
     int nw;
 
     inline Seg() {
-        lb = 1, rb = SZ;
+        init(1, SZ);
     }
 
-    inline void init(int L = 1, int R = SZ, ll val = 1e18) {
-        lb = L, rb = R;
-        for (int i = 1; i < SZ * 4; i++) tr[i].sum = tr[i].lz = 1e18;
+    inline void init(int L, int R) {
+        rt = 0, nw = 0, lb = L, rb = R;
+    }
+
+    inline void init(int L, int R, ll val) {
+        rt = 0, nw = 0, lb = L, rb = R;
         for (int i = L; i <= R; i++) set(i, val);
     }
 
     inline int new_node() {
         int id = ++nw;
+        tr[id].lson = tr[id].rson = 0;
+        tr[id].sum = tr[id].lz = 1e18;
         return id;
+    }
+
+    inline void work(Node &t, ll val) {
+        t.sum = min(t.sum, val);
+        t.lz = min(t.lz, val);
     }
 
     inline void push_up(int k) {
@@ -700,10 +276,8 @@ struct Seg {
         if (!ls(k)) ls(k) = new_node();
         if (!rs(k)) rs(k) = new_node();
         if (tr[k].lz) {
-            tr[ls(k)].sum = min(tr[ls(k)].sum, tr[k].lz);
-            tr[rs(k)].sum = min(tr[rs(k)].sum, tr[k].lz);
-            tr[ls(k)].lz = min(tr[ls(k)].lz, tr[k].lz);
-            tr[rs(k)].lz = min(tr[rs(k)].lz, tr[k].lz);
+            work(tr[ls(k)], tr[k].lz);
+            work(tr[rs(k)], tr[k].lz);
             tr[k].lz = 1e18;
         }
     }
@@ -712,8 +286,7 @@ struct Seg {
         if (!k) k = new_node();
 
         if (L <= s && e <= R) {
-            tr[k].sum = min(tr[k].sum, val);
-            tr[k].lz = min(tr[k].lz, val);
+            work(tr[k], val);
             return;
         }
 
@@ -762,7 +335,7 @@ struct Seg {
 };
 // endregion
 
-// region 动态开点区间修改, 维护最大值线段树
+// region 区间修改, 维护最大值线段树
 template<int SZ>
 struct Seg {
 #define mid (s + e >> 1)
@@ -779,18 +352,28 @@ struct Seg {
     int nw;
 
     inline Seg() {
-        lb = 1, rb = SZ;
+        init(1, SZ);
     }
 
-    inline void init(int L = 1, int R = SZ, ll val = 0) {
-        lb = L, rb = R;
+    inline void init(int L, int R) {
+        rt = 0, nw = 0, lb = L, rb = R;
+    }
+
+    inline void init(int L, int R, ll val) {
+        rt = 0, nw = 0, lb = L, rb = R;
         for (int i = L; i <= R; i++) set(i, val);
     }
 
     inline int new_node() {
         int id = ++nw;
+        tr[id].lson = tr[id].rson = 0;
         tr[id].sum = tr[id].lz = tr[id].mx = 0;
         return id;
+    }
+
+    inline void work(Node &t, ll sz, ll val) {
+        t.sum = t.sum + sz * val;
+        t.lz = t.lz + val;
     }
 
     inline void push_up(int k) {
@@ -804,31 +387,28 @@ struct Seg {
         ll len = e - s + 1;
         ll lsz = len - len / 2, rsz = len / 2;
         if (tr[k].lz) {
-            tr[ls(k)].sum = tr[ls(k)].sum + lsz * tr[k].lz;
-            tr[rs(k)].sum = tr[rs(k)].sum + rsz * tr[k].lz;
-            tr[ls(k)].lz = tr[ls(k)].lz + tr[k].lz;
-            tr[rs(k)].lz = tr[rs(k)].lz + tr[k].lz;
+            work(tr[ls(k)], lsz, tr[k].lz);
+            work(tr[rs(k)], rsz, tr[k].lz);
             tr[k].lz = 0;
         }
     }
 
-    inline void update(int &k, int s, int e, int L, int R, ll val) {
+    inline void add(int &k, int s, int e, int L, int R, ll val) {
         if (!k) k = new_node();
 
         if (L <= s && e <= R) {
-            tr[k].sum = tr[k].sum + (e - s + 1) * val;
+            work(tr[k], e - s + 1, val);
             tr[k].mx = tr[k].mx + val;
-            tr[k].lz = tr[k].lz + val;
             return;
         }
 
         push_down(k, s, e);
-        if (L <= mid) update(ls(k), s, mid, L, R, val);
-        if (R >= mid + 1) update(rs(k), mid + 1, e, L, R, val);
+        if (L <= mid) add(ls(k), s, mid, L, R, val);
+        if (R >= mid + 1) add(rs(k), mid + 1, e, L, R, val);
         push_up(k);
     }
 
-    inline void modify(int &k, int s, int e, int id, ll val) {
+    inline void update(int &k, int s, int e, int id, ll val) {
         if (!k) k = new_node();
 
         if (s == e) {
@@ -837,8 +417,8 @@ struct Seg {
         }
 
         push_down(k, s, e);
-        if (id <= mid) modify(ls(k), s, mid, id, val);
-        if (id >= mid + 1) modify(rs(k), mid + 1, e, id, val);
+        if (id <= mid) update(ls(k), s, mid, id, val);
+        if (id >= mid + 1) update(rs(k), mid + 1, e, id, val);
         push_up(k);
     }
 
@@ -865,13 +445,13 @@ struct Seg {
         return max(query(ls(k), s, mid, L, R), query(rs(k), mid + 1, e, L, R));
     }
 
-    inline void update(int L, int R, ll val) {
+    inline void add(int L, int R, ll val) {
         if (R < L) return;
-        update(rt, lb, rb, L, R, val);
+        add(rt, lb, rb, L, R, val);
     }
 
-    inline void modify(int id, ll val) {
-        modify(rt, lb, rb, id, val);
+    inline void update(int id, ll val) {
+        update(rt, lb, rb, id, val);
     }
 
     inline void set(int id, ll val) {
@@ -885,7 +465,7 @@ struct Seg {
 };
 // endregion
 
-// region 动态开点区间修改, 维护最小值线段树
+// region 区间修改, 维护最小值线段树
 template<int SZ>
 struct Seg {
 #define mid (s + e >> 1)
@@ -902,18 +482,28 @@ struct Seg {
     int nw;
 
     inline Seg() {
-        lb = 1, rb = SZ;
+        init(1, SZ);
     }
 
-    inline void init(int L = 1, int R = SZ, ll val = 0) {
-        lb = L, rb = R;
+    inline void init(int L, int R) {
+        rt = 0, nw = 0, lb = L, rb = R;
+    }
+
+    inline void init(int L, int R, ll val) {
+        rt = 0, nw = 0, lb = L, rb = R;
         for (int i = L; i <= R; i++) set(i, val);
     }
 
     inline int new_node() {
         int id = ++nw;
+        tr[id].lson = tr[id].rson = 0;
         tr[id].sum = tr[id].lz = tr[id].mi = 0;
         return id;
+    }
+
+    inline void work(Node &t, ll sz, ll val) {
+        t.sum = t.sum + sz * val;
+        t.lz = t.lz + val;
     }
 
     inline void push_up(int k) {
@@ -927,31 +517,28 @@ struct Seg {
         ll len = e - s + 1;
         ll lsz = len - len / 2, rsz = len / 2;
         if (tr[k].lz) {
-            tr[ls(k)].sum = tr[ls(k)].sum + lsz * tr[k].lz;
-            tr[rs(k)].sum = tr[rs(k)].sum + rsz * tr[k].lz;
-            tr[ls(k)].lz = tr[ls(k)].lz + tr[k].lz;
-            tr[rs(k)].lz = tr[rs(k)].lz + tr[k].lz;
+            work(tr[ls(k)], lsz, tr[k].lz);
+            work(tr[rs(k)], rsz, tr[k].lz);
             tr[k].lz = 0;
         }
     }
 
-    inline void update(int &k, int s, int e, int L, int R, ll val) {
+    inline void add(int &k, int s, int e, int L, int R, ll val) {
         if (!k) k = new_node();
 
         if (L <= s && e <= R) {
-            tr[k].sum = tr[k].sum + (e - s + 1) * val;
+            work(tr[k], e - s + 1, val);
             tr[k].mi = tr[k].mi + val;
-            tr[k].lz = tr[k].lz + val;
             return;
         }
 
         push_down(k, s, e);
-        if (L <= mid) update(ls(k), s, mid, L, R, val);
-        if (R >= mid + 1) update(rs(k), mid + 1, e, L, R, val);
+        if (L <= mid) add(ls(k), s, mid, L, R, val);
+        if (R >= mid + 1) add(rs(k), mid + 1, e, L, R, val);
         push_up(k);
     }
 
-    inline void modify(int &k, int s, int e, int id, ll val) {
+    inline void update(int &k, int s, int e, int id, ll val) {
         if (!k) k = new_node();
 
         if (s == e) {
@@ -960,8 +547,8 @@ struct Seg {
         }
 
         push_down(k, s, e);
-        if (id <= mid) modify(ls(k), s, mid, id, val);
-        if (id >= mid + 1) modify(rs(k), mid + 1, e, id, val);
+        if (id <= mid) update(ls(k), s, mid, id, val);
+        if (id >= mid + 1) update(rs(k), mid + 1, e, id, val);
         push_up(k);
     }
 
@@ -988,13 +575,13 @@ struct Seg {
         return min(query(ls(k), s, mid, L, R), query(rs(k), mid + 1, e, L, R));
     }
 
-    inline void update(int L, int R, ll val) {
+    inline void add(int L, int R, ll val) {
         if (R < L) return;
-        update(rt, lb, rb, L, R, val);
+        add(rt, lb, rb, L, R, val);
     }
 
-    inline void modify(int id, ll val) {
-        modify(rt, lb, rb, id, val);
+    inline void update(int id, ll val) {
+        update(rt, lb, rb, id, val);
     }
 
     inline void set(int id, ll val) {
@@ -1008,7 +595,107 @@ struct Seg {
 };
 // endregion
 
-// region 普通线段树分裂
+// region 扫描线线段树
+vector<ll> lsh;
+
+int get_id(int x) {
+    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin();
+}
+
+template<int SZ>
+struct Seg {
+#define mid (s + e >> 1)
+#define ls(x) (tr[x].lson)
+#define rs(x) (tr[x].rson)
+
+    struct Node {
+        int lson, rson;
+        ll sum, v;
+    };
+
+    int lb, rb, rt;
+    Node tr[SZ * 4];
+    int nw;
+
+    inline Seg() {
+        init(1, SZ);
+    }
+
+    inline void init(int L, int R) {
+        rt = 0, nw = 0, lb = L, rb = R;
+    }
+
+    inline void init(int L, int R, ll val) {
+        rt = 0, nw = 0, lb = L, rb = R;
+        for (int i = L; i <= R; i++) set(i, val);
+    }
+
+    inline int new_node() {
+        int id = ++nw;
+        tr[id].lson = tr[id].rson = 0;
+        tr[id].sum = tr[id].v = 0;
+        return id;
+    }
+
+    inline void push_up(int k, int s, int e) {
+        if (tr[k].sum) tr[k].v = lsh[e + 1] - lsh[s];
+        else if (s != e) tr[k].v = tr[ls(k)].v + tr[rs(k)].v;
+        else tr[k].v = 0;
+    }
+
+    inline void add(int &k, int s, int e, int L, int R, ll val) {
+        if (!k) k = new_node();
+
+        if (L <= s && e <= R) {
+            tr[k].sum = tr[k].sum + val;
+            push_up(k, s, e);
+            return;
+        }
+
+        if (L <= mid) add(ls(k), s, mid, L, R, val);
+        if (R >= mid + 1) add(rs(k), mid + 1, e, L, R, val);
+        push_up(k, s, e);
+    }
+
+    inline void set(int &k, int s, int e, int id, ll val) {
+        if (!k) k = new_node();
+
+        if (s == e) {
+            tr[k].sum = val;
+            push_up(k, s, e);
+            return;
+        }
+
+        if (id <= mid) set(ls(k), s, mid, id, val);
+        if (id >= mid + 1) set(rs(k), mid + 1, e, id, val);
+        push_up(k, s, e);
+    }
+
+    inline ll query(int k, int s, int e, int L, int R) {
+        if (L <= s && e <= R) return tr[k].v;
+
+        if (R <= mid) return query(ls(k), s, mid, L, R);
+        if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
+        return query(ls(k), s, mid, L, R) + query(rs(k), mid + 1, e, L, R);
+    }
+
+    inline void add(int L, int R, ll val) {
+        if (R < L) return;
+        add(rt, lb, rb, L, R, val);
+    }
+
+    inline void set(int id, ll val) {
+        set(rt, lb, rb, id, val);
+    }
+
+    inline ll query(int L, int R) {
+        if (R < L) return 0;
+        return query(rt, lb, rb, L, R);
+    }
+};
+// endregion
+
+// region 线段树分裂
 template<int SZ>
 struct Seg {
 #define mid (s + e >> 1)
@@ -1028,7 +715,7 @@ struct Seg {
     int root[SZ + 1], cnt;
 
     inline Seg() {
-        lb = 1, rb = SZ;
+        nw = 0, lb = 1, rb = SZ;
     }
 
     inline void init(int L = 1, int R = SZ, int _cnt = 0) {
@@ -1062,6 +749,7 @@ struct Seg {
 
     inline int new_node() {
         int id = ++nw;
+        tr[id].lson = tr[id].rson = 0;
         return id;
     }
 

@@ -47,7 +47,9 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-// region 区间最小值段树
+vector<double> lsh;
+
+// region 扫描线线段树
 template<int SZ>
 struct Seg {
 #define mid (s + e >> 1)
@@ -56,7 +58,8 @@ struct Seg {
 
     struct Node {
         int lson, rson;
-        ll sum, lz;
+        ll sum;
+        double v;
     };
 
     int lb, rb, rt;
@@ -68,52 +71,39 @@ struct Seg {
     }
 
     inline void init(int L, int R) {
-        rt = 0, nw = 0, lb = L, rb = R;
+        nw = 0, lb = L, rb = R;
     }
 
     inline void init(int L, int R, ll val) {
-        rt = 0, nw = 0, lb = L, rb = R;
+        nw = 0, lb = L, rb = R;
         for (int i = L; i <= R; i++) set(i, val);
     }
 
     inline int new_node() {
         int id = ++nw;
         tr[id].lson = tr[id].rson = 0;
-        tr[id].sum = tr[id].lz = 1e18;
+        tr[id].sum = tr[id].v = 0;
         return id;
     }
 
-    inline void work(Node &t, ll val) {
-        t.sum = min(t.sum, val);
-        t.lz = min(t.lz, val);
+    inline void push_up(int k, int s, int e) {
+        if (tr[k].sum) tr[k].v = lsh[e + 1] - lsh[s];
+        else if (s != e) tr[k].v = tr[ls(k)].v + tr[rs(k)].v;
+        else tr[k].v = 0;
     }
 
-    inline void push_up(int k) {
-        tr[k].sum = min(tr[ls(k)].sum, tr[rs(k)].sum);
-    }
-
-    inline void push_down(int k, int s, int e) {
-        if (!ls(k)) ls(k) = new_node();
-        if (!rs(k)) rs(k) = new_node();
-        if (tr[k].lz) {
-            work(tr[ls(k)], tr[k].lz);
-            work(tr[rs(k)], tr[k].lz);
-            tr[k].lz = 1e18;
-        }
-    }
-
-    inline void update(int &k, int s, int e, int L, int R, ll val) {
+    inline void add(int &k, int s, int e, int L, int R, ll val) {
         if (!k) k = new_node();
 
         if (L <= s && e <= R) {
-            work(tr[k], val);
+            tr[k].sum = tr[k].sum + val;
+            push_up(k, s, e);
             return;
         }
 
-        push_down(k, s, e);
-        if (L <= mid) update(ls(k), s, mid, L, R, val);
-        if (R >= mid + 1) update(rs(k), mid + 1, e, L, R, val);
-        push_up(k);
+        if (L <= mid) add(ls(k), s, mid, L, R, val);
+        if (R >= mid + 1) add(rs(k), mid + 1, e, L, R, val);
+        push_up(k, s, e);
     }
 
     inline void set(int &k, int s, int e, int id, ll val) {
@@ -121,70 +111,91 @@ struct Seg {
 
         if (s == e) {
             tr[k].sum = val;
+            push_up(k, s, e);
             return;
         }
 
-        push_down(k, s, e);
         if (id <= mid) set(ls(k), s, mid, id, val);
         if (id >= mid + 1) set(rs(k), mid + 1, e, id, val);
-        push_up(k);
+        push_up(k, s, e);
     }
 
-    inline ll query(int k, int s, int e, int L, int R) {
-        if (L <= s && e <= R) return tr[k].sum;
+    inline double query(int k, int s, int e, int L, int R) {
+        if (L <= s && e <= R) return tr[k].v;
 
-        push_down(k, s, e);
         if (R <= mid) return query(ls(k), s, mid, L, R);
         if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
-        return min(query(ls(k), s, mid, L, R), query(rs(k), mid + 1, e, L, R));
+        return query(ls(k), s, mid, L, R) + query(rs(k), mid + 1, e, L, R);
     }
 
-    inline void update(int L, int R, ll val) {
+    inline void add(int L, int R, ll val) {
         if (R < L) return;
-        update(rt, lb, rb, L, R, val);
+        add(rt, lb, rb, L, R, val);
     }
 
     inline void set(int id, ll val) {
         set(rt, lb, rb, id, val);
     }
 
-    inline ll query(int L, int R) {
+    inline double query(int L, int R) {
         if (R < L) return 0;
         return query(rt, lb, rb, L, R);
     }
 };
 // endregion
 
-const int N = 5e5 + 10;
+typedef tuple<double, double, double, int> td3i;
 
-int n, Q;
-int a[N];
-ti3 qs[N];
-int ans[N];
+const int N = 10010;
 
-Seg<N> seg;
+int n;
+td3i a[N * 2];
+int ti;
+
+Seg<N * 2> seg;
+
+void init() {
+    lsh = {};
+    for (int i = 1; i <= 2 * n; i++) {
+        auto [_, y1, y2, __] = a[i];
+        lsh.push_back(y1);
+        lsh.push_back(y2);
+    }
+    sort(lsh.begin(), lsh.end());
+    lsh.resize(unique(lsh.begin(), lsh.end()) - lsh.begin());
+}
+
+int get(double x) {
+    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin();
+}
 
 void solve() {
-    sort(qs + 1, qs + Q + 1, [](auto &a, auto &b) {
-        return get<1>(a) < get<1>(b);
+    init();
+
+    int nl = lsh.size();
+    seg.init(0, nl - 2, 0);
+
+    sort(a + 1, a + 2 * n + 1, [](auto &a, auto &b) {
+        return get<0>(a) < get<0>(b);
     });
 
-    seg.init(1, n, 1e9);
-    int pos = 1;
-    unordered_map<int, int> lst;
-    for (int i = 1; i <= Q; i++) {
-        auto [L, R, id] = qs[i];
-        while (pos <= R) {
-            int x = a[pos];
-            if (lst.count(x)) seg.update(1, lst[x], pos - lst[x]);
-            lst[x] = pos++;
+    double ans = 0;
+    for (int i = 1; i <= 2 * n; i++) {
+        auto [x, y1, y2, k] = a[i];
+
+        if (i - 1 >= 1) {
+            auto [px, _, __, ___] = a[i - 1];
+            ans += (x - px) * seg.tr[1].v;
         }
 
-        int ret = seg.query(L, R);
-        ans[id] = ret == 1e9 ? -1 : ret;
+        int L = get(y1), R = get(y2) - 1;
+        seg.add(L, R, k);
     }
 
-    for (int i = 1; i <= Q; i++) cout << ans[i] << "\n";
+    cout << "Test case #" << ++ti << "\n";
+    cout << fixed << setprecision(2);
+    cout << "Total explored area: " << ans << "\n";
+    cout << "\n";
 }
 
 void prework() {
@@ -200,15 +211,14 @@ int main() {
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
 //    cin >> T;
-    while (T--) {
-        cin >> n >> Q;
-        for (int i = 1; i <= n; i++) cin >> a[i];
-        for (int i = 1; i <= Q; i++) {
-            int L, R;
-            cin >> L >> R;
-            qs[i] = {L, R, i};
+    while (cin >> n, n) {
+        int cnt = 0;
+        for (int i = 1; i <= n; i++) {
+            double x1, y1, x2, y2;
+            cin >> x1 >> y1 >> x2 >> y2;
+            a[++cnt] = {x1, y1, y2, 1};
+            a[++cnt] = {x2, y1, y2, -1};
         }
-
         solve();
     }
 

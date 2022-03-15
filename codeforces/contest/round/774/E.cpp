@@ -48,51 +48,46 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 1e6 + 10;
+
 ll n, m;
+int f[22];
 
-// region 埃筛
-int vis[22];
+void init() {
+    vector<int> vis(20 * m + 1);
+    int cnt = 0;
+    for (int i = 1; i <= 20; i++) {
+        for (int j = 1; j <= m; j++) {
+            int x = i * j;
+            if (vis[x]) continue;
 
-void primes(int lim) {
-    memset(vis, 0, sizeof vis);
-    vis[1] = 1;
-    for (int i = 2; i <= lim; i++) {
-        if (vis[i]) continue;
-        for (int j = i; j <= lim / i; j++) vis[i * j] = 1;
+            vis[x] = 1;
+            cnt++;
+        }
+        f[i] = cnt;
     }
 }
-// endregion
 
 void solve() {
-    vector<int> ps;
-    for (int i = 2; i <= 20; i++) {
-        if (!vis[i]) ps.push_back(i);
-    }
-    ll ans = (n - 1) * m + 1;
+    init();
+
+    vector<int> vis(n + 1);
+    ll ans = 1;
     for (int i = 2; i <= n; i++) {
-        while (!ps.empty() && pow(i, ps.back()) > n) ps.pop_back();
-        if (ps.empty()) break;
+        if (vis[i]) continue;
 
-        ll s = 0;
-        int lim = 1 << ps.size();
-        for (int mask = 1; mask < lim; mask++) {
-            int cnt = __builtin_popcount(mask);
-
-            ll tmp = 1;
-            for (int j = 0; j < ps.size(); j++) {
-                if (mask >> j & 1) tmp *= ps[j];
-            }
-            if (cnt & 1) s += m / tmp;
-            else s -= m / tmp;
+        int cnt = 0;
+        for (ll j = i; j <= n; j *= i) {
+            vis[j] = 1;
+            cnt++;
         }
-        ans -= s;
+        ans += f[cnt];
     }
 
     cout << ans << "\n";
 }
 
 void prework() {
-    primes(20);
 }
 
 int main() {

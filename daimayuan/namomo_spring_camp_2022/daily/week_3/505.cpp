@@ -47,78 +47,55 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 2e5 + 10;
+const int N = 1e5 + 10;
 
 int n;
-int g[N * 2], ne[N * 2], h[N], edm;
+int g[N * 2], h[N], ne[N * 2], edm;
 int sz[N];
-
-pii f[N][2];
-int ans[N];
-
-pii& get_max(pii &a, pii &b) {
-    auto [tx1, ty1] = a;
-    auto [tx2, ty2] = b;
-    if (tx1 > tx2) return a;
-    else if (tx1 == tx2 && ty1 < ty2) return a;
-    else return b;
-}
+ll ans;
 
 void add(int u, int v) {
-    g[edm] = v;
-    ne[edm] = h[u], h[u] = edm++;
+    g[edm] = v, ne[edm] = h[u], h[u] = edm++;
 }
 
 void dfs(int u, int fno) {
-    f[u][0] = {0, 1};
-    f[u][1] = {1, sz[u]};
+    sz[u] = 1;
+
     for (int i = h[u]; ~i; i = ne[i]) {
         int v = g[i];
         if (v == fno) continue;
 
         dfs(v, u);
-
-        f[u][1].fi += f[v][0].fi, f[u][1].se += f[v][0].se;
-        pii &mx = get_max(f[v][0], f[v][1]);
-        f[u][0].fi += mx.fi, f[u][0].se += mx.se;
+        sz[u] += sz[v];
     }
 }
 
-void dfs2(int u, int fno, int fc) {
-    if (fc) {
-        ans[u] = 0;
-    } else {
-        pii &mx = get_max(f[u][0], f[u][1]);
-        ans[u] = mx == f[u][1];
-    }
+ll get(ll x) {
+    if (x < 2) return 0;
+    return x * (x - 1) / 2;
+}
+
+void dfs2(int u, int fno) {
+    ll tmp = get(n - 1) - get(n - sz[u]);
 
     for (int i = h[u]; ~i; i = ne[i]) {
         int v = g[i];
         if (v == fno) continue;
 
-        dfs2(v, u, ans[u]);
+        dfs2(v, u);
+        tmp -= get(sz[v]);
     }
+
+    ans -= tmp;
 }
 
 void solve() {
-    if (n == 2) {
-        cout << "2 2\n"
-                "1 1" << "\n";
-        return;
-    }
+    dfs(1, -1);
 
-    dfs(1, 0);
+    ans = 1LL * n * (n - 1) * (n - 2) / 6;
+    dfs2(1, -1);
 
-    pii &mx = get_max(f[1][0], f[1][1]);
-    ans[1] = mx == f[1][1];
-    for (int i = h[1]; ~i; i = ne[i]) {
-        int v = g[i];
-        dfs2(v, 1, ans[1]);
-    }
-
-    cout << mx.fi << " " << mx.se << "\n";
-    for (int i = 1; i <= n; i++) cout << (ans[i] ? sz[i] : 1) << " ";
-    cout << "\n";
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -139,10 +116,9 @@ int main() {
         fill(h, h + n + 1, -1), edm = 0;
 
         for (int i = 1; i <= n - 1; i++) {
-            int u, v;
-            cin >> u >> v;
+            int u, v, cost;
+            cin >> u >> v >> cost;
             add(u, v), add(v, u);
-            sz[u]++, sz[v]++;
         }
 
         solve();

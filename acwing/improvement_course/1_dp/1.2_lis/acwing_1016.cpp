@@ -99,7 +99,7 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-// region 动态开点最大值线段树
+// region 区间修改, 维护最大值线段树
 template<int SZ>
 struct Seg {
 #define mid (s + e >> 1)
@@ -116,17 +116,28 @@ struct Seg {
     int nw;
 
     inline Seg() {
-        lb = 1, rb = SZ;
+        init(1, SZ);
     }
 
-    inline void init(int L = 1, int R = SZ) {
-        lb = L, rb = R;
+    inline void init(int L, int R) {
+        rt = 0, nw = 0, lb = L, rb = R;
+    }
+
+    inline void init(int L, int R, ll val) {
+        rt = 0, nw = 0, lb = L, rb = R;
+        for (int i = L; i <= R; i++) set(i, val);
     }
 
     inline int new_node() {
         int id = ++nw;
+        tr[id].lson = tr[id].rson = 0;
         tr[id].sum = tr[id].lz = tr[id].mx = 0;
         return id;
+    }
+
+    inline void work(Node &t, ll sz, ll val) {
+        t.sum = t.sum + sz * val;
+        t.lz = t.lz + val;
     }
 
     inline void push_up(int k) {
@@ -140,30 +151,28 @@ struct Seg {
         ll len = e - s + 1;
         ll lsz = len - len / 2, rsz = len / 2;
         if (tr[k].lz) {
-            tr[ls(k)].sum = tr[ls(k)].sum + lsz * tr[k].lz;
-            tr[rs(k)].sum = tr[rs(k)].sum + rsz * tr[k].lz;
-            tr[ls(k)].lz = tr[ls(k)].lz + tr[k].lz;
-            tr[rs(k)].lz = tr[rs(k)].lz + tr[k].lz;
+            work(tr[ls(k)], lsz, tr[k].lz);
+            work(tr[rs(k)], rsz, tr[k].lz);
             tr[k].lz = 0;
         }
     }
 
-    inline void update(int &k, int s, int e, int L, int R, ll val) {
+    inline void add(int &k, int s, int e, int L, int R, ll val) {
         if (!k) k = new_node();
 
         if (L <= s && e <= R) {
-            tr[k].sum = tr[k].sum + (e - s + 1) * val;
-            tr[k].lz = tr[k].lz + val;
+            work(tr[k], e - s + 1, val);
+            tr[k].mx = tr[k].mx + val;
             return;
         }
 
         push_down(k, s, e);
-        if (L <= mid) update(ls(k), s, mid, L, R, val);
-        if (R >= mid + 1) update(rs(k), mid + 1, e, L, R, val);
+        if (L <= mid) add(ls(k), s, mid, L, R, val);
+        if (R >= mid + 1) add(rs(k), mid + 1, e, L, R, val);
         push_up(k);
     }
 
-    inline void modify(int &k, int s, int e, int id, ll val) {
+    inline void update(int &k, int s, int e, int id, ll val) {
         if (!k) k = new_node();
 
         if (s == e) {
@@ -172,8 +181,22 @@ struct Seg {
         }
 
         push_down(k, s, e);
-        if (id <= mid) modify(ls(k), s, mid, id, val);
-        if (id >= mid + 1) modify(rs(k), mid + 1, e, id, val);
+        if (id <= mid) update(ls(k), s, mid, id, val);
+        if (id >= mid + 1) update(rs(k), mid + 1, e, id, val);
+        push_up(k);
+    }
+
+    inline void set(int &k, int s, int e, int id, ll val) {
+        if (!k) k = new_node();
+
+        if (s == e) {
+            tr[k].sum = tr[k].mx = val;
+            return;
+        }
+
+        push_down(k, s, e);
+        if (id <= mid) set(ls(k), s, mid, id, val);
+        if (id >= mid + 1) set(rs(k), mid + 1, e, id, val);
         push_up(k);
     }
 
@@ -186,13 +209,17 @@ struct Seg {
         return max(query(ls(k), s, mid, L, R), query(rs(k), mid + 1, e, L, R));
     }
 
-    inline void update(int L, int R, ll val) {
+    inline void add(int L, int R, ll val) {
         if (R < L) return;
-        update(rt, lb, rb, L, R, val);
+        add(rt, lb, rb, L, R, val);
     }
 
-    inline void modify(int id, ll val) {
-        modify(rt, lb, rb, id, val);
+    inline void update(int id, ll val) {
+        update(rt, lb, rb, id, val);
+    }
+
+    inline void set(int id, ll val) {
+        set(rt, lb, rb, id, val);
     }
 
     inline ll query(int L, int R) {
@@ -222,14 +249,14 @@ void solve() {
     lsh.resize(unique(lsh.begin(), lsh.end()) - lsh.begin());
 
     int sz = lsh.size();
-    seg.init(1, sz);
+    seg.init(1, sz, 0);
     ll f[n + 1];
     memset(f, 0, sizeof f);
     for (int i = 1; i <= n; i++) {
         int x = get_id(va[i]);
         ll pre = seg.query(1, x - 1);
         f[i] = pre + va[i];
-        seg.modify(x, f[i]);
+        seg.update(x, f[i]);
     }
 
     cout << *max_element(f + 1, f + n + 1) << "\n";

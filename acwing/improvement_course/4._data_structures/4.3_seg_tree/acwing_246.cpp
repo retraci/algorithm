@@ -47,7 +47,7 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-// region 区间最小值段树
+// region 区间修改, 维护最大值线段树
 template<int SZ>
 struct Seg {
 #define mid (s + e >> 1)
@@ -56,7 +56,7 @@ struct Seg {
 
     struct Node {
         int lson, rson;
-        ll sum, lz;
+        ll sum, v;
     };
 
     int lb, rb, rt;
@@ -68,51 +68,41 @@ struct Seg {
     }
 
     inline void init(int L, int R) {
-        rt = 0, nw = 0, lb = L, rb = R;
+        nw = 0, lb = L, rb = R;
     }
 
     inline void init(int L, int R, ll val) {
-        rt = 0, nw = 0, lb = L, rb = R;
+        nw = 0, lb = L, rb = R;
         for (int i = L; i <= R; i++) set(i, val);
     }
 
     inline int new_node() {
         int id = ++nw;
         tr[id].lson = tr[id].rson = 0;
-        tr[id].sum = tr[id].lz = 1e18;
+        tr[id].sum = tr[id].v = 0;
         return id;
     }
 
-    inline void work(Node &t, ll val) {
-        t.sum = min(t.sum, val);
-        t.lz = min(t.lz, val);
+    inline void push_up(Node &fa, Node &ls, Node &rs) {
+        fa.sum = ls.sum + rs.sum;
+        fa.v = __gcd(ls.v, rs.v);
     }
 
     inline void push_up(int k) {
-        tr[k].sum = min(tr[ls(k)].sum, tr[rs(k)].sum);
+        push_up(tr[k], tr[ls(k)], tr[rs(k)]);
     }
 
-    inline void push_down(int k, int s, int e) {
-        if (!ls(k)) ls(k) = new_node();
-        if (!rs(k)) rs(k) = new_node();
-        if (tr[k].lz) {
-            work(tr[ls(k)], tr[k].lz);
-            work(tr[rs(k)], tr[k].lz);
-            tr[k].lz = 1e18;
-        }
-    }
-
-    inline void update(int &k, int s, int e, int L, int R, ll val) {
+    inline void add(int &k, int s, int e, int L, int R, ll val) {
         if (!k) k = new_node();
 
         if (L <= s && e <= R) {
-            work(tr[k], val);
+            tr[k].sum = tr[k].sum + (e - s + 1) * val;
+            tr[k].v = tr[k].sum;
             return;
         }
 
-        push_down(k, s, e);
-        if (L <= mid) update(ls(k), s, mid, L, R, val);
-        if (R >= mid + 1) update(rs(k), mid + 1, e, L, R, val);
+        if (L <= mid) add(ls(k), s, mid, L, R, val);
+        if (R >= mid + 1) add(rs(k), mid + 1, e, L, R, val);
         push_up(k);
     }
 
@@ -120,71 +110,72 @@ struct Seg {
         if (!k) k = new_node();
 
         if (s == e) {
-            tr[k].sum = val;
+            tr[k].sum = tr[k].v = val;
             return;
         }
 
-        push_down(k, s, e);
         if (id <= mid) set(ls(k), s, mid, id, val);
         if (id >= mid + 1) set(rs(k), mid + 1, e, id, val);
         push_up(k);
     }
 
-    inline ll query(int k, int s, int e, int L, int R) {
-        if (L <= s && e <= R) return tr[k].sum;
+    inline Node query(int k, int s, int e, int L, int R) {
+        if (L <= s && e <= R) return tr[k];
 
-        push_down(k, s, e);
         if (R <= mid) return query(ls(k), s, mid, L, R);
         if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
-        return min(query(ls(k), s, mid, L, R), query(rs(k), mid + 1, e, L, R));
+
+        Node ls = query(ls(k), s, mid, L, R);
+        Node rs = query(rs(k), mid + 1, e, L, R);
+        Node res;
+        push_up(res, ls, rs);
+        return res;
     }
 
-    inline void update(int L, int R, ll val) {
+    inline void add(int L, int R, ll val) {
         if (R < L) return;
-        update(rt, lb, rb, L, R, val);
+        add(rt, lb, rb, L, R, val);
     }
 
     inline void set(int id, ll val) {
         set(rt, lb, rb, id, val);
     }
 
-    inline ll query(int L, int R) {
-        if (R < L) return 0;
+    inline Node query(int L, int R) {
+        if (R < L) return {};
         return query(rt, lb, rb, L, R);
     }
 };
 // endregion
 
-const int N = 5e5 + 10;
+const int N = 500010;
 
 int n, Q;
-int a[N];
-ti3 qs[N];
-int ans[N];
+ll a[N];
 
 Seg<N> seg;
 
 void solve() {
-    sort(qs + 1, qs + Q + 1, [](auto &a, auto &b) {
-        return get<1>(a) < get<1>(b);
-    });
+    seg.init(1, n + 1);
+    for (int i = 1; i <= n; i++) seg.set(i, a[i] - a[i - 1]);
 
-    seg.init(1, n, 1e9);
-    int pos = 1;
-    unordered_map<int, int> lst;
-    for (int i = 1; i <= Q; i++) {
-        auto [L, R, id] = qs[i];
-        while (pos <= R) {
-            int x = a[pos];
-            if (lst.count(x)) seg.update(1, lst[x], pos - lst[x]);
-            lst[x] = pos++;
+    while (Q--) {
+        string op;
+        cin >> op;
+        if (op == "Q") {
+            int L, R;
+            cin >> L >> R;
+
+            ll al = seg.query(1, L).sum;
+            cout << abs(__gcd(al, seg.query(L + 1, R).v)) << "\n";
+        } else {
+            ll L, R, x;
+            cin >> L >> R >> x;
+
+            seg.add(L, L, x);
+            seg.add(R + 1, R + 1, -x);
         }
-
-        int ret = seg.query(L, R);
-        ans[id] = ret == 1e9 ? -1 : ret;
     }
-
-    for (int i = 1; i <= Q; i++) cout << ans[i] << "\n";
 }
 
 void prework() {
@@ -203,12 +194,6 @@ int main() {
     while (T--) {
         cin >> n >> Q;
         for (int i = 1; i <= n; i++) cin >> a[i];
-        for (int i = 1; i <= Q; i++) {
-            int L, R;
-            cin >> L >> R;
-            qs[i] = {L, R, i};
-        }
-
         solve();
     }
 
