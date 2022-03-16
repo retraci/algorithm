@@ -2,76 +2,194 @@
 #include <cstdio>
 #include <algorithm>
 #include <cstring>
+#include <numeric>
+#include <iomanip>
 #include <vector>
+#include <queue>
+#include <stack>
+#include <set>
+#include <map>
+#include <unordered_set>
+#include <unordered_map>
+#include <bitset>
+
+// region general
+#define ll long long
+#define ld long double
+#define ull unsigned long long
+#define fi first
+#define se second
+
+typedef std::pair<int, int> pii;
+typedef std::pair<ll, ll> pll;
+typedef std::tuple<int, int, int> ti3;
+typedef std::tuple<ll, ll, ll> tl3;
+typedef std::tuple<int, int, int, int> ti4;
+typedef std::tuple<ll, ll, ll, ll> tl4;
+
+inline void debug() {
+    std::cout << "\n";
+}
+
+template<class T, class... OtherArgs>
+inline void debug(T &&var, OtherArgs &&... args) {
+    std::cout << std::forward<T>(var) << " ";
+    debug(std::forward<OtherArgs>(args)...);
+}
+// endregion
+// region grid_delta
+namespace grid_delta {
+    // 上, 右, 下, 左  |  左上, 右上, 右下, 左下
+    const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+}
+// endregion
 
 using namespace std;
+using namespace grid_delta;
 
-#define ll long long
-#define mid (left + right >> 1)
+// region 主席树
+template<int SZ>
+struct Seg {
+#define mid (s + e >> 1)
+#define ls(x) (tr[x].lson)
+#define rs(x) (tr[x].rson)
 
-struct Node {
-    int left, right, ls, rs, sum;
+    struct Node {
+        int lson, rson;
+        ll sum;
+    };
+
+    int lb, rb, mem;
+    Node tr[32 * SZ];
+    int root[SZ];
+
+    inline Seg() {
+        init(1, SZ);
+    }
+
+    inline void init(int L, int R) {
+        mem = 0, lb = L, rb = R;
+    }
+
+    inline int new_node() {
+        int id = ++mem;
+        tr[id].lson = tr[id].rson = 0;
+        tr[id].sum = 0;
+        return id;
+    }
+
+    inline void push_up(int k) {
+        tr[k].sum = tr[ls(k)].sum + tr[rs(k)].sum;
+    }
+
+    inline void build(ll a[]) {
+        root[0] = build(lb, rb, a);
+    }
+
+    inline int build(int s, int e, ll a[]) {
+        int k = new_node();
+
+        if (s == e) {
+            tr[k].sum = a[s];
+            return k;
+        }
+
+        ls(k) = build(s, mid, a);
+        rs(k) = build(mid + 1, e, a);
+        push_up(k);
+        return k;
+    }
+
+    inline int insert(int p, int s, int e, int id, ll val) {
+        int k = new_node();
+        tr[k] = tr[p];
+
+        if (s == e) {
+            tr[k].sum = tr[k].sum + val;
+            return k;
+        }
+
+        if (id <= mid) ls(k) = insert(ls(p), s, mid, id, val);
+        if (id >= mid + 1) rs(k) = insert(rs(p), mid + 1, e, id, val);
+        push_up(k);
+        return k;
+    }
+
+    inline int set(int p, int s, int e, int id, ll val) {
+        int k = new_node();
+        tr[k] = tr[p];
+
+        if (s == e) {
+            tr[k].sum = val;
+            return k;
+        }
+
+        if (id <= mid) ls(k) = set(ls(p), s, mid, id, val);
+        if (id >= mid + 1) rs(k) = set(rs(p), mid + 1, e, id, val);
+        push_up(k);
+        return k;
+    }
+
+    inline ll query(int k, int s, int e, int L, int R) {
+        if (L <= s && e <= R) return tr[k].sum;
+
+        if (R <= mid) return query(ls(k), s, mid, L, R);
+        if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
+        return query(ls(k), s, mid, L, R) + query(rs(k), mid + 1, e, L, R);
+    }
+
+    inline ll query_k(int k, int p, int s, int e, ll x) {
+        if (s == e) return s;
+        ll cnt = tr[ls(k)].sum - tr[ls(p)].sum;
+
+        if (x <= cnt) return query_k(ls(k), ls(p), s, mid, x);
+        else return query_k(rs(k), rs(p), mid + 1, e, x - cnt);
+    }
+
+    inline void insert(int nv, int pv, int id, ll val) {
+        root[nv] = insert(root[pv], lb, rb, id, val);
+    }
+
+    inline void set(int nv, int pv, int id, ll val) {
+        root[nv] = set(root[pv], lb, rb, id, val);
+    }
+
+    inline ll query(int v, int L, int R) {
+        if (R < L) return 0;
+        return query(root[v], lb, rb, L, R);
+    }
+
+    inline ll query_k(int L, int R, ll x) {
+        return query_k(root[R], root[L - 1], lb, rb, x);
+    }
 };
+// endregion
 
-const int N = 2e5 + 10;
+const int N = 1e6 + 10;
 
 int n, m;
-int va[N];
-int root[N];
-Node tr[N * 32];
-int tt;
-vector<int> lsh;
-
-int get_id(int x) { return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin() + 1; }
-
-int build(int left, int right) {
-    int now = ++tt; tr[now].sum = 0;
-    tr[now].left = left, tr[now].right = right;
-
-    if (left == right) return now;
-    tr[now].ls = build(left, mid);
-    tr[now].rs = build(mid + 1, right);
-
-    return now;
-}
-
-int update(int pre, int left, int right, int val) {
-    int now = ++tt; tr[now] = tr[pre];
-
-    tr[now].sum++;
-
-    if (left == right) return now;
-    if (val > mid) tr[now].rs = update(tr[pre].rs, mid + 1, right, val);
-    else tr[now].ls = update(tr[pre].ls, left, mid, val);
-
-    return now;
-}
-
-int query(int pre, int now, int left, int right, int k) {
-    if (left == right) return left;
-
-    int tmp = tr[tr[now].ls].sum - tr[tr[pre].ls].sum;
-    if (k <= tmp) return query(tr[pre].ls, tr[now].ls, left, mid, k);
-    else return query(tr[pre].rs, tr[now].rs, mid + 1, right, k - tmp);
-}
+ll a[N];
+Seg<N> seg;
 
 void solve() {
-    for (int i = 1; i <= n; i++) lsh.push_back(va[i]);
-    sort(lsh.begin(), lsh.end());
-    lsh.erase(unique(lsh.begin(), lsh.end()), lsh.end());
-    int sz = lsh.size();
-
-    root[0] = build(1, sz);
-    for (int i = 1; i <= n; i++) {
-        int id = get_id(va[i]);
-        root[i] = update(root[i - 1], 1, sz, id);
-    }
+    seg.init(1, n);
+    seg.build(a);
 
     for (int i = 1; i <= m; i++) {
-        int a, b, c;
-        cin >> a >> b >> c;
-        cout << lsh[query(root[a - 1], root[b], 1, sz, c) - 1] << endl;
+        int v, op, id, val;
+        cin >> v >> op >> id;
+        if (op == 1) {
+            cin >> val;
+
+            seg.set(i, v, id, val);
+        } else {
+            cout << seg.query(v, id, id) << endl;
+            seg.root[i] = seg.root[v];
+        }
     }
+}
+
+void prework() {
 }
 
 int main() {
@@ -80,10 +198,15 @@ int main() {
     freopen("../out.txt", "w", stdout);
 #endif
 
-    ios::sync_with_stdio(false);
-    cin >> n >> m;
-    for (int i = 1; i <= n; i++) cin >> va[i];
-    solve();
+    prework();
+    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+    int T = 1;
+//    cin >> T;
+    while (T--) {
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) cin >> a[i];
+        solve();
+    }
 
     return 0;
 }

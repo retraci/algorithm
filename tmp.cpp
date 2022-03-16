@@ -13,68 +13,71 @@
 #include <unordered_map>
 #include <bitset>
 
-// region general
-#define ll long long
-#define ld long double
-#define ull unsigned long long
-#define fi first
-#define se second
-
-typedef std::pair<int, int> pii;
-typedef std::pair<ll, ll> pll;
-typedef std::tuple<int, int, int> ti3;
-typedef std::tuple<ll, ll, ll> tl3;
-typedef std::tuple<int, int, int, int> ti4;
-typedef std::tuple<ll, ll, ll, ll> tl4;
-
-inline void debug() {
-    std::cout << "\n";
-}
-
-template<class T, class... OtherArgs>
-inline void debug(T &&var, OtherArgs &&... args) {
-    std::cout << std::forward<T>(var) << " ";
-    debug(std::forward<OtherArgs>(args)...);
-}
-// endregion
-// region grid_delta
-namespace grid_delta {
-    // 上, 右, 下, 左  |  左上, 右上, 右下, 左下
-    const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
-}
-// endregion
-
+#define N 200050
 using namespace std;
-using namespace grid_delta;
 
-const int N = 5010;
-
-int n;
-ll v[N], c[N];
-
-void solve() {
-    ll s[n + 1];
-    s[0] = 0;
-    for (int i = 1; i <= n; i++) s[i] = s[i - 1] + v[i] * c[i];
-
-    ll delta = 0;
-    ll f[n + 1][n + 1];
-    memset(f, 0, sizeof f);
-    for (int i = 1; i <= n; i++) f[i][i] = v[i] * c[i];
-    for (int len = 2; len <= n; len++) {
-        for (int L = 1; L + len - 1 <= n; L++) {
-            int R = L + len - 1;
-
-            f[L][R] = f[L + 1][R - 1] + v[L] * c[R] + v[R] * c[L];
-            ll tmp = f[L][R] - (s[R] - s[L - 1]);
-            delta = max(delta, tmp);
-        }
+int read() {
+    int cnt = 0, f = 1;
+    char ch = 0;
+    while (!isdigit(ch)) {
+        ch = getchar();
+        if (ch == '-') f = -1;
     }
-
-    cout << s[n] + delta << "\n";
+    while (isdigit(ch)) cnt = (cnt << 3) + (cnt << 1) + (ch - '0'), ch = getchar();
+    return cnt * f;
 }
 
-void prework() {
+const int inf = 0x3fffffff;
+vector<int> v[N];
+int mx;
+int first[N], nxt[N], to[N], tot;
+
+void add(int x, int y) { nxt[++tot] = first[x], first[x] = tot, to[tot] = y; }
+
+int n, root, m, a[N], rt[N], cnt, lastans;
+int dep[N], st[N], ed[N], sign;
+struct Node {
+    int ls, rs, val;
+} t[N * 30];
+
+void Build(int &x, int l, int r) {
+    x = ++cnt;
+    t[x].val = inf;
+    if (l == r) return;
+    int mid = (l + r) >> 1;
+    Build(t[x].ls, l, mid);
+    Build(t[x].rs, mid + 1, r);
+}
+
+void Insert(int &x, int last, int l, int r, int pos, int val) {
+    x = ++cnt;
+    t[x] = t[last];
+    t[x].val = min(t[x].val, val);
+    if (l == r) return;
+    int mid = (l + r) >> 1;
+    if (pos <= mid) Insert(t[x].ls, t[last].ls, l, mid, pos, val);
+    else Insert(t[x].rs, t[last].rs, mid + 1, r, pos, val);
+}
+
+int Quary(int x, int l, int r, int L, int R) {
+    if (L <= l && r <= R) return t[x].val;
+    int mid = (l + r) >> 1, ans = inf;
+    if (L <= mid) ans = min(ans, Quary(t[x].ls, l, mid, L, R));
+    if (R > mid) ans = min(ans, Quary(t[x].rs, mid + 1, r, L, R));
+    return ans;
+}
+
+void dfs(int u, int fa) {
+    st[u] = ++sign;
+    v[dep[u]].push_back(u);
+    mx = max(mx, dep[u]);
+    for (int i = first[u]; i; i = nxt[i]) {
+        int t = to[i];
+        if (t == fa) continue;
+        dep[t] = dep[u] + 1;
+        dfs(t, u);
+    }
+    ed[u] = sign;
 }
 
 int main() {
@@ -83,16 +86,30 @@ int main() {
     freopen("../out.txt", "w", stdout);
 #endif
 
-    prework();
-    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
-    int T = 1;
-//    cin >> T;
-    while (T--) {
-        cin >> n;
-        for (int i = 1; i <= n; i++) cin >> v[i];
-        for (int i = 1; i <= n; i++) cin >> c[i];
-        solve();
+    n = read(), root = read();
+    Build(rt[0], 1, n);
+    for (int i = 1; i <= n; i++) a[i] = read();
+    for (int i = 1; i < n; i++) {
+        int x = read(), y = read();
+        add(x, y);
+        add(y, x);
     }
-
+    dep[root] = 1;
+    dfs(root, 0);
+    for (int i = 1; i <= mx; i++) {
+        rt[i] = rt[i - 1];
+        for (int j = 0; j < v[i].size(); j++) {
+            cout << i << " " << st[v[i][j]] << " " << a[v[i][j]] << "\n";
+            Insert(rt[i], rt[i], 1, n, st[v[i][j]], a[v[i][j]]);
+        }
+    }
+    m = read();
+    while (m--) {
+        int u = (read() + lastans) % n + 1, k = (read() + lastans) % n;
+        int d = min(mx, dep[u] + k);
+        cout << d << " " << st[u] << " " << ed[u] << "\n";
+        lastans = Quary(rt[d], 1, n, st[u], ed[u]);
+        printf("%d\n", lastans);
+    }
     return 0;
 }

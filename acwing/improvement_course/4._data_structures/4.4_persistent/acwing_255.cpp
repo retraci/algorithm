@@ -165,10 +165,10 @@ struct Seg {
 };
 // endregion
 
-const int N = 2e5 + 10;
+const int N = 1e5 + 10;
 
-int n, m;
-ll a[N];
+int n, Q;
+int a[N];
 
 vector<int> lsh;
 Seg<N> seg;
@@ -180,19 +180,19 @@ int get(int x) {
 void init() {
     for (int i = 1; i <= n; i++) lsh.push_back(a[i]);
     sort(lsh.begin(), lsh.end());
-    lsh.erase(unique(lsh.begin(), lsh.end()), lsh.end());
+    lsh.resize(unique(lsh.begin(), lsh.end()) - lsh.begin());
 }
 
 void solve() {
     init();
-    int nl = lsh.size();
 
+    int nl = lsh.size();
     seg.init(0, nl - 1);
     for (int i = 1; i <= n; i++) {
         seg.insert(i, i - 1, get(a[i]), 1);
     }
 
-    for (int i = 1; i <= m; i++) {
+    while (Q--) {
         int L, R, x;
         cin >> L >> R >> x;
 
@@ -215,7 +215,7 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n >> m;
+        cin >> n >> Q;
         for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }

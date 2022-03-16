@@ -59,25 +59,26 @@ struct Seg {
         ll sum, lz;
     };
 
-    int lb, rb, rt;
+    int lb, rb, rt, mem;
     Node tr[SZ * 4];
-    int nw;
 
     inline Seg() {
         init(1, SZ);
     }
 
     inline void init(int L, int R) {
-        rt = 0, nw = 0, lb = L, rb = R;
+        rt = 0, mem = 0, lb = L, rb = R;
+        tr[0].lson = tr[0].rson = 0;
+        tr[0].sum = tr[0].lz = 0;
     }
 
     inline void init(int L, int R, ll val) {
-        rt = 0, nw = 0, lb = L, rb = R;
+        init(L, R);
         for (int i = L; i <= R; i++) set(i, val);
     }
 
     inline int new_node() {
-        int id = ++nw;
+        int id = ++mem;
         tr[id].lson = tr[id].rson = 0;
         tr[id].sum = tr[id].lz = 0;
         return id;

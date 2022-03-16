@@ -197,3 +197,12 @@ add_executable(acwing_246 acwing/improvement_course/4._data_structures/4.3_seg_t
 
 add_executable(acwing_247 acwing/improvement_course/4._data_structures/4.3_seg_tree/acwing_247.cpp)
 add_executable(acwing_1277 acwing/improvement_course/4._data_structures/4.3_seg_tree/acwing_1277.cpp)
+add_executable(555 daimayuan/namomo_spring_camp_2022/daily/week_3/555.cpp)
+add_executable(556 daimayuan/namomo_spring_camp_2022/daily/week_3/556.cpp)
+add_executable(acwing_256 acwing/improvement_course/4._data_structures/4.4_persistent/acwing_256.cpp)
+add_executable(acwing_255 acwing/improvement_course/4._data_structures/4.4_persistent/acwing_255.cpp)
+add_executable(P3919 luogu/practice/persistent_tree/P3919.cpp)
+add_executable(P3834 luogu/practice/persistent_tree/P3834.cpp)
+add_executable(CF1514D codeforces/practice/persistent_data_structures/CF1514D.cpp)
+add_executable(CF840D codeforces/practice/persistent_data_structures/CF840D.cpp)
+add_executable(CF893F codeforces/practice/persistent_data_structures/CF893F.cpp)

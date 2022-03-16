@@ -100,7 +100,7 @@ struct Seg {
         return k;
     }
 
-    inline int insert(int p, int s, int e, int id, ll val) {
+    inline int add(int p, int s, int e, int id, ll val) {
         int k = new_node();
         tr[k] = tr[p];
 
@@ -109,8 +109,8 @@ struct Seg {
             return k;
         }
 
-        if (id <= mid) ls(k) = insert(ls(p), s, mid, id, val);
-        if (id >= mid + 1) rs(k) = insert(rs(p), mid + 1, e, id, val);
+        if (id <= mid) ls(k) = add(ls(p), s, mid, id, val);
+        if (id >= mid + 1) rs(k) = add(rs(p), mid + 1, e, id, val);
         push_up(k);
         return k;
     }
@@ -138,16 +138,30 @@ struct Seg {
         return query(ls(k), s, mid, L, R) + query(rs(k), mid + 1, e, L, R);
     }
 
-    inline ll query_k(int k, int p, int s, int e, ll x) {
+    inline ll query_kth(int k, int p, int s, int e, ll x) {
         if (s == e) return s;
         ll cnt = tr[ls(k)].sum - tr[ls(p)].sum;
 
-        if (x <= cnt) return query_k(ls(k), ls(p), s, mid, x);
-        else return query_k(rs(k), rs(p), mid + 1, e, x - cnt);
+        if (x <= cnt) return query_kth(ls(k), ls(p), s, mid, x);
+        else return query_kth(rs(k), rs(p), mid + 1, e, x - cnt);
     }
 
-    inline void insert(int nv, int pv, int id, ll val) {
-        root[nv] = insert(root[pv], lb, rb, id, val);
+    inline ll query_lim(int k, int p, int s, int e, ll lim) {
+        if (s == e) {
+            if (tr[k].sum - tr[p].sum >= lim) return e;
+            return 1e9;
+        }
+
+        ll res = 1e9;
+        ll lc = tr[ls(k)].sum - tr[ls(p)].sum;
+        ll rc = tr[rs(k)].sum - tr[rs(p)].sum;
+        if (lc >= lim) res = min(res, query_lim(ls(k), ls(p), s, mid, lim));
+        if (rc >= lim) res = min(res, query_lim(rs(k), rs(p), mid + 1, e, lim));
+        return res;
+    }
+
+    inline void add(int nv, int pv, int id, ll val) {
+        root[nv] = add(root[pv], lb, rb, id, val);
     }
 
     inline void set(int nv, int pv, int id, ll val) {
@@ -159,45 +173,36 @@ struct Seg {
         return query(root[v], lb, rb, L, R);
     }
 
-    inline ll query_k(int L, int R, ll x) {
-        return query_k(root[R], root[L - 1], lb, rb, x);
+    inline ll query_kth(int L, int R, ll x) {
+        return query_kth(root[R], root[L - 1], lb, rb, x);
+    }
+
+    inline ll query_lim(int L, int R, ll lim) {
+        return query_lim(root[R], root[L - 1], lb, rb, lim);
     }
 };
 // endregion
 
-const int N = 2e5 + 10;
+const int N = 3e5 + 10;
 
-int n, m;
-ll a[N];
+int n, Q;
+int a[N];
 
-vector<int> lsh;
 Seg<N> seg;
 
-int get(int x) {
-    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin();
-}
-
-void init() {
-    for (int i = 1; i <= n; i++) lsh.push_back(a[i]);
-    sort(lsh.begin(), lsh.end());
-    lsh.erase(unique(lsh.begin(), lsh.end()), lsh.end());
-}
-
 void solve() {
-    init();
-    int nl = lsh.size();
-
-    seg.init(0, nl - 1);
+    seg.init(1, n);
     for (int i = 1; i <= n; i++) {
-        seg.insert(i, i - 1, get(a[i]), 1);
+        seg.add(i, i - 1, a[i], 1);
     }
 
-    for (int i = 1; i <= m; i++) {
+    while (Q--) {
         int L, R, x;
         cin >> L >> R >> x;
 
-        int tmp = seg.query_k(L, R, x);
-        cout << lsh[tmp] << "\n";
+        int lim = (R - L + 1) / x + 1;
+        int cnt = seg.query_lim(L, R, lim);
+        cout << (cnt == 1e9 ? -1 : cnt) << "\n";
     }
 }
 
@@ -215,7 +220,7 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n >> m;
+        cin >> n >> Q;
         for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }

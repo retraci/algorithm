@@ -10,25 +10,26 @@ struct Seg {
         ll sum, lz;
     };
 
-    int lb, rb, rt;
+    int lb, rb, rt, mem;
     Node tr[SZ * 4];
-    int nw;
 
     inline Seg() {
         init(1, SZ);
     }
 
     inline void init(int L, int R) {
-        rt = 0, nw = 0, lb = L, rb = R;
+        rt = 0, mem = 0, lb = L, rb = R;
+        tr[0].lson = tr[0].rson = 0;
+        tr[0].sum = tr[0].lz = 0;
     }
 
     inline void init(int L, int R, ll val) {
-        rt = 0, nw = 0, lb = L, rb = R;
+        init(L, R);
         for (int i = L; i <= R; i++) set(i, val);
     }
 
     inline int new_node() {
-        int id = ++nw;
+        int id = ++mem;
         tr[id].lson = tr[id].rson = 0;
         tr[id].sum = tr[id].lz = 0;
         return id;
@@ -131,25 +132,26 @@ struct Seg {
         ll sum, lz;
     };
 
-    int lb, rb, rt;
+    int lb, rb, rt, mem;
     Node tr[SZ * 4];
-    int nw;
 
     inline Seg() {
         init(1, SZ);
     }
 
     inline void init(int L, int R) {
-        rt = 0, nw = 0, lb = L, rb = R;
+        rt = 0, mem = 0, lb = L, rb = R;
+        tr[0].lson = tr[0].rson = 0;
+        tr[0].sum = tr[0].lz = 0;
     }
 
     inline void init(int L, int R, ll val) {
-        rt = 0, nw = 0, lb = L, rb = R;
+        init(L, R);
         for (int i = L; i <= R; i++) set(i, val);
     }
 
     inline int new_node() {
-        int id = ++nw;
+        int id = ++mem;
         tr[id].lson = tr[id].rson = 0;
         tr[id].sum = tr[id].lz = 0;
         return id;
@@ -239,25 +241,26 @@ struct Seg {
         ll sum, lz;
     };
 
-    int lb, rb, rt;
+    int lb, rb, rt, mem;
     Node tr[SZ * 4];
-    int nw;
 
     inline Seg() {
         init(1, SZ);
     }
 
     inline void init(int L, int R) {
-        rt = 0, nw = 0, lb = L, rb = R;
+        rt = 0, mem = 0, lb = L, rb = R;
+        tr[0].lson = tr[0].rson = 0;
+        tr[0].sum = tr[0].lz = 1e18;
     }
 
     inline void init(int L, int R, ll val) {
-        rt = 0, nw = 0, lb = L, rb = R;
+        init(L, R);
         for (int i = L; i <= R; i++) set(i, val);
     }
 
     inline int new_node() {
-        int id = ++nw;
+        int id = ++mem;
         tr[id].lson = tr[id].rson = 0;
         tr[id].sum = tr[id].lz = 1e18;
         return id;
@@ -347,25 +350,26 @@ struct Seg {
         ll sum, lz, mx;
     };
 
-    int lb, rb, rt;
+    int lb, rb, rt, mem;
     Node tr[SZ * 4];
-    int nw;
 
     inline Seg() {
         init(1, SZ);
     }
 
     inline void init(int L, int R) {
-        rt = 0, nw = 0, lb = L, rb = R;
+        rt = 0, mem = 0, lb = L, rb = R;
+        tr[0].lson = tr[0].rson = 0;
+        tr[0].sum = tr[0].lz = tr[0].mx = 0;
     }
 
     inline void init(int L, int R, ll val) {
-        rt = 0, nw = 0, lb = L, rb = R;
+        init(L, R);
         for (int i = L; i <= R; i++) set(i, val);
     }
 
     inline int new_node() {
-        int id = ++nw;
+        int id = ++mem;
         tr[id].lson = tr[id].rson = 0;
         tr[id].sum = tr[id].lz = tr[id].mx = 0;
         return id;
@@ -477,25 +481,26 @@ struct Seg {
         ll sum, lz, mi;
     };
 
-    int lb, rb, rt;
+    int lb, rb, rt, mem;
     Node tr[SZ * 4];
-    int nw;
 
     inline Seg() {
         init(1, SZ);
     }
 
     inline void init(int L, int R) {
-        rt = 0, nw = 0, lb = L, rb = R;
+        rt = 0, mem = 0, lb = L, rb = R;
+        tr[0].lson = tr[0].rson = 0;
+        tr[0].sum = tr[0].lz = tr[0].mi = 0;
     }
 
     inline void init(int L, int R, ll val) {
-        rt = 0, nw = 0, lb = L, rb = R;
+        init(L, R);
         for (int i = L; i <= R; i++) set(i, val);
     }
 
     inline int new_node() {
-        int id = ++nw;
+        int id = ++mem;
         tr[id].lson = tr[id].rson = 0;
         tr[id].sum = tr[id].lz = tr[id].mi = 0;
         return id;
@@ -613,25 +618,26 @@ struct Seg {
         ll sum, v;
     };
 
-    int lb, rb, rt;
+    int lb, rb, rt, mem;
     Node tr[SZ * 4];
-    int nw;
 
     inline Seg() {
         init(1, SZ);
     }
 
     inline void init(int L, int R) {
-        rt = 0, nw = 0, lb = L, rb = R;
+        rt = 0, mem = 0, lb = L, rb = R;
+        tr[0].lson = tr[0].rson = 0;
+        tr[0].sum = tr[0].v = 0;
     }
 
     inline void init(int L, int R, ll val) {
-        rt = 0, nw = 0, lb = L, rb = R;
+        init(L, R);
         for (int i = L; i <= R; i++) set(i, val);
     }
 
     inline int new_node() {
-        int id = ++nw;
+        int id = ++mem;
         tr[id].lson = tr[id].rson = 0;
         tr[id].sum = tr[id].v = 0;
         return id;
@@ -709,13 +715,12 @@ struct Seg {
         ll sum, lz;
     };
 
-    int lb, rb;
+    int lb, rb, mem;
     Node tr[SZ * 40];
-    int nw;
     int root[SZ + 1], cnt;
 
     inline Seg() {
-        nw = 0, lb = 1, rb = SZ;
+        mem = 0, lb = 1, rb = SZ;
     }
 
     inline void init(int L = 1, int R = SZ, int _cnt = 0) {
@@ -748,7 +753,7 @@ struct Seg {
     }
 
     inline int new_node() {
-        int id = ++nw;
+        int id = ++mem;
         tr[id].lson = tr[id].rson = 0;
         return id;
     }

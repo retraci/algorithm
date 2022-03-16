@@ -61,7 +61,7 @@ struct Seg {
 
     int lb, rb, mem;
     Node tr[32 * SZ];
-    int root[SZ];
+    int root[SZ + 1];
 
     inline Seg() {
         init(1, SZ);
@@ -69,17 +69,19 @@ struct Seg {
 
     inline void init(int L, int R) {
         mem = 0, lb = L, rb = R;
+        tr[0].lson = tr[0].rson = 0;
+        tr[0].sum = 1e18;
     }
 
     inline int new_node() {
         int id = ++mem;
         tr[id].lson = tr[id].rson = 0;
-        tr[id].sum = 0;
+        tr[id].sum = 1e18;
         return id;
     }
 
     inline void push_up(int k) {
-        tr[k].sum = tr[ls(k)].sum + tr[rs(k)].sum;
+        tr[k].sum = min(tr[ls(k)].sum, tr[rs(k)].sum);
     }
 
     inline void build(ll a[]) {
@@ -100,24 +102,24 @@ struct Seg {
         return k;
     }
 
-    inline int insert(int p, int s, int e, int id, ll val) {
+    inline int update(int p, int s, int e, int id, ll val) {
         int k = new_node();
         tr[k] = tr[p];
 
         if (s == e) {
-            tr[k].sum = tr[k].sum + val;
+            tr[k].sum = min(tr[k].sum, val);
             return k;
         }
 
-        if (id <= mid) ls(k) = insert(ls(p), s, mid, id, val);
-        if (id >= mid + 1) rs(k) = insert(rs(p), mid + 1, e, id, val);
+        if (id <= mid) ls(k) = update(ls(p), s, mid, id, val);
+        if (id >= mid + 1) rs(k) = update(rs(p), mid + 1, e, id, val);
         push_up(k);
         return k;
     }
 
     inline int set(int p, int s, int e, int id, ll val) {
         int k = new_node();
-        tr[k] = tr[p];
+        if (p) tr[k] = tr[p];
 
         if (s == e) {
             tr[k].sum = val;
@@ -135,19 +137,34 @@ struct Seg {
 
         if (R <= mid) return query(ls(k), s, mid, L, R);
         if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
-        return query(ls(k), s, mid, L, R) + query(rs(k), mid + 1, e, L, R);
+        return min(query(ls(k), s, mid, L, R), query(rs(k), mid + 1, e, L, R));
     }
 
-    inline ll query_k(int k, int p, int s, int e, ll x) {
+    inline ll query_kth(int k, int p, int s, int e, ll x) {
         if (s == e) return s;
         ll cnt = tr[ls(k)].sum - tr[ls(p)].sum;
 
-        if (x <= cnt) return query_k(ls(k), ls(p), s, mid, x);
-        else return query_k(rs(k), rs(p), mid + 1, e, x - cnt);
+        if (x <= cnt) return query_kth(ls(k), ls(p), s, mid, x);
+        else return query_kth(rs(k), rs(p), mid + 1, e, x - cnt);
     }
 
-    inline void insert(int nv, int pv, int id, ll val) {
-        root[nv] = insert(root[pv], lb, rb, id, val);
+    inline ll query_lim(int k, int p, int s, int e, ll lim) {
+        if (s == e) {
+            ll cnt = tr[k].sum - tr[p].sum;
+            if (cnt >= lim) return e;
+            return 1e9;
+        }
+
+        ll res = 1e9;
+        ll lc = tr[ls(k)].sum - tr[ls(p)].sum;
+        ll rc = tr[rs(k)].sum - tr[rs(p)].sum;
+        if (lc >= lim) res = min(res, query_lim(ls(k), ls(p), s, mid, lim));
+        if (rc >= lim) res = min(res, query_lim(rs(k), rs(p), mid + 1, e, lim));
+        return res;
+    }
+
+    inline void update(int nv, int pv, int id, ll val) {
+        root[nv] = update(root[pv], lb, rb, id, val);
     }
 
     inline void set(int nv, int pv, int id, ll val) {
@@ -155,49 +172,74 @@ struct Seg {
     }
 
     inline ll query(int v, int L, int R) {
-        if (R < L) return 0;
+        if (R < L) return 1e18;
         return query(root[v], lb, rb, L, R);
     }
 
-    inline ll query_k(int L, int R, ll x) {
-        return query_k(root[R], root[L - 1], lb, rb, x);
+    inline ll query_kth(int L, int R, ll x) {
+        return query_kth(root[R], root[L - 1], lb, rb, x);
+    }
+
+    inline ll query_lim(int L, int R, ll lim) {
+        return query_lim(root[R], root[L - 1], lb, rb, lim);
     }
 };
 // endregion
 
-const int N = 2e5 + 10;
+const int N = 100010;
 
-int n, m;
-ll a[N];
+int n, Q;
+int a[N];
 
-vector<int> lsh;
+int g[2 * N], ne[2 * N], h[N], edm;
+int rt;
+int dep[N], in[N], out[N], cnt;
+
 Seg<N> seg;
 
-int get(int x) {
-    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin();
+void add(int u, int v) {
+    g[edm] = v, ne[edm] = h[u], h[u] = edm++;
 }
 
-void init() {
-    for (int i = 1; i <= n; i++) lsh.push_back(a[i]);
-    sort(lsh.begin(), lsh.end());
-    lsh.erase(unique(lsh.begin(), lsh.end()), lsh.end());
+void dfs(int u, int fno) {
+    in[u] = ++cnt;
+    for (int i = h[u]; ~i; i = ne[i]) {
+        int v = g[i];
+        if (v == fno) continue;
+
+        dep[v] = dep[u] + 1;
+        dfs(v, u);
+    }
+    out[u] = cnt;
 }
 
 void solve() {
-    init();
-    int nl = lsh.size();
-
-    seg.init(0, nl - 1);
+    dep[rt] = 1;
+    dfs(rt, -1);
+    int mx_dep = *max_element(dep + 1, dep + n + 1);
+    vector<int> ds[mx_dep + 1];
     for (int i = 1; i <= n; i++) {
-        seg.insert(i, i - 1, get(a[i]), 1);
+        ds[dep[i]].push_back(i);
     }
 
-    for (int i = 1; i <= m; i++) {
-        int L, R, x;
-        cin >> L >> R >> x;
+    seg.init(1, cnt);
+    for (int i = 1; i <= mx_dep; i++) {
+        seg.root[i] = seg.root[i - 1];
+        for (int x : ds[i]) {
+            seg.update(i, i, in[x], a[x]);
+        }
+    }
 
-        int tmp = seg.query_k(L, R, x);
-        cout << lsh[tmp] << "\n";
+    int lst = 0, oh = 0;
+    cin >> Q;
+    while (Q--) {
+        int x, y;
+        cin >> x >> y;
+
+        int u = (x + lst) % n + 1, k = (y + lst) % n;
+        int d = min(mx_dep, dep[u] + k);
+        lst = seg.query(d, in[u], out[u]);
+        cout << lst << "\n";
     }
 }
 
@@ -215,8 +257,16 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n >> m;
+        cin >> n >> rt;
+        fill(h, h + n + 1, -1), edm = 0;
+
         for (int i = 1; i <= n; i++) cin >> a[i];
+        for (int i = 1; i <= n - 1; i++) {
+            int u, v;
+            cin >> u >> v;
+            add(u, v), add(v, u);
+        }
+
         solve();
     }
 
