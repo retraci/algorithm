@@ -47,18 +47,14 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e5 + 10;
+const int N = 1e6 + 10;
 
-int n, m;
+int n, Q;
 int a[N];
-ti3 b[N];
+int bit[N];
 
-vector<int> lsh;
-int nl;
-int bit[N * 2];
-
-void add(int id, int x) {
-    for (int i = id; i <= nl; i += i & -i) bit[i] += x;
+void add(int id, int v) {
+    for (int i = id; i <= n; i += i & -i) bit[i] += v;
 }
 
 int query(int id) {
@@ -67,43 +63,43 @@ int query(int id) {
     return res;
 }
 
-int get(int x) {
-    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin();
+int bs(int k) {
+    int pos = 0;
+    for (int i = 20; i >= 0; i--) {
+        int np = pos + (1 << i);
+        if (np <= n && bit[np] < k) k -= bit[np], pos = np;
+    }
+    return pos;
 }
 
 void solve() {
-    lsh.clear();
-    for (int i = 1; i <= n; i++) lsh.push_back(a[i]);
-    for (int i = 1; i <= m; i++) {
-        auto [L, R, h] = b[i];
-        lsh.push_back(h);
-    }
-    sort(lsh.begin(), lsh.end());
-    lsh.resize(unique(lsh.begin(), lsh.end()) - lsh.begin());
-
-    nl = lsh.size();
-    fill(bit, bit + nl + 1, 0);
-    vector<ti3> qs[n + 1];
-    for (int i = 1; i <= m; i++) {
-        auto [L, R, h] = b[i];
-        h = get(h) + 1;
-
-        qs[L - 1].push_back({i, -1, h});
-        qs[R].push_back({i, 1, h});
-    }
-
-    vector<ll> ans(m + 1);
+    vector<int> c(n + 1);
     for (int i = 1; i <= n; i++) {
-        int x = get(a[i]) + 1;
-        add(x, 1);
+        add(a[i], 1);
+        c[a[i]]++;
+    }
 
-        for (auto [k, sign, h] : qs[i]) {
-            ans[k] += sign * query(h);
+    while (Q--) {
+        int x;
+        cin >> x;
+        if (x >= 1) {
+            add(x, 1);
+            c[x]++;
+        } else {
+            x = -x;
+            int id = bs(x) + 1;
+            add(id, -1);
+            c[id]--;
         }
     }
 
-    for (int i = 1; i <= m; i++) cout << ans[i] << " ";
-    cout << "\n";
+    int ans = 0;
+    for (int i = 1; i <= n; i++) {
+        if (c[i] == 0) continue;
+        ans = i;
+        break;
+    }
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -118,16 +114,10 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
-        cin >> n >> m;
+        cin >> n >> Q;
         for (int i = 1; i <= n; i++) cin >> a[i];
-        for (int i = 1; i <= m; i++) {
-            int L, R, h;
-            cin >> L >> R >> h;
-            b[i] = {L, R, h};
-        }
-
         solve();
     }
 

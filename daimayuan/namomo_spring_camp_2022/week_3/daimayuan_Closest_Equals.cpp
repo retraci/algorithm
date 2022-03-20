@@ -169,7 +169,6 @@ const int N = 5e5 + 10;
 int n, Q;
 int a[N];
 ti3 qs[N];
-int ans[N];
 
 Seg<N> seg;
 
@@ -178,19 +177,23 @@ void solve() {
         return get<1>(a) < get<1>(b);
     });
 
-    seg.init(1, n, 1e9);
+    seg.init(1, n);
     int pos = 1;
     unordered_map<int, int> lst;
+    vector<int> ans(Q + 1);
     for (int i = 1; i <= Q; i++) {
-        auto [L, R, id] = qs[i];
+        auto[L, R, qid] = qs[i];
+
         while (pos <= R) {
             int x = a[pos];
-            if (lst.count(x)) seg.update(1, lst[x], pos - lst[x]);
+            if (lst.count(x)) {
+                seg.update(1, lst[x], pos - lst[x]);
+            }
             lst[x] = pos++;
         }
 
-        int ret = seg.query(L, R).sum;
-        ans[id] = ret == 1e9 ? -1 : ret;
+        ll tmp = seg.query(L, R).sum;
+        ans[qid] = tmp == 1e18 ? -1 : tmp;
     }
 
     for (int i = 1; i <= Q; i++) cout << ans[i] << "\n";

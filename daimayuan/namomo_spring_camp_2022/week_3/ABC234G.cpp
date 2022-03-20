@@ -47,63 +47,45 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e5 + 10;
+const int N = 3e5 + 10;
+const int MOD = 998244353;
 
-int n, m;
+int n;
 int a[N];
-ti3 b[N];
-
-vector<int> lsh;
-int nl;
-int bit[N * 2];
-
-void add(int id, int x) {
-    for (int i = id; i <= nl; i += i & -i) bit[i] += x;
-}
-
-int query(int id) {
-    int res = 0;
-    for (int i = id; i; i -= i & -i) res += bit[i];
-    return res;
-}
-
-int get(int x) {
-    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin();
-}
 
 void solve() {
-    lsh.clear();
-    for (int i = 1; i <= n; i++) lsh.push_back(a[i]);
-    for (int i = 1; i <= m; i++) {
-        auto [L, R, h] = b[i];
-        lsh.push_back(h);
-    }
-    sort(lsh.begin(), lsh.end());
-    lsh.resize(unique(lsh.begin(), lsh.end()) - lsh.begin());
-
-    nl = lsh.size();
-    fill(bit, bit + nl + 1, 0);
-    vector<ti3> qs[n + 1];
-    for (int i = 1; i <= m; i++) {
-        auto [L, R, h] = b[i];
-        h = get(h) + 1;
-
-        qs[L - 1].push_back({i, -1, h});
-        qs[R].push_back({i, 1, h});
-    }
-
-    vector<ll> ans(m + 1);
+    vector<int> stk1, stk2;
+    vector<int> f(n + 1, 0), fmx(n + 1), fmi(n + 1);
+    f[0] = 1;
+    int cur = 0;
     for (int i = 1; i <= n; i++) {
-        int x = get(a[i]) + 1;
-        add(x, 1);
-
-        for (auto [k, sign, h] : qs[i]) {
-            ans[k] += sign * query(h);
+        fmx[i] = fmi[i] = f[i - 1];
+        while (!stk1.empty() && a[stk1.back()] <= a[i]) {
+            int id = stk1.back(); stk1.pop_back();
+            fmx[i] += fmx[id];
+            fmx[i] %= MOD;
+            cur -= 1LL * fmx[id] * a[id] % MOD;
+            cur %= MOD;
         }
+        while (!stk2.empty() && a[stk2.back()] >= a[i]) {
+            int id = stk2.back(); stk2.pop_back();
+            fmi[i] += fmi[id];
+            fmi[i] %= MOD;
+            cur += 1LL * fmi[id] * a[id] % MOD;
+            cur %= MOD;
+        }
+
+        cur += 1LL * fmx[i] * a[i] % MOD;
+        cur %= MOD;
+        cur -= 1LL * fmi[i] * a[i] % MOD;
+        cur %= MOD;
+        f[i] = cur;
+
+        stk1.push_back(i), stk2.push_back(i);
     }
 
-    for (int i = 1; i <= m; i++) cout << ans[i] << " ";
-    cout << "\n";
+    int ans = (f[n] + MOD) % MOD;
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -118,16 +100,10 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
-        cin >> n >> m;
+        cin >> n;
         for (int i = 1; i <= n; i++) cin >> a[i];
-        for (int i = 1; i <= m; i++) {
-            int L, R, h;
-            cin >> L >> R >> h;
-            b[i] = {L, R, h};
-        }
-
         solve();
     }
 

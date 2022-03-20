@@ -69,7 +69,7 @@ struct Seg {
     inline void init(int L, int R) {
         rt = 0, mem = 0, lb = L, rb = R;
         tr[0].lson = tr[0].rson = 0;
-        tr[0].sum = tr[0].lz = 1e18;
+        tr[0].sum = tr[0].lz = 5e18;
     }
 
     inline void init(int L, int R, ll val) {
@@ -80,7 +80,7 @@ struct Seg {
     inline int new_node() {
         int id = ++mem;
         tr[id].lson = tr[id].rson = 0;
-        tr[id].sum = tr[id].lz = 1e18;
+        tr[id].sum = tr[id].lz = 5e18;
         return id;
     }
 
@@ -103,7 +103,7 @@ struct Seg {
         if (tr[k].lz) {
             work(tr[ls(k)], tr[k].lz);
             work(tr[rs(k)], tr[k].lz);
-            tr[k].lz = 1e18;
+            tr[k].lz = 5e18;
         }
     }
 
@@ -141,7 +141,7 @@ struct Seg {
         push_down(k, s, e);
         if (R <= mid) return query(ls(k), s, mid, L, R);
         if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
-        Node res = {0, 0, (ll) 1e18, 0};
+        Node res = {0, 0, (ll) 5e18, 0};
         Node lc = query(ls(k), s, mid, L, R);
         Node rc = query(rs(k), mid + 1, e, L, R);
         push_up(res, lc, rc);
@@ -158,18 +158,17 @@ struct Seg {
     }
 
     inline Node query(int L, int R) {
-        if (R < L) return {0, 0, (ll) 1e18, 0};
+        if (R < L) return {0, 0, (ll) 5e18, 0};
         return query(rt, lb, rb, L, R);
     }
 };
 // endregion
 
-const int N = 5e5 + 10;
+const int N = 3e5 + 10;
 
 int n, Q;
-int a[N];
+int x[N], w[N];
 ti3 qs[N];
-int ans[N];
 
 Seg<N> seg;
 
@@ -178,19 +177,32 @@ void solve() {
         return get<1>(a) < get<1>(b);
     });
 
-    seg.init(1, n, 1e9);
+    seg.init(1, n);
+    vector<int> stk;
     int pos = 1;
-    unordered_map<int, int> lst;
+    vector<ll> ans(Q + 1);
     for (int i = 1; i <= Q; i++) {
-        auto [L, R, id] = qs[i];
+        auto[L, R, qid] = qs[i];
+
         while (pos <= R) {
-            int x = a[pos];
-            if (lst.count(x)) seg.update(1, lst[x], pos - lst[x]);
-            lst[x] = pos++;
+            int tx = x[pos], tw = w[pos];
+            while (!stk.empty() && w[stk.back()] >= tw) {
+                int id = stk.back(); stk.pop_back();
+                ll tmp = 1LL * (tx - x[id]) * (w[id] + tw);
+
+                seg.update(1, id, tmp);
+            }
+            if (!stk.empty()) {
+                int id = stk.back();
+                ll tmp = 1LL * (tx - x[id]) * (w[id] + tw);
+
+                seg.update(1, id, tmp);
+            }
+
+            stk.push_back(pos++);
         }
 
-        int ret = seg.query(L, R).sum;
-        ans[id] = ret == 1e9 ? -1 : ret;
+        ans[qid] = seg.query(L, L).sum;
     }
 
     for (int i = 1; i <= Q; i++) cout << ans[i] << "\n";
@@ -211,13 +223,12 @@ int main() {
 //    cin >> T;
     while (T--) {
         cin >> n >> Q;
-        for (int i = 1; i <= n; i++) cin >> a[i];
+        for (int i = 1; i <= n; i++) cin >> x[i] >> w[i];
         for (int i = 1; i <= Q; i++) {
             int L, R;
             cin >> L >> R;
             qs[i] = {L, R, i};
         }
-
         solve();
     }
 

@@ -13,71 +13,202 @@
 #include <unordered_map>
 #include <bitset>
 
-#define N 200050
+// region general
+#define ll long long
+#define ld long double
+#define ull unsigned long long
+#define fi first
+#define se second
+
+typedef std::pair<int, int> pii;
+typedef std::pair<ll, ll> pll;
+typedef std::tuple<int, int, int> ti3;
+typedef std::tuple<ll, ll, ll> tl3;
+typedef std::tuple<int, int, int, int> ti4;
+typedef std::tuple<ll, ll, ll, ll> tl4;
+
+inline void debug() {
+    std::cout << "\n";
+}
+
+template<class T, class... OtherArgs>
+inline void debug(T &&var, OtherArgs &&... args) {
+    std::cout << std::forward<T>(var) << " ";
+    debug(std::forward<OtherArgs>(args)...);
+}
+// endregion
+// region grid_delta
+namespace grid_delta {
+    // 上, 右, 下, 左  |  左上, 右上, 右下, 左下
+    const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+}
+// endregion
+
 using namespace std;
+using namespace grid_delta;
 
-int read() {
-    int cnt = 0, f = 1;
-    char ch = 0;
-    while (!isdigit(ch)) {
-        ch = getchar();
-        if (ch == '-') f = -1;
+// region 区间最大值段树
+template<int SZ>
+struct Seg {
+#define mid (s + e >> 1)
+#define ls(x) (tr[x].lson)
+#define rs(x) (tr[x].rson)
+
+    struct Node {
+        int lson, rson;
+        ll sum, lz;
+    };
+
+    int lb, rb, rt, mem;
+    Node tr[SZ * 4];
+
+    inline Seg() {
+        init(1, SZ);
     }
-    while (isdigit(ch)) cnt = (cnt << 3) + (cnt << 1) + (ch - '0'), ch = getchar();
-    return cnt * f;
-}
 
-const int inf = 0x3fffffff;
-vector<int> v[N];
-int mx;
-int first[N], nxt[N], to[N], tot;
-
-void add(int x, int y) { nxt[++tot] = first[x], first[x] = tot, to[tot] = y; }
-
-int n, root, m, a[N], rt[N], cnt, lastans;
-int dep[N], st[N], ed[N], sign;
-struct Node {
-    int ls, rs, val;
-} t[N * 30];
-
-void Build(int &x, int l, int r) {
-    x = ++cnt;
-    t[x].val = inf;
-    if (l == r) return;
-    int mid = (l + r) >> 1;
-    Build(t[x].ls, l, mid);
-    Build(t[x].rs, mid + 1, r);
-}
-
-void Insert(int &x, int last, int l, int r, int pos, int val) {
-    x = ++cnt;
-    t[x] = t[last];
-    t[x].val = min(t[x].val, val);
-    if (l == r) return;
-    int mid = (l + r) >> 1;
-    if (pos <= mid) Insert(t[x].ls, t[last].ls, l, mid, pos, val);
-    else Insert(t[x].rs, t[last].rs, mid + 1, r, pos, val);
-}
-
-int Quary(int x, int l, int r, int L, int R) {
-    if (L <= l && r <= R) return t[x].val;
-    int mid = (l + r) >> 1, ans = inf;
-    if (L <= mid) ans = min(ans, Quary(t[x].ls, l, mid, L, R));
-    if (R > mid) ans = min(ans, Quary(t[x].rs, mid + 1, r, L, R));
-    return ans;
-}
-
-void dfs(int u, int fa) {
-    st[u] = ++sign;
-    v[dep[u]].push_back(u);
-    mx = max(mx, dep[u]);
-    for (int i = first[u]; i; i = nxt[i]) {
-        int t = to[i];
-        if (t == fa) continue;
-        dep[t] = dep[u] + 1;
-        dfs(t, u);
+    inline void init(int L, int R) {
+        rt = 0, mem = 0, lb = L, rb = R;
+        tr[0].lson = tr[0].rson = 0;
+        tr[0].sum = tr[0].lz = 0;
     }
-    ed[u] = sign;
+
+    inline void init(int L, int R, ll val) {
+        init(L, R);
+        for (int i = L; i <= R; i++) set(i, val);
+    }
+
+    inline int new_node() {
+        int id = ++mem;
+        tr[id].lson = tr[id].rson = 0;
+        tr[id].sum = tr[id].lz = 0;
+        return id;
+    }
+
+    inline void push_up(Node &fa, Node &lc, Node &rc) {
+        fa.sum = max(lc.sum, rc.sum);
+    }
+
+    inline void push_up(int k) {
+        push_up(tr[k], tr[ls(k)], tr[rs(k)]);
+    }
+
+    inline void work(Node &t, ll val) {
+        t.sum = max(t.sum, val);
+        t.lz = max(t.lz, val);
+    }
+
+    inline void push_down(int k, int s, int e) {
+        if (!ls(k)) ls(k) = new_node();
+        if (!rs(k)) rs(k) = new_node();
+        if (tr[k].lz) {
+            work(tr[ls(k)], tr[k].lz);
+            work(tr[rs(k)], tr[k].lz);
+            tr[k].lz = 0;
+        }
+    }
+
+    inline void update(int &k, int s, int e, int L, int R, ll val) {
+        if (!k) k = new_node();
+
+        if (L <= s && e <= R) {
+            work(tr[k], val);
+            return;
+        }
+
+        push_down(k, s, e);
+        if (L <= mid) update(ls(k), s, mid, L, R, val);
+        if (R >= mid + 1) update(rs(k), mid + 1, e, L, R, val);
+        push_up(k);
+    }
+
+    inline void set(int &k, int s, int e, int id, ll val) {
+        if (!k) k = new_node();
+
+        if (s == e) {
+            tr[k].sum = val;
+            return;
+        }
+
+        push_down(k, s, e);
+        if (id <= mid) set(ls(k), s, mid, id, val);
+        if (id >= mid + 1) set(rs(k), mid + 1, e, id, val);
+        push_up(k);
+    }
+
+    inline ll query(int k, int s, int e, int L, int R) {
+        if (L <= s && e <= R) return tr[k];
+
+        push_down(k, s, e);
+        if (R <= mid) return query(ls(k), s, mid, L, R);
+        if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
+        Node res = {0};
+        Node lc = query(ls(k), s, mid, L, R);
+        Node rc = query(rs(k), mid + 1, e, L, R);
+        push_up(res, lc, rc);
+        return res;
+    }
+
+    inline void update(int L, int R, ll val) {
+        if (R < L) return;
+        update(rt, lb, rb, L, R, val);
+    }
+
+    inline void set(int id, ll val) {
+        set(rt, lb, rb, id, val);
+    }
+
+    inline Node query(int L, int R) {
+        if (R < L) return {0};
+        return query(rt, lb, rb, L, R);
+    }
+};
+// endregion
+
+const int MAXN = 1e6 + 10;
+
+Seg<MAXN> seg;
+
+
+int A[MAXN], B[MAXN], C[MAXN], D[MAXN];
+int fib[MAXN];
+int n, m, MOD;
+char op;
+int L, R;
+int zero = 0;//D中0的个数
+void upd(int id, int x) {
+    if (1 <= id && id <= n) {
+        zero -= (D[id] == 0);
+        D[id] += x % MOD;
+        D[id] = (D[id] + MOD) % MOD;
+        zero += (D[id] == 0);
+    }
+}
+
+void solve() {
+    cin >> n >> m >> MOD;
+    for (int i = 1; i <= n; i++)cin >> A[i];
+    for (int i = 1; i <= n; i++)cin >> B[i];
+    for (int i = 1; i <= n; i++)C[i] = A[i] - B[i];
+    D[1] = C[1] % MOD;
+    D[2] = (C[2] - C[1] + MOD) % MOD;
+    for (int i = 3; i <= n; i++)D[i] = (C[i] - C[i - 1] - C[i - 2] + 2 * MOD) % MOD;//注意这里减了两个数，所以 + 2*MOD
+    fib[1] = 1, fib[2] = 1;
+    for (int i = 3; i < MAXN; i++)fib[i] = (fib[i - 1] + fib[i - 2]) % MOD;
+    for (int i = 1; i <= n; i++)zero += (D[i] == 0);
+    while (m--) {
+        cin >> op >> L >> R;
+        if (op == 'A') {
+            upd(L, 1);
+            upd(R + 1, -fib[R - L + 2]);
+            upd(R + 2, -fib[R - L + 1]);
+        } else {
+            upd(L, -1);
+            upd(R + 1, fib[R - L + 2]);
+            upd(R + 2, fib[R - L + 1]);
+        }
+        if (zero == n) cout << "Yes" << "\n";
+        else cout << "No" << "\n";
+    }
 }
 
 int main() {
@@ -86,30 +217,7 @@ int main() {
     freopen("../out.txt", "w", stdout);
 #endif
 
-    n = read(), root = read();
-    Build(rt[0], 1, n);
-    for (int i = 1; i <= n; i++) a[i] = read();
-    for (int i = 1; i < n; i++) {
-        int x = read(), y = read();
-        add(x, y);
-        add(y, x);
-    }
-    dep[root] = 1;
-    dfs(root, 0);
-    for (int i = 1; i <= mx; i++) {
-        rt[i] = rt[i - 1];
-        for (int j = 0; j < v[i].size(); j++) {
-            cout << i << " " << st[v[i][j]] << " " << a[v[i][j]] << "\n";
-            Insert(rt[i], rt[i], 1, n, st[v[i][j]], a[v[i][j]]);
-        }
-    }
-    m = read();
-    while (m--) {
-        int u = (read() + lastans) % n + 1, k = (read() + lastans) % n;
-        int d = min(mx, dep[u] + k);
-        cout << d << " " << st[u] << " " << ed[u] << "\n";
-        lastans = Quary(rt[d], 1, n, st[u], ed[u]);
-        printf("%d\n", lastans);
-    }
+    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+//    solve();
     return 0;
 }

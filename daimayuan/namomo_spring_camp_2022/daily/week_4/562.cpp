@@ -47,63 +47,58 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e5 + 10;
+const int N = 1e6 + 10;
 
-int n, m;
-int a[N];
-ti3 b[N];
+int n, Q, P;
+ll a[N], b[N], c[N], d[N];
+int fib[N];
+int cnt;
 
-vector<int> lsh;
-int nl;
-int bit[N * 2];
-
-void add(int id, int x) {
-    for (int i = id; i <= nl; i += i & -i) bit[i] += x;
+void init() {
+    fib[1] = fib[2] = 1;
+    for (int i = 3; i <= n + 1; i++) fib[i] = (fib[i - 1] + fib[i - 2]) % P;
 }
 
-int query(int id) {
-    int res = 0;
-    for (int i = id; i; i -= i & -i) res += bit[i];
-    return res;
-}
+void upd(int id, int v) {
+    if (id <= 0 || id > n) return;
 
-int get(int x) {
-    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin();
+    if (d[id] == 0) cnt--;
+    d[id] += v;
+    d[id] = (d[id] % P + P) % P;
+    if (d[id] == 0) cnt++;
 }
 
 void solve() {
-    lsh.clear();
-    for (int i = 1; i <= n; i++) lsh.push_back(a[i]);
-    for (int i = 1; i <= m; i++) {
-        auto [L, R, h] = b[i];
-        lsh.push_back(h);
-    }
-    sort(lsh.begin(), lsh.end());
-    lsh.resize(unique(lsh.begin(), lsh.end()) - lsh.begin());
+    init();
 
-    nl = lsh.size();
-    fill(bit, bit + nl + 1, 0);
-    vector<ti3> qs[n + 1];
-    for (int i = 1; i <= m; i++) {
-        auto [L, R, h] = b[i];
-        h = get(h) + 1;
-
-        qs[L - 1].push_back({i, -1, h});
-        qs[R].push_back({i, 1, h});
-    }
-
-    vector<ll> ans(m + 1);
     for (int i = 1; i <= n; i++) {
-        int x = get(a[i]) + 1;
-        add(x, 1);
-
-        for (auto [k, sign, h] : qs[i]) {
-            ans[k] += sign * query(h);
-        }
+        c[i] = a[i] - b[i];
+        c[i] = (c[i] % P + P) % P;
+    }
+    d[1] = c[1];
+    cnt += d[1] == 0;
+    for (int i = 2; i <= n; i++) {
+        d[i] = c[i] - c[i - 1] - c[i - 2];
+        d[i] = (d[i] % P + P) % P;
+        cnt += d[i] == 0;
     }
 
-    for (int i = 1; i <= m; i++) cout << ans[i] << " ";
-    cout << "\n";
+    while (Q--) {
+        string op;
+        int L, R;
+        cin >> op >> L >> R;
+        if (op == "A") {
+            upd(L, 1);
+            upd(R + 1, -fib[R - L + 2]);
+            upd(R + 2, -fib[R - L + 1]);
+        } else {
+            upd(L, -1);
+            upd(R + 1, fib[R - L + 2]);
+            upd(R + 2, fib[R - L + 1]);
+        }
+
+        cout << (cnt == n ? "Yes" : "No") << "\n";
+    }
 }
 
 void prework() {
@@ -118,16 +113,11 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
-        cin >> n >> m;
+        cin >> n >> Q >> P;
         for (int i = 1; i <= n; i++) cin >> a[i];
-        for (int i = 1; i <= m; i++) {
-            int L, R, h;
-            cin >> L >> R >> h;
-            b[i] = {L, R, h};
-        }
-
+        for (int i = 1; i <= n; i++) cin >> b[i];
         solve();
     }
 
