@@ -47,47 +47,50 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-struct Node {
-    double w;
-    ll a, b, c;
-};
+const int N = 5e5 + 10;
 
-ll n, C, m;
-vector<Node> a;
-vector<ll> f;
+// region 自然溢出字符串hash
+const ull P = 10000721;
 
-void init() {
-    sort(a.begin(), a.end(), [](auto &a, auto &b) {
-        return a.w > b.w;
-    });
+int n;
+string s;
+ull h[N], p[N];
 
-    f = vector<ll>(C + 1, 0);
-    for (auto &[d, x, y, z] : a) {
-        ll p = y * z;
-        ll s = p;
-        for (ll j = x; j <= C; j += x) {
-            if (s <= f[j]) break;
-
-            f[j] = s;
-            s += p;
-        }
-    }
-    for (int i = 1; i <= C; i++) f[i] = max(f[i], f[i - 1]);
+ull get(int L, int R) {
+    return h[R] - h[L - 1] * p[R - L + 1];
 }
 
-void solve() {
-    init();
-
-    cin >> m;
-    while (m--) {
-        ll x, y;
-        cin >> x >> y;
-
-        ll tmp = x * y;
-        int pos = upper_bound(f.begin(), f.end(), tmp) - f.begin();
-        cout << (pos == f.size() ? -1 : pos) << " ";
+void init_hash() {
+    p[0] = 1;
+    for (int i = 1; i <= n; i++) {
+        h[i] = h[i - 1] * P + s[i];
+        p[i] = p[i - 1] * P;
     }
-    cout << "\n";
+}
+// endregion
+
+void solve() {
+    init_hash();
+    ll cnt = 0, lef = n;
+    ll c1 = 0, len = 0, flag = 0;
+    ull c2 = 0;
+
+    for (int i = 1; i <= n; i++) {
+        c1 += s[i] == '(' ? 1 : -1;
+        if (c1 < 0) flag = 1;
+        c2 += s[i] * p[len];
+        len++;
+
+        if (!flag && c1 == 0 || len >= 2 && c2 == get(i - len + 1, i)) {
+            lef -= len, cnt++;
+            len = 0, c1 = 0, c2 = 0, flag = 0;
+        }
+    }
+
+    cout << cnt << " " << lef << "\n";
+}
+
+void prework() {
 }
 
 int main() {
@@ -96,13 +99,15 @@ int main() {
     freopen("../out.txt", "w", stdout);
 #endif
 
+    prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
-    cin >> n >> C;
-    a = vector<Node>(n);
-    for (auto &[d, x, y, z] : a) {
-        cin >> x >> y >> z;
-        d = 1.0 * y * z / x;
+    int T = 1;
+    cin >> T;
+    while (T--) {
+        cin >> n >> s;
+        s = ' ' + s;
+        solve();
     }
-    solve();
+
     return 0;
 }

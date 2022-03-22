@@ -47,47 +47,70 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-struct Node {
-    double w;
-    ll a, b, c;
-};
+const int N = 1e4 + 10;
 
-ll n, C, m;
-vector<Node> a;
-vector<ll> f;
+int n;
+string a[N];
+string str;
 
-void init() {
-    sort(a.begin(), a.end(), [](auto &a, auto &b) {
-        return a.w > b.w;
-    });
+int tr[N * 50][26], cnt[N * 50], mem;
+int ne[N * 50];
 
-    f = vector<ll>(C + 1, 0);
-    for (auto &[d, x, y, z] : a) {
-        ll p = y * z;
-        ll s = p;
-        for (ll j = x; j <= C; j += x) {
-            if (s <= f[j]) break;
+void insert(string &s) {
+    int u = 0;
+    for (char ch : s) {
+        if (!tr[u][ch - 'a']) tr[u][ch - 'a'] = ++mem;
+        u = tr[u][ch - 'a'];
+    }
+    cnt[u]++;
+}
 
-            f[j] = s;
-            s += p;
+void build() {
+    queue<int> que;
+    for (int i = 0; i < 26; i++) {
+        if (tr[0][i]) que.push(tr[0][i]);
+    }
+
+    while (!que.empty()) {
+        int u = que.front(); que.pop();
+
+        for (int i = 0; i < 26; i++) {
+            int &v = tr[u][i];
+
+            if (!v) {
+                v = tr[ne[u]][i];
+            } else {
+                ne[v] = tr[ne[u]][i];
+                que.push(v);
+            }
         }
     }
-    for (int i = 1; i <= C; i++) f[i] = max(f[i], f[i - 1]);
 }
 
 void solve() {
-    init();
+    fill(&tr[0][0], &tr[n * 50][25] + 1, 0);
+    fill(&cnt[0], &cnt[n * 50] + 1, 0);
+    fill(&ne[0], &ne[n * 50] + 1, 0);
+    mem = 0;
 
-    cin >> m;
-    while (m--) {
-        ll x, y;
-        cin >> x >> y;
+    for (int i = 1; i <= n; i++) insert(a[i]);
+    build();
 
-        ll tmp = x * y;
-        int pos = upper_bound(f.begin(), f.end(), tmp) - f.begin();
-        cout << (pos == f.size() ? -1 : pos) << " ";
+    int ans = 0, j = 0;
+    for (char ch : str) {
+        j = tr[j][ch - 'a'];
+
+        int p = j;
+        while (p) {
+            ans += cnt[p];
+            cnt[p] = 0;
+            p = ne[p];
+        }
     }
-    cout << "\n";
+    cout << ans << "\n";
+}
+
+void prework() {
 }
 
 int main() {
@@ -96,13 +119,16 @@ int main() {
     freopen("../out.txt", "w", stdout);
 #endif
 
+    prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
-    cin >> n >> C;
-    a = vector<Node>(n);
-    for (auto &[d, x, y, z] : a) {
-        cin >> x >> y >> z;
-        d = 1.0 * y * z / x;
+    int T = 1;
+    cin >> T;
+    while (T--) {
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> a[i];
+        cin >> str;
+        solve();
     }
-    solve();
+
     return 0;
 }

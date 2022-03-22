@@ -47,47 +47,20 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-struct Node {
-    double w;
-    ll a, b, c;
-};
-
-ll n, C, m;
-vector<Node> a;
-vector<ll> f;
-
-void init() {
-    sort(a.begin(), a.end(), [](auto &a, auto &b) {
-        return a.w > b.w;
-    });
-
-    f = vector<ll>(C + 1, 0);
-    for (auto &[d, x, y, z] : a) {
-        ll p = y * z;
-        ll s = p;
-        for (ll j = x; j <= C; j += x) {
-            if (s <= f[j]) break;
-
-            f[j] = s;
-            s += p;
-        }
-    }
-    for (int i = 1; i <= C; i++) f[i] = max(f[i], f[i - 1]);
-}
+ll n, b, x, y;
 
 void solve() {
-    init();
-
-    cin >> m;
-    while (m--) {
-        ll x, y;
-        cin >> x >> y;
-
-        ll tmp = x * y;
-        int pos = upper_bound(f.begin(), f.end(), tmp) - f.begin();
-        cout << (pos == f.size() ? -1 : pos) << " ";
+    ll s = 0, cur = 0;
+    for (int i = 1; i <= n; i++) {
+        if (cur + x <= b) cur += x;
+        else cur -= y;
+        s += cur;
     }
-    cout << "\n";
+
+    cout << s << "\n";
+}
+
+void prework() {
 }
 
 int main() {
@@ -96,13 +69,14 @@ int main() {
     freopen("../out.txt", "w", stdout);
 #endif
 
+    prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
-    cin >> n >> C;
-    a = vector<Node>(n);
-    for (auto &[d, x, y, z] : a) {
-        cin >> x >> y >> z;
-        d = 1.0 * y * z / x;
+    int T = 1;
+    cin >> T;
+    while (T--) {
+        cin >> n >> b >> x >> y;
+        solve();
     }
-    solve();
+
     return 0;
 }

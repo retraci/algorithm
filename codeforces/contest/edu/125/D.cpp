@@ -47,47 +47,52 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-struct Node {
-    double w;
-    ll a, b, c;
-};
+const int N = 3e5 + 10;
 
-ll n, C, m;
-vector<Node> a;
-vector<ll> f;
-
-void init() {
-    sort(a.begin(), a.end(), [](auto &a, auto &b) {
-        return a.w > b.w;
-    });
-
-    f = vector<ll>(C + 1, 0);
-    for (auto &[d, x, y, z] : a) {
-        ll p = y * z;
-        ll s = p;
-        for (ll j = x; j <= C; j += x) {
-            if (s <= f[j]) break;
-
-            f[j] = s;
-            s += p;
-        }
-    }
-    for (int i = 1; i <= C; i++) f[i] = max(f[i], f[i - 1]);
-}
+int n, m, C;
+ll c[N], w1[N], w2[N];
+ll nc[N], nw[N];
 
 void solve() {
-    init();
+    vector<ll> mx(C + 1, 0), id(C + 1, 0);
+    for (int i = 1; i <= n; i++) {
+        if (mx[c[i]] < w1[i]) {
+            mx[c[i]] = w1[i];
+            id[c[i]] = i;
+        }
+    }
 
-    cin >> m;
-    while (m--) {
-        ll x, y;
-        cin >> x >> y;
+    vector<int> upd[C + 1];
+    int nl = 0;
+    for (int i = 1; i <= C; i++) {
+        int pos = id[i];
+        if (pos == 0) continue;
 
-        ll tmp = x * y;
-        int pos = upper_bound(f.begin(), f.end(), tmp) - f.begin();
+        nl++;
+        nc[nl] = c[pos], nw[nl] = w1[pos];
+
+        for (int j = nc[nl]; j <= C; j += nc[nl]) {
+            upd[j].push_back(nl);
+        }
+    }
+
+    vector<ll> f(C + 1, 0);
+    for (int i = 1; i <= C; i++) {
+        f[i] = f[i - 1];
+
+        for (int j : upd[i]) {
+            f[i] = max(f[i], 1LL * i / nc[j] * nw[j]);
+        }
+    }
+
+    for (int i = 1; i <= m; i++) {
+        int pos = upper_bound(f.begin(), f.end(), w2[i]) - f.begin();
         cout << (pos == f.size() ? -1 : pos) << " ";
     }
     cout << "\n";
+}
+
+void prework() {
 }
 
 int main() {
@@ -96,13 +101,28 @@ int main() {
     freopen("../out.txt", "w", stdout);
 #endif
 
+    prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
-    cin >> n >> C;
-    a = vector<Node>(n);
-    for (auto &[d, x, y, z] : a) {
-        cin >> x >> y >> z;
-        d = 1.0 * y * z / x;
+    int T = 1;
+//    cin >> T;
+    while (T--) {
+        cin >> n >> C;
+        for (int i = 1; i <= n; i++) {
+            ll tc, td, th;
+            cin >> tc >> td >> th;
+            ll tw = td * th;
+            c[i] = tc, w1[i] = tw;
+        }
+        cin >> m;
+        for (int i = 1; i <= m; i++) {
+            ll td, th;
+            cin >> td >> th;
+            ll tw = td * th;
+            w2[i] = tw;
+        }
+
+        solve();
     }
-    solve();
+
     return 0;
 }
