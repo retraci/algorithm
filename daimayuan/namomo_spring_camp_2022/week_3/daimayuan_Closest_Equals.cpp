@@ -47,153 +47,46 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-// region 区间最小值段树
-template<int SZ>
-struct Seg {
-#define mid (s + e >> 1)
-#define ls(x) (tr[x].lson)
-#define rs(x) (tr[x].rson)
-
-    struct Node {
-        int lson, rson;
-        ll sum, lz;
-    };
-
-    int lb, rb, rt, mem;
-    Node tr[SZ * 4];
-
-    inline Seg() {
-        init(1, SZ);
-    }
-
-    inline void init(int L, int R) {
-        rt = 0, mem = 0, lb = L, rb = R;
-        tr[0].lson = tr[0].rson = 0;
-        tr[0].sum = tr[0].lz = 1e18;
-    }
-
-    inline void init(int L, int R, ll val) {
-        init(L, R);
-        for (int i = L; i <= R; i++) set(i, val);
-    }
-
-    inline int new_node() {
-        int id = ++mem;
-        tr[id].lson = tr[id].rson = 0;
-        tr[id].sum = tr[id].lz = 1e18;
-        return id;
-    }
-
-    inline void push_up(Node &fa, Node &lc, Node &rc) {
-        fa.sum = min(lc.sum, rc.sum);
-    }
-
-    inline void push_up(int k) {
-        push_up(tr[k], tr[ls(k)], tr[rs(k)]);
-    }
-
-    inline void work(Node &t, ll val) {
-        t.sum = min(t.sum, val);
-        t.lz = min(t.lz, val);
-    }
-
-    inline void push_down(int k, int s, int e) {
-        if (!ls(k)) ls(k) = new_node();
-        if (!rs(k)) rs(k) = new_node();
-        if (tr[k].lz) {
-            work(tr[ls(k)], tr[k].lz);
-            work(tr[rs(k)], tr[k].lz);
-            tr[k].lz = 1e18;
-        }
-    }
-
-    inline void update(int &k, int s, int e, int L, int R, ll val) {
-        if (!k) k = new_node();
-
-        if (L <= s && e <= R) {
-            work(tr[k], val);
-            return;
-        }
-
-        push_down(k, s, e);
-        if (L <= mid) update(ls(k), s, mid, L, R, val);
-        if (R >= mid + 1) update(rs(k), mid + 1, e, L, R, val);
-        push_up(k);
-    }
-
-    inline void set(int &k, int s, int e, int id, ll val) {
-        if (!k) k = new_node();
-
-        if (s == e) {
-            tr[k].sum = val;
-            return;
-        }
-
-        push_down(k, s, e);
-        if (id <= mid) set(ls(k), s, mid, id, val);
-        if (id >= mid + 1) set(rs(k), mid + 1, e, id, val);
-        push_up(k);
-    }
-
-    inline Node query(int k, int s, int e, int L, int R) {
-        if (L <= s && e <= R) return tr[k];
-
-        push_down(k, s, e);
-        if (R <= mid) return query(ls(k), s, mid, L, R);
-        if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
-        Node res = {0, 0, (ll) 1e18, 0};
-        Node lc = query(ls(k), s, mid, L, R);
-        Node rc = query(rs(k), mid + 1, e, L, R);
-        push_up(res, lc, rc);
-        return res;
-    }
-
-    inline void update(int L, int R, ll val) {
-        if (R < L) return;
-        update(rt, lb, rb, L, R, val);
-    }
-
-    inline void set(int id, ll val) {
-        set(rt, lb, rb, id, val);
-    }
-
-    inline Node query(int L, int R) {
-        if (R < L) return {0, 0, (ll) 1e18, 0};
-        return query(rt, lb, rb, L, R);
-    }
-};
-// endregion
-
 const int N = 5e5 + 10;
 
 int n, Q;
 int a[N];
 ti3 qs[N];
 
-Seg<N> seg;
+int bit[N];
+
+void upd(int id, int v) {
+    for (int i = id; i <= n; i += i & -i) bit[i] = min(bit[i], v);
+}
+
+int qr(int id) {
+    int res = 1e9;
+    for (int i = id; i; i -= i & -i) res = min(res, bit[i]);
+    return res;
+}
 
 void solve() {
     sort(qs + 1, qs + Q + 1, [](auto &a, auto &b) {
         return get<1>(a) < get<1>(b);
     });
 
-    seg.init(1, n);
+    vector<int> ans(Q + 1);
+    fill(bit, bit + n + 1, 1e9);
     int pos = 1;
     unordered_map<int, int> lst;
-    vector<int> ans(Q + 1);
     for (int i = 1; i <= Q; i++) {
         auto[L, R, qid] = qs[i];
 
         while (pos <= R) {
             int x = a[pos];
             if (lst.count(x)) {
-                seg.update(1, lst[x], pos - lst[x]);
+                upd(n - lst[x] + 1, pos - lst[x]);
             }
             lst[x] = pos++;
         }
 
-        ll tmp = seg.query(L, R).sum;
-        ans[qid] = tmp == 1e18 ? -1 : tmp;
+        ll tmp = qr(n - L + 1);
+        ans[qid] = tmp == 1e9 ? -1 : tmp;
     }
 
     for (int i = 1; i <= Q; i++) cout << ans[i] << "\n";

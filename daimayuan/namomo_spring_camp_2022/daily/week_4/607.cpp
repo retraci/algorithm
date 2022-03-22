@@ -47,58 +47,25 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 3e5 + 10;
+const int N = 1e6 + 10;
 
-int n, Q;
-int x[N], w[N];
-ti3 qs[N];
-
-ll bit[N];
-
-void upd(int id, ll v) {
-    for (int i = id; i <= n; i += i & -i) bit[i] = min(bit[i], v);
-}
-
-ll qr(int id) {
-    ll res = 5e18;
-    for (int i = id; i; i -= i & -i) res = min(res, bit[i]);
-    return res;
-}
+int n;
+int a[N];
+int cnt[N];
 
 void solve() {
-    sort(qs + 1, qs + Q + 1, [](auto &a, auto &b) {
-        return get<1>(a) < get<1>(b);
-    });
+    for (int i = 1; i <= n; i++) cnt[a[i]]++;
 
-    vector<ll> ans(Q + 1);
-    fill(bit, bit + n + 1, 5e18);
-    vector<int> stk;
-    int pos = 1;
-    for (int i = 1; i <= Q; i++) {
-        auto[L, R, qid] = qs[i];
+    ll ans = 0;
+    for (ll i = 1; i <= 1e6; i++) {
+        if (cnt[i] == 0) continue;
 
-        while (pos <= R) {
-            int tx = x[pos], tw = w[pos];
-            while (!stk.empty() && w[stk.back()] >= tw) {
-                int id = stk.back(); stk.pop_back();
-                ll tmp = 1LL * (tx - x[id]) * (w[id] + tw);
-
-                upd(n - id + 1, tmp);
-            }
-            if (!stk.empty()) {
-                int id = stk.back();
-                ll tmp = 1LL * (tx - x[id]) * (w[id] + tw);
-
-                upd(n - id + 1, tmp);
-            }
-
-            stk.push_back(pos++);
+        for (ll j = i + 1; j * j - i * i <= 1e6; j++) {
+            ans += cnt[i] * cnt[j * j - i * i];
         }
-
-        ans[qid] = qr(n - L + 1);
     }
 
-    for (int i = 1; i <= Q; i++) cout << ans[i] << "\n";
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -115,13 +82,8 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n >> Q;
-        for (int i = 1; i <= n; i++) cin >> x[i] >> w[i];
-        for (int i = 1; i <= Q; i++) {
-            int L, R;
-            cin >> L >> R;
-            qs[i] = {L, R, i};
-        }
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 

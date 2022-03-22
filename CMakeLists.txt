@@ -218,3 +218,6 @@ add_executable(CF1635F daimayuan/namomo_spring_camp_2022/week_3/CF1635F.cpp)
 add_executable(daimayuan_Closest_Equals daimayuan/namomo_spring_camp_2022/week_3/daimayuan_Closest_Equals.cpp)
 
 add_executable(CF526F daimayuan/namomo_spring_camp_2022/week_3/CF526F.cpp)
+add_executable(607 daimayuan/namomo_spring_camp_2022/daily/week_4/607.cpp)
+add_executable(CF438D daimayuan/namomo_spring_camp_2022/week_3/CF438D.cpp)
+add_executable(CF765F daimayuan/namomo_spring_camp_2022/week_3/CF765F.cpp)

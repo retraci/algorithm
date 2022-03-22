@@ -49,11 +49,11 @@ struct Seg {
     }
 
     inline void push_down(int k, int s, int e) {
-        if (!ls(k)) ls(k) = new_node();
-        if (!rs(k)) rs(k) = new_node();
         ll len = e - s + 1;
         ll lsz = len - len / 2, rsz = len / 2;
         if (tr[k].lz) {
+            if (!ls(k)) ls(k) = new_node();
+            if (!rs(k)) rs(k) = new_node();
             work(tr[ls(k)], lsz, tr[k].lz);
             work(tr[rs(k)], rsz, tr[k].lz);
             tr[k].lz = 0;
@@ -179,9 +179,9 @@ struct Seg {
     }
 
     inline void push_down(int k, int s, int e) {
-        if (!ls(k)) ls(k) = new_node();
-        if (!rs(k)) rs(k) = new_node();
         if (tr[k].lz) {
+            if (!ls(k)) ls(k) = new_node();
+            if (!rs(k)) rs(k) = new_node();
             work(tr[ls(k)], tr[k].lz);
             work(tr[rs(k)], tr[k].lz);
             tr[k].lz = 0;
@@ -296,9 +296,9 @@ struct Seg {
     }
 
     inline void push_down(int k, int s, int e) {
-        if (!ls(k)) ls(k) = new_node();
-        if (!rs(k)) rs(k) = new_node();
         if (tr[k].lz) {
+            if (!ls(k)) ls(k) = new_node();
+            if (!rs(k)) rs(k) = new_node();
             work(tr[ls(k)], tr[k].lz);
             work(tr[rs(k)], tr[k].lz);
             tr[k].lz = 1e18;
@@ -415,11 +415,11 @@ struct Seg {
     }
 
     inline void push_down(int k, int s, int e) {
-        if (!ls(k)) ls(k) = new_node();
-        if (!rs(k)) rs(k) = new_node();
         ll len = e - s + 1;
         ll lsz = len - len / 2, rsz = len / 2;
         if (tr[k].lz) {
+            if (!ls(k)) ls(k) = new_node();
+            if (!rs(k)) rs(k) = new_node();
             work(tr[ls(k)], lsz, tr[k].lz);
             work(tr[rs(k)], rsz, tr[k].lz);
             tr[k].lz = 0;
@@ -554,11 +554,11 @@ struct Seg {
     }
 
     inline void push_down(int k, int s, int e) {
-        if (!ls(k)) ls(k) = new_node();
-        if (!rs(k)) rs(k) = new_node();
         ll len = e - s + 1;
         ll lsz = len - len / 2, rsz = len / 2;
         if (tr[k].lz) {
+            if (!ls(k)) ls(k) = new_node();
+            if (!rs(k)) rs(k) = new_node();
             work(tr[ls(k)], lsz, tr[k].lz);
             work(tr[rs(k)], rsz, tr[k].lz);
             tr[k].lz = 0;
