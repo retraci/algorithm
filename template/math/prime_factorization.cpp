@@ -1,15 +1,16 @@
 // region 质因数分解
-ll ps[N], cs[N], tt;
+vector<pii> ps;
 
 void divide(ll x) {
-    tt = 0;
-    for (ll i = 2; 1LL * i * i <= x; i++) {
+    ps = {};
+    for (int i = 2; 1LL * i * i <= x; i++) {
         if (x % i == 0) {
-            ps[++tt] = i, cs[tt] = 0;
-            while (x % i == 0) cs[tt]++, x /= i;
+            int cnt = 0;
+            while (x % i == 0) x /= i, cnt++;
+            ps.push_back({i, cnt});
         }
     }
-    if (x > 1) ps[++tt] = x, cs[tt] = 1;
+    if (x > 1) ps.push_back({x, 1});
 }
 // endregion
 
@@ -21,7 +22,8 @@ void primes(int lim) {
     vis[1] = 1;
     for (int i = 2; i <= lim; i++) {
         if (vis[i]) continue;
-        for (int j = i; j <= lim / i; j++) vis[i * j] = 1;
+
+        for (int j = i; j <= lim; j += i) vis[j] = 1;
     }
 }
 // endregion

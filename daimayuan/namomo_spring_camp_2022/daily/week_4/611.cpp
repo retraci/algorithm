@@ -47,33 +47,66 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e6 + 10;
+const int N = 2e6 + 10;
+const int MOD = 1e9 + 7;
+
+// region comb
+ll fac[N], ifac[N];
+
+inline ll ksm(ll a, ll b) {
+    ll res = 1;
+    while (b) {
+        if (b & 1) res = res * a % MOD;
+        a = a * a % MOD;
+        b >>= 1;
+    }
+    return res;
+}
+
+inline ll inv(ll x) {
+    return ksm(x, MOD - 2);
+}
+
+inline ll C(ll a, ll b) {
+    if (a < 0 || b < 0 || a < b) return 0;
+    return fac[a] * ifac[b] % MOD * ifac[a - b] % MOD;
+}
+
+inline void init_comb(int lim) {
+    fac[0] = ifac[0] = 1;
+    for (int i = 1; i <= lim; i++) fac[i] = fac[i - 1] * i % MOD;
+    ifac[lim] = inv(fac[lim]);
+    for (int i = lim - 1; i >= 1; i--) ifac[i] = ifac[i + 1] * (i + 1) % MOD;
+}
+// endregion
 
 int n, m;
-int a[N];
+vector<int> ps[N];
 
 void solve() {
-    vector<int> lst(m + 1, 0);
-    for (int i = 1; i <= n; i++) lst[a[i]] = i;
+    ll ans = 1;
+    for (auto p : ps[n]) {
+        int cnt = 0;
+        while (n % p == 0) n /= p, cnt++;
 
-    vector<int> stk;
-    vector<int> ins(m + 1, 0);
-    for (int i = 1; i <= n; i++) {
-        if (ins[a[i]]) continue;
-
-        while (!stk.empty() && a[stk.back()] > a[i] && lst[a[stk.back()]] > i) {
-            ins[a[stk.back()]] = 0, stk.pop_back();
-        }
-        stk.push_back(i), ins[a[i]] = 1;
+        ans *= C(cnt + m - 1, m - 1);
+        ans %= MOD;
     }
+    ans *= ksm(2, m - 1);
+    ans %= MOD;
 
-    for (int i = 0; i < stk.size(); i++) {
-        cout << a[stk[i]];
-        if (i != stk.size() - 1) cout << " ";
-    }
+    cout << ans << "\n";
 }
 
 void prework() {
+    for (int i = 2; i <= 1e6; i++) {
+        if (!ps[i].empty()) continue;
+
+        for (int j = i; j <= 1e6; j += i) {
+            ps[j].push_back(i);
+        }
+    }
+    init_comb(1e6 + 50);
 }
 
 int main() {
@@ -85,10 +118,9 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
         cin >> n >> m;
-        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 
