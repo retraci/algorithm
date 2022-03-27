@@ -47,8 +47,9 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-void solve() {
+string str;
 
+void solve() {
 }
 
 void prework() {
@@ -65,6 +66,7 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> str;
         solve();
     }
 

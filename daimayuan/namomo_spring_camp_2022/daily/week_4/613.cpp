@@ -48,7 +48,6 @@ using namespace std;
 using namespace grid_delta;
 
 void solve() {
-
 }
 
 void prework() {
@@ -63,7 +62,7 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
         solve();
     }

@@ -47,8 +47,30 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-void solve() {
+const ll MOD = 1000000007;
 
+int n, k;
+
+inline ll ksm(ll a, ll b) {
+    ll res = 1;
+    while (b) {
+        if (b & 1) res = res * a % MOD;
+        a = a * a % MOD;
+        b >>= 1;
+    }
+    return res;
+}
+
+ll inv(ll a) {
+    return ksm(a, MOD - 2);
+}
+
+void solve() {
+    int sign = 1;
+    if (k & 1) sign = -1;
+    ll ans = (ksm(n - 1, k) + sign * (n - 1)) % MOD * inv(n) % MOD;
+    ans = (ans + MOD) % MOD;
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -65,6 +87,7 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> n >> k;
         solve();
     }
 

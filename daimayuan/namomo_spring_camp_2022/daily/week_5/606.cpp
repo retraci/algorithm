@@ -47,8 +47,18 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-void solve() {
+const int N = 1e5 + 10;
 
+int n;
+int L[N], R[N];
+
+void solve() {
+    sort(L + 1, L + 1 + n);
+    sort(R + 1, R + 1 + n);
+
+    ll ans = n;
+    for (int i = 1; i <= n; i++) ans += max(L[i], R[i]);
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -65,6 +75,8 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> L[i] >> R[i];
         solve();
     }
 

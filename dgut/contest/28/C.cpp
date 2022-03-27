@@ -47,8 +47,40 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-void solve() {
+ll x, y;
+ll f[30][20], bit[60];
+ll n;
 
+ll dfs(ll pos, ll pre, bool lim) {
+    if (pos <= 0) return 1;
+    if (!lim && f[pos][pre] != -1) return f[pos][pre];
+    ll num = lim ? bit[pos] : 9;
+    ll ans = 0, pre_x;
+    for (ll i = 0; i <= num; i++) {
+        if (abs(pre - i) >= 2) {
+
+            pre_x = i;
+            if (pre == -3 && i == 0)pre_x = -3;
+            ans += dfs(pos - 1, pre_x, lim && i == num);
+        }
+    }
+    if (!lim) f[pos][pre] = ans;
+    return ans;
+}
+
+ll work(ll x) {
+    ll len = 0;
+    while (x) {
+        bit[++len] = x % 10;
+        x /= 10;
+    }
+    return dfs(len, -3, 1);
+}
+
+void solve() {
+    memset(f, -1, sizeof(f));
+    memset(bit, 0, sizeof(bit));
+    cout << work(y) - work(x - 1) << "\n";
 }
 
 void prework() {
@@ -65,6 +97,7 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> x >> y;
         solve();
     }
 

@@ -47,8 +47,52 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-void solve() {
+const int N = 1e6 + 10;
 
+int L, R;
+int pr[N];
+
+int pw(ll a, ll b, ll P) {
+    ll res = 1;
+    for (; b; b /= 2, a = a * a % P) {
+        if (b % 2) {
+            res = res * a % P;
+        }
+    }
+    return int(res);
+}
+
+bool millerRabin(int n) {
+    if (n == 2) return 1;
+    if (pw(2, n - 1, n) == 1 && pw(4, n - 1, n) == 1) return 1;
+    else return 0;
+    return 1;
+}
+
+void solve() {
+    vector<int> a;
+    for (int i = L; i <= R; i++) {
+        if (millerRabin(i)) a.push_back(i);
+    }
+
+    if (a.size() <= 1) {
+        cout << "no";
+        return;
+    }
+
+    int ci = 0, ans = 1e9, bi = 0, ans1 = 0;
+    for (int i = 1; i < a.size(); i++) {
+        if (a[i] - a[i - 1] < ans) {
+            ans = a[i] - a[i - 1];
+            ci = i;
+        }
+
+        if (a[i] - a[i - 1] > ans1) {
+            ans1 = a[i] - a[i - 1];
+            bi = i;
+        }
+    }
+    printf("%d,%d are closest pair, %d,%d are most distant pair.", a[ci - 1], a[ci], a[bi - 1], a[bi]);
 }
 
 void prework() {
@@ -65,6 +109,7 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> L >> R;
         solve();
     }
 

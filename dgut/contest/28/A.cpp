@@ -47,8 +47,53 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-void solve() {
+const int N = 110;
 
+int n, m;
+ti3 a[N];
+
+void solve() {
+    sort(a + 1, a + n + 1, [](auto &a, auto &b) {
+        return get<0>(a) < get<0>(b);
+    });
+
+    vector<vector<pii>> b(1010);
+    for (int i = 1; i <= n; i++) {
+        auto [ta, tb, tc] = a[i];
+        b[ta].push_back({tb, tc});
+    }
+
+    vector<int> f(10010, 0);
+    f[0] = 10;
+    for (int i = 1; i <= 1000; i++) {
+        for (int j = 0; j <= m; j++) f[j]--;
+
+        for (auto [tb, tc] : b[i]) {
+            for (int j = m; j >= 0; j--) {
+                if (f[j] < 0) continue;
+
+                int ns = min(j + tc, m);
+                f[ns] = max(f[ns], f[j]);
+                f[j] += tb;
+            }
+        }
+
+        bool flag = 0;
+        for (int j = 0; j <= m; j++) {
+            if (f[j] >= 0) flag = 1;
+        }
+        if (!flag) {
+            cout << i - 1 << "\n";
+            return;
+        }
+        if (f[m] >= 0) {
+            cout << i << "\n";
+            return;
+        }
+    }
+
+    int ans = *max_element(f.begin(), f.end()) + 1000;
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -65,6 +110,12 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> m >> n;
+        for (int i = 1; i <= n; i++) {
+            int ti, ta, tb;
+            cin >> ti >> ta >> tb;
+            a[i] = {ti, ta, tb};
+        }
         solve();
     }
 

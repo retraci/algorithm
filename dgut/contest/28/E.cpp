@@ -47,8 +47,47 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-void solve() {
+int A[1000005] = {0}, B[1000005] = {0}, C[1000005] = {0};
 
+void solve() {
+    string a, b;
+    cin >> a >> b;
+
+    bool flag = false;
+    if (a == b) cout << "0";
+    int alen = a.length();
+    int blen = b.length();
+    if (alen < blen) {
+        swap(a, b);
+        flag = true;
+    } else if (alen == blen) {
+        if (b > a) {
+            swap(a, b);
+            flag = true;
+        }
+    }
+    alen = a.length();
+    blen = b.length();
+    for (int i = 0; i <= alen; i++) {
+        A[alen - i] = a[i] - '0';
+    }
+    for (int j = 0; j <= blen; j++) {
+        B[blen - j] = b[j] - '0';
+    }
+    int clen = 1;
+    while (clen <= alen) {
+        C[clen] = A[clen] - B[clen];
+        if (C[clen] < 0) {
+            while (C[clen] < 0) {
+                C[clen] += 10;
+                A[clen + 1]--;
+            }
+        }
+        clen++;
+    }
+    while (C[clen] == 0) clen--;
+    if (flag) cout << "-";
+    for (int t = clen; t > 0; t--) cout << C[t];
 }
 
 void prework() {
