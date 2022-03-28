@@ -1,9 +1,8 @@
 // region 无边权的lca
-int rt;
 int dep[N], fa[N][32];
 
-void lca_init() {
-    memset(dep, -1, sizeof dep);
+void lca_init(int rt) {
+    fill(dep, dep + n + 1, -1);
 
     queue<int> que;
     que.push(rt);
@@ -12,7 +11,7 @@ void lca_init() {
         auto u = que.front(); que.pop();
 
         for (int i = h[u]; ~i; i = ne[i]) {
-            auto v = g[i];
+            int v = g[i];
 
             if (dep[v] == -1) {
                 dep[v] = dep[u] + 1;
@@ -44,7 +43,6 @@ int lca(int x, int y) {
 // endregion
 
 // region 有边权的lca
-int rt;
 int dep[N], fa[N][32];
 ll w[N][32];
 
@@ -53,8 +51,8 @@ void add(int u, int v, int cost) {
     ne[edm] = h[u], h[u] = edm++;
 }
 
-void lca_init() {
-    memset(dep, -1, sizeof dep);
+void lca_init(int rt) {
+    fill(dep, dep + n + 1, -1);
 
     queue<int> que;
     que.push(rt);
