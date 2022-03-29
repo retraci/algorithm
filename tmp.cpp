@@ -1,176 +1,175 @@
-#include <cstdio>
-#include <cstring>
-#include <algorithm>
-#include <cstdlib>
-#include <cmath>
-#include <iostream>
-#include <ext/pb_ds/priority_queue.hpp>
+// Problem: 都市的柏油路太硬
+// Contest: NowCoder
+// URL: https://ac.nowcoder.com/acm/contest/11178/D
+// Memory Limit: 1048576 MB
+// Time Limit: 6000 ms
+//
+// Powered by CP Editor (https://cpeditor.org)
 
+//#pragma GCC target("avx")
+//#pragma GCC optimize(2)
+//#pragma GCC optimize(3)
+//#pragma GCC optimize("Ofast")
+// created by myq
+#include<iostream>
+#include<cstdlib>
+#include<string>
+#include<cstring>
+#include<cstdio>
+#include<algorithm>
+#include<climits>
+#include<cmath>
+#include<cctype>
+#include<stack>
+#include<queue>
+#include<list>
+#include<vector>
+#include<set>
+#include<map>
+#include<sstream>
+#include<unordered_map>
+#include<unordered_set>
 using namespace std;
-using namespace std;
-#define N 400050
-#define M 400050
-#define inf 2147483647
 typedef long long ll;
-
-__attribute__((optimize("-O3")))inline char nc() {
-    static char buf[100000], *p1, *p2;
-    return p1 == p2 && (p2 = (p1 = buf) + fread(buf, 1, 100000, stdin), p1 == p2) ? EOF : *p1++;
+#define x first
+#define y second
+typedef pair<int,int> pii;
+const int mod=998244353;
+typedef unsigned long long ull;
+inline ull myRand(ull &k1, ull &k2){
+    ull k3 = k1, k4 = k2;
+    k1 = k4;
+    k3 ^= (k3 <<23);
+    k2 = k3 ^ k4 ^ (k3 >>17) ^ (k4 >>26);
+    return k2 + k4;
+}
+inline pair<int,int>myRanq(ull&k1,ull&k2,int MAXN){
+    int x=myRand(k1,k2)%MAXN+1,y=myRand(k1,k2)%MAXN+1;
+    if(x>y)return make_pair(y,x);
+    else return make_pair(x,y);
 }
 
-__attribute__((optimize("-O3")))int rd() {
-    int x = 0;
-    char s = nc();
-    while (s < '0' || s > '9') s = nc();
-    while (s >= '0' && s <= '9') x = (x << 3) + (x << 1) + s - '0', s = nc();
-    return x;
+const int N=300010;
+int p[N];
+vector<int>v[N];
+int dep[N];
+int id[N];
+int idx;
+int in[N];
+int out[N];
+int Lg[N];
+int val[N];
+int st[N][20];
+int cnt;
+int find(int x)
+{
+    if(p[x]!=x)	p[x]=find(p[x]);
+    return p[x];
 }
-
-char pbuf[100000], *pp = pbuf;
-
-__attribute__((optimize("-O3")))void push(const char c) {
-    if (pp - pbuf == 100000) fwrite(pbuf, 1, 100000, stdout), pp = pbuf;
-    *pp++ = c;
-}
-
-__attribute__((optimize("-O3")))void write(int x) {
-    static int sta[35];
-    int top = 0;
-    do { sta[top++] = x % 10, x /= 10; } while (x);
-    while (top) push(sta[--top] + '0');
-}
-
-int head[N], to[M << 1], nxt[M << 1], cnt, f[23][N], mn[N], val[M << 1], n, m, dis[N], vis[N], Lg[N];
-int fa[N], w[N];
-
-int find(int x) { return fa[x] == x ? x : fa[x] = find(fa[x]); }
-
-struct E {
-    int x, y, z, w;
-
-    bool operator<(const E &u) const {
-        return w > u.w;
+struct edge{
+    int a;
+    int b;
+    int c;
+    bool operator<(const edge&w)const
+    {
+        return c<w.c;
     }
-} e[M];
-
-__gnu_pbds::priority_queue<pair<int, int> > q;
-
-__attribute__((optimize("-O3")))inline void add(int u, int v) {
-    to[++cnt] = v;
-    nxt[cnt] = head[u];
-    head[u] = cnt;
+}e[500010];
+int cmp(int a,int b){
+    if(dep[a]<dep[b])	return a;
+    else				return b;
 }
-
-__attribute__((optimize("-O3")))void add(int u, int v, int w) {
-    to[++cnt] = v;
-    nxt[cnt] = head[u];
-    head[u] = cnt;
-    val[cnt] = w;
-}
-
-__attribute__((optimize("-O3")))void dij() {
-    int i;
-    for (i = 1; i <= n; i++) dis[i] = 2147483647;
-    dis[1] = 0;
-    memset(vis, 0, sizeof(vis));
-    q.push(make_pair(0, 1));
-    while (!q.empty()) {
-        int x = q.top().second, i;
-        q.pop();
-        if (vis[x]) continue;
-        vis[x] = 1;
-        if (dis[x] == inf) continue;
-        for (i = head[x]; i; i = nxt[i]) {
-            if (dis[to[i]] > dis[x] + val[i]) {
-                dis[to[i]] = dis[x] + val[i];
-                q.push(make_pair(-dis[to[i]], to[i]));
-            }
+void init_st(){
+    for(int i=1;i<=cnt;i++)	Lg[i]=(int)log2(i);
+    for(int i=1;i<=cnt;i++)	st[i][0]=id[i];
+    for(int i=1;i<=19;i++)
+    {
+        for(int j=1;j+(1<<i)-1<=cnt;j++){
+            st[j][i]=cmp(st[j][i-1],st[j+(1<<i-1)][i-1]);
         }
     }
 }
-
-__attribute__((optimize("-O3")))void dfs(int x) {
-    int i;
-    if (x <= n) mn[x] = dis[x];
-    else mn[x] = inf;
-    for (i = head[x]; i; i = nxt[i]) {
-        f[0][to[i]] = x;
-        dfs(to[i]);
-        mn[x] = min(mn[x], mn[to[i]]);
+void dfs(int u,int fa){
+    id[++cnt]=u;
+    in[u]=cnt;
+    dep[u]=dep[fa]+1;
+    for(auto j:v[u]){
+        dfs(j,u);
+        id[++cnt]=u;
     }
 }
+int get_lca(int l,int r){
+    if(in[r]<in[l])
+        swap(l,r);
 
-__attribute__((optimize("-O3")))void solve() {
-    memset(head, 0, sizeof(head));
-    cnt = 0;
-    memset(f, 0, sizeof(f));
-    n = rd();
-    m = rd();
-    int i, x, y, j;
-    for (i = 1; i <= m; i++) {
-        e[i].x = rd();
-        e[i].y = rd();
-        e[i].z = rd();
-        e[i].w = rd();
-        add(e[i].x, e[i].y, e[i].z);
-        add(e[i].y, e[i].x, e[i].z);
-    }
-    dij();
+    cout << l << " " << r << " " << in[l] << " " << in[r] << "\n";
 
-    memset(head, 0, sizeof(head));
-    cnt = 0;
-    sort(e + 1, e + m + 1);
-    for (Lg[0] = -1, i = 1; i <= 2 * n; i++) fa[i] = i, Lg[i] = Lg[i >> 1] + 1;
-    int tot = n;
-    for (i = 1; i <= m; i++) {
-        int dx = find(e[i].x), dy = find(e[i].y);
-        if (dx == dy) continue;
-
-        tot++;
-        fa[dx] = tot;
-        fa[dy] = tot;
-        add(tot, dx);
-        add(tot, dy);
-        w[tot] = e[i].w;
-    }
-    dfs(tot);
-
-    for (i = 1; (1 << i) <= tot; i++) {
-        for (j = 1; j <= tot; j++) {
-            f[i][j] = f[i - 1][f[i - 1][j]];
-        }
-    }
-    int opt, cas, S;
-    cas = rd();
-    opt = rd();
-    S = rd();
-    int ans = 0;
-    while (cas--) {
-        x = rd();
-        y = rd();
-        x = (ll(x) + opt * ans - 1) % n + 1;
-        y = (ll(y) + opt * ans) % (S + 1);
-
-        cout << x << " " << y << "\n";
-
-        for (i = Lg[tot]; i >= 0; i--) {
-            if (!f[i][x]) continue;
-            if (w[f[i][x]] > y) x = f[i][x];
-        }
-        ans = mn[x];
-        write(ans);
-        push('\n');
-    }
+    // cout<<l<<" "<<r<<endl;
+    int len=Lg[in[r]-in[l]+1];
+    // cout<<len<<endl;
+    return cmp(st[in[l]][len],st[in[r]-(1<<len)+1][len]);
 }
-
-__attribute__((optimize("-O3")))int main() {
+int main()
+{
 #ifdef LOCAL
-        freopen("../in.txt", "r", stdin);
-        freopen("../out.txt", "w", stdout);
+    freopen("../in.txt", "r", stdin);
+    freopen("../out.txt", "w", stdout);
 #endif
 
-    int T;
-    T = rd();
-    while (T--) solve();
-    fwrite(pbuf, 1, pp - pbuf, stdout);
+    int n,m;
+    scanf("%d%d",&n,&m);
+    for(int i=1;i<=2*n-1;i++)	p[i]=i;
+    int idx=n+1;
+    for(int i=0;i<m;i++){
+        int a,b,c;
+        scanf("%d%d%d",&a,&b,&c);
+        e[i]={a,b,c};
+    }
+    sort(e,e+m);
+    for(int i=0;i<m;i++)
+    {
+        int a=e[i].a,b=e[i].b;
+        int c=e[i].c;
+        a=find(a);
+        b=find(b);
+        if(a!=b)
+        {
+            v[idx].push_back(a);
+            v[idx].push_back(b);
+            val[idx]=c;
+            p[a]=idx;
+            p[b]=idx;
+            idx++;
+
+            cout << idx - 1 << " " << a << " " << b << "\n";
+        }
+    }
+    int root=2*n-1;
+
+    dfs(root,0);
+    init_st();
+    int q;
+    scanf("%d",&q);
+    ull a,b;
+    scanf("%llu%llu",&a,&b);
+    int x;
+    int y;
+    pii P;
+    int dd;
+    int ans=0;
+    while(q--)
+    {
+        P=myRanq(a,b,n);
+        x=P.x;
+        y=P.y;
+
+
+
+        dd=get_lca(x,y);
+//         cout<<x<<" "<<y<<" "<<dd<<endl;
+        ans^=val[dd];
+    }
+    cout<<ans<<endl;
+    return 0;
+
 }

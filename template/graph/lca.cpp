@@ -98,3 +98,47 @@ ll lca(int x, int y) {
     return res;
 }
 // endregion
+
+// region 无边权的欧拉序lca
+int id[N], eula[2 * N], cnt;
+int dep[2 * N], st[2 * N][32], lg[2 * N];
+
+void dfs(int u) {
+    eula[++cnt] = u, id[u] = cnt;
+    for (int i = h[u]; ~i; i = ne[i]) {
+        int v = g[i];
+
+        dep[v] = dep[u] + 1;
+        dfs(v);
+        eula[++cnt] = u;
+    }
+}
+
+void init_st(int rt) {
+    dep[rt] = 1;
+    dfs(tt);
+
+    lg[0] = -1;
+    for (int i = 1; i <= cnt; i++) lg[i] = lg[i >> 1] + 1;
+    for (int i = 1; i <= cnt; i++) st[i][0] = eula[i];
+    for (int k = 1; (1 << k) <= cnt; k++) {
+        for (int i = 1; i + (1 << k) - 1 <= cnt; i++) {
+            int a = st[i][k - 1];
+            int b = st[i + (1 << (k - 1))][k - 1];
+
+            st[i][k] = dep[a] < dep[b] ? a : b;
+        }
+    }
+}
+
+int lca(int x, int y) {
+    int L = id[x], R = id[y];
+    if (L > R) swap(L, R);
+
+    int k = lg[R - L + 1];
+    int a = st[L][k];
+    int b = st[R - (1 << k) + 1][k];
+
+    return dep[a] < dep[b] ? a : b;
+}
+// endregion
