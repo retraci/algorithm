@@ -12,6 +12,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <bitset>
+#include <random>
 
 // region general
 #define ll long long
@@ -47,91 +48,71 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e5 + 10;
+const int N = 1e6 + 10;
 
-ll a0, a1, b0, b1;
+int n;
+int id[N];
 
-// region 质因数分解, 枚举质数
-int isp[N];
-vector<int> ps;
+int ask(int op, int x) {
+    if (op == 1) cout << "> ";
+    else cout << "? ";
+    cout << x << "\n";
+    cout.flush();
 
-void prime(int lim) {
-    fill(isp, isp + lim + 1, 1);
-
-    isp[0] = isp[1] = 0;
-    for (int i = 2; i <= lim; i++) {
-        if (!isp[i]) continue;
-
-        ps.push_back(i);
-        for (int j = i * 2; j <= lim; j += i) isp[j] = 0;
-    }
-}
-
-vector<pll> fs;
-
-void divide(ll x) {
-    fs = {};
-    for (int p : ps) {
-        if (p > x / p) break;
-
-        if (x % p == 0) {
-            int cnt = 0;
-            while (x % p == 0) x /= p, cnt++;
-            fs.push_back({p, cnt});
-        }
-    }
-    if (x > 1) fs.push_back({x, 1});
-}
-// endregion
-
-vector<ll> ds;
-
-void dfs(int u, ll cur) {
-    if (u == fs.size()) {
-        ds.push_back(cur);
-        return;
-    }
-
-    auto [p, c] = fs[u];
-    for (int i = 0; i <= c; i++) {
-        dfs(u + 1, cur);
-        cur *= p;
-    }
-}
-
-void init() {
-    divide(b1);
-
-    ds = {};
-    dfs(0, 1);
+    int res;
+    cin >> res;
+    return res;
 }
 
 void solve() {
-    init();
+    iota(id, id + n + 1, 0);
+    mt19937 rng(time(0));
+    shuffle(id + 1, id + n + 1, rng);
+    int rem = 60;
 
-    int ans = 0;
-    for (ll x : ds) {
-        if (__gcd(a0, x) == a1 && b0 * x / __gcd(b0, x) == b1) ans++;
+    int left = 0, right = 1e9;
+    while (left < right) {
+        int md = left + right >> 1;
+        if (ask(1, md)) left = md + 1;
+        else right = md;
+        rem--;
     }
-    cout << ans << endl;
+    int mx = left;
+
+    vector<int> b;
+    int cur = 1;
+    while (rem > 0 && cur <= n) {
+        int idx = id[cur];
+        b.push_back(ask(2, idx));
+        rem--, cur++;
+    }
+
+    int d = 0;
+    b.push_back(mx);
+    sort(b.begin(), b.end());
+    for (int i = 1; i < b.size(); i++) {
+        d = __gcd(d, b[i] - b[i - 1]);
+    }
+
+    int mi = mx - (n - 1) * d;
+    cout << "! " << mi << " " << d << "\n";
 }
 
 void prework() {
-    prime(1e5);
 }
 
 int main() {
-#ifdef LOCAL
-    freopen("../in.txt", "r", stdin);
-    freopen("../out.txt", "w", stdout);
-#endif
+//#ifdef LOCAL
+//    freopen("../in.txt", "r", stdin);
+//    freopen("../out.txt", "w", stdout);
+//#endif
 
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
-        cin >> a0 >> a1 >> b0 >> b1;
+        cin >> n;
         solve();
     }
 

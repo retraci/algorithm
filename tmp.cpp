@@ -1,175 +1,141 @@
-// Problem: 都市的柏油路太硬
-// Contest: NowCoder
-// URL: https://ac.nowcoder.com/acm/contest/11178/D
-// Memory Limit: 1048576 MB
-// Time Limit: 6000 ms
-//
-// Powered by CP Editor (https://cpeditor.org)
+#include <iostream>
+#include <cstdio>
+#include <algorithm>
+#include <cstring>
+#include <numeric>
+#include <iomanip>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <set>
+#include <map>
+#include <unordered_set>
+#include <unordered_map>
+#include <bitset>
 
-//#pragma GCC target("avx")
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
-//#pragma GCC optimize("Ofast")
-// created by myq
-#include<iostream>
-#include<cstdlib>
-#include<string>
-#include<cstring>
-#include<cstdio>
-#include<algorithm>
-#include<climits>
-#include<cmath>
-#include<cctype>
-#include<stack>
-#include<queue>
-#include<list>
-#include<vector>
-#include<set>
-#include<map>
-#include<sstream>
-#include<unordered_map>
-#include<unordered_set>
+#define Tp template<typename Ty>
+#define Ts template<typename Ty,typename... Ar>
+#define RI int
+#define Cn const
+#define CI Cn int&
+#define I inline
+#define W while
+#define N 300000
+#define LN 19
 using namespace std;
-typedef long long ll;
-#define x first
-#define y second
-typedef pair<int,int> pii;
-const int mod=998244353;
-typedef unsigned long long ull;
-inline ull myRand(ull &k1, ull &k2){
-    ull k3 = k1, k4 = k2;
-    k1 = k4;
-    k3 ^= (k3 <<23);
-    k2 = k3 ^ k4 ^ (k3 >>17) ^ (k4 >>26);
-    return k2 + k4;
-}
-inline pair<int,int>myRanq(ull&k1,ull&k2,int MAXN){
-    int x=myRand(k1,k2)%MAXN+1,y=myRand(k1,k2)%MAXN+1;
-    if(x>y)return make_pair(y,x);
-    else return make_pair(x,y);
-}
+namespace FastIO {
+#define FS 100000
+#define tc() (FA==FB&&(FB=(FA=FI)+fread(FI,1,FS,stdin),FA==FB)?EOF:*FA++)
+#define pc(c) (FC==FE&&(clear(),0),*FC++=c)
+    int OT;
+    char oc, FI[FS], FO[FS], OS[FS], *FA = FI, *FB = FI, *FC = FO, *FE = FO + FS;
 
-const int N=300010;
-int p[N];
-vector<int>v[N];
-int dep[N];
-int id[N];
-int idx;
-int in[N];
-int out[N];
-int Lg[N];
-int val[N];
-int st[N][20];
-int cnt;
-int find(int x)
-{
-    if(p[x]!=x)	p[x]=find(p[x]);
-    return p[x];
-}
-struct edge{
-    int a;
-    int b;
-    int c;
-    bool operator<(const edge&w)const
-    {
-        return c<w.c;
+    I void clear() { fwrite(FO, 1, FC - FO, stdout), FC = FO; }
+
+    Tp I void read(Ty &x) {
+        x = 0;
+        W (!isdigit(oc = tc()));
+        W (x = (x << 3) + (x << 1) + (oc & 15), isdigit(oc = tc()));
     }
-}e[500010];
-int cmp(int a,int b){
-    if(dep[a]<dep[b])	return a;
-    else				return b;
+
+    Ts I void read(Ty &x, Ar &... y) { read(x), read(y...); }
+
+    Tp I void writeln(Ty x) {
+        W (OS[++OT] = x % 10 + 48, x /= 10);
+        W (OT) pc(OS[OT--]);
+        pc('\n');
+    }
+
+    I void NA() { pc('-'), pc('1'), pc('\n'); }
 }
-void init_st(){
-    for(int i=1;i<=cnt;i++)	Lg[i]=(int)log2(i);
-    for(int i=1;i<=cnt;i++)	st[i][0]=id[i];
-    for(int i=1;i<=19;i++)
+using namespace FastIO;
+int n;
+
+struct line {
+    int x, y, v;
+
+    bool operator<(Cn line &o) Cn { return v < o.v; }
+} s[N + 5];
+namespace K//Kruskal重构树
+{
+    int ct, V[N << 1], S[N << 1][2], d, dfn[N << 1], fac[N << 1], D[N << 1], f[N << 1][LN + 1];
+    int fa[N + 5];
+
+    int Fa(CI x) { return fa[x] ? fa[x] = Fa(fa[x]) : x; }//并查集
+    void dfs(CI x, CI p = 0) { D[x] = D[f[x][0] = p] + 1, fac[dfn[x] = ++d] = x, x > n && (dfs(S[x][0], x), dfs(S[x][1], x), 0); }//dfs
+    I void Bd()//建树+预处理
     {
-        for(int j=1;j+(1<<i)-1<=cnt;j++){
-            st[j][i]=cmp(st[j][i-1],st[j+(1<<i-1)][i-1]);
+        RI i, j;
+        for (sort(s + 1, s + n), ct = n, i = 1; i ^ n; ++i) {
+            V[++ct] = s[i].v, fa[S[ct][0] = Fa(s[i].x)] = fa[S[ct][1] = Fa(s[i].y)] = ct;//Kruskal建树
         }
+        for (dfs(ct), j = 1; j <= LN; ++j) for (i = 1; i <= ct; ++i) f[i][j] = f[f[i][j - 1]][j - 1];//倍增预处理
+    }
+
+    I int LCA(RI x, RI y)//倍增LCA
+    {
+        RI i;
+        for (D[x] < D[y] && (swap(x, y), 0), i = 0; D[x] ^ D[y]; ++i) (D[x] ^ D[y]) >> i & 1 && (x = f[x][i]);
+        if (x == y) return x;
+        for (i = 0; f[x][i] ^ f[y][i]; ++i);
+        for (--i; ~i; --i) f[x][i] ^ f[y][i] && (x = f[x][i], y = f[y][i]);
+        return f[x][0];
     }
 }
-void dfs(int u,int fa){
-    id[++cnt]=u;
-    in[u]=cnt;
-    dep[u]=dep[fa]+1;
-    for(auto j:v[u]){
-        dfs(j,u);
-        id[++cnt]=u;
-    }
-}
-int get_lca(int l,int r){
-    if(in[r]<in[l])
-        swap(l,r);
-
-    cout << l << " " << r << " " << in[l] << " " << in[r] << "\n";
-
-    // cout<<l<<" "<<r<<endl;
-    int len=Lg[in[r]-in[l]+1];
-    // cout<<len<<endl;
-    return cmp(st[in[l]][len],st[in[r]-(1<<len)+1][len]);
-}
-int main()
+class SegmentTree//线段树
 {
+private:
+#define PT RI l=1,RI r=n,RI o=1
+#define LT l,u,o<<1
+#define RT u+1,r,o<<1|1
+#define PU(o) (Mn[o]=min(Mn[o<<1],Mn[o<<1|1]),Mx[o]=max(Mx[o<<1],Mx[o<<1|1]))
+#define PD(o) (~P[o]&&(T(o<<1,P[o]),T(o<<1|1,P[o]),P[o]=-1))
+#define T(o, v) ((P[o]=v)?(Mn[o]=Mn0[o],Mx[o]=Mx0[o]):(Mn[o]=1e9,Mx[o]=0))//染色修改
+    int P[N << 2], Mn[N << 2], Mx[N << 2], Mn0[N << 2], Mx0[N << 2];
+public:
+    void Bd(PT) {
+        if (Mn[o] = 1e9, Mx[o] = 0, l == r) return (void) (Mn0[o] = Mx0[o] = K::dfn[l]);
+        RI u = l + r >> 1;
+        Bd(LT), Bd(RT);
+        Mn0[o] = min(Mn0[o << 1], Mn0[o << 1 | 1]), Mx0[o] = max(Mx0[o << 1], Mx0[o << 1 | 1]);//预处理区间内最小值和最大值
+    }
+
+    void U(CI L, CI R, CI v, PT)//区间染色
+    {
+        if (L <= l && r <= R) return (void) T(o, v);
+        RI u = l + r >> 1;
+        PD(o);
+        L <= u && (U(L, R, v, LT), 0), R > u && (U(L, R, v, RT), 0), PU(o);
+    }
+
+    I int G(CI x) Cn//加入x询问
+    {
+        RI mn = min(Mn[1], K::dfn[x]), mx = max(Mx[1], K::dfn[x]);
+        return K::V[K::LCA(K::fac[mn], K::fac[mx])];//询问dfs序最小和最大的点的LCA
+    }
+} S;
+
+int main() {
 #ifdef LOCAL
     freopen("../in.txt", "r", stdin);
     freopen("../out.txt", "w", stdout);
 #endif
 
-    int n,m;
-    scanf("%d%d",&n,&m);
-    for(int i=1;i<=2*n-1;i++)	p[i]=i;
-    int idx=n+1;
-    for(int i=0;i<m;i++){
-        int a,b,c;
-        scanf("%d%d%d",&a,&b,&c);
-        e[i]={a,b,c};
-    }
-    sort(e,e+m);
-    for(int i=0;i<m;i++)
-    {
-        int a=e[i].a,b=e[i].b;
-        int c=e[i].c;
-        a=find(a);
-        b=find(b);
-        if(a!=b)
-        {
-            v[idx].push_back(a);
-            v[idx].push_back(b);
-            val[idx]=c;
-            p[a]=idx;
-            p[b]=idx;
-            idx++;
-
-            cout << idx - 1 << " " << a << " " << b << "\n";
+    RI Qt, i;
+    for (read(n, Qt), i = 1; i ^ n; ++i) read(s[i].x, s[i].y, s[i].v);
+    K::Bd();
+    RI op, x, y, t;
+    S.Bd();
+    W (Qt--)switch (read(op), op) {
+            case 1:
+                read(x, y), S.U(x, y, 1);
+                break;
+            case 2:
+                read(x, y), S.U(x, y, 0);
+                break;
+            case 3:
+                read(x), (t = S.G(x)) ? writeln(t) : NA();
+                break;
         }
-    }
-    int root=2*n-1;
-
-    dfs(root,0);
-    init_st();
-    int q;
-    scanf("%d",&q);
-    ull a,b;
-    scanf("%llu%llu",&a,&b);
-    int x;
-    int y;
-    pii P;
-    int dd;
-    int ans=0;
-    while(q--)
-    {
-        P=myRanq(a,b,n);
-        x=P.x;
-        y=P.y;
-
-
-
-        dd=get_lca(x,y);
-//         cout<<x<<" "<<y<<" "<<dd<<endl;
-        ans^=val[dd];
-    }
-    cout<<ans<<endl;
-    return 0;
-
+    return clear(), 0;
 }

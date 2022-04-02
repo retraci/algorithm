@@ -48,76 +48,66 @@ using namespace std;
 using namespace grid_delta;
 
 const int N = 1e5 + 10;
+const double eps = 1e-5;
 
-ll a0, a1, b0, b1;
+int n;
+int a[N];
 
-// region 质因数分解, 枚举质数
-int isp[N];
-vector<int> ps;
+bool check1(double mid) {
+    double f[n + 1][2];
+    fill(&f[0][0], &f[n][2], -1e18);
 
-void prime(int lim) {
-    fill(isp, isp + lim + 1, 1);
+    f[0][0] = f[0][1] = 0;
+    for (int i = 1; i <= n; i++) {
+        double tmp = a[i] - mid;
 
-    isp[0] = isp[1] = 0;
-    for (int i = 2; i <= lim; i++) {
-        if (!isp[i]) continue;
-
-        ps.push_back(i);
-        for (int j = i * 2; j <= lim; j += i) isp[j] = 0;
+        f[i][0] = f[i - 1][1];
+        f[i][1] = max(f[i - 1][0], f[i - 1][1]) + tmp;
     }
+
+    return max(f[n][0], f[n][1]) >= 0;
 }
 
-vector<pll> fs;
+bool check2(int mid) {
+    int f[n + 1][2];
+    fill(&f[0][0], &f[n][2], -1e9);
 
-void divide(ll x) {
-    fs = {};
-    for (int p : ps) {
-        if (p > x / p) break;
+    f[0][0] = f[0][1] = 0;
+    for (int i = 1; i <= n; i++) {
+        int tmp = a[i] >= mid ? 1 : -1;
 
-        if (x % p == 0) {
-            int cnt = 0;
-            while (x % p == 0) x /= p, cnt++;
-            fs.push_back({p, cnt});
-        }
-    }
-    if (x > 1) fs.push_back({x, 1});
-}
-// endregion
-
-vector<ll> ds;
-
-void dfs(int u, ll cur) {
-    if (u == fs.size()) {
-        ds.push_back(cur);
-        return;
+        f[i][0] = f[i - 1][1];
+        f[i][1] = max(f[i - 1][0], f[i - 1][1]) + tmp;
     }
 
-    auto [p, c] = fs[u];
-    for (int i = 0; i <= c; i++) {
-        dfs(u + 1, cur);
-        cur *= p;
-    }
-}
-
-void init() {
-    divide(b1);
-
-    ds = {};
-    dfs(0, 1);
+    return max(f[n][0], f[n][1]) > 0;
 }
 
 void solve() {
-    init();
+    {
+        double left = 0, right = 1e9;
+        while (left + eps < right) {
+            double mid = (left + right) / 2;
+            if (check1(mid)) left = mid;
+            else right = mid;
+        }
 
-    int ans = 0;
-    for (ll x : ds) {
-        if (__gcd(a0, x) == a1 && b0 * x / __gcd(b0, x) == b1) ans++;
+        cout << left << "\n";
     }
-    cout << ans << endl;
+
+    {
+        int left = 1, right = 1e9;
+        while (left < right) {
+            int mid = left + right + 1 >> 1;
+            if (check2(mid)) left = mid;
+            else right = mid - 1;
+        }
+
+        cout << left << "\n";
+    }
 }
 
 void prework() {
-    prime(1e5);
 }
 
 int main() {
@@ -129,9 +119,10 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
-        cin >> a0 >> a1 >> b0 >> b1;
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 

@@ -1,6 +1,6 @@
 // region kruskal重构树
 int n, m;
-ti3 es[M];
+ti3 es[N];
 
 int h[2 * N], ne[2 * N], g[2 * N], edm;
 int pa[2 * N], w[2 * N], tt;
@@ -62,15 +62,16 @@ int lca(int x, int y) {
     return dep[a] < dep[b] ? a : b;
 }
 
-void init() {
-    sort(es + 1, es + m + 1, [](auto &a, auto &b) {
+void kruskal_init() {
+    sort(es + 1, es + n - 1 + 1, [](auto &a, auto &b) {
         return get<2>(a) < get<2>(b);
     });
+
     iota(pa, pa + 2 * n + 1, 0);
     fill(h, h + 2 * n + 1, -1), edm = 0;
     tt = n;
-    for (int i = 1; i <= m; i++) {
-        auto[u, v, cost] = es[i];
+    for (int i = 1; i <= n - 1; i++) {
+        auto [u, v, cost] = es[i];
         int tu = find(u), tv = find(v);
         if (tu == tv) continue;
 

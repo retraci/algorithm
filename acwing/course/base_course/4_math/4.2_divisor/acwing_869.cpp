@@ -47,77 +47,29 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e5 + 10;
+int n;
+int d[2020], tt;
 
-ll a0, a1, b0, b1;
-
-// region 质因数分解, 枚举质数
-int isp[N];
-vector<int> ps;
-
-void prime(int lim) {
-    fill(isp, isp + lim + 1, 1);
-
-    isp[0] = isp[1] = 0;
-    for (int i = 2; i <= lim; i++) {
-        if (!isp[i]) continue;
-
-        ps.push_back(i);
-        for (int j = i * 2; j <= lim; j += i) isp[j] = 0;
-    }
-}
-
-vector<pll> fs;
-
-void divide(ll x) {
-    fs = {};
-    for (int p : ps) {
-        if (p > x / p) break;
-
-        if (x % p == 0) {
-            int cnt = 0;
-            while (x % p == 0) x /= p, cnt++;
-            fs.push_back({p, cnt});
+void work() {
+    for (int i = 1; i <= n / i; i++) {
+        if (n % i == 0) {
+            d[++tt] = i;
+            if (i != n / i) d[++tt] = n / i;
         }
     }
-    if (x > 1) fs.push_back({x, 1});
-}
-// endregion
 
-vector<ll> ds;
-
-void dfs(int u, ll cur) {
-    if (u == fs.size()) {
-        ds.push_back(cur);
-        return;
-    }
-
-    auto [p, c] = fs[u];
-    for (int i = 0; i <= c; i++) {
-        dfs(u + 1, cur);
-        cur *= p;
-    }
-}
-
-void init() {
-    divide(b1);
-
-    ds = {};
-    dfs(0, 1);
+    sort(d + 1, d + tt + 1);
 }
 
 void solve() {
-    init();
+    tt = 0;
+    work();
 
-    int ans = 0;
-    for (ll x : ds) {
-        if (__gcd(a0, x) == a1 && b0 * x / __gcd(b0, x) == b1) ans++;
-    }
-    cout << ans << endl;
+    for (int i = 1; i <= tt; i++) cout << d[i] << " ";
+    cout << "\n";
 }
 
 void prework() {
-    prime(1e5);
 }
 
 int main() {
@@ -131,7 +83,7 @@ int main() {
     int T = 1;
     cin >> T;
     while (T--) {
-        cin >> a0 >> a1 >> b0 >> b1;
+        cin >> n;
         solve();
     }
 

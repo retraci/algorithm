@@ -47,7 +47,7 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-// region 区间修改, 维护最小值线段树
+// region 普通线段树
 template<int SZ>
 struct Seg {
 #define mid (s + e >> 1)
@@ -56,7 +56,7 @@ struct Seg {
 
     struct Node {
         int lson, rson;
-        ll sum, lz, mi;
+        int sum, lz;
     };
 
     int lb, rb, rt, mem;
@@ -69,10 +69,11 @@ struct Seg {
     inline void init(int L, int R) {
         rt = 0, mem = 0, lb = L, rb = R;
         tr[0].lson = tr[0].rson = 0;
-        tr[0].sum = tr[0].lz = tr[0].mi = 0;
+        tr[0].sum = 0;
+        tr[0].lz = -1;
     }
 
-    inline void init(int L, int R, ll val) {
+    inline void init(int L, int R, int val) {
         init(L, R);
         for (int i = L; i <= R; i++) set(i, val);
     }
@@ -80,38 +81,37 @@ struct Seg {
     inline int new_node() {
         int id = ++mem;
         tr[id].lson = tr[id].rson = 0;
-        tr[id].sum = tr[id].lz = tr[id].mi = 0;
+        tr[id].sum = 0;
+        tr[id].lz = -1;
         return id;
     }
 
     inline void push_up(Node &fa, Node &lc, Node &rc) {
         fa.sum = lc.sum + rc.sum;
-        fa.mi = min(lc.mi, rc.mi);
     }
 
     inline void push_up(int k) {
         push_up(tr[k], tr[ls(k)], tr[rs(k)]);
     }
 
-    inline void work(Node &t, ll sz, ll val) {
-        t.sum = t.sum + sz * val;
-        t.lz = t.lz + val;
-        t.mi = t.mi + val;
+    inline void work(Node &t, int sz, int val) {
+        t.sum = val * sz;
+        t.lz = val;
     }
 
     inline void push_down(int k, int s, int e) {
-        ll len = e - s + 1;
-        ll lsz = len - len / 2, rsz = len / 2;
-        if (tr[k].lz) {
+        int len = e - s + 1;
+        int lsz = len - len / 2, rsz = len / 2;
+        if (~tr[k].lz) {
             if (!ls(k)) ls(k) = new_node();
             if (!rs(k)) rs(k) = new_node();
             work(tr[ls(k)], lsz, tr[k].lz);
             work(tr[rs(k)], rsz, tr[k].lz);
-            tr[k].lz = 0;
+            tr[k].lz = -1;
         }
     }
 
-    inline void add(int &k, int s, int e, int L, int R, ll val) {
+    inline void add(int &k, int s, int e, int L, int R, int val) {
         if (!k) k = new_node();
 
         if (L <= s && e <= R) {
@@ -125,25 +125,11 @@ struct Seg {
         push_up(k);
     }
 
-    inline void update(int &k, int s, int e, int id, ll val) {
+    inline void set(int &k, int s, int e, int id, int val) {
         if (!k) k = new_node();
 
         if (s == e) {
-            tr[k].sum = tr[k].mi = min(tr[k].mi, val);
-            return;
-        }
-
-        push_down(k, s, e);
-        if (id <= mid) update(ls(k), s, mid, id, val);
-        if (id >= mid + 1) update(rs(k), mid + 1, e, id, val);
-        push_up(k);
-    }
-
-    inline void set(int &k, int s, int e, int id, ll val) {
-        if (!k) k = new_node();
-
-        if (s == e) {
-            tr[k].sum = tr[k].mi = val;
+            tr[k].sum = val;
             return;
         }
 
@@ -166,16 +152,12 @@ struct Seg {
         return res;
     }
 
-    inline void add(int L, int R, ll val) {
+    inline void add(int L, int R, int val) {
         if (R < L) return;
         add(rt, lb, rb, L, R, val);
     }
 
-    inline void update(int id, ll val) {
-        update(rt, lb, rb, id, val);
-    }
-
-    inline void set(int id, ll val) {
+    inline void set(int id, int val) {
         set(rt, lb, rb, id, val);
     }
 
@@ -186,28 +168,42 @@ struct Seg {
 };
 // endregion
 
-const int N = 2e5 + 10;
+const int N = 1e5 + 10;
 
-int n;
+int n, m, q;
 int a[N];
+ti3 b[N];
 
 Seg<N> seg;
 
-void solve() {
-    seg.init(1, n);
+bool check(int md) {
+    for (int i = 1; i <= n; i++) seg.set(i, a[i] >= md);
 
-    int ans = 1;
-    unordered_map<int, int> lst1, lst2;
-    for (int i = 1; i <= n; i++) {
-        int &la1 = lst1[a[i]], &la2 = lst2[a[i]];
-        seg.add(la1 + 1, i, 1);
-        seg.add(la2 + 1, la1, -1);
-        la2 = la1, la1 = i;
+    for (int i = 1; i <= m; i++) {
+        auto [op, L, R] = b[i];
 
-        if (seg.query(1, i).mi == 0) ans = 0;
+        auto t = seg.query(L, R);
+        int c1 = t.sum, c0 = R - L + 1 - c1;
+        if (op) {
+            seg.add(L, L + c1 - 1, 1), seg.add(L + c1, R, 0);
+        } else {
+            seg.add(L, L + c0 - 1, 0), seg.add(L + c0, R, 1);
+        }
     }
 
-    cout << (ans ? "non-boring" : "boring") << "\n";
+    return seg.query(q, q).sum;
+}
+
+void solve() {
+    seg.init(1, n);
+    int left = 1, right = n;
+    while (left < right) {
+        int md = left + right + 1 >> 1;
+        if (check(md)) left = md;
+        else right = md - 1;
+    }
+
+    cout << left << "\n";
 }
 
 void prework() {
@@ -222,10 +218,16 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
-        cin >> n;
+        cin >> n >> m;
         for (int i = 1; i <= n; i++) cin >> a[i];
+        for (int i = 1; i <= m; i++) {
+            int op, L, R;
+            cin >> op >> L >> R;
+            b[i] = {op, L, R};
+        }
+        cin >> q;
         solve();
     }
 

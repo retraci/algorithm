@@ -47,12 +47,12 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e5 + 10;
-
-ll a0, a1, b0, b1;
+const int N = 110;
+const int M = 1e5 + 10;
+const int MOD = 1e9 + 7;
 
 // region 质因数分解, 枚举质数
-int isp[N];
+int isp[M];
 vector<int> ps;
 
 void prime(int lim) {
@@ -84,36 +84,22 @@ void divide(ll x) {
 }
 // endregion
 
-vector<ll> ds;
-
-void dfs(int u, ll cur) {
-    if (u == fs.size()) {
-        ds.push_back(cur);
-        return;
-    }
-
-    auto [p, c] = fs[u];
-    for (int i = 0; i <= c; i++) {
-        dfs(u + 1, cur);
-        cur *= p;
-    }
-}
-
-void init() {
-    divide(b1);
-
-    ds = {};
-    dfs(0, 1);
-}
+int n;
+int a[N];
 
 void solve() {
-    init();
-
-    int ans = 0;
-    for (ll x : ds) {
-        if (__gcd(a0, x) == a1 && b0 * x / __gcd(b0, x) == b1) ans++;
+    unordered_map<int, int> cnt;
+    for (int i = 1; i <= n; i++) {
+        divide(a[i]);
+        for (auto [p, c] : fs) cnt[p] += c;
     }
-    cout << ans << endl;
+
+    ll ans = 1;
+    for (auto [_, c] : cnt) {
+        ans *= (c + 1);
+        ans %= MOD;
+    }
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -129,9 +115,10 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
-        cin >> a0 >> a1 >> b0 >> b1;
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 

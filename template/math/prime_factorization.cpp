@@ -3,7 +3,7 @@ vector<pll> fs;
 
 void divide(ll x) {
     fs = {};
-    for (int i = 2; 1LL * i * i <= x; i++) {
+    for (int i = 2; i <= x / i; i++) {
         if (x % i == 0) {
             int cnt = 0;
             while (x % i == 0) x /= i, cnt++;
@@ -35,7 +35,7 @@ vector<pll> fs;
 void divide(ll x) {
     fs = {};
     for (int p : ps) {
-        if (1LL * p * p > x) break;
+        if (p > x / p) break;
 
         if (x % p == 0) {
             int cnt = 0;
@@ -83,10 +83,10 @@ void prime(int lim) {
 // endregion
 
 // region 欧拉函数
-int euler(int x) {
+int eula(int x) {
     int res = x;
 
-    for (int i = 2; 1LL * i * i <= x; i++) {
+    for (int i = 2; i <= x / i; i++) {
         if (x % i == 0) {
             res = res / i * (i - 1);
             while (x % i == 0) x /= i;
@@ -109,5 +109,43 @@ void eula_init(int lim) {
 
         for (int j = i; j <= lim; j += i) phi[j] = phi[j] / i * (i - 1);
     }
+}
+// endregion
+
+// region 扩欧
+ll exgcd(ll a, ll b, ll &x, ll &y) {
+    if (!b) {
+        x = 1, y = 0;
+        return a;
+    }
+
+    ll d = exgcd(b, a % b, y, x);
+    y -= a / b * x;
+    return d;
+}
+// endregion
+
+// region 中国剩余定理
+ll crt() {
+    ll a1 = a[1], m1 = m[1];
+    for (int i = 2; i <= n; i++) {
+        ll a2 = a[i], m2 = m[i];
+        ll k1, k2;
+        ll d = exgcd(m1, m2, k1, k2);
+        if ((a2 - a1) % d) {
+            cout << -1 << "\n";
+            return;
+        }
+
+        k1 *= (a2 - a1) / d;
+        ll tmp = m2 / d;
+        k1 = (k1 % tmp + tmp) % tmp;
+
+        a1 = k1 * m1 + a1;
+        m1 = m1 / d * m2;
+    }
+
+    ll x = (a1 % m1 + m1) % m1;
+    return x;
 }
 // endregion

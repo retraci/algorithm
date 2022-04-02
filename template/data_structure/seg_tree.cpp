@@ -640,6 +640,134 @@ struct Seg {
 };
 // endregion
 
+// region 区间开关, 维护最值线段树, 1: 开, 2: 关
+template<int SZ>
+struct Seg {
+#define mid (s + e >> 1)
+#define ls(x) (tr[x].lson)
+#define rs(x) (tr[x].rson)
+
+    struct Node {
+        int lson, rson;
+        ll lz, mx, mi;
+        ll mx_bak, mi_bak;
+    };
+
+    int lb, rb, rt, mem;
+    Node tr[SZ * 4];
+
+    inline Seg() {
+        init(1, SZ);
+    }
+
+    inline void init(int L, int R) {
+        rt = 0, mem = 0, lb = L, rb = R;
+        tr[0].lson = tr[0].rson = 0;
+        tr[0].lz = tr[0].mx = tr[0].mx_bak = 0;
+        tr[0].mi = tr[0].mi_bak = 1e9;
+    }
+
+    inline void init(int L, int R, ll val) {
+        init(L, R);
+        for (int i = L; i <= R; i++) set(i, val);
+    }
+
+    inline int new_node() {
+        int id = ++mem;
+        tr[id].lson = tr[id].rson = 0;
+        tr[id].lz = tr[id].mx = tr[id].mx_bak = 0;
+        tr[id].mi = tr[id].mi_bak = 1e9;
+        return id;
+    }
+
+    inline void push_up(Node &fa, Node &lc, Node &rc) {
+        fa.mx = max(lc.mx, rc.mx);
+        fa.mx_bak = max(lc.mx_bak, rc.mx_bak);
+        fa.mi = min(lc.mi, rc.mi);
+        fa.mi_bak = min(lc.mi_bak, rc.mi_bak);
+    }
+
+    inline void push_up(int k) {
+        push_up(tr[k], tr[ls(k)], tr[rs(k)]);
+    }
+
+    inline void work(Node &t, ll col) {
+        t.lz = col;
+        if (col == 1) {
+            t.mx = t.mx_bak;
+            t.mi = t.mi_bak;
+        } else {
+            t.mx = 0, t.mi = 1e9;
+        }
+    }
+
+    inline void push_down(int k, int s, int e) {
+        if (tr[k].lz) {
+            if (!ls(k)) ls(k) = new_node();
+            if (!rs(k)) rs(k) = new_node();
+            work(tr[ls(k)], tr[k].lz);
+            work(tr[rs(k)], tr[k].lz);
+            tr[k].lz = 0;
+        }
+    }
+
+    inline void add(int &k, int s, int e, int L, int R, ll col) {
+        if (!k) k = new_node();
+
+        if (L <= s && e <= R) {
+            work(tr[k], col);
+            return;
+        }
+
+        push_down(k, s, e);
+        if (L <= mid) add(ls(k), s, mid, L, R, col);
+        if (R >= mid + 1) add(rs(k), mid + 1, e, L, R, col);
+        push_up(k);
+    }
+
+    inline void set(int &k, int s, int e, int id, ll val) {
+        if (!k) k = new_node();
+
+        if (s == e) {
+            tr[k].mi_bak = tr[k].mx_bak = val;
+            return;
+        }
+
+        push_down(k, s, e);
+        if (id <= mid) set(ls(k), s, mid, id, val);
+        if (id >= mid + 1) set(rs(k), mid + 1, e, id, val);
+        push_up(k);
+    }
+
+    inline Node query(int k, int s, int e, int L, int R) {
+        if (L <= s && e <= R) return tr[k];
+
+        push_down(k, s, e);
+        if (R <= mid) return query(ls(k), s, mid, L, R);
+        if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
+        Node res = {0, 0, 0, 0, (ll) 1e9, 0};
+        Node lc = query(ls(k), s, mid, L, R);
+        Node rc = query(rs(k), mid + 1, e, L, R);
+        push_up(res, lc, rc);
+        return res;
+    }
+
+    inline void add(int L, int R, ll val) {
+        if (R < L) return;
+        add(rt, lb, rb, L, R, val);
+    }
+
+    inline void set(int id, ll val) {
+        set(rt, lb, rb, id, val);
+    }
+
+    inline Node query(int L, int R) {
+        if (R < L) return {0, 0, 0, 0, (ll) 1e9, 0};
+        return query(rt, lb, rb, L, R);
+    }
+};
+// endregion
+
 // region 扫描线线段树
 vector<ll> lsh;
 
