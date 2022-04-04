@@ -1,6 +1,9 @@
 // region 普通方程
-// 求det: 其符号可由交换行的数量来确定（如果为奇数，则行列式的符号应颠倒）
-// r 为方程数, c 为未知数数目
+ld mat[N][N];
+ld res[N];
+
+// r 为方程个数, c 为未知数个数, 无解返回0, 多解返回-1
+// mat[1~c]: 增广矩阵, c + 1 位置为常数
 int gauss(int r, int c) {
     int row = 1;
     for (int col = 1; col <= c; col++) {
@@ -23,21 +26,28 @@ int gauss(int r, int c) {
         row++;
     }
 
-    for (int i = 1; i <= c; i++) {
-        if (fabs(mat[i][i]) < eps) return -1;
-        res[i] = mat[i][c + 1] /= mat[i][i];
-        if (floor(res[i]) != res[i]) return -1;
+    if (row <= r) {
+        for (int i = row; i <= r; i++) {
+            if (fabs(mat[i][c + 1]) > eps) return 0;
+        }
+        return -1;
     }
+
+    for (int i = 1; i <= c; i++) {
+        res[i] = mat[i][c + 1] /= mat[i][i];
+    }
+
     return 1;
 }
 // endregion
 
 // region 异或方程
 bitset<N> mat[N];
+bitset<N> res;
 
-// r 为方程个数, c 为未知数个数, 返回方程组的解（多解 / 无解返回一个空的 vector）
-// matrix[1~n]: 增广矩阵, 0 位置为常数
-vector<bool> gauss(int r, int c) {
+// r 为方程个数, c 为未知数个数, 无解返回0, 多解返回-1
+// mat[1~n]: 增广矩阵, c + 1 位置为常数
+int gauss(int r, int c) {
     int row = 1;
     for (int col = 1; col <= c; col++) {
         for (int i = row; i <= r; i++) {
@@ -45,7 +55,7 @@ vector<bool> gauss(int r, int c) {
             swap(mat[row], mat[i]);
             break;
         }
-        if (mat[row][col] == 0) return vector<bool>(0);
+        if (mat[row][col] == 0) continue;
 
         for (int i = 1; i <= r; i++) {
             if (i != row && mat[i][col]) mat[i] ^= mat[row];
@@ -53,8 +63,14 @@ vector<bool> gauss(int r, int c) {
         row++;
     }
 
-    vector<bool> res(r + 1, 0);
-    for (int i = 1; i <= r; i++) res[i] = mat[i][0];
-    return res;
+    if (row <= r) {
+        for (int i = row; i <= r; i++) {
+            if (mat[i][c + 1]) return 0;
+        }
+        return -1;
+    }
+
+    for (int i = 1; i <= r; i++) res[i] = mat[i][c + 1];
+    return 1;
 }
 // endregion
