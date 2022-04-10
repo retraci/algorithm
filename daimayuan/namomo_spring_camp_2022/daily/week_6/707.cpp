@@ -47,38 +47,36 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-int g[25][25];
-int dp[(1 << (20)) + 10][25];
-int n, m;
+const int N = 1e6 + 10;
 
-int lowbit(int x) { return __lg((x) & (-x)); }
+int n;
+string s;
+int pos[N];
 
 void solve() {
-    cin >> n >> m;
-    for (int i = 1; i <= m; i++) {
-        int u, v;
-        cin >> u >> v;
-        u--, v--;
-        g[u][v] = g[v][u] = 1;
-    }
-    int ans = 0;
-    for (int u = 0; u < n; u++)dp[1 << u][u] = 1;
-    for (int status = 1; status < (1 << n); status++) {
-        int st = lowbit(status);
-        for (int u = 0; u < n; u++) {
-            if (!((status >> u) & 1))continue;
-            if (g[u][st]) {
-                cout << status << " " << u << " " << dp[status][u] << "\n";
-                ans += dp[status][u];
-            }
-            for (int v = st + 1; v < n; v++) {
-                if (!g[u][v])continue;
-                if ((status >> v) & 1)continue;
-                dp[status | (1 << v)][v] += dp[status][u];
+    n = s.size() - 1;
+
+    fill(pos + 1, pos + n, 0);
+    stack<int> stk;
+    for (int i = 1; i <= n; i++) {
+        if (s[i] == '(') {
+            stk.push(i);
+        } else {
+            if (!stk.empty()) {
+                pos[i] = stk.top();
+                stk.pop();
             }
         }
     }
-    cout << (ans - m) / 2 << endl;
+
+    vector<ll> f(n + 1, 0);
+    for (int i = 1; i <= n; i++) {
+        if (s[i] == '(') continue;
+
+        f[i] = f[pos[i] - 1] + 1;
+    }
+    ll ans = accumulate(f.begin() + 1, f.end(), 0LL);
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -94,7 +92,8 @@ int main() {
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
 //    cin >> T;
-    while (T--) {
+    while (cin >> s) {
+        s = ' ' + s;
         solve();
     }
 

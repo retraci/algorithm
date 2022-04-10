@@ -47,38 +47,57 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-int g[25][25];
-int dp[(1 << (20)) + 10][25];
-int n, m;
+const int N = 3e5 + 10;
 
-int lowbit(int x) { return __lg((x) & (-x)); }
+int n;
+int a[N], d[N], c[N];
+int ne[N][44];
+
+void init() {
+    for (int i = 1; i <= n - 1; i++) d[i] = a[i + 1] - a[i];
+    for (int i = 1; i <= n - 1; i++) c[i] = 0;
+    for (int i = 1; i <= n - 1; i++) {
+        if (d[i] == 0) continue;
+
+        while (d[i] % 2 == 0) {
+            d[i] >>= 1, c[i]++;
+        }
+    }
+
+    for (int i = n - 1; i >= 1; i--) {
+        for (int j = 0; j <= 40; j++) ne[i][j] = -1;
+    }
+
+    for (int i = n - 1; i >= 1; i--) {
+        ne[i][c[i]] = i + 1;
+        for (int j = c[i] + 1; j <= 40; j++) {
+            if (ne[i][j - 1] == -1 || ne[i][j - 1] == n) break;
+            if (d[i] != d[ne[i][j - 1]]) break;
+            ne[i][j] = ne[ne[i][j - 1]][j - 1];
+        }
+    }
+}
 
 void solve() {
-    cin >> n >> m;
-    for (int i = 1; i <= m; i++) {
-        int u, v;
-        cin >> u >> v;
-        u--, v--;
-        g[u][v] = g[v][u] = 1;
-    }
-    int ans = 0;
-    for (int u = 0; u < n; u++)dp[1 << u][u] = 1;
-    for (int status = 1; status < (1 << n); status++) {
-        int st = lowbit(status);
-        for (int u = 0; u < n; u++) {
-            if (!((status >> u) & 1))continue;
-            if (g[u][st]) {
-                cout << status << " " << u << " " << dp[status][u] << "\n";
-                ans += dp[status][u];
-            }
-            for (int v = st + 1; v < n; v++) {
-                if (!g[u][v])continue;
-                if ((status >> v) & 1)continue;
-                dp[status | (1 << v)][v] += dp[status][u];
+    init();
+
+    vector<int> f(n + 1, 1e9);
+    f[1] = 0;
+    for (int i = 1; i <= n - 1; i++) {
+        if (d[i] == 0 && f[i + 1] == 0) {
+            f[i] = min(f[i], f[i - 1]);
+            continue;
+        }
+
+        for (int j = 0; j <= 40; j++) {
+            if (ne[i][j] != -1) {
+                int k = ne[i][j];
+                f[k] = min(f[k], f[i] + 1);
             }
         }
     }
-    cout << (ans - m) / 2 << endl;
+
+    cout << f[n] + 1 << "\n";
 }
 
 void prework() {
@@ -93,8 +112,10 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 

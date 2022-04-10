@@ -83,10 +83,10 @@ void prime(int lim) {
 // endregion
 
 // region 欧拉函数
-int eula(int x) {
-    int res = x;
+ll eula(ll x) {
+    ll res = x;
 
-    for (int i = 2; i <= x / i; i++) {
+    for (ll i = 2; i <= x / i; i++) {
         if (x % i == 0) {
             res = res / i * (i - 1);
             while (x % i == 0) x /= i;
@@ -126,16 +126,16 @@ ll exgcd(ll a, ll b, ll &x, ll &y) {
 // endregion
 
 // region 中国剩余定理
+int n;
+ll a[N], m[N];
+
 ll crt() {
     ll a1 = a[1], m1 = m[1];
     for (int i = 2; i <= n; i++) {
         ll a2 = a[i], m2 = m[i];
         ll k1, k2;
         ll d = exgcd(m1, m2, k1, k2);
-        if ((a2 - a1) % d) {
-            cout << -1 << "\n";
-            return;
-        }
+        if ((a2 - a1) % d) return -1;
 
         k1 *= (a2 - a1) / d;
         ll tmp = m2 / d;

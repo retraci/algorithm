@@ -47,38 +47,53 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-int g[25][25];
-int dp[(1 << (20)) + 10][25];
-int n, m;
+const int N = 5e5 + 10;
 
-int lowbit(int x) { return __lg((x) & (-x)); }
+int n, m;
+int a[N], b[N];
+pii qs[N];
+
+int tr[N];
+
+void add(int id, int x) {
+    for (int i = id; i <= n; i += i & -i) tr[i] += x;
+}
+
+int qr(int id) {
+    int res = 0;
+    for (int i = id; i; i -= i & -i) res += tr[i];
+    return res;
+}
 
 void solve() {
-    cin >> n >> m;
-    for (int i = 1; i <= m; i++) {
-        int u, v;
-        cin >> u >> v;
-        u--, v--;
-        g[u][v] = g[v][u] = 1;
+    vector<int> lst(n + 1, 0);
+    stack<int> stk;
+    for (int i = 1; i <= n; i++) {
+        while (!stk.empty() && (a[i] == a[stk.top()] || b[i] >= b[stk.top()])) stk.pop();
+        lst[i] = stk.empty() ? 0 : stk.top();
+        stk.push(i);
     }
-    int ans = 0;
-    for (int u = 0; u < n; u++)dp[1 << u][u] = 1;
-    for (int status = 1; status < (1 << n); status++) {
-        int st = lowbit(status);
-        for (int u = 0; u < n; u++) {
-            if (!((status >> u) & 1))continue;
-            if (g[u][st]) {
-                cout << status << " " << u << " " << dp[status][u] << "\n";
-                ans += dp[status][u];
-            }
-            for (int v = st + 1; v < n; v++) {
-                if (!g[u][v])continue;
-                if ((status >> v) & 1)continue;
-                dp[status | (1 << v)][v] += dp[status][u];
-            }
+    for (int i = 1; i <= n; i++) lst[i]++;
+
+    vector<ti3> ask[n + 1];
+    for (int i = 1; i <= m; i++) {
+        auto [L, R] = qs[i];
+        ask[L - 1].push_back({i, -1, lst[L]});
+        ask[R].push_back({i, 1, lst[L]});
+    }
+
+    vector<int> ans(m + 1, 0);
+    for (int i = 1; i <= n; i++) {
+        add(lst[i], 1);
+
+        for (auto [qid, sign, x] : ask[i]) {
+            ans[qid] += sign * qr(x);
         }
     }
-    cout << (ans - m) / 2 << endl;
+
+    for (int i = 1; i <= m; i++) {
+        cout << ans[i] << "\n";
+    }
 }
 
 void prework() {
@@ -95,6 +110,10 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) cin >> a[i];
+        for (int i = 1; i <= n; i++) cin >> b[i];
+        for (int i = 1; i <= m; i++) cin >> qs[i].fi >> qs[i].se;
         solve();
     }
 

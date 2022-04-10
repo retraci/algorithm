@@ -47,38 +47,19 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-int g[25][25];
-int dp[(1 << (20)) + 10][25];
-int n, m;
+const int N = 1e5 + 10;
+const int MOD = 5000011;
 
-int lowbit(int x) { return __lg((x) & (-x)); }
+int n, k;
+int f[N];
 
 void solve() {
-    cin >> n >> m;
-    for (int i = 1; i <= m; i++) {
-        int u, v;
-        cin >> u >> v;
-        u--, v--;
-        g[u][v] = g[v][u] = 1;
+    for (int i = 1; i <= k + 1; i ++) f[i] = i + 1;
+    for (int i = k + 2; i <= n; i ++) {
+        f[i] = (f[i - 1] + f[i - k - 1]) % MOD;
     }
-    int ans = 0;
-    for (int u = 0; u < n; u++)dp[1 << u][u] = 1;
-    for (int status = 1; status < (1 << n); status++) {
-        int st = lowbit(status);
-        for (int u = 0; u < n; u++) {
-            if (!((status >> u) & 1))continue;
-            if (g[u][st]) {
-                cout << status << " " << u << " " << dp[status][u] << "\n";
-                ans += dp[status][u];
-            }
-            for (int v = st + 1; v < n; v++) {
-                if (!g[u][v])continue;
-                if ((status >> v) & 1)continue;
-                dp[status | (1 << v)][v] += dp[status][u];
-            }
-        }
-    }
-    cout << (ans - m) / 2 << endl;
+
+    cout << f[n] << "\n";
 }
 
 void prework() {
@@ -95,6 +76,7 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> n >> k;
         solve();
     }
 
