@@ -98,10 +98,10 @@ ll eula(ll x) {
 }
 // endregion
 
-// region 埃筛求欧拉函数
+// region 欧拉函数(埃筛)
 int phi[N];
 
-void eula_init(int lim) {
+void prime(int lim) {
     iota(phi, phi + lim + 1, 0);
 
     for (int i = 2; i <= lim; i++) {
@@ -147,5 +147,87 @@ ll crt() {
 
     ll x = (a1 % m1 + m1) % m1;
     return x;
+}
+// endregion
+
+// region 欧拉筛
+int isp[N];
+int pr[N], cnt;
+
+void prime(int lim) {
+    fill(isp, isp + lim + 1, 1);
+
+    isp[0] = isp[1] = 0;
+    for (int i = 2; i <= lim; i++) {
+        if (isp[i]) pr[++cnt] = i;
+
+        for (int j = 1; j <= cnt; j++) {
+            if (pr[j] > lim / i) break;
+
+            isp[i * pr[j]] = 0;
+            if (i % pr[j] == 0) break;
+        }
+    }
+}
+// endregion
+
+// region 欧拉函数(欧拉筛)
+int isp[N];
+int pr[N], cnt;
+int phi[N];
+
+void prime(int lim) {
+    fill(isp, isp + lim + 1, 1);
+
+    phi[1] = 1;
+    isp[0] = isp[1] = 0;
+    for (int i = 2; i <= lim; i++) {
+        if (isp[i]) {
+            pr[++cnt] = i;
+            phi[i] = i - 1;
+        }
+
+        for (int j = 1; j <= cnt; j++) {
+            if (pr[j] > lim / i) break;
+
+            isp[i * pr[j]] = 0;
+            if (i % pr[j] == 0) {
+                phi[i * pr[j]] = pr[j] * phi[i];
+                break;
+            } else {
+                phi[i * pr[j]] = phi[pr[j]] * phi[i];
+            }
+        }
+    }
+}
+// endregion
+
+// region 莫比乌斯函数(欧拉筛)
+int isp[N];
+int pr[N], cnt;
+int mu[N];
+
+void prime(int lim) {
+    fill(isp, isp + lim + 1, 1);
+
+    mu[1] = 1;
+    isp[0] = isp[1] = 0;
+    for (int i = 2; i <= lim; i++) {
+        if (isp[i]) {
+            pr[++cnt] = i;
+            mu[i] = -1;
+        }
+
+        for (int j = 1; j <= cnt; j++) {
+            if (pr[j] > lim / i) break;
+
+            isp[i * pr[j]] = 0;
+            if (i % pr[j] == 0) {
+                mu[i * pr[j]] = 0;
+                break;
+            }
+            mu[i * pr[j]] = -mu[i];
+        }
+    }
 }
 // endregion

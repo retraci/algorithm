@@ -47,35 +47,58 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e6 + 10;
+const int N = 22;
+const ll MOD = 1e9 + 7;
 
-int n;
-string s;
-int pos[N];
+ll n, m;
+ll a[N];
+
+ll ksm(ll ta, ll tb) {
+    ta %= MOD;
+
+    ll res = 1;
+    while (tb) {
+        if (tb & 1) res = res * ta % MOD;
+        ta = ta * ta % MOD;
+        tb >>= 1;
+    }
+
+    return res;
+}
+
+ll inv(ll ta) {
+    return ksm(ta, MOD - 2);
+}
+
+ll C(ll ta, ll tb) {
+    if (ta < 0 || tb < 0 || tb > ta) return 0;
+
+    ll up = 1, down = 1;
+    for (int i = 1; i <= tb; i++) {
+        down *= i;
+        up *= (ta - i + 1) % MOD;
+        down %= MOD, up %= MOD;
+    }
+
+    return up * inv(down) % MOD;
+}
 
 void solve() {
-    n = s.size() - 1;
-
-    fill(pos + 1, pos + n, 0);
-    stack<int> stk;
-    for (int i = 1; i <= n; i++) {
-        if (s[i] == '(') {
-            stk.push(i);
-        } else {
-            if (!stk.empty()) {
-                pos[i] = stk.top();
-                stk.pop();
+    ll ans = C(n + m - 1, n - 1);
+    int lim = 1 << n;
+    for (int mask = 1; mask < lim; mask++) {
+        ll sign = 1, sum = 0;
+        for (int i = 0; i < n; i++) {
+            if (mask >> i & 1) {
+                sign *= -1;
+                sum += a[i] + 1;
             }
         }
+        ans += sign * C(m + n - 1 - sum, n - 1);
+        ans %= MOD;
     }
 
-    vector<ll> f(n + 1, 0);
-    for (int i = 1; i <= n; i++) {
-        if (pos[i] == 0) continue;
-
-        f[i] = f[pos[i] - 1] + 1;
-    }
-    ll ans = accumulate(f.begin() + 1, f.end(), 0LL);
+    ans = (ans + MOD) % MOD;
     cout << ans << "\n";
 }
 
@@ -92,8 +115,9 @@ int main() {
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
 //    cin >> T;
-    while (cin >> s) {
-        s = ' ' + s;
+    while (T--) {
+        cin >> n >> m;
+        for (int i = 0; i < n; i++) cin >> a[i];
         solve();
     }
 

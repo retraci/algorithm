@@ -47,39 +47,55 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e6 + 10;
+const int N = 50010;
 
-int n;
-string s;
-int pos[N];
+int a, b, d;
 
-void solve() {
-    n = s.size() - 1;
+int isp[N];
+int pr[N], cnt;
+int mu[N];
 
-    fill(pos + 1, pos + n, 0);
-    stack<int> stk;
-    for (int i = 1; i <= n; i++) {
-        if (s[i] == '(') {
-            stk.push(i);
-        } else {
-            if (!stk.empty()) {
-                pos[i] = stk.top();
-                stk.pop();
+void prime(int lim) {
+    fill(isp, isp + lim + 1, 1);
+
+    mu[1] = 1;
+    isp[0] = isp[1] = 0;
+    for (int i = 2; i <= lim; i++) {
+        if (isp[i]) {
+            pr[++cnt] = i;
+            mu[i] = -1;
+        }
+
+        for (int j = 1; j <= cnt; j++) {
+            if (pr[j] > lim / i) break;
+
+            isp[i * pr[j]] = 0;
+            if (i % pr[j] == 0) {
+                mu[i * pr[j]] = 0;
+                break;
             }
+            mu[i * pr[j]] = -mu[i];
         }
     }
 
-    vector<ll> f(n + 1, 0);
-    for (int i = 1; i <= n; i++) {
-        if (pos[i] == 0) continue;
+    for (int i = 1; i <= lim; i++) mu[i] += mu[i - 1];
+}
 
-        f[i] = f[pos[i] - 1] + 1;
+void solve() {
+    a /= d, b /= d;
+    int n = min(a, b);
+
+    ll ans = 0;
+    for (int L = 1, R; L <= n; L = R + 1) {
+        R = min({n, a / (a / L), b / (b / L)});
+        ans += 1LL * (mu[R] - mu[L - 1]) * (a / L) * (b / L);
     }
-    ll ans = accumulate(f.begin() + 1, f.end(), 0LL);
+
     cout << ans << "\n";
 }
 
 void prework() {
+    prime(50000);
 }
 
 int main() {
@@ -91,9 +107,9 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
-    while (cin >> s) {
-        s = ' ' + s;
+    cin >> T;
+    while (T--) {
+        cin >> a >> b >> d;
         solve();
     }
 

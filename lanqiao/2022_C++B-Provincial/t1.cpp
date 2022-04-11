@@ -16,8 +16,10 @@
 using namespace std;
 
 int main() {
+#ifdef LOCAL
     freopen("../in.txt", "r", stdin);
     freopen("../out.txt", "w", stdout);
+#endif
 
     cout << 2 * pow(9, 0) + 2 * pow(9, 1) + 2 * pow(9, 3) << "\n";
 

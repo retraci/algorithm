@@ -50,33 +50,18 @@ using namespace grid_delta;
 const int N = 1e6 + 10;
 
 int n;
-string s;
-int pos[N];
+int a[N];
 
 void solve() {
-    n = s.size() - 1;
-
-    fill(pos + 1, pos + n, 0);
-    stack<int> stk;
+    vector<int> f(n + 1, 1);
+    f[0] = 0;
     for (int i = 1; i <= n; i++) {
-        if (s[i] == '(') {
-            stk.push(i);
-        } else {
-            if (!stk.empty()) {
-                pos[i] = stk.top();
-                stk.pop();
-            }
+        for (int j = 2 * i; j <= n; j += i) {
+            if (a[j] > a[i]) f[j] = max(f[j], f[i] + 1);
         }
     }
 
-    vector<ll> f(n + 1, 0);
-    for (int i = 1; i <= n; i++) {
-        if (pos[i] == 0) continue;
-
-        f[i] = f[pos[i] - 1] + 1;
-    }
-    ll ans = accumulate(f.begin() + 1, f.end(), 0LL);
-    cout << ans << "\n";
+    cout << *max_element(f.begin() + 1, f.end()) << "\n";
 }
 
 void prework() {
@@ -91,9 +76,10 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
-    while (cin >> s) {
-        s = ' ' + s;
+    cin >> T;
+    while (T--) {
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 

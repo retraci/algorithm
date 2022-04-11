@@ -47,39 +47,35 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e6 + 10;
+const int N = 1e7 + 10;
+const int MOD = 998244353;
 
 int n;
-string s;
-int pos[N];
+ll f[N][2];
 
 void solve() {
-    n = s.size() - 1;
-
-    fill(pos + 1, pos + n, 0);
-    stack<int> stk;
-    for (int i = 1; i <= n; i++) {
-        if (s[i] == '(') {
-            stk.push(i);
-        } else {
-            if (!stk.empty()) {
-                pos[i] = stk.top();
-                stk.pop();
-            }
-        }
-    }
-
-    vector<ll> f(n + 1, 0);
-    for (int i = 1; i <= n; i++) {
-        if (pos[i] == 0) continue;
-
-        f[i] = f[pos[i] - 1] + 1;
-    }
-    ll ans = accumulate(f.begin() + 1, f.end(), 0LL);
+    ll ans = (f[n][0] + f[n][1]) % MOD;
     cout << ans << "\n";
 }
 
 void prework() {
+    vector<int> fib(2, 1);
+    while (1) {
+        int sz = fib.size();
+        fib.push_back(fib[sz - 1] + fib[sz - 2]);
+        if (fib.back() > 1e7) break;
+    }
+
+    int pos = 0;
+    for (int i = 1; i <= 1e7; i++) {
+        while (fib[pos] <= i) pos++;
+        pos--;
+
+        int v1 = fib[pos], v2 = fib[pos - 1];
+        f[i][1] = (i - v1 == 0 ? 1 : f[i - v1][0] + f[i - v1][1]) * v1 % MOD;
+        if (i - v2 < v2) f[i][0] = (i - v2 == 0 ? 1 : f[i - v2][0] + f[i - v2][1]) * v2 % MOD;
+        else f[i][0] = (i - v2 == 0 ? 1 : f[i - v2][0]) * v2 % MOD;
+    }
 }
 
 int main() {
@@ -91,9 +87,9 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
-    while (cin >> s) {
-        s = ' ' + s;
+    cin >> T;
+    while (T--) {
+        cin >> n;
         solve();
     }
 

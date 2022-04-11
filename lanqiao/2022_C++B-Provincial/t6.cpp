@@ -61,8 +61,8 @@ int main() {
     freopen("../out.txt", "w", stdout);
 #endif
 
-    int T;
-    cin >> T;
+    int T = 1;
+//    cin >> T;
     while (T--) {
         cin >> n >> m >> k;
         for (int i = 1; i <= n; i++) {

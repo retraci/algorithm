@@ -185,7 +185,7 @@ int h[2 * N], ne[2 * N], g[2 * N], edm;
 int pa[2 * N], w[2 * N], tt;
 
 int id[2 * N], eula[4 * N], dep[4 * N], cnt;
-int st[4 * N][23], lg[4 * N];
+int st[4 * N][23];
 
 int find(int x) {
     return x == pa[x] ? x : pa[x] = find(pa[x]);
@@ -217,8 +217,6 @@ void init_st(int rt) {
     dep[rt] = 1;
     dfs(tt);
 
-    lg[0] = -1;
-    for (int i = 1; i <= cnt; i++) lg[i] = lg[i >> 1] + 1;
     for (int i = 1; i <= cnt; i++) st[i][0] = eula[i];
     for (int k = 1; (1 << k) <= cnt; k++) {
         for (int i = 1; i + (1 << k) - 1 <= cnt; i++) {
@@ -234,7 +232,7 @@ int lca(int x, int y) {
     int L = id[x], R = id[y];
     if (L > R) swap(L, R);
 
-    int k = lg[R - L + 1];
+    int k = __lg(R - L + 1);
     int a = st[L][k];
     int b = st[R - (1 << k) + 1][k];
 

@@ -47,36 +47,40 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e6 + 10;
+const int N = 1e5 + 10;
 
-int n;
-string s;
-int pos[N];
+int n, m;
+double f[N];
+
+int h[N], ne[N * 2], edm;
+int dout[N];
+pii e[N * 2];
+
+void add(int u, int v, int cost) {
+    e[edm] = {cost, v}; ne[edm] = h[u], h[u] = edm++;
+}
+
+double dfs(int u) {
+    if (f[u] != -1) return f[u];
+    double res = 0;
+
+    for (int i = h[u]; ~i; i = ne[i]) {
+        auto [cost, v] = e[i];
+        double ret = dfs(v);
+
+        res += (ret + cost) / dout[u];
+    }
+
+    return f[u] = res;
+}
 
 void solve() {
-    n = s.size() - 1;
+    fill(f, f + n + 1, -1);
+    f[n] = 0;
+    dfs(1);
 
-    fill(pos + 1, pos + n, 0);
-    stack<int> stk;
-    for (int i = 1; i <= n; i++) {
-        if (s[i] == '(') {
-            stk.push(i);
-        } else {
-            if (!stk.empty()) {
-                pos[i] = stk.top();
-                stk.pop();
-            }
-        }
-    }
-
-    vector<ll> f(n + 1, 0);
-    for (int i = 1; i <= n; i++) {
-        if (pos[i] == 0) continue;
-
-        f[i] = f[pos[i] - 1] + 1;
-    }
-    ll ans = accumulate(f.begin() + 1, f.end(), 0LL);
-    cout << ans << "\n";
+    cout << fixed << setprecision(2);
+    cout << f[1] << "\n";
 }
 
 void prework() {
@@ -92,8 +96,16 @@ int main() {
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
 //    cin >> T;
-    while (cin >> s) {
-        s = ' ' + s;
+    while (T--) {
+        cin >> n >> m;
+        fill(h, h + n + 1, -1), edm = 0;
+
+        for (int i = 1; i <= m; i++) {
+            int u, v, cost;
+            cin >> u >> v >> cost;
+            dout[u]++;
+            add(u, v, cost);
+        }
         solve();
     }
 

@@ -73,8 +73,10 @@ void solve() {
 }
 
 int main() {
-//    freopen("../in.txt", "r", stdin);
-//    freopen("../out.txt", "w", stdout);
+#ifdef LOCAL
+    freopen("../in.txt", "r", stdin);
+    freopen("../out.txt", "w", stdout);
+#endif
 
     cin >> n >> m;
     solve();

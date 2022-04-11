@@ -45,12 +45,13 @@ void solve() {
 }
 
 int main() {
-//    freopen("../in.txt", "r", stdin);
-    freopen("../dp.in", "r", stdin);
+#ifdef LOCAL
+    freopen("../in.txt", "r", stdin);
     freopen("../out.txt", "w", stdout);
+#endif
 
-    int T;
-    cin >> T;
+    int T = 1;
+//    cin >> T;
     while (T--) {
         cin >> a >> b >> n;
         solve();

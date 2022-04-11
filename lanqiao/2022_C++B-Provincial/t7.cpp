@@ -14,11 +14,13 @@
 
 using namespace std;
 
+#define ll long long
+
 const int N = 10000010;
-const int MOD = 1e9 + 7;
+const int MOD = 1000000007;
 
 int n;
-int f[2][2][2];
+ll f[2][2][2];
 
 void solve() {
     f[1][0][0] = 1;
@@ -52,8 +54,10 @@ void solve() {
 }
 
 int main() {
-//    freopen("../in.txt", "r", stdin);
-//    freopen("../out.txt", "w", stdout);
+#ifdef LOCAL
+    freopen("../in.txt", "r", stdin);
+    freopen("../out.txt", "w", stdout);
+#endif
 
     cin >> n;
     solve();

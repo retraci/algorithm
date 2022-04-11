@@ -47,35 +47,25 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e6 + 10;
+const int N = 200010;
 
-int n;
-string s;
-int pos[N];
+int n, m, k;
+int a[N], b[N], c[N], d[N];
 
 void solve() {
-    n = s.size() - 1;
-
-    fill(pos + 1, pos + n, 0);
-    stack<int> stk;
-    for (int i = 1; i <= n; i++) {
-        if (s[i] == '(') {
-            stk.push(i);
-        } else {
-            if (!stk.empty()) {
-                pos[i] = stk.top();
-                stk.pop();
-            }
-        }
+    ll s1 = accumulate(a + 1, a + n + 1, 0LL);
+    ll s2 = accumulate(b + 1, b + m + 1, 0LL);
+    if (s1 % k != s2 % k) {
+        cout << -1 << "\n";
+        return;
     }
 
-    vector<ll> f(n + 1, 0);
-    for (int i = 1; i <= n; i++) {
-        if (pos[i] == 0) continue;
+    for (int i = 1; i <= n; i++) c[i] = (1LL * m * (k - 1) - a[i]) % k;
+    for (int i = 1; i <= m; i++) d[i] = (1LL * n * (k - 1) - b[i]) % k;
+    ll s3 = accumulate(c + 1, c + n + 1, 0LL);
+    ll s4 = accumulate(d + 1, d + m + 1, 0LL);
 
-        f[i] = f[pos[i] - 1] + 1;
-    }
-    ll ans = accumulate(f.begin() + 1, f.end(), 0LL);
+    ll ans = 1LL * n * m * (k - 1) - max(s3, s4);
     cout << ans << "\n";
 }
 
@@ -92,8 +82,10 @@ int main() {
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
 //    cin >> T;
-    while (cin >> s) {
-        s = ' ' + s;
+    while (T--) {
+        cin >> n >> m >> k;
+        for (int i = 1; i <= n; i++) cin >> a[i];
+        for (int i = 1; i <= m; i++) cin >> b[i];
         solve();
     }
 

@@ -47,35 +47,33 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e6 + 10;
+const int N = 200010;
 
 int n;
-string s;
-int pos[N];
+int a[N], b[N];
 
 void solve() {
-    n = s.size() - 1;
+    vector<int> id(n + 1, 0);
+    for (int i = 1; i <= n; i++) id[b[i]] = i;
 
-    fill(pos + 1, pos + n, 0);
-    stack<int> stk;
+    vector<int> c[n + 1];
     for (int i = 1; i <= n; i++) {
-        if (s[i] == '(') {
-            stk.push(i);
-        } else {
-            if (!stk.empty()) {
-                pos[i] = stk.top();
-                stk.pop();
-            }
+        for (int j = a[i]; j <= n; j += a[i]) {
+            c[i].push_back(id[j]);
         }
     }
 
-    vector<ll> f(n + 1, 0);
+    vector<int> seq;
     for (int i = 1; i <= n; i++) {
-        if (pos[i] == 0) continue;
-
-        f[i] = f[pos[i] - 1] + 1;
+        sort(c[i].rbegin(), c[i].rend());
+        for (int x : c[i]) seq.push_back(x);
     }
-    ll ans = accumulate(f.begin() + 1, f.end(), 0LL);
+
+    vector<int> f(seq.size(), 1e9);
+    for (int x : seq) {
+        *lower_bound(f.begin(), f.end(), x) = x;
+    }
+    int ans = lower_bound(f.begin(), f.end(), 1e9) - f.begin();
     cout << ans << "\n";
 }
 
@@ -92,8 +90,10 @@ int main() {
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
 //    cin >> T;
-    while (cin >> s) {
-        s = ' ' + s;
+    while (T--) {
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> a[i];
+        for (int i = 1; i <= n; i++) cin >> b[i];
         solve();
     }
 

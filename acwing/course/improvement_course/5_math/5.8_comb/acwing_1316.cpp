@@ -49,37 +49,60 @@ using namespace grid_delta;
 
 const int N = 1e6 + 10;
 
-int n;
-string s;
-int pos[N];
+ll n, P;
+int isp[2 * N], ps[2 * N], cnt;
+
+ll ksm(ll a, ll b) {
+    a %= P;
+    ll res = 1;
+    while (b) {
+        if (b & 1) res = res * a % P;
+        a = a * a % P;
+        b >>= 1;
+    }
+
+    return res;
+}
+
+ll get(ll a, ll p) {
+    ll res = 0, cur = p;
+    while (cur <= a) {
+        res += a / cur;
+        cur *= p;
+    }
+
+    return res;
+}
+
+ll C(ll a, ll b) {
+    ll res = 1;
+
+    for (int i = 1; i <= cnt; i++) {
+        int p = ps[i];
+        if (p > a) break;
+        ll c = get(a, p) - get(a - b, p) - get(b, p);
+        res *= ksm(p, c);
+        res %= P;
+    }
+
+    return res;
+}
 
 void solve() {
-    n = s.size() - 1;
-
-    fill(pos + 1, pos + n, 0);
-    stack<int> stk;
-    for (int i = 1; i <= n; i++) {
-        if (s[i] == '(') {
-            stk.push(i);
-        } else {
-            if (!stk.empty()) {
-                pos[i] = stk.top();
-                stk.pop();
-            }
-        }
-    }
-
-    vector<ll> f(n + 1, 0);
-    for (int i = 1; i <= n; i++) {
-        if (pos[i] == 0) continue;
-
-        f[i] = f[pos[i] - 1] + 1;
-    }
-    ll ans = accumulate(f.begin() + 1, f.end(), 0LL);
+    ll ans = C(2 * n, n) - C(2 * n, n - 1);
+    ans = (ans + P) % P;
     cout << ans << "\n";
 }
 
 void prework() {
+    fill(isp + 1, isp + (int) 2e6 + 1, 1);
+    isp[0] = isp[1] = 0;
+    for (int i = 2; i <= 2e6; i++) {
+        if (!isp[i]) continue;
+
+        ps[++cnt] = i;
+        for (int j = i; j <= 2e6; j += i) isp[j] = 0;
+    }
 }
 
 int main() {
@@ -92,8 +115,8 @@ int main() {
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
 //    cin >> T;
-    while (cin >> s) {
-        s = ' ' + s;
+    while (T--) {
+        cin >> n >> P;
         solve();
     }
 

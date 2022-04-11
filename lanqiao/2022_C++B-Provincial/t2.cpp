@@ -17,8 +17,10 @@ using namespace std;
 const int month[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 int main() {
+#ifdef LOCAL
     freopen("../in.txt", "r", stdin);
     freopen("../out.txt", "w", stdout);
+#endif
 
     int ans = 0;
     for (int i = 1; i <= 12; i++) {
@@ -33,7 +35,7 @@ int main() {
             for (int k = 2; k < s.size(); k++) {
                 if (s[k] - s[k - 1] == 1 && s[k] - s[k - 1] == s[k - 1] - s[k - 2]) flag = 1;
             }
-            if (flag) cout << s << "\n";
+//            if (flag) cout << s << "\n";
             ans += flag;
         }
     }

@@ -37,6 +37,7 @@ void solve() {
         bas %= MOD;
     }
 
+    ans = (ans + MOD) % MOD;
     cout << ans;
 }
 

@@ -2,7 +2,7 @@
 ld mat[N][N];
 ld res[N];
 
-// r 为方程个数, c 为未知数个数, 无解返回0, 多解返回-1
+// r 为方程个数, c 为未知数个数, 无解返回-1, 多解返回自由元个数
 // mat[1~c]: 增广矩阵, c + 1 位置为常数
 int gauss(int r, int c) {
     int row = 1;
@@ -28,16 +28,13 @@ int gauss(int r, int c) {
 
     if (row <= r) {
         for (int i = row; i <= r; i++) {
-            if (fabs(mat[i][c + 1]) > eps) return 0;
+            if (fabs(mat[i][c + 1]) > eps) return -1;
         }
-        return -1;
+        return r - row + 1;
     }
 
-    for (int i = 1; i <= c; i++) {
-        res[i] = mat[i][c + 1] /= mat[i][i];
-    }
-
-    return 1;
+    for (int i = 1; i <= c; i++) res[i] = mat[i][c + 1] /= mat[i][i];
+    return 0;
 }
 // endregion
 
@@ -45,7 +42,7 @@ int gauss(int r, int c) {
 bitset<N> mat[N];
 bitset<N> res;
 
-// r 为方程个数, c 为未知数个数, 无解返回0, 多解返回-1
+// r 为方程个数, c 为未知数个数, 无解返回-1, 多解返回自由元个数
 // mat[1~n]: 增广矩阵, c + 1 位置为常数
 int gauss(int r, int c) {
     int row = 1;
@@ -65,12 +62,12 @@ int gauss(int r, int c) {
 
     if (row <= r) {
         for (int i = row; i <= r; i++) {
-            if (mat[i][c + 1]) return 0;
+            if (mat[i][c + 1]) return -1;
         }
-        return -1;
+        return r - row + 1;
     }
 
     for (int i = 1; i <= r; i++) res[i] = mat[i][c + 1];
-    return 1;
+    return 0;
 }
 // endregion
