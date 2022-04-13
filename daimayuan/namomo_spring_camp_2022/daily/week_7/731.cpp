@@ -47,13 +47,29 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-int g[25][25];
-int dp[(1 << (20)) + 10][25];
-int n, m;
+const int N = 5e5 + 10;
 
-int lowbit(int x) { return __lg((x) & (-x)); }
+int n;
+int ops[N], a[N], b[N];
+int fa[N];
 
 void solve() {
+    iota(fa, fa + N, 0);
+
+    vector<int> ans;
+    for (int i = n; i >= 1; i--) {
+        int op = ops[i], ta = a[i], tb = b[i];
+
+        if (op == 1) {
+            ans.push_back(fa[ta]);
+        } else {
+            fa[ta] = fa[tb];
+        }
+    }
+
+    reverse(ans.begin(), ans.end());
+    for (int x : ans) cout << x << " ";
+    cout << "\n";
 }
 
 void prework() {
@@ -70,6 +86,12 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> n;
+        for (int i = 1; i <= n; i++) {
+            cin >> ops[i];
+            if (ops[i] == 1) cin >> a[i];
+            else cin >> a[i] >> b[i];
+        }
         solve();
     }
 

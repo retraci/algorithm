@@ -47,13 +47,16 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-int g[25][25];
-int dp[(1 << (20)) + 10][25];
-int n, m;
-
-int lowbit(int x) { return __lg((x) & (-x)); }
+int n, m, k;
 
 void solve() {
+    if (n <= 2 * k - 1 && m <= 2 * k - 1) {
+        cout << "Alice" << "\n";
+        return;
+    }
+
+    if (n & 1 && m & 1) cout << "Alice" << "\n";
+    else cout << "Bob" << "\n";
 }
 
 void prework() {
@@ -70,6 +73,7 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> n >> m >> k;
         solve();
     }
 

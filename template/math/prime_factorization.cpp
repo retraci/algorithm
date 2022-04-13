@@ -5,9 +5,9 @@ void divide(ll x) {
     fs = {};
     for (int i = 2; i <= x / i; i++) {
         if (x % i == 0) {
-            int cnt = 0;
-            while (x % i == 0) x /= i, cnt++;
-            fs.push_back({i, cnt});
+            int c = 0;
+            while (x % i == 0) x /= i, c++;
+            fs.push_back({i, c});
         }
     }
     if (x > 1) fs.push_back({x, 1});
@@ -16,17 +16,21 @@ void divide(ll x) {
 
 // region 质因数分解, 枚举质数
 int isp[N];
-vector<int> ps;
+int pr[N], pc;
 
 void prime(int lim) {
     fill(isp, isp + lim + 1, 1);
 
     isp[0] = isp[1] = 0;
     for (int i = 2; i <= lim; i++) {
-        if (!isp[i]) continue;
+        if (isp[i]) pr[++pc] = i;
 
-        ps.push_back(i);
-        for (int j = i * 2; j <= lim; j += i) isp[j] = 0;
+        for (int j = 1; j <= pc; j++) {
+            if (pr[j] > lim / i) break;
+
+            isp[i * pr[j]] = 0;
+            if (i % pr[j] == 0) break;
+        }
     }
 }
 
@@ -38,12 +42,49 @@ void divide(ll x) {
         if (p > x / p) break;
 
         if (x % p == 0) {
-            int cnt = 0;
-            while (x % p == 0) x /= p, cnt++;
-            fs.push_back({p, cnt});
+            int c = 0;
+            while (x % p == 0) x /= p, c++;
+            fs.push_back({p, c});
         }
     }
     if (x > 1) fs.push_back({x, 1});
+}
+// endregion
+
+// region 质因数分解, 枚举最小质数 (x < N)
+int isp[N], mip[N];
+int pr[N], pc;
+
+void prime(int lim) {
+    fill(isp, isp + lim + 1, 1);
+
+    isp[0] = isp[1] = 0;
+    for (int i = 2; i <= lim; i++) {
+        if (isp[i]) {
+            pr[++pc] = i;
+            mip[i] = i;
+        }
+
+        for (int j = 1; j <= pc; j++) {
+            if (pr[j] > lim / i) break;
+
+            mip[i * pr[j]] = pr[j];
+            isp[i * pr[j]] = 0;
+            if (i % pr[j] == 0) break;
+        }
+    }
+}
+
+vector<pii> fs;
+
+void divide(int x) {
+    fs = {};
+    while (x > 1) {
+        int p = mip[x];
+        int c = 0;
+        while (x % p == 0) x /= p, c++;
+        fs.push_back({p, c});
+    }
 }
 // endregion
 
@@ -152,16 +193,16 @@ ll crt() {
 
 // region 欧拉筛
 int isp[N];
-int pr[N], cnt;
+int pr[N], pc;
 
 void prime(int lim) {
     fill(isp, isp + lim + 1, 1);
 
     isp[0] = isp[1] = 0;
     for (int i = 2; i <= lim; i++) {
-        if (isp[i]) pr[++cnt] = i;
+        if (isp[i]) pr[++pc] = i;
 
-        for (int j = 1; j <= cnt; j++) {
+        for (int j = 1; j <= pc; j++) {
             if (pr[j] > lim / i) break;
 
             isp[i * pr[j]] = 0;
@@ -173,7 +214,7 @@ void prime(int lim) {
 
 // region 欧拉函数(欧拉筛)
 int isp[N];
-int pr[N], cnt;
+int pr[N], pc;
 int phi[N];
 
 void prime(int lim) {
@@ -183,11 +224,11 @@ void prime(int lim) {
     isp[0] = isp[1] = 0;
     for (int i = 2; i <= lim; i++) {
         if (isp[i]) {
-            pr[++cnt] = i;
+            pr[++pc] = i;
             phi[i] = i - 1;
         }
 
-        for (int j = 1; j <= cnt; j++) {
+        for (int j = 1; j <= pc; j++) {
             if (pr[j] > lim / i) break;
 
             isp[i * pr[j]] = 0;
@@ -204,7 +245,7 @@ void prime(int lim) {
 
 // region 莫比乌斯函数(欧拉筛)
 int isp[N];
-int pr[N], cnt;
+int pr[N], pc;
 int mu[N];
 
 void prime(int lim) {
@@ -214,11 +255,11 @@ void prime(int lim) {
     isp[0] = isp[1] = 0;
     for (int i = 2; i <= lim; i++) {
         if (isp[i]) {
-            pr[++cnt] = i;
+            pr[++pc] = i;
             mu[i] = -1;
         }
 
-        for (int j = 1; j <= cnt; j++) {
+        for (int j = 1; j <= pc; j++) {
             if (pr[j] > lim / i) break;
 
             isp[i * pr[j]] = 0;

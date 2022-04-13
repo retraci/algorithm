@@ -47,13 +47,49 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-int g[25][25];
-int dp[(1 << (20)) + 10][25];
-int n, m;
+const int N = 2010;
+const int M = 6010;
 
-int lowbit(int x) { return __lg((x) & (-x)); }
+int n, m, k;
+int a[N];
+int h[N], ne[M], e[M], edm;
+int sg[N];
+
+void add(int u, int v) {
+    e[edm] = v, ne[edm] = h[u], h[u] = edm++;
+}
+
+int dfs(int u) {
+    if (sg[u] != -1) return sg[u];
+
+    set<int> st;
+    for (int i = h[u]; ~i; i = ne[i]) {
+        int v = e[i];
+        int ret = dfs(v);
+
+        st.insert(ret);
+    }
+
+    int res = 0;
+    for (int i = 0; ; i++) {
+        if (!st.count(i)) {
+            res = i;
+            break;
+        }
+    }
+
+    return sg[u] = res;
+}
 
 void solve() {
+    fill(sg, sg + n + 1, -1);
+
+    int res = 0;
+    for (int i = 1; i <= k; i++) {
+        res ^= dfs(a[i]);
+    }
+
+    cout << (res != 0 ? "win" : "lose") << "\n";
 }
 
 void prework() {
@@ -70,6 +106,14 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> n >> m >> k;
+        fill(h, h + n + 1, -1), edm = 0;
+        for (int i = 1; i <= m; i++) {
+            int u, v;
+            cin >> u >> v;
+            add(u, v);
+        }
+        for (int i = 1; i <= k; i++) cin >> a[i];
         solve();
     }
 

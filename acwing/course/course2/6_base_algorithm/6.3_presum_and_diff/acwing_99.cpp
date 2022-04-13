@@ -47,13 +47,28 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-int g[25][25];
-int dp[(1 << (20)) + 10][25];
-int n, m;
+const int N = 5010;
 
-int lowbit(int x) { return __lg((x) & (-x)); }
+int n, r;
+int g[N][N];
 
 void solve() {
+    r = min(5001, r);
+    for (int i = 1; i <= 5001; i++) {
+        for (int j = 1; j <= 5001; j++) {
+            g[i][j] += g[i - 1][j] + g[i][j - 1] - g[i - 1][j - 1];
+        }
+    }
+
+    int ans = 0;
+    for (int i = r; i <= 5001; i++) {
+        for (int j = r; j <= 5001; j++) {
+            int tmp = g[i][j] - g[i - r][j] - g[i][j - r] + g[i - r][j - r];
+            ans = max(ans, tmp);
+        }
+    }
+
+    cout << ans << endl;
 }
 
 void prework() {
@@ -70,6 +85,12 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> n >> r;
+        int a, b, c;
+        while (n--) {
+            cin >> a >> b >> c;
+            g[a + 1][b + 1] += c;
+        }
         solve();
     }
 

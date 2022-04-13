@@ -47,13 +47,23 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-int g[25][25];
-int dp[(1 << (20)) + 10][25];
-int n, m;
+ll a, b, p;
 
-int lowbit(int x) { return __lg((x) & (-x)); }
+ll ksc(ll ta, ll k) {
+    ta %= p;
+
+    ll res = 0;
+    while (k) {
+        if (k & 1) res = (res + ta) % p;
+        ta = (ta + ta) % p;
+        k >>= 1;
+    }
+
+    return res;
+}
 
 void solve() {
+    cout << ksc(a, b) << "\n";
 }
 
 void prework() {
@@ -70,6 +80,7 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> a >> b >> p;
         solve();
     }
 

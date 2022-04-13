@@ -47,16 +47,40 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-int g[25][25];
-int dp[(1 << (20)) + 10][25];
-int n, m;
+const int N = 55;
+const int M = 50 * 1000 + N;
 
-int lowbit(int x) { return __lg((x) & (-x)); }
+int n;
+int a[N];
+int f[N][M];
+
+int dfs(int s1, int s2) {
+    int &v = f[s1][s2];
+    if (v != -1) return v;
+    if (s1 == 0) return v = s2 & 1;
+    if (s2 == 1) return v = dfs(s1 + 1, 0);
+
+    if (s1 > 0 && !dfs(s1 - 1, s2)) return v = 1;
+    if (s2 > 0 && !dfs(s1, s2 - 1)) return v = 1;
+    if (s1 >= 2 && !dfs(s1 - 2, s2 + (s2 == 0 ? 2 : 3))) return v = 1;
+    if (s1 > 0 && s2 > 0 && !dfs(s1 - 1, s2 + 1)) return v = 1;
+
+    return v = 0;
+}
 
 void solve() {
+    int s1 = 0, s2 = 0;
+    for (int i = 1; i <= n; i++) {
+        if (a[i] == 1) s1++;
+        else s2 += s2 == 0 ? a[i] : a[i] + 1;
+    }
+
+    int ans = dfs(s1, s2);
+    cout << (ans ? "YES" : "NO") << "\n";
 }
 
 void prework() {
+    memset(f, -1, sizeof f);
 }
 
 int main() {
@@ -68,8 +92,10 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 

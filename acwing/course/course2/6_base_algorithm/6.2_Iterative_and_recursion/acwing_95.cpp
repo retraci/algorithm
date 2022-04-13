@@ -47,13 +47,45 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-int g[25][25];
-int dp[(1 << (20)) + 10][25];
-int n, m;
-
-int lowbit(int x) { return __lg((x) & (-x)); }
+int n = 5;
+char a[8][8], flip[8][8];
 
 void solve() {
+    int lim = 1 << 5;
+
+    int ans = 7;
+    for (int mask = 0; mask < lim; mask++) {
+        int cnt = 0;
+        memset(flip, 0, sizeof(flip));
+        for (int i = 1; i <= n; i++) {
+            if (mask >> (i - 1) & 1) {
+                cnt++;
+                flip[1][i] = 1;
+            }
+        }
+
+        for (int i = 2; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                int c = a[i - 1][j] + flip[i - 1][j] + flip[i - 1][j - 1] + flip[i - 1][j + 1] + flip[i - 2][j];
+                if (c & 1) continue;
+                flip[i][j] = 1;
+                cnt++;
+            }
+        }
+
+        int flag = 0;
+        for (int j = 1; j <= n; j++) {
+            int c = a[n][j] + flip[n][j] + flip[n][j - 1] + flip[n][j + 1] + flip[n - 1][j];
+            if (c & 1) continue;
+
+            flag = 1;
+            break;
+        }
+
+        if (!flag) ans = min(ans, cnt);
+    }
+
+    cout << (ans > 6 ? -1 : ans) << "\n";
 }
 
 void prework() {
@@ -68,8 +100,15 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                cin >> a[i][j];
+                a[i][j] -= '0';
+            }
+        }
+
         solve();
     }
 

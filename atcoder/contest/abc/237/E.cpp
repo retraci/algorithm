@@ -47,13 +47,65 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-int g[25][25];
-int dp[(1 << (20)) + 10][25];
-int n, m;
+const int N = 2e5 + 10;
 
-int lowbit(int x) { return __lg((x) & (-x)); }
+int n, m;
+int a[N];
+pii es[N];
+
+int h[N], ne[2 * N], edm;
+pii e[2 * N];
+
+ll dist[N], vis[N];
+
+void add(int u, int v, int cost) {
+    e[edm] = {cost, v}; ne[edm] = h[u], h[u] = edm++;
+}
+
+void init() {
+    fill(h, h + n + 1, -1), edm = 0;
+
+    for (int i = 1; i <= m; i++) {
+        auto [u, v] = es[i];
+        int c1 = a[u] > a[v] ? a[u] - a[v] : -2 * (a[v] - a[u]);
+        int c2 = a[v] > a[u] ? a[v] - a[u] : -2 * (a[u] - a[v]);
+        add(u, v, -c1 + a[u] - a[v]);
+        add(v, u, -c2 + a[v] - a[u]);
+    }
+}
+
+void dij() {
+    fill(dist, dist + n + 1, 1e18);
+    fill(vis, vis + n + 1, 0);
+
+    priority_queue<pll> que;
+    que.push({0, 1});
+    dist[1] = 0;
+    while (!que.empty()) {
+        auto [d, u] = que.top(); que.pop();
+        if (vis[u]) continue;
+        vis[u] = 1;
+
+        for (int i = h[u]; ~i; i = ne[i]) {
+            auto [cost, v] = e[i];
+
+            if (dist[v] > dist[u] + cost) {
+                dist[v] = dist[u] + cost;
+                que.push({-dist[v], v});
+            }
+        }
+    }
+}
 
 void solve() {
+    init();
+
+    dij();
+    for (int i = 1; i <= n; i++) {
+        dist[i] = -(dist[i] - (a[1] - a[i]));
+    }
+    ll ans = *max_element(dist + 1, dist + n + 1);
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -70,6 +122,13 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) cin >> a[i];
+        for (int i = 1; i <= m; i++) {
+            int u, v;
+            cin >> u >> v;
+            es[i] = {u, v};
+        }
         solve();
     }
 

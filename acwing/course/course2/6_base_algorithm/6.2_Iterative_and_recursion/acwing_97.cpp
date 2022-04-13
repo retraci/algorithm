@@ -47,13 +47,50 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-int g[25][25];
-int dp[(1 << (20)) + 10][25];
-int n, m;
+const int MOD = 9901;
 
-int lowbit(int x) { return __lg((x) & (-x)); }
+int a, b;
+
+int ksm(int p, int c) {
+    p %= MOD;
+    int res = 1;
+    while (c) {
+        if (c & 1) res = (res * p) % MOD;
+        p = (p * p) % MOD;
+        c >>= 1;
+    }
+    return res;
+}
+
+int sum(int p, int c) {
+    if (c == 0) return 1;
+
+    int res;
+    if (c & 1) {
+        res = ((1 + ksm(p, c / 2 + 1)) % MOD
+                * sum(p, c / 2) % MOD) % MOD;
+    } else {
+        res = (((1 + ksm(p, (c - 1) / 2 + 1)) % MOD
+                * sum(p, (c - 1) / 2)) % MOD
+                        + ksm(p, c)) % MOD;
+    }
+
+    return res;
+}
 
 void solve() {
+    int ans = 1;
+    for (int i = 2; i <= a; i++) {
+        int cnt = 0;
+        while (a % i == 0) {
+            cnt++;
+            a /= i;
+        }
+        if (cnt > 0) ans = (ans * sum(i, cnt * b)) % MOD;
+    }
+
+    if (a == 0) ans = 0;
+    cout << ans << endl;
 }
 
 void prework() {
@@ -70,6 +107,7 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> a >> b;
         solve();
     }
 
