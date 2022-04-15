@@ -47,14 +47,51 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 100010;
+
+int n, m;
+int a[N], b[N], c[N];
+
 void solve() {
+    vector<int> d[n + 1];
+    vector<int> e(n + 1, 0);
+    for (int i = 1; i <= n; i++) {
+        if (a[i] != b[i]) d[b[i]].push_back(i);
+        e[b[i]] = i;
+    }
+
+    int lst = 0;
+    vector<int> ans(m + 1);
+    for (int i = m; i >= 1; i--) {
+        int co = c[i];
+        if (d[co].empty()) {
+            if (!lst && !e[co]) {
+                cout << "NO" << "\n";
+                return;
+            }
+
+            ans[i] = lst ? lst : e[co];
+            lst = ans[i];
+        } else {
+            int cur = d[co].back(); d[co].pop_back();
+            ans[i] = cur, lst = ans[i];
+        }
+    }
+    for (int i = 1; i <= n; i++) {
+        if (!d[i].empty()) {
+            cout << "NO" << "\n";
+            return;
+        }
+    }
+
+    cout << "YES" << "\n";
+    for (int i = 1; i <= m; i++) {
+        cout << ans[i] << " ";
+    }
+    cout << "\n";
 }
 
 void prework() {
-    auto add = plus<int>();
-    int a = 1, b = 2;
-    cout << add(a, b) << "\n";
-    cout << a << " " << b << "\n";
 }
 
 int main() {
@@ -66,8 +103,12 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) cin >> a[i];
+        for (int i = 1; i <= n; i++) cin >> b[i];
+        for (int i = 1; i <= m; i++) cin >> c[i];
         solve();
     }
 

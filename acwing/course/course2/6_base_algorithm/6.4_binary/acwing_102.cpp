@@ -47,14 +47,40 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 100010;
+
+int n, m;
+ll a[N], s[N];
+
+bool check(ll mid) {
+    for (int i = 1; i <= n; i++) {
+        s[i] = a[i] - mid;
+        s[i] += s[i - 1];
+    }
+
+    ll mi = 1e18, ans = -1e18;
+    for (int i = m; i <= n; i++) {
+        mi = min(mi, s[i - m]);
+        ans = max(ans, s[i] - mi);
+    }
+
+    return ans >= 0;
+}
+
 void solve() {
+    for (int i = 1; i <= n; i++) a[i] *= 1000;
+
+    ll left = 0, right = 2000 * 1000;
+    while (left < right) {
+        ll mid = left + right + 1 >> 1;
+        if (check(mid)) left = mid;
+        else right = mid - 1;
+    }
+
+    cout << left << endl;
 }
 
 void prework() {
-    auto add = plus<int>();
-    int a = 1, b = 2;
-    cout << add(a, b) << "\n";
-    cout << a << " " << b << "\n";
 }
 
 int main() {
@@ -68,6 +94,8 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 

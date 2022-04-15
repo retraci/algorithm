@@ -47,14 +47,16 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+int n;
+
 void solve() {
+    int b = 1 << __lg(n - 1);
+    for (int i = n - 1; i >= b; i--) cout << i << " ";
+    for (int i = 0; i < b; i++) cout << i << " ";
+    cout << "\n";
 }
 
 void prework() {
-    auto add = plus<int>();
-    int a = 1, b = 2;
-    cout << add(a, b) << "\n";
-    cout << a << " " << b << "\n";
 }
 
 int main() {
@@ -66,8 +68,9 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
+        cin >> n;
         solve();
     }
 

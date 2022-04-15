@@ -47,14 +47,49 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 2e5 + 10;
+const int M = 5e5 + 10;
+
+int n, m, k;
+int a[N];
+
+int h[N], ne[2 * M], e[2 * M], edm;
+int c[N];
+
+void add(int u, int v) {
+    e[edm] = v, ne[edm] = h[u], h[u] = edm++;
+}
+
+bool dfs(int u, int fno, int col) {
+    if (c[u]) return c[u] == col;
+    c[u] = col;
+
+    for (int i = h[u]; ~i; i = ne[i]) {
+        int v = e[i];
+        if (v == fno) continue;
+
+        if (!dfs(v, u, -col)) return false;
+    }
+
+    return true;
+}
+
 void solve() {
+    int ret = dfs(1, 0, 1);
+    if (!ret) {
+        cout << "YES" << "\n";
+        return;
+    }
+
+    unordered_set<int> st;
+    for (int i = 1; i <= k; i++) {
+        int u = a[i];
+        st.insert(c[u]);
+    }
+    cout << (st.size() == 1 ? "YES" : "NO") << "\n";
 }
 
 void prework() {
-    auto add = plus<int>();
-    int a = 1, b = 2;
-    cout << add(a, b) << "\n";
-    cout << a << " " << b << "\n";
 }
 
 int main() {
@@ -68,6 +103,15 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> n >> m >> k;
+        fill(h, h + n + 1, -1), edm = 0;
+
+        for (int i = 1; i <= m; i++) {
+            int u, v;
+            cin >> u >> v;
+            add(u, v), add(v, u);
+        }
+        for (int i = 1; i <= k; i++) cin >> a[i];
         solve();
     }
 

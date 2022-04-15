@@ -47,14 +47,33 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int MOD = 1e9 + 7;
+
+int a[10];
+
+int calc(int c, int t) {
+    int res = c / 3;
+    if (c % 3 >= t) res++;
+    return res;
+}
+
 void solve() {
+    int f[11][3];
+    memset(f, 0, sizeof f);
+    f[0][0] = 1;
+    for (int i = 1; i <= 9; i++) {
+        for (int j = 0; j < 3; j++) {
+            for (int k = 0; k < 3; k++) {
+                f[i][(j + i * k) % 3] += 1LL * f[i - 1][j] * calc(a[i], k) % MOD;
+                f[i][(j + i * k) % 3] %= MOD;
+            }
+        }
+    }
+
+    cout << f[9][0] << "\n";
 }
 
 void prework() {
-    auto add = plus<int>();
-    int a = 1, b = 2;
-    cout << add(a, b) << "\n";
-    cout << a << " " << b << "\n";
 }
 
 int main() {
@@ -68,6 +87,7 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        for (int i = 1; i <= 9; i++) cin >> a[i];
         solve();
     }
 

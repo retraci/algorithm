@@ -47,14 +47,43 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+const int N = 5e5 + 10;
+
+int n;
+int a[N], p[N];
+ll stk[N], s[N], top;
+
+int get_id(int pos) {
+    int left = 1, right = top;
+    while (left < right) {
+        int md = left + right + 1 >> 1;
+        if (stk[md] >= pos) left = md;
+        else right = md - 1;
+    }
+
+    return left;
+}
+
 void solve() {
+    a[n + 1] = 1e9;
+
+    ll ans = 0;
+    stk[++top] = n + 1;
+    for (int i = n; i >= 1; i--) {
+        while (a[i] >= a[stk[top]]) top--;
+
+        stk[++top] = i;
+        int gap = stk[top - 1] - i;
+        s[top] = s[top - 1] + 1LL * gap * a[i];
+
+        int id = get_id(p[i]);
+        ans += s[id] + 1LL * (stk[id] - p[i]) * a[stk[id + 1]];
+    }
+
+    cout << ans << "\n";
 }
 
 void prework() {
-    auto add = plus<int>();
-    int a = 1, b = 2;
-    cout << add(a, b) << "\n";
-    cout << a << " " << b << "\n";
 }
 
 int main() {
@@ -68,6 +97,9 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> a[i];
+        for (int i = 1; i <= n; i++) cin >> p[i];
         solve();
     }
 

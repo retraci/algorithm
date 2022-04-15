@@ -47,14 +47,47 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+int L, R;
+
+ll work(int num) {
+    vector<int> a;
+    while (num) a.push_back(num % 10), num /= 10;
+    a.push_back(0);
+    reverse(a.begin(), a.end());
+    int n = a.size() - 1;
+
+    ll f[2][n + 1][10];
+    memset(f, 0, sizeof f);
+    for (int i = 1; i <= n; i++) {
+        for (int d = 1; d <= (i == 1 ? a[i] : 9); d++) {
+            int lt = i == 1 && d == a[i];
+            f[lt][i][d] += 1;
+        }
+
+        for (int lt = 0; lt <= 1; lt++) {
+            for (int j = 0; j <= 9; j++) {
+                for (int d = 0; d <= (lt ? a[i] : 9); d++) {
+                    int nlt = lt && d == a[i];
+                    if (abs(j - d) >= 2) f[nlt][i][d] += f[lt][i - 1][j];
+                }
+            }
+        }
+    }
+
+    ll res = 0;
+    for (int lt = 0; lt <= 1; lt++) {
+        for (int j = 0; j <= 9; j++) {
+            res += f[lt][n][j];
+        }
+    }
+    return res;
+}
+
 void solve() {
+    cout << work(R) - work(L - 1) << "\n";
 }
 
 void prework() {
-    auto add = plus<int>();
-    int a = 1, b = 2;
-    cout << add(a, b) << "\n";
-    cout << a << " " << b << "\n";
 }
 
 int main() {
@@ -68,6 +101,7 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
+        cin >> L >> R;
         solve();
     }
 
