@@ -5,7 +5,7 @@
 
 using namespace std;
 
-const int maxn = 1e4 + 10;
+const int maxn = 99999 + 10;
 
 int n, m;
 int va[maxn];

@@ -25,9 +25,9 @@ add_executable(P1980 luogu/practice/dp/digit/P1980.cpp)
 add_executable(B codeforces/contest/round/769/B.cpp)
 add_executable(C atcoder/contest/arc/133/C.cpp)
 
-add_executable(D codeforces/contest/round/770/D.cpp)
+add_executable(D atcoder/contest/abc/238/D.cpp)
 add_executable(P2602 luogu/practice/dp/digit/P2602.cpp)
-add_executable(E atcoder/contest/abc/237/E.cpp)
+add_executable(E atcoder/contest/abc/227/E.cpp)
 add_executable(acwing_1086 acwing/course/course2/1_dp/1.8_digit/acwing_1086.cpp)
 
 add_executable(acwing_1684 acwing/practice/winter_daily_2022/week_6/acwing_1684.cpp)
@@ -86,7 +86,7 @@ add_executable(acwing_342 acwing/course/course2/3_graph/3.2_single_source_applic
 add_executable(acwing_341 acwing/course/course2/3_graph/3.2_single_source_applications/acwing_341.cpp)
 add_executable(acwing_341_gt acwing/course/course2/3_graph/3.2_single_source_applications/acwing_341_gt.cpp)
 
-add_executable(F atcoder/contest/abc/235/F.cpp)
+add_executable(F atcoder/contest/abc/227/F.cpp)
 
 add_executable(CF896C codeforces/practice/ODT/CF896C.cpp)
 add_executable(acwing_1137 acwing/course/course2/3_graph/3.3_single_source_extensions/acwing_1137.cpp)
@@ -352,3 +352,9 @@ add_executable(acwing_1084_gt acwing/course/course2/1_dp/1.8_digit/acwing_1084_g
 add_executable(acwing_1085_gt acwing/course/course2/1_dp/1.8_digit/acwing_1085_gt.cpp)
 add_executable(acwing_102 acwing/course/course2/6_base_algorithm/6.4_binary/acwing_102.cpp)
 add_executable(735 daimayuan/namomo_spring_camp_2022/daily/week_7/735.cpp)
+add_executable(acwing_105 acwing/course/course2/6_base_algorithm/6.5_sort/acwing_105.cpp)
+add_executable(acwing_106 acwing/course/course2/6_base_algorithm/6.5_sort/acwing_106.cpp)
+add_executable(acwing_107 acwing/course/course2/6_base_algorithm/6.5_sort/acwing_107.cpp)
+add_executable(acwing_1273 acwing/course/course2/6_base_algorithm/6.6_RMQ/acwing_1273.cpp)
+
+add_executable(CF102984F codeforces/practice/game/CF102984F.cpp)
