@@ -272,3 +272,32 @@ void prime(int lim) {
     }
 }
 // endregion
+
+// region 积性函数(欧拉筛)
+int isp[N];
+int pr[N], pc;
+int h[N];
+
+void prime(int lim) {
+    fill(isp, isp + lim + 1, 1);
+
+    h[1] = 1;
+    isp[0] = isp[1] = 0;
+    for (int i = 2; i <= lim; i++) {
+        if (isp[i]) {
+            pr[++pc] = i;
+            // 待修
+            h[i] = (i - 1LL * i * i % MOD + MOD) % MOD;
+        }
+
+        for (int j = 1; pr[j] <= lim / i; j++) {
+            isp[i * pr[j]] = 0;
+            if (i % pr[j] == 0) {
+                h[i * pr[j]] = 1LL * h[i] * pr[j] % MOD;
+                break;
+            }
+            h[i * pr[j]] = 1LL * h[i] * h[pr[j]] % MOD;
+        }
+    }
+}
+// endregion

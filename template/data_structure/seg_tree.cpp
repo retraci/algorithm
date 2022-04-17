@@ -20,7 +20,8 @@ struct Seg {
     inline void init(int L, int R) {
         rt = 0, mem = 0, lb = L, rb = R;
         tr[0].lson = tr[0].rson = 0;
-        tr[0].sum = tr[0].lz = 0;
+        tr[0].sum = 0;
+        tr[0].lz = 0;
     }
 
     inline void init(int L, int R, ll val) {
@@ -31,31 +32,32 @@ struct Seg {
     inline int new_node() {
         int id = ++mem;
         tr[id].lson = tr[id].rson = 0;
-        tr[id].sum = tr[id].lz = 0;
+        tr[id].sum = 0;
+        tr[id].lz = 0;
         return id;
     }
 
-    inline void push_up(Node &fa, Node &lc, Node &rc) {
+    inline void pull(Node &fa, Node &lc, Node &rc) {
         fa.sum = lc.sum + rc.sum;
     }
 
-    inline void push_up(int k) {
-        push_up(tr[k], tr[ls(k)], tr[rs(k)]);
+    inline void pull(int k) {
+        pull(tr[k], tr[ls(k)], tr[rs(k)]);
     }
 
-    inline void work(Node &t, ll sz, ll val) {
+    inline void apply(Node &t, ll sz, ll val) {
         t.sum = t.sum + sz * val;
         t.lz = t.lz + val;
     }
 
-    inline void push_down(int k, int s, int e) {
+    inline void push(int k, int s, int e) {
         ll len = e - s + 1;
         ll lsz = len - len / 2, rsz = len / 2;
         if (tr[k].lz) {
             if (!ls(k)) ls(k) = new_node();
             if (!rs(k)) rs(k) = new_node();
-            work(tr[ls(k)], lsz, tr[k].lz);
-            work(tr[rs(k)], rsz, tr[k].lz);
+            apply(tr[ls(k)], lsz, tr[k].lz);
+            apply(tr[rs(k)], rsz, tr[k].lz);
             tr[k].lz = 0;
         }
     }
@@ -64,14 +66,14 @@ struct Seg {
         if (!k) k = new_node();
 
         if (L <= s && e <= R) {
-            work(tr[k], e - s + 1, val);
+            apply(tr[k], e - s + 1, val);
             return;
         }
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (L <= mid) add(ls(k), s, mid, L, R, val);
         if (R >= mid + 1) add(rs(k), mid + 1, e, L, R, val);
-        push_up(k);
+        pull(k);
     }
 
     inline void set(int &k, int s, int e, int id, ll val) {
@@ -82,22 +84,22 @@ struct Seg {
             return;
         }
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (id <= mid) set(ls(k), s, mid, id, val);
         if (id >= mid + 1) set(rs(k), mid + 1, e, id, val);
-        push_up(k);
+        pull(k);
     }
 
     inline Node query(int k, int s, int e, int L, int R) {
         if (L <= s && e <= R) return tr[k];
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (R <= mid) return query(ls(k), s, mid, L, R);
         if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
         Node res = {0};
         Node lc = query(ls(k), s, mid, L, R);
         Node rc = query(rs(k), mid + 1, e, L, R);
-        push_up(res, lc, rc);
+        pull(res, lc, rc);
         return res;
     }
 
@@ -161,29 +163,30 @@ struct Seg {
     inline int new_node() {
         int id = ++mem;
         tr[id].lson = tr[id].rson = 0;
-        tr[id].sum = tr[id].lz = 0;
+        tr[id].sum = 0;
+        tr[id].lz = 0;
         return id;
     }
 
-    inline void push_up(Node &fa, Node &lc, Node &rc) {
+    inline void pull(Node &fa, Node &lc, Node &rc) {
         fa.sum = max(lc.sum, rc.sum);
     }
 
-    inline void push_up(int k) {
-        push_up(tr[k], tr[ls(k)], tr[rs(k)]);
+    inline void pull(int k) {
+        pull(tr[k], tr[ls(k)], tr[rs(k)]);
     }
 
-    inline void work(Node &t, ll val) {
+    inline void apply(Node &t, ll val) {
         t.sum = max(t.sum, val);
         t.lz = max(t.lz, val);
     }
 
-    inline void push_down(int k, int s, int e) {
+    inline void push(int k, int s, int e) {
         if (tr[k].lz) {
             if (!ls(k)) ls(k) = new_node();
             if (!rs(k)) rs(k) = new_node();
-            work(tr[ls(k)], tr[k].lz);
-            work(tr[rs(k)], tr[k].lz);
+            apply(tr[ls(k)], tr[k].lz);
+            apply(tr[rs(k)], tr[k].lz);
             tr[k].lz = 0;
         }
     }
@@ -192,14 +195,14 @@ struct Seg {
         if (!k) k = new_node();
 
         if (L <= s && e <= R) {
-            work(tr[k], val);
+            apply(tr[k], val);
             return;
         }
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (L <= mid) update(ls(k), s, mid, L, R, val);
         if (R >= mid + 1) update(rs(k), mid + 1, e, L, R, val);
-        push_up(k);
+        pull(k);
     }
 
     inline void set(int &k, int s, int e, int id, ll val) {
@@ -210,22 +213,22 @@ struct Seg {
             return;
         }
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (id <= mid) set(ls(k), s, mid, id, val);
         if (id >= mid + 1) set(rs(k), mid + 1, e, id, val);
-        push_up(k);
+        pull(k);
     }
 
     inline Node query(int k, int s, int e, int L, int R) {
         if (L <= s && e <= R) return tr[k];
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (R <= mid) return query(ls(k), s, mid, L, R);
         if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
         Node res = {0};
         Node lc = query(ls(k), s, mid, L, R);
         Node rc = query(rs(k), mid + 1, e, L, R);
-        push_up(res, lc, rc);
+        pull(res, lc, rc);
         return res;
     }
 
@@ -282,25 +285,25 @@ struct Seg {
         return id;
     }
 
-    inline void push_up(Node &fa, Node &lc, Node &rc) {
+    inline void pull(Node &fa, Node &lc, Node &rc) {
         fa.sum = min(lc.sum, rc.sum);
     }
 
-    inline void push_up(int k) {
-        push_up(tr[k], tr[ls(k)], tr[rs(k)]);
+    inline void pull(int k) {
+        pull(tr[k], tr[ls(k)], tr[rs(k)]);
     }
 
-    inline void work(Node &t, ll val) {
+    inline void apply(Node &t, ll val) {
         t.sum = min(t.sum, val);
         t.lz = min(t.lz, val);
     }
 
-    inline void push_down(int k, int s, int e) {
-        if (tr[k].lz) {
+    inline void push(int k, int s, int e) {
+        if (tr[k].lz != 1e18) {
             if (!ls(k)) ls(k) = new_node();
             if (!rs(k)) rs(k) = new_node();
-            work(tr[ls(k)], tr[k].lz);
-            work(tr[rs(k)], tr[k].lz);
+            apply(tr[ls(k)], tr[k].lz);
+            apply(tr[rs(k)], tr[k].lz);
             tr[k].lz = 1e18;
         }
     }
@@ -309,14 +312,14 @@ struct Seg {
         if (!k) k = new_node();
 
         if (L <= s && e <= R) {
-            work(tr[k], val);
+            apply(tr[k], val);
             return;
         }
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (L <= mid) update(ls(k), s, mid, L, R, val);
         if (R >= mid + 1) update(rs(k), mid + 1, e, L, R, val);
-        push_up(k);
+        pull(k);
     }
 
     inline void set(int &k, int s, int e, int id, ll val) {
@@ -327,22 +330,22 @@ struct Seg {
             return;
         }
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (id <= mid) set(ls(k), s, mid, id, val);
         if (id >= mid + 1) set(rs(k), mid + 1, e, id, val);
-        push_up(k);
+        pull(k);
     }
 
     inline Node query(int k, int s, int e, int L, int R) {
         if (L <= s && e <= R) return tr[k];
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (R <= mid) return query(ls(k), s, mid, L, R);
         if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
         Node res = {0, 0, (ll) 1e18, 0};
         Node lc = query(ls(k), s, mid, L, R);
         Node rc = query(rs(k), mid + 1, e, L, R);
-        push_up(res, lc, rc);
+        pull(res, lc, rc);
         return res;
     }
 
@@ -399,29 +402,29 @@ struct Seg {
         return id;
     }
 
-    inline void push_up(Node &fa, Node &lc, Node &rc) {
+    inline void pull(Node &fa, Node &lc, Node &rc) {
         fa.sum = lc.sum + rc.sum;
         fa.mx = max(lc.mx, rc.mx);
     }
 
-    inline void push_up(int k) {
-        push_up(tr[k], tr[ls(k)], tr[rs(k)]);
+    inline void pull(int k) {
+        pull(tr[k], tr[ls(k)], tr[rs(k)]);
     }
 
-    inline void work(Node &t, ll sz, ll val) {
+    inline void apply(Node &t, ll sz, ll val) {
         t.sum = t.sum + sz * val;
         t.lz = t.lz + val;
         t.mx = t.mx + val;
     }
 
-    inline void push_down(int k, int s, int e) {
+    inline void push(int k, int s, int e) {
         ll len = e - s + 1;
         ll lsz = len - len / 2, rsz = len / 2;
         if (tr[k].lz) {
             if (!ls(k)) ls(k) = new_node();
             if (!rs(k)) rs(k) = new_node();
-            work(tr[ls(k)], lsz, tr[k].lz);
-            work(tr[rs(k)], rsz, tr[k].lz);
+            apply(tr[ls(k)], lsz, tr[k].lz);
+            apply(tr[rs(k)], rsz, tr[k].lz);
             tr[k].lz = 0;
         }
     }
@@ -430,14 +433,14 @@ struct Seg {
         if (!k) k = new_node();
 
         if (L <= s && e <= R) {
-            work(tr[k], e - s + 1, val);
+            apply(tr[k], e - s + 1, val);
             return;
         }
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (L <= mid) add(ls(k), s, mid, L, R, val);
         if (R >= mid + 1) add(rs(k), mid + 1, e, L, R, val);
-        push_up(k);
+        pull(k);
     }
 
     inline void update(int &k, int s, int e, int id, ll val) {
@@ -448,10 +451,10 @@ struct Seg {
             return;
         }
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (id <= mid) update(ls(k), s, mid, id, val);
         if (id >= mid + 1) update(rs(k), mid + 1, e, id, val);
-        push_up(k);
+        pull(k);
     }
 
     inline void set(int &k, int s, int e, int id, ll val) {
@@ -462,22 +465,22 @@ struct Seg {
             return;
         }
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (id <= mid) set(ls(k), s, mid, id, val);
         if (id >= mid + 1) set(rs(k), mid + 1, e, id, val);
-        push_up(k);
+        pull(k);
     }
 
     inline Node query(int k, int s, int e, int L, int R) {
         if (L <= s && e <= R) return tr[k];
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (R <= mid) return query(ls(k), s, mid, L, R);
         if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
         Node res = {0};
         Node lc = query(ls(k), s, mid, L, R);
         Node rc = query(rs(k), mid + 1, e, L, R);
-        push_up(res, lc, rc);
+        pull(res, lc, rc);
         return res;
     }
 
@@ -538,29 +541,29 @@ struct Seg {
         return id;
     }
 
-    inline void push_up(Node &fa, Node &lc, Node &rc) {
+    inline void pull(Node &fa, Node &lc, Node &rc) {
         fa.sum = lc.sum + rc.sum;
         fa.mi = min(lc.mi, rc.mi);
     }
 
-    inline void push_up(int k) {
-        push_up(tr[k], tr[ls(k)], tr[rs(k)]);
+    inline void pull(int k) {
+        pull(tr[k], tr[ls(k)], tr[rs(k)]);
     }
 
-    inline void work(Node &t, ll sz, ll val) {
+    inline void apply(Node &t, ll sz, ll val) {
         t.sum = t.sum + sz * val;
         t.lz = t.lz + val;
         t.mi = t.mi + val;
     }
 
-    inline void push_down(int k, int s, int e) {
+    inline void push(int k, int s, int e) {
         ll len = e - s + 1;
         ll lsz = len - len / 2, rsz = len / 2;
         if (tr[k].lz) {
             if (!ls(k)) ls(k) = new_node();
             if (!rs(k)) rs(k) = new_node();
-            work(tr[ls(k)], lsz, tr[k].lz);
-            work(tr[rs(k)], rsz, tr[k].lz);
+            apply(tr[ls(k)], lsz, tr[k].lz);
+            apply(tr[rs(k)], rsz, tr[k].lz);
             tr[k].lz = 0;
         }
     }
@@ -569,14 +572,14 @@ struct Seg {
         if (!k) k = new_node();
 
         if (L <= s && e <= R) {
-            work(tr[k], e - s + 1, val);
+            apply(tr[k], e - s + 1, val);
             return;
         }
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (L <= mid) add(ls(k), s, mid, L, R, val);
         if (R >= mid + 1) add(rs(k), mid + 1, e, L, R, val);
-        push_up(k);
+        pull(k);
     }
 
     inline void update(int &k, int s, int e, int id, ll val) {
@@ -587,10 +590,10 @@ struct Seg {
             return;
         }
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (id <= mid) update(ls(k), s, mid, id, val);
         if (id >= mid + 1) update(rs(k), mid + 1, e, id, val);
-        push_up(k);
+        pull(k);
     }
 
     inline void set(int &k, int s, int e, int id, ll val) {
@@ -601,22 +604,22 @@ struct Seg {
             return;
         }
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (id <= mid) set(ls(k), s, mid, id, val);
         if (id >= mid + 1) set(rs(k), mid + 1, e, id, val);
-        push_up(k);
+        pull(k);
     }
 
     inline Node query(int k, int s, int e, int L, int R) {
         if (L <= s && e <= R) return tr[k];
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (R <= mid) return query(ls(k), s, mid, L, R);
         if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
         Node res = {0};
         Node lc = query(ls(k), s, mid, L, R);
         Node rc = query(rs(k), mid + 1, e, L, R);
-        push_up(res, lc, rc);
+        pull(res, lc, rc);
         return res;
     }
 
@@ -640,7 +643,7 @@ struct Seg {
 };
 // endregion
 
-// region 区间开关, 维护最值线段树, 1: 开, 2: 关
+// region 区间开关, 维护最值线段树, 1: 开, 0: 关
 template<int SZ>
 struct Seg {
 #define mid (s + e >> 1)
@@ -663,8 +666,9 @@ struct Seg {
     inline void init(int L, int R) {
         rt = 0, mem = 0, lb = L, rb = R;
         tr[0].lson = tr[0].rson = 0;
-        tr[0].lz = tr[0].mx = tr[0].mx_bak = 0;
+        tr[0].mx = tr[0].mx_bak = 0;
         tr[0].mi = tr[0].mi_bak = 1e9;
+        tr[0].lz = -1;
     }
 
     inline void init(int L, int R, ll val) {
@@ -675,25 +679,26 @@ struct Seg {
     inline int new_node() {
         int id = ++mem;
         tr[id].lson = tr[id].rson = 0;
-        tr[id].lz = tr[id].mx = tr[id].mx_bak = 0;
+        tr[id].mx = tr[id].mx_bak = 0;
         tr[id].mi = tr[id].mi_bak = 1e9;
+        tr[id].lz = -1;
         return id;
     }
 
-    inline void push_up(Node &fa, Node &lc, Node &rc) {
+    inline void pull(Node &fa, Node &lc, Node &rc) {
         fa.mx = max(lc.mx, rc.mx);
         fa.mx_bak = max(lc.mx_bak, rc.mx_bak);
         fa.mi = min(lc.mi, rc.mi);
         fa.mi_bak = min(lc.mi_bak, rc.mi_bak);
     }
 
-    inline void push_up(int k) {
-        push_up(tr[k], tr[ls(k)], tr[rs(k)]);
+    inline void pull(int k) {
+        pull(tr[k], tr[ls(k)], tr[rs(k)]);
     }
 
-    inline void work(Node &t, ll col) {
+    inline void apply(Node &t, ll col) {
         t.lz = col;
-        if (col == 1) {
+        if (col) {
             t.mx = t.mx_bak;
             t.mi = t.mi_bak;
         } else {
@@ -701,13 +706,13 @@ struct Seg {
         }
     }
 
-    inline void push_down(int k, int s, int e) {
-        if (tr[k].lz) {
+    inline void push(int k, int s, int e) {
+        if (~tr[k].lz) {
             if (!ls(k)) ls(k) = new_node();
             if (!rs(k)) rs(k) = new_node();
-            work(tr[ls(k)], tr[k].lz);
-            work(tr[rs(k)], tr[k].lz);
-            tr[k].lz = 0;
+            apply(tr[ls(k)], tr[k].lz);
+            apply(tr[rs(k)], tr[k].lz);
+            tr[k].lz = -1;
         }
     }
 
@@ -715,14 +720,14 @@ struct Seg {
         if (!k) k = new_node();
 
         if (L <= s && e <= R) {
-            work(tr[k], col);
+            apply(tr[k], col);
             return;
         }
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (L <= mid) add(ls(k), s, mid, L, R, col);
         if (R >= mid + 1) add(rs(k), mid + 1, e, L, R, col);
-        push_up(k);
+        pull(k);
     }
 
     inline void set(int &k, int s, int e, int id, ll val) {
@@ -733,22 +738,22 @@ struct Seg {
             return;
         }
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (id <= mid) set(ls(k), s, mid, id, val);
         if (id >= mid + 1) set(rs(k), mid + 1, e, id, val);
-        push_up(k);
+        pull(k);
     }
 
     inline Node query(int k, int s, int e, int L, int R) {
         if (L <= s && e <= R) return tr[k];
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (R <= mid) return query(ls(k), s, mid, L, R);
         if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
         Node res = {0, 0, 0, 0, (ll) 1e9, 0};
         Node lc = query(ls(k), s, mid, L, R);
         Node rc = query(rs(k), mid + 1, e, L, R);
-        push_up(res, lc, rc);
+        pull(res, lc, rc);
         return res;
     }
 
@@ -811,7 +816,7 @@ struct Seg {
         return id;
     }
 
-    inline void push_up(int k, int s, int e) {
+    inline void pull(int k, int s, int e) {
         if (tr[k].sum) tr[k].v = lsh[e + 1] - lsh[s];
         else if (s != e) tr[k].v = tr[ls(k)].v + tr[rs(k)].v;
         else tr[k].v = 0;
@@ -822,13 +827,13 @@ struct Seg {
 
         if (L <= s && e <= R) {
             tr[k].sum = tr[k].sum + val;
-            push_up(k, s, e);
+            pull(k, s, e);
             return;
         }
 
         if (L <= mid) add(ls(k), s, mid, L, R, val);
         if (R >= mid + 1) add(rs(k), mid + 1, e, L, R, val);
-        push_up(k, s, e);
+        pull(k, s, e);
     }
 
     inline void set(int &k, int s, int e, int id, ll val) {
@@ -836,13 +841,13 @@ struct Seg {
 
         if (s == e) {
             tr[k].sum = val;
-            push_up(k, s, e);
+            pull(k, s, e);
             return;
         }
 
         if (id <= mid) set(ls(k), s, mid, id, val);
         if (id >= mid + 1) set(rs(k), mid + 1, e, id, val);
-        push_up(k, s, e);
+        pull(k, s, e);
     }
 
     inline ll query(int k, int s, int e, int L, int R) {
@@ -915,7 +920,7 @@ struct Seg {
         } else {
             if (L <= mid) tr[id].lson = split(ls(k), s, mid, L, R);
             if (R >= mid + 1) tr[id].rson = split(rs(k), mid + 1, e, L, R);
-            push_up(k), push_up(id);
+            pull(k), pull(id);
         }
         return id;
     }
@@ -926,11 +931,11 @@ struct Seg {
         return id;
     }
 
-    inline void push_up(int k) {
+    inline void pull(int k) {
         tr[k].sum = tr[ls(k)].sum + tr[rs(k)].sum;
     }
 
-    inline void push_down(int k, int s, int e) {
+    inline void push(int k, int s, int e) {
         if (!ls(k)) ls(k) = new_node();
         if (!rs(k)) rs(k) = new_node();
         ll len = e - s + 1;
@@ -953,10 +958,10 @@ struct Seg {
             return;
         }
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (L <= mid) update(ls(k), s, mid, L, R, val);
         if (R >= mid + 1) update(rs(k), mid + 1, e, L, R, val);
-        push_up(k);
+        pull(k);
     }
 
     inline void set(int &k, int s, int e, int id, ll val) {
@@ -967,16 +972,16 @@ struct Seg {
             return;
         }
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (id <= mid) set(ls(k), s, mid, id, val);
         if (id >= mid + 1) set(rs(k), mid + 1, e, id, val);
-        push_up(k);
+        pull(k);
     }
 
     inline ll query(int k, int s, int e, int L, int R) {
         if (L <= s && e <= R) return tr[k].sum;
 
-        push_down(k, s, e);
+        push(k, s, e);
         if (R <= mid) return query(ls(k), s, mid, L, R);
         if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
         return query(ls(k), s, mid, L, R) + query(rs(k), mid + 1, e, L, R);
@@ -984,7 +989,7 @@ struct Seg {
 
     inline ll query(int k, int s, int e, int x) {
         if (s == e) return s;
-        push_down(k, s, e);
+        push(k, s, e);
         if (x <= tr[ls(k)].sum) return query(ls(k), s, mid, x);
         else return query(rs(k), mid + 1, e, x - tr[ls(k)].sum);
     }

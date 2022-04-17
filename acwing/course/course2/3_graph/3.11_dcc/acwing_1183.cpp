@@ -113,10 +113,10 @@ void solve() {
     stk.clear();
     for (int i = 1; i <= n; i++) cc[i].clear();
     fill(cut, cut + n + 1, 0), dcc = 0;
-    for (rt = 1; rt <= n; rt++) {
-        if (!dfn[rt]) {
+    for (int i = 1; i <= n; i++) {
+        if (!dfn[i]) {
             c++;
-            rt = rt;
+            rt = i;
             tarjan(rt, -1);
         }
     }

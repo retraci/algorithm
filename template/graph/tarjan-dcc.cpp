@@ -9,7 +9,7 @@ void tarjan(int u, int pe) {
     stk.push_back(u);
 
     for (int i = h1[u]; ~i; i = ne[i]) {
-        int v = g[i];
+        int v = e[i];
         if ((i ^ 1) == pe) continue;
 
         if (!dfn[v]) {
@@ -52,7 +52,7 @@ void tarjan(int u, int pe) {
 
     int cnt = 0;
     for (int i = h1[u]; ~i; i = ne[i]) {
-        int v = g[i];
+        int v = e[i];
         if ((i ^ 1) == pe) continue;
 
         if (!dfn[v]) {

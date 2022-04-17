@@ -9,7 +9,7 @@ void tarjan(int u) {
     stk.push_back(u), ins[u] = 1;
 
     for (int i = h1[u]; ~i; i = ne[i]) {
-        int v = g[i];
+        int v = e[i];
         if (!dfn[v]) {
             tarjan(v);
             low[u] = min(low[u], low[v]);
