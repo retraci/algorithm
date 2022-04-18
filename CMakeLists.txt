@@ -27,7 +27,7 @@ add_executable(C codeforces/contest/round/782/C.cpp)
 
 add_executable(D codeforces/contest/round/782/D.cpp)
 add_executable(P2602 luogu/practice/dp/digit/P2602.cpp)
-add_executable(E atcoder/contest/abc/227/E.cpp)
+add_executable(E codeforces/contest/Hello_2022/E.cpp)
 add_executable(acwing_1086 acwing/course/course2/1_dp/1.8_digit/acwing_1086.cpp)
 
 add_executable(acwing_1684 acwing/practice/winter_daily_2022/week_6/acwing_1684.cpp)
@@ -367,3 +367,10 @@ add_executable(acwing_1358 acwing/course/course3/5_math/5.1_mobius/acwing_1358.c
 add_executable(acwing_221 acwing/course/course3/5_math/5.2_product_function/acwing_221.cpp)
 add_executable(P3327 luogu/practice/mobius/P3327.cpp)
 add_executable(P1829 daimayuan/namomo_spring_camp_2022/course/week_6/P1829.cpp)
+
+add_executable(P3372 luogu/practice/seg_tree/P3372.cpp)
+add_executable(NC1076B nowcoder/practice/seg_tree/NC1076B.cpp)
+
+add_executable(P2572 daimayuan/namomo_spring_camp_2022/course/week_7/P2572.cpp)
+add_executable(hdu_1003 hdu/practice/dp/hdu_1003.cpp)
+add_executable(tmp2 tmp2.cpp)

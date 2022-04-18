@@ -99,141 +99,132 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-// region 区间修改, 维护最大值线段树
-template<int SZ>
+// region 单点修改线段树
+template<class Info, class Tag, int SZ,
+        class Merge = std::plus<Info>>
 struct Seg {
 #define mid (s + e >> 1)
-#define ls(x) (tr[x].lson)
-#define rs(x) (tr[x].rson)
+#define ls(x) (info[x].lson)
+#define rs(x) (info[x].rson)
 
-    struct Node {
-        int lson, rson;
-        ll sum, lz, mx;
-    };
-
+    const Merge merge;
     int lb, rb, rt, mem;
-    Node tr[SZ * 4];
+    Info info[SZ * 4];
 
-    inline Seg() {
+    Seg() : merge(Merge()) {
         init(1, SZ);
     }
 
-    inline void init(int L, int R) {
+    void init(int L, int R) {
         rt = 0, mem = 0, lb = L, rb = R;
-        tr[0].lson = tr[0].rson = 0;
-        tr[0].sum = tr[0].lz = tr[0].mx = 0;
+        info[0] = Info();
     }
 
-    inline void init(int L, int R, ll val) {
-        init(L, R);
-        for (int i = L; i <= R; i++) set(i, val);
-    }
-
-    inline int new_node() {
+    int new_node() {
         int id = ++mem;
-        tr[id].lson = tr[id].rson = 0;
-        tr[id].sum = tr[id].lz = tr[id].mx = 0;
+        info[id] = Info();
         return id;
     }
 
-    inline void push_up(Node &fa, Node &lc, Node &rc) {
-        fa.sum = lc.sum + rc.sum;
-        fa.mx = max(lc.mx, rc.mx);
+    void pull(int k) {
+        info[k].set(merge(info[ls(k)], info[rs(k)]));
     }
 
-    inline void push_up(int k) {
-        push_up(tr[k], tr[ls(k)], tr[rs(k)]);
+    void apply(int k, ll sz, const Tag &v) {
+        info[k].apply(sz, v);
     }
 
-    inline void work(Node &t, ll sz, ll val) {
-        t.sum = t.sum + sz * val;
-        t.lz = t.lz + val;
-        t.mx = t.mx + val;
-    }
-
-    inline void push_down(int k, int s, int e) {
-        if (!ls(k)) ls(k) = new_node();
-        if (!rs(k)) rs(k) = new_node();
-        ll len = e - s + 1;
-        ll lsz = len - len / 2, rsz = len / 2;
-        if (tr[k].lz) {
-            work(tr[ls(k)], lsz, tr[k].lz);
-            work(tr[rs(k)], rsz, tr[k].lz);
-            tr[k].lz = 0;
-        }
-    }
-
-    inline void add(int &k, int s, int e, int L, int R, ll val) {
-        if (!k) k = new_node();
-
-        if (L <= s && e <= R) {
-            work(tr[k], e - s + 1, val);
-            return;
-        }
-
-        push_down(k, s, e);
-        if (L <= mid) add(ls(k), s, mid, L, R, val);
-        if (R >= mid + 1) add(rs(k), mid + 1, e, L, R, val);
-        push_up(k);
-    }
-
-    inline void update(int &k, int s, int e, int id, ll val) {
+    void upd(int &k, int s, int e, int id, const Tag &v) {
         if (!k) k = new_node();
 
         if (s == e) {
-            tr[k].sum = tr[k].mx = max(tr[k].mx, val);
+            apply(k, e - s + 1, v);
             return;
         }
 
-        push_down(k, s, e);
-        if (id <= mid) update(ls(k), s, mid, id, val);
-        if (id >= mid + 1) update(rs(k), mid + 1, e, id, val);
-        push_up(k);
+        if (id <= mid) upd(ls(k), s, mid, id, v);
+        if (id >= mid + 1) upd(rs(k), mid + 1, e, id, v);
+        pull(k);
     }
 
-    inline void set(int &k, int s, int e, int id, ll val) {
+    void set(int &k, int s, int e, int id, const Info &v) {
         if (!k) k = new_node();
 
         if (s == e) {
-            tr[k].sum = tr[k].mx = val;
+            info[k].set(v);
             return;
         }
 
-        push_down(k, s, e);
-        if (id <= mid) set(ls(k), s, mid, id, val);
-        if (id >= mid + 1) set(rs(k), mid + 1, e, id, val);
-        push_up(k);
+        if (id <= mid) set(ls(k), s, mid, id, v);
+        if (id >= mid + 1) set(rs(k), mid + 1, e, id, v);
+        pull(k);
     }
 
-    inline Node query(int k, int s, int e, int L, int R) {
-        if (L <= s && e <= R) return tr[k];
+    Info qr(int k, int s, int e, int L, int R) {
+        if (L <= s && e <= R) return info[k];
 
-        push_down(k, s, e);
-        if (R <= mid) return query(ls(k), s, mid, L, R);
-        if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
-        Node res = {0};
-        Node lc = query(ls(k), s, mid, L, R);
-        Node rc = query(rs(k), mid + 1, e, L, R);
-        push_up(res, lc, rc);
-        return res;
+        if (R <= mid) return qr(ls(k), s, mid, L, R);
+        if (L >= mid + 1) return qr(rs(k), mid + 1, e, L, R);
+        return merge(qr(ls(k), s, mid, L, R), qr(rs(k), mid + 1, e, L, R));
     }
 
-    inline void add(int L, int R, ll val) {
-        if (R < L) return;
-        add(rt, lb, rb, L, R, val);
+    int qr_kth(int k, int s, int e, ll x) {
+        if (s == e) return s;
+
+        if (x <= info[ls(k)].sum) return qr_kth(ls(k), s, mid, x);
+        else return qr_kth(rs(k), mid + 1, e, x - info[ls(k)].sum);
     }
 
-    inline void update(int id, ll val) {
-        update(rt, lb, rb, id, val);
+    void upd(int id, const Tag &v) {
+        upd(rt, lb, rb, id, v);
     }
 
-    inline void set(int id, ll val) {
-        set(rt, lb, rb, id, val);
+    void set(int id, const Info &v) {
+        set(rt, lb, rb, id, v);
     }
 
-    inline Node query(int L, int R) {
-        if (R < L) return {0};
-        return query(rt, lb, rb, L, R);
+    Info qr(int L, int R) {
+        if (R < L) return Info();
+        return qr(rt, lb, rb, L, R);
+    }
+
+    int qr_kth(ll x) {
+        return qr_kth(rt, lb, rb, x);
+    }
+};
+// endregion
+
+// region 区间最大值
+struct Tag {
+    ll x;
+    Tag(ll x = 0) : x(x) {}
+
+    bool check() const {
+        return x != 0;
+    }
+
+    void apply(const Tag &a) {
+        if (!a.check()) return;
+        x = max(x, a.x);
+    }
+};
+
+struct Info {
+    int lson, rson;
+    ll sum;
+    Info(ll sum = 0) : lson(0), rson(0), sum(sum) {}
+
+    void apply(ll sz, const Tag &a) {
+        if (!a.check()) return;
+        sum = max(sum, a.x);
+    }
+
+    friend Info operator+(const Info &a, const Info &b) {
+        return max(a.sum, b.sum);
+    }
+
+    void set(const Info &a) {
+        sum = a.sum;
     }
 };
 // endregion
@@ -241,10 +232,10 @@ struct Seg {
 const int N = 1e5 + 10;
 
 int n;
-ll va[N];
+ll a[N];
 vector<ll> lsh;
 
-Seg<N> seg;
+Seg<Info, Tag, N> seg;
 
 int get_id(ll x) {
     return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin() + 1;
@@ -252,20 +243,20 @@ int get_id(ll x) {
 
 void solve() {
     for (int i = 1; i <= n; i++) {
-        lsh.push_back(va[i]);
+        lsh.push_back(a[i]);
     }
     sort(lsh.begin(), lsh.end());
     lsh.resize(unique(lsh.begin(), lsh.end()) - lsh.begin());
 
     int sz = lsh.size();
-    seg.init(1, sz, 0);
+    seg.init(1, sz);
     ll f[n + 1];
     memset(f, 0, sizeof f);
     for (int i = 1; i <= n; i++) {
-        int x = get_id(va[i]);
-        ll pre = seg.query(1, x - 1).mx;
-        f[i] = pre + va[i];
-        seg.update(x, f[i]);
+        int x = get_id(a[i]);
+        ll pre = seg.qr(1, x - 1).sum;
+        f[i] = pre + a[i];
+        seg.upd(x, f[i]);
     }
 
     cout << *max_element(f + 1, f + n + 1) << "\n";
@@ -286,7 +277,7 @@ int main() {
 //    cin >> T;
     while (T--) {
         cin >> n;
-        for (int i = 1; i <= n; i++) cin >> va[i];
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 

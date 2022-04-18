@@ -49,132 +49,157 @@ using namespace grid_delta;
 
 const int N = 3e5 + 10;
 
-// region 区间开关, 维护最值线段树, 1: 开, 0: 关
-template<int SZ>
+// region 区修线段树
+template<class Info, class Tag, int SZ,
+        class Merge = std::plus<Info>>
 struct Seg {
 #define mid (s + e >> 1)
-#define ls(x) (tr[x].lson)
-#define rs(x) (tr[x].rson)
+#define ls(x) (info[x].lson)
+#define rs(x) (info[x].rson)
 
-    struct Node {
-        int lson, rson;
-        ll lz, mx, mi;
-        ll mx_bak, mi_bak;
-    };
-
+    const Merge merge;
     int lb, rb, rt, mem;
-    Node tr[SZ * 4];
+    Info info[SZ * 4];
+    Tag tag[SZ * 4];
 
-    inline Seg() {
+    Seg() : merge(Merge()) {
         init(1, SZ);
     }
 
-    inline void init(int L, int R) {
+    void init(int L, int R) {
         rt = 0, mem = 0, lb = L, rb = R;
-        tr[0].lson = tr[0].rson = 0;
-        tr[0].mx = tr[0].mx_bak = 0;
-        tr[0].mi = tr[0].mi_bak = 1e9;
-        tr[0].lz = -1;
+        info[0] = Info();
+        tag[0] = Tag();
     }
 
-    inline void init(int L, int R, ll val) {
-        init(L, R);
-        for (int i = L; i <= R; i++) set(i, val);
-    }
-
-    inline int new_node() {
+    int new_node() {
         int id = ++mem;
-        tr[id].lson = tr[id].rson = 0;
-        tr[id].mx = tr[id].mx_bak = 0;
-        tr[id].mi = tr[id].mi_bak = 1e9;
-        tr[id].lz = -1;
+        info[id] = Info();
+        tag[id] = Tag();
         return id;
     }
 
-    inline void pull(Node &fa, Node &lc, Node &rc) {
-        fa.mx = max(lc.mx, rc.mx);
-        fa.mx_bak = max(lc.mx_bak, rc.mx_bak);
-        fa.mi = min(lc.mi, rc.mi);
-        fa.mi_bak = min(lc.mi_bak, rc.mi_bak);
+    void pull(int k) {
+        info[k].set(merge(info[ls(k)], info[rs(k)]));
     }
 
-    inline void pull(int k) {
-        pull(tr[k], tr[ls(k)], tr[rs(k)]);
+    void apply(int k, ll sz, const Tag &v) {
+        info[k].apply(sz, v);
+        tag[k].apply(v);
     }
 
-    inline void apply(Node &t, ll col) {
-        t.lz = col;
-        if (col) {
-            t.mx = t.mx_bak;
-            t.mi = t.mi_bak;
-        } else {
-            t.mx = 0, t.mi = 1e9;
-        }
-    }
-
-    inline void push(int k, int s, int e) {
-        if (~tr[k].lz) {
+    void push(int k, int s, int e) {
+        if (tag[k].check()) {
+            ll len = e - s + 1;
+            ll lsz = len - len / 2, rsz = len / 2;
             if (!ls(k)) ls(k) = new_node();
             if (!rs(k)) rs(k) = new_node();
-            apply(tr[ls(k)], tr[k].lz);
-            apply(tr[rs(k)], tr[k].lz);
-            tr[k].lz = -1;
+            apply(ls(k), lsz, tag[k]);
+            apply(rs(k), rsz, tag[k]);
+            tag[k] = Tag();
         }
     }
 
-    inline void add(int &k, int s, int e, int L, int R, ll col) {
+    void upd(int &k, int s, int e, int L, int R, const Tag &v) {
         if (!k) k = new_node();
 
         if (L <= s && e <= R) {
-            apply(tr[k], col);
+            apply(k, e - s + 1, v);
             return;
         }
 
         push(k, s, e);
-        if (L <= mid) add(ls(k), s, mid, L, R, col);
-        if (R >= mid + 1) add(rs(k), mid + 1, e, L, R, col);
+        if (L <= mid) upd(ls(k), s, mid, L, R, v);
+        if (R >= mid + 1) upd(rs(k), mid + 1, e, L, R, v);
         pull(k);
     }
 
-    inline void set(int &k, int s, int e, int id, ll val) {
+    void set(int &k, int s, int e, int id, const Info &v) {
         if (!k) k = new_node();
 
         if (s == e) {
-            tr[k].mi_bak = tr[k].mx_bak = val;
+            info[k].set(v);
             return;
         }
 
         push(k, s, e);
-        if (id <= mid) set(ls(k), s, mid, id, val);
-        if (id >= mid + 1) set(rs(k), mid + 1, e, id, val);
+        if (id <= mid) set(ls(k), s, mid, id, v);
+        if (id >= mid + 1) set(rs(k), mid + 1, e, id, v);
         pull(k);
     }
 
-    inline Node query(int k, int s, int e, int L, int R) {
-        if (L <= s && e <= R) return tr[k];
+    Info qr(int k, int s, int e, int L, int R) {
+        if (L <= s && e <= R) return info[k];
 
         push(k, s, e);
-        if (R <= mid) return query(ls(k), s, mid, L, R);
-        if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
-        Node res = {0, 0, 0, 0, (ll) 1e9, 0};
-        Node lc = query(ls(k), s, mid, L, R);
-        Node rc = query(rs(k), mid + 1, e, L, R);
-        pull(res, lc, rc);
-        return res;
+        if (R <= mid) return qr(ls(k), s, mid, L, R);
+        if (L >= mid + 1) return qr(rs(k), mid + 1, e, L, R);
+        return merge(qr(ls(k), s, mid, L, R), qr(rs(k), mid + 1, e, L, R));
     }
 
-    inline void add(int L, int R, ll val) {
+    int qr_kth(int k, int s, int e, ll x) {
+        if (s == e) return s;
+
+        if (x <= info[ls(k)].sum) return qr_kth(ls(k), s, mid, x);
+        else return qr_kth(rs(k), mid + 1, e, x - info[ls(k)].sum);
+    }
+
+    void upd(int L, int R, const Tag &v) {
         if (R < L) return;
-        add(rt, lb, rb, L, R, val);
+        upd(rt, lb, rb, L, R, v);
     }
 
-    inline void set(int id, ll val) {
-        set(rt, lb, rb, id, val);
+    void set(int id, const Info &v) {
+        set(rt, lb, rb, id, v);
     }
 
-    inline Node query(int L, int R) {
-        if (R < L) return {0, 0, 0, 0, (ll) 1e9, 0};
-        return query(rt, lb, rb, L, R);
+    Info qr(int L, int R) {
+        if (R < L) return Info();
+        return qr(rt, lb, rb, L, R);
+    }
+
+    int qr_kth(ll x) {
+        return qr_kth(rt, lb, rb, x);
+    }
+};
+// endregion
+
+// region 区修, 维护最值, 1: 开, 0: 关
+struct Tag {
+    ll x;
+    Tag(ll x = -1) : x(x) {}
+
+    bool check() const {
+        return x != -1;
+    }
+
+    void apply(const Tag &a) {
+        if (!a.check()) return;
+        x = a.x;
+    }
+};
+
+struct Info {
+    int lson, rson;
+    ll mi, mx, mi_bak, mx_bak;
+    Info(ll mi = 1e9, ll mx = 0, ll mi_bak = 1e9, ll mx_bak = 0) : lson(0), rson(0), mi(mi), mx(mx), mi_bak(mi_bak), mx_bak(mx_bak) {}
+
+    void apply(ll sz, const Tag &a) {
+        if (!a.check()) return;
+        if (a.x) {
+            mi = mi_bak, mx = mx_bak;
+        } else {
+            mi = 1e9, mx = 0;
+        }
+    }
+
+    friend Info operator+(const Info &a, const Info &b) {
+        return {min(a.mi, b.mi), max(a.mx, b.mx), min(a.mi_bak, b.mi_bak), max(a.mx_bak, b.mx_bak)};
+    }
+
+    void set(const Info &a) {
+        mi = a.mi, mx = a.mx;
+        mi_bak = a.mi_bak, mx_bak = a.mx_bak;
     }
 };
 // endregion
@@ -264,13 +289,13 @@ void kruskal_init() {
 }
 // endregion
 
-Seg<N> seg;
+Seg<Info, Tag, N> seg;
 
 void solve() {
     kruskal_init();
 
     seg.init(1, n);
-    for (int i = 1; i <= n; i++) seg.set(i, id[i]);
+    for (int i = 1; i <= n; i++) seg.set(i, {(ll) 1e9, 0, id[i], id[i]});
 
     while (m--) {
         int op;
@@ -279,12 +304,12 @@ void solve() {
             int L, R;
             cin >> L >> R;
 
-            seg.add(L, R, op == 1);
+            seg.upd(L, R, op == 1);
         } else {
             int x;
             cin >> x;
 
-            auto t = seg.query(1, n);
+            auto t = seg.qr(1, n);
             int mi = min(id[x], (int) t.mi), mx = max(id[x], (int) t.mx);
             int ans = w[lca(eula[mi], eula[mx])];
 

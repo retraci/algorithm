@@ -58,6 +58,7 @@ struct Seg {
     const Merge merge;
     int lb, rb, rt, mem;
     Info info[SZ * 4];
+    Tag tag[SZ * 4];
 
     Seg() : merge(Merge()) {
         init(1, SZ);
@@ -66,11 +67,13 @@ struct Seg {
     void init(int L, int R) {
         rt = 0, mem = 0, lb = L, rb = R;
         info[0] = Info();
+        tag[0] = Tag();
     }
 
     int new_node() {
         int id = ++mem;
         info[id] = Info();
+        tag[id] = Tag();
         return id;
     }
 
@@ -80,6 +83,19 @@ struct Seg {
 
     void apply(int k, ll sz, const Tag &v) {
         info[k].apply(sz, v);
+        tag[k].apply(v);
+    }
+
+    void push(int k, int s, int e) {
+        if (tag[k].check()) {
+            ll len = e - s + 1;
+            ll lsz = len - len / 2, rsz = len / 2;
+            if (!ls(k)) ls(k) = new_node();
+            if (!rs(k)) rs(k) = new_node();
+            apply(ls(k), lsz, tag[k]);
+            apply(rs(k), rsz, tag[k]);
+            tag[k] = Tag();
+        }
     }
 
     void upd(int &k, int s, int e, int L, int R, const Tag &v) {
@@ -90,6 +106,7 @@ struct Seg {
             return;
         }
 
+        push(k, s, e);
         if (L <= mid) upd(ls(k), s, mid, L, R, v);
         if (R >= mid + 1) upd(rs(k), mid + 1, e, L, R, v);
         pull(k);
@@ -103,6 +120,7 @@ struct Seg {
             return;
         }
 
+        push(k, s, e);
         if (id <= mid) set(ls(k), s, mid, id, v);
         if (id >= mid + 1) set(rs(k), mid + 1, e, id, v);
         pull(k);
@@ -111,6 +129,7 @@ struct Seg {
     Info qr(int k, int s, int e, int L, int R) {
         if (L <= s && e <= R) return info[k];
 
+        push(k, s, e);
         if (R <= mid) return qr(ls(k), s, mid, L, R);
         if (L >= mid + 1) return qr(rs(k), mid + 1, e, L, R);
         return merge(qr(ls(k), s, mid, L, R), qr(rs(k), mid + 1, e, L, R));
@@ -151,59 +170,52 @@ struct Tag {
     bool check() const {
         return x != 0;
     }
+
+    void apply(const Tag &a) {
+        if (!a.check()) return;
+        x += a.x;
+    }
 };
 
 struct Info {
     int lson, rson;
-    ll sum, v;
-    Info(ll sum = 0, ll v = 0) : lson(0), rson(0), sum(sum), v(v) {}
+    ll sum;
+    Info(ll sum = 0) : lson(0), rson(0), sum(sum) {}
 
     void apply(ll sz, const Tag &a) {
-        if (a.x == 0) return;
+        if (!a.check()) return;
         sum += sz * a.x;
-        v = sum;
     }
 
     friend Info operator+(const Info &a, const Info &b) {
-        return {a.sum + b.sum, __gcd(a.v, b.v)};
+        return {a.sum + b.sum};
     }
 
     void set(const Info &a) {
         sum = a.sum;
-        v = a.v;
     }
 };
 // endregion
 
-const int N = 500010;
+const int N = 1e5 + 10;
 
-int n, Q;
+int n, q;
 ll a[N];
-
 Seg<Info, Tag, N> seg;
 
 void solve() {
-    seg.init(1, n + 1);
-    for (int i = 1; i <= n; i++) {
-        int d = a[i] - a[i - 1];
-        seg.set(i, {d, d});
-    }
+    seg.init(1, n);
+    for (int i = 1; i <= n; i++) seg.set(i, a[i]);
 
-    while (Q--) {
-        string op;
+    for (int i = 1; i <= q; i++) {
+        ll op, x, y, k;
         cin >> op;
-        if (op == "Q") {
-            int L, R;
-            cin >> L >> R;
-
-            ll al = seg.qr(1, L).sum;
-            cout << abs(__gcd(al, seg.qr(L + 1, R).v)) << "\n";
+        if (op == 1) {
+            cin >> x >> y >> k;
+            seg.upd(x, y, k);
         } else {
-            ll L, R, x;
-            cin >> L >> R >> x;
-
-            seg.upd(L, L, x);
-            seg.upd(R + 1, R + 1, -x);
+            cin >> x >> y;
+            cout << seg.qr(x, y).sum << "\n";
         }
     }
 }
@@ -222,7 +234,7 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n >> Q;
+        cin >> n >> q;
         for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
