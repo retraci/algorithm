@@ -50,9 +50,9 @@ using namespace grid_delta;
 const int N = 1e6 + 10;
 const int M = 1e7 + 10;
 
-// region 质因数分解, 枚举最小质数
+// region 质因数分解, 枚举最小质数 (x < N)
 int isp[M], mip[M];
-int pr[M], pc;
+vector<int> pr;
 
 void prime(int lim) {
     fill(isp, isp + lim + 1, 1);
@@ -60,23 +60,23 @@ void prime(int lim) {
     isp[0] = isp[1] = 0;
     for (int i = 2; i <= lim; i++) {
         if (isp[i]) {
-            pr[++pc] = i;
+            pr.push_back(i);
             mip[i] = i;
         }
 
-        for (int j = 1; j <= pc; j++) {
-            if (pr[j] > lim / i) break;
+        for (int p : pr) {
+            if (p > lim / i) break;
 
-            mip[i * pr[j]] = pr[j];
-            isp[i * pr[j]] = 0;
-            if (i % pr[j] == 0) break;
+            mip[i * p] = p;
+            isp[i * p] = 0;
+            if (i % p == 0) break;
         }
     }
 }
 
 vector<pii> fs;
 
-void divide(ll x) {
+void divide(int x) {
     fs = {};
     while (x > 1) {
         int p = mip[x];
@@ -110,15 +110,14 @@ void solve() {
     for (int i = 1; i <= n; i++) {
         int x = a[i];
         ll cur = 1, need = 1;
-        while (x > 1) {
-            int p = mip[x];
-            int c = 0;
-            while (x % p == 0) x /= p, c++;
+        divide(x);
+        for (auto [p, c] : fs) {
             c %= m;
             cur *= ksm(p, c);
             if (c) need *= ksm(p, m - c);
             if (need > 1e7) need = 0;
         }
+
         ans += cnt[need];
         cnt[cur]++;
     }

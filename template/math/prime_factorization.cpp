@@ -16,20 +16,20 @@ void divide(ll x) {
 
 // region 质因数分解, 枚举质数
 int isp[N];
-int pr[N], pc;
+vector<int> pr;
 
 void prime(int lim) {
     fill(isp, isp + lim + 1, 1);
 
     isp[0] = isp[1] = 0;
     for (int i = 2; i <= lim; i++) {
-        if (isp[i]) pr[++pc] = i;
+        if (isp[i]) pr.push_back(i);
 
-        for (int j = 1; j <= pc; j++) {
-            if (pr[j] > lim / i) break;
+        for (int p : pr) {
+            if (p > lim / i) break;
 
-            isp[i * pr[j]] = 0;
-            if (i % pr[j] == 0) break;
+            isp[i * p] = 0;
+            if (i % p == 0) break;
         }
     }
 }
@@ -38,7 +38,7 @@ vector<pll> fs;
 
 void divide(ll x) {
     fs = {};
-    for (int p : ps) {
+    for (int p : pr) {
         if (p > x / p) break;
 
         if (x % p == 0) {
@@ -53,7 +53,7 @@ void divide(ll x) {
 
 // region 质因数分解, 枚举最小质数 (x < N)
 int isp[N], mip[N];
-int pr[N], pc;
+vector<int> pr;
 
 void prime(int lim) {
     fill(isp, isp + lim + 1, 1);
@@ -61,16 +61,16 @@ void prime(int lim) {
     isp[0] = isp[1] = 0;
     for (int i = 2; i <= lim; i++) {
         if (isp[i]) {
-            pr[++pc] = i;
+            pr.push_back(i);
             mip[i] = i;
         }
 
-        for (int j = 1; j <= pc; j++) {
-            if (pr[j] > lim / i) break;
+        for (int p : pr) {
+            if (p > lim / i) break;
 
-            mip[i * pr[j]] = pr[j];
-            isp[i * pr[j]] = 0;
-            if (i % pr[j] == 0) break;
+            mip[i * p] = p;
+            isp[i * p] = 0;
+            if (i % p == 0) break;
         }
     }
 }
@@ -193,20 +193,20 @@ ll crt() {
 
 // region 欧拉筛
 int isp[N];
-int pr[N], pc;
+vector<int> pr;
 
 void prime(int lim) {
     fill(isp, isp + lim + 1, 1);
 
     isp[0] = isp[1] = 0;
     for (int i = 2; i <= lim; i++) {
-        if (isp[i]) pr[++pc] = i;
+        if (isp[i]) pr.push_back(i);
 
-        for (int j = 1; j <= pc; j++) {
-            if (pr[j] > lim / i) break;
+        for (int p : pr) {
+            if (p > lim / i) break;
 
-            isp[i * pr[j]] = 0;
-            if (i % pr[j] == 0) break;
+            isp[i * p] = 0;
+            if (i % p == 0) break;
         }
     }
 }
@@ -214,7 +214,7 @@ void prime(int lim) {
 
 // region 欧拉函数(欧拉筛)
 int isp[N];
-int pr[N], pc;
+vector<int> pr;
 int phi[N];
 
 void prime(int lim) {
@@ -224,19 +224,19 @@ void prime(int lim) {
     isp[0] = isp[1] = 0;
     for (int i = 2; i <= lim; i++) {
         if (isp[i]) {
-            pr[++pc] = i;
+            pr.push_back(i);
             phi[i] = i - 1;
         }
 
-        for (int j = 1; j <= pc; j++) {
-            if (pr[j] > lim / i) break;
+        for (int p : pr) {
+            if (p > lim / i) break;
 
-            isp[i * pr[j]] = 0;
-            if (i % pr[j] == 0) {
-                phi[i * pr[j]] = pr[j] * phi[i];
+            isp[i * p] = 0;
+            if (i % p == 0) {
+                phi[i * p] = phi[i] * p;
                 break;
             } else {
-                phi[i * pr[j]] = phi[pr[j]] * phi[i];
+                phi[i * p] = phi[i] * phi[p];
             }
         }
     }
@@ -245,7 +245,7 @@ void prime(int lim) {
 
 // region 莫比乌斯函数(欧拉筛)
 int isp[N];
-int pr[N], pc;
+vector<int> pr;
 int mu[N];
 
 void prime(int lim) {
@@ -255,19 +255,19 @@ void prime(int lim) {
     isp[0] = isp[1] = 0;
     for (int i = 2; i <= lim; i++) {
         if (isp[i]) {
-            pr[++pc] = i;
+            pr.push_back(i);
             mu[i] = -1;
         }
 
-        for (int j = 1; j <= pc; j++) {
-            if (pr[j] > lim / i) break;
+        for (int p : pr) {
+            if (p > lim / i) break;
 
-            isp[i * pr[j]] = 0;
-            if (i % pr[j] == 0) {
-                mu[i * pr[j]] = 0;
+            isp[i * p] = 0;
+            if (i % p == 0) {
+                mu[i * p] = 0;
                 break;
             }
-            mu[i * pr[j]] = -mu[i];
+            mu[i * p] = -mu[i];
         }
     }
 }
@@ -275,28 +275,39 @@ void prime(int lim) {
 
 // region 积性函数(欧拉筛)
 int isp[N];
-int pr[N], pc;
-int h[N];
+vector<int> pr;
+int low[N], f[N];
 
 void prime(int lim) {
     fill(isp, isp + lim + 1, 1);
 
-    h[1] = 1;
+    f[1] = 1;
     isp[0] = isp[1] = 0;
     for (int i = 2; i <= lim; i++) {
         if (isp[i]) {
-            pr[++pc] = i;
+            pr.push_back(i);
+            low[i] = i;
             // 待修
-            h[i] = (i - 1LL * i * i % MOD + MOD) % MOD;
+            f[i] = 2 * i - 1;
         }
 
-        for (int j = 1; pr[j] <= lim / i; j++) {
-            isp[i * pr[j]] = 0;
-            if (i % pr[j] == 0) {
-                h[i * pr[j]] = 1LL * h[i] * pr[j] % MOD;
+        for (int p : pr) {
+            if (p > lim / i) break;
+
+            isp[i * p] = 0;
+            low[i * p] = p;
+            if (i % p == 0) {
+                low[i * p] = low[i] * p;
+                // 待修
+                if (low[i] == i) {
+                    f[i * p] = 1LL * f[i] * p % MOD + phi[i * p];
+                    f[i * p] %= MOD;
+                } else {
+                    f[i * p] = 1LL * f[low[i] * p] * f[i / low[i]] % MOD;
+                }
                 break;
             }
-            h[i * pr[j]] = 1LL * h[i] * h[pr[j]] % MOD;
+            f[i * p] = 1LL * f[i] * f[p] % MOD;
         }
     }
 }

@@ -2,11 +2,15 @@
 int n, m;
 ti3 es[N];
 
-int h[2 * N], ne[2 * N], g[2 * N], edm;
+int e[2 * N], h[2 * N], ne[2 * N], edm;
 int pa[2 * N], w[2 * N], tt;
 
 int id[2 * N], eula[4 * N], dep[4 * N], cnt;
 int st[4 * N][23], lg[4 * N];
+
+void add(int u, int v) {
+    e[edm] = v, ne[edm] = h[u], h[u] = edm++;
+}
 
 int find(int x) {
     return x == pa[x] ? x : pa[x] = find(pa[x]);
@@ -19,14 +23,10 @@ bool unite(int x, int y) {
     return true;
 }
 
-void add(int u, int v) {
-    g[edm] = v, ne[edm] = h[u], h[u] = edm++;
-}
-
 void dfs(int u) {
     eula[++cnt] = u, id[u] = cnt;
     for (int i = h[u]; ~i; i = ne[i]) {
-        int v = g[i];
+        int v = e[i];
 
         dep[v] = dep[u] + 1;
         dfs(v);

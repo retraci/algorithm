@@ -47,7 +47,7 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-// region 普通线段树
+// region 区修线段树
 template<class Info, class Tag, int SZ,
         class Merge = std::plus<Info>>
 struct Seg {
@@ -81,19 +81,17 @@ struct Seg {
         info[k].set(merge(info[ls(k)], info[rs(k)]));
     }
 
-    void apply(int k, ll sz, const Tag &v) {
-        info[k].apply(sz, v);
-        tag[k].apply(v);
+    void apply(int k, int s, int e, const Tag &v) {
+        info[k].apply(s, e, v);
+        tag[k].apply(s, e, v);
     }
 
     void push(int k, int s, int e) {
         if (tag[k].check()) {
-            ll len = e - s + 1;
-            ll lsz = len - len / 2, rsz = len / 2;
             if (!ls(k)) ls(k) = new_node();
             if (!rs(k)) rs(k) = new_node();
-            apply(ls(k), lsz, tag[k]);
-            apply(rs(k), rsz, tag[k]);
+            apply(ls(k), s, mid, tag[k]);
+            apply(rs(k), mid + 1, e, tag[k]);
             tag[k] = Tag();
         }
     }
@@ -102,7 +100,7 @@ struct Seg {
         if (!k) k = new_node();
 
         if (L <= s && e <= R) {
-            apply(k, e - s + 1, v);
+            apply(k, s, e, v);
             return;
         }
 
@@ -165,13 +163,14 @@ struct Seg {
 // region 区间求和
 struct Tag {
     ll x;
+
     Tag(ll x = 0) : x(x) {}
 
     bool check() const {
         return x != 0;
     }
 
-    void apply(const Tag &a) {
+    void apply(int s, int e, const Tag &a) {
         if (!a.check()) return;
         x += a.x;
     }
@@ -180,15 +179,16 @@ struct Tag {
 struct Info {
     int lson, rson;
     ll sum;
+
     Info(ll sum = 0) : lson(0), rson(0), sum(sum) {}
 
-    void apply(ll sz, const Tag &a) {
+    void apply(int s, int e, const Tag &a) {
         if (!a.check()) return;
-        sum += sz * a.x;
+        sum += (e - s + 1) * a.x;
     }
 
     friend Info operator+(const Info &a, const Info &b) {
-        return {a.sum + b.sum};
+        return a.sum + b.sum;
     }
 
     void set(const Info &a) {

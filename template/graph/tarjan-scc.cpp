@@ -1,4 +1,10 @@
 // region scc 缩点
+int e[M * 2], ne[M * 2], h1[N], h2[N], edm;
+
+void add(int h[], int u, int v) {
+    e[edm] = v, ne[edm] = h[u], h[u] = edm++;
+}
+
 int dfn[N], low[N], ti;
 vector<int> stk;
 int ins[N];
@@ -10,6 +16,7 @@ void tarjan(int u) {
 
     for (int i = h1[u]; ~i; i = ne[i]) {
         int v = e[i];
+
         if (!dfn[v]) {
             tarjan(v);
             low[u] = min(low[u], low[v]);

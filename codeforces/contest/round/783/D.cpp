@@ -47,75 +47,82 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 110;
-const int M = 1e5 + 10;
-const int MOD = 1e9 + 7;
+// region bit
+template<int SZ>
+struct Bit {
+    int n;
+    ll tr[SZ + 10];
 
-int n;
-int a[N];
-
-// region 质因数分解, 枚举质数
-int isp[M];
-vector<int> pr;
-
-void prime(int lim) {
-    fill(isp, isp + lim + 1, 1);
-
-    isp[0] = isp[1] = 0;
-    for (int i = 2; i <= lim; i++) {
-        if (isp[i]) pr.push_back(i);
-
-        for (int p : pr) {
-            if (p > lim / i) break;
-
-            isp[i * p] = 0;
-            if (i % p == 0) break;
-        }
+    Bit() {
+        init(SZ);
     }
-}
 
-vector<pll> fs;
-
-void divide(ll x) {
-    fs = {};
-    for (int p : pr) {
-        if (p > x / p) break;
-
-        if (x % p == 0) {
-            int c = 0;
-            while (x % p == 0) x /= p, c++;
-            fs.push_back({p, c});
-        }
+    void init(int _n, ll v = 0) {
+        n = _n;
+        fill(tr, tr + n + 1, v);
     }
-    if (x > 1) fs.push_back({x, 1});
-}
+
+    void upd(int id, ll x) {
+        for (int i = id; i <= n; i += i & -i) tr[i] = max(tr[i], x);
+    }
+
+    ll qr(int id) {
+        ll res = -1e9;
+        for (int i = id; i; i -= i & -i) res = max(res, tr[i]);
+        return res;
+    }
+};
 // endregion
 
+const int N = 5e5 + 10;
+
+int n;
+ll a[N], s[N];
+int nl;
+vector<ll> lsh;
+
+Bit<N> bit;
+
+int get(ll x) {
+    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin();
+}
+
+void init() {
+    for (int i = 1; i <= n; i++) s[i] = s[i - 1] + a[i];
+    lsh = {};
+    for (int i = 0; i <= n; i++) lsh.push_back(s[i]);
+    sort(lsh.begin(), lsh.end());
+    lsh.resize(unique(lsh.begin(), lsh.end()) - lsh.begin());
+    nl = lsh.size();
+    for (int i = 0; i <= n; i++) s[i] = get(s[i]) + 1;
+}
+
 void solve() {
-    unordered_map<int, int> cnt;
+    init();
+    bit.init(nl, -1e9);
+
+    vector<ll> f(n + 1, -1e9);
+    vector<ll> mx(nl + 1, -1e9);
+    bit.upd(s[0], 0);
+    f[0] = 0;
     for (int i = 1; i <= n; i++) {
-        divide(a[i]);
-        for (auto [p, c] : fs) cnt[p] += c;
+        int tmp = 0;
+        if (a[i] > 0) tmp = 1;
+        else if (a[i] < 0) tmp = -1;
+        f[i] = f[i - 1] + tmp;
+
+        ll t1 = bit.qr(s[i] - 1);
+        f[i] = max(f[i], i + t1);
+        f[i] = max(f[i], mx[s[i]]);
+
+        bit.upd(s[i], f[i] - i);
+        mx[s[i]] = max(mx[s[i]], f[i]);
     }
 
-    ll ans = 1;
-    for (auto [p, c] : cnt) {
-        ll s = 0, cur = 1;
-        for (int i = 0; i <= c; i++) {
-            s += cur;
-            s %= MOD;
-
-            cur *= p;
-            cur %= MOD;
-        }
-        ans *= s;
-        ans %= MOD;
-    }
-    cout << ans << "\n";
+    cout << f[n] << "\n";
 }
 
 void prework() {
-    prime(1e5);
 }
 
 int main() {
@@ -127,7 +134,7 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
         cin >> n;
         for (int i = 1; i <= n; i++) cin >> a[i];

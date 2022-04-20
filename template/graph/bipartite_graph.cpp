@@ -1,11 +1,16 @@
 // region 染色判断二分图
+int e[M * 2], ne[M * 2], h[N], edm;
 int co[N];
+
+void add(int u, int v) {
+    e[edm] = v, ne[edm] = h[u], h[u] = edm++;
+}
 
 bool dfs(int u, int color, int mid) {
     co[u] = color;
 
     for (int i = h[u]; ~i; i = ne[i]) {
-        auto [cost, v] = g[i];
+        auto [cost, v] = e[i];
         if (cost <= mid) continue;
 
         if (!co[v]) {

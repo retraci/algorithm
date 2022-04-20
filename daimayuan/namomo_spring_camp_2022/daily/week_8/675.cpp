@@ -47,75 +47,43 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 110;
-const int M = 1e5 + 10;
-const int MOD = 1e9 + 7;
+const int N = 310;
 
 int n;
 int a[N];
+ld f[N][N][N];
 
-// region 质因数分解, 枚举质数
-int isp[M];
-vector<int> pr;
+ld dfs(int i, int j, int k) {
+    if (i < 0 || j < 0 || k < 0) return 0;
+    if (i == 0 && j == 0 && k == 0) return 0;
+    if (f[i][j][k] != -1) return f[i][j][k];
 
-void prime(int lim) {
-    fill(isp, isp + lim + 1, 1);
-
-    isp[0] = isp[1] = 0;
-    for (int i = 2; i <= lim; i++) {
-        if (isp[i]) pr.push_back(i);
-
-        for (int p : pr) {
-            if (p > lim / i) break;
-
-            isp[i * p] = 0;
-            if (i % p == 0) break;
-        }
-    }
+    ld p0 = 1.0 * (n - (i + j + k)) / n;
+    ld p1 = 1.0 * i / n;
+    ld p2 = 1.0 * j / n;
+    ld p3 = 1.0 * k / n;
+    ld res = (1
+              + p1 * dfs(i - 1, j, k)
+              + p2 * dfs(i + 1, j - 1, k)
+              + p3 * dfs(i, j + 1, k - 1)) / (1 - p0);
+    return f[i][j][k] = res;
 }
-
-vector<pll> fs;
-
-void divide(ll x) {
-    fs = {};
-    for (int p : pr) {
-        if (p > x / p) break;
-
-        if (x % p == 0) {
-            int c = 0;
-            while (x % p == 0) x /= p, c++;
-            fs.push_back({p, c});
-        }
-    }
-    if (x > 1) fs.push_back({x, 1});
-}
-// endregion
 
 void solve() {
-    unordered_map<int, int> cnt;
+    int c1 = 0, c2 = 0, c3 = 0;
     for (int i = 1; i <= n; i++) {
-        divide(a[i]);
-        for (auto [p, c] : fs) cnt[p] += c;
+        c1 += a[i] == 1;
+        c2 += a[i] == 2;
+        c3 += a[i] == 3;
     }
 
-    ll ans = 1;
-    for (auto [p, c] : cnt) {
-        ll s = 0, cur = 1;
-        for (int i = 0; i <= c; i++) {
-            s += cur;
-            s %= MOD;
+    fill(&f[0][0][0], &f[300][300][300] + 1, -1);
 
-            cur *= p;
-            cur %= MOD;
-        }
-        ans *= s;
-        ans %= MOD;
-    }
-    cout << ans << "\n";
+    cout << fixed << setprecision(10);
+    cout << dfs(c1, c2, c3) << "\n";
 }
 
 void prework() {
-    prime(1e5);
 }
 
 int main() {

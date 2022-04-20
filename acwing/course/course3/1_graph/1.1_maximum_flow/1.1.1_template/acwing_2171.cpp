@@ -47,75 +47,61 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 110;
-const int M = 1e5 + 10;
-const int MOD = 1e9 + 7;
+const int N = 1010;
+const int M = 10010;
 
-int n;
-int a[N];
+int n, m, sc, sk;
+pii e[M * 2];
+int h[N], ne[M * 2], edm;
+int mic[N], pe[N];
 
-// region 质因数分解, 枚举质数
-int isp[M];
-vector<int> pr;
-
-void prime(int lim) {
-    fill(isp, isp + lim + 1, 1);
-
-    isp[0] = isp[1] = 0;
-    for (int i = 2; i <= lim; i++) {
-        if (isp[i]) pr.push_back(i);
-
-        for (int p : pr) {
-            if (p > lim / i) break;
-
-            isp[i * p] = 0;
-            if (i % p == 0) break;
-        }
-    }
+void add(int u, int v, int cap) {
+    e[edm] = {v, cap};
+    ne[edm] = h[u], h[u] = edm++;
+    e[edm] = {u, 0};
+    ne[edm] = h[v], h[v] = edm++;
 }
 
-vector<pll> fs;
+bool bfs() {
+    vector<int> vis(n + 1, 0);
+    queue<int> que;
+    vis[sc] = 1, mic[sc] = 1e9;
+    que.push(sc);
+    while (!que.empty()) {
+        auto u = que.front(); que.pop();
 
-void divide(ll x) {
-    fs = {};
-    for (int p : pr) {
-        if (p > x / p) break;
+        for (int i = h[u]; ~i; i = ne[i]) {
+            auto [v, cap] = e[i];
+            if (cap == 0 || vis[v]) continue;
 
-        if (x % p == 0) {
-            int c = 0;
-            while (x % p == 0) x /= p, c++;
-            fs.push_back({p, c});
+            mic[v] = min(mic[u], cap), pe[v] = i;
+            if (v == sk) return true;
+            que.push(v), vis[v] = 1;
         }
     }
-    if (x > 1) fs.push_back({x, 1});
+
+    return false;
 }
-// endregion
+
+int ek() {
+    int f = 0;
+    while (bfs()) {
+        f += mic[sk];
+        int t = sk;
+        while (t != sc) {
+            int eid = pe[t];
+            e[eid].se -= mic[sk], e[eid ^ 1].se += mic[sk];
+            t = e[eid ^ 1].fi;
+        }
+    }
+    return f;
+}
 
 void solve() {
-    unordered_map<int, int> cnt;
-    for (int i = 1; i <= n; i++) {
-        divide(a[i]);
-        for (auto [p, c] : fs) cnt[p] += c;
-    }
-
-    ll ans = 1;
-    for (auto [p, c] : cnt) {
-        ll s = 0, cur = 1;
-        for (int i = 0; i <= c; i++) {
-            s += cur;
-            s %= MOD;
-
-            cur *= p;
-            cur %= MOD;
-        }
-        ans *= s;
-        ans %= MOD;
-    }
-    cout << ans << "\n";
+    cout << ek() << "\n";
 }
 
 void prework() {
-    prime(1e5);
 }
 
 int main() {
@@ -129,8 +115,14 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n;
-        for (int i = 1; i <= n; i++) cin >> a[i];
+        cin >> n >> m >> sc >> sk;
+        fill(h, h + n + 1, -1), edm = 0;
+
+        for (int i = 1; i <= m; i++) {
+            int u, v, cap;
+            cin >> u >> v >> cap;
+            add(u, v, cap);
+        }
         solve();
     }
 

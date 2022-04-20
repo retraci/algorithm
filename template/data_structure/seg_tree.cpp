@@ -29,15 +29,15 @@ struct Seg {
         info[k].set(merge(info[ls(k)], info[rs(k)]));
     }
 
-    void apply(int k, ll sz, const Tag &v) {
-        info[k].apply(sz, v);
+    void apply(int k, int s, int e, const Tag &v) {
+        info[k].apply(s, e, v);
     }
 
     void upd(int &k, int s, int e, int id, const Tag &v) {
         if (!k) k = new_node();
 
         if (s == e) {
-            apply(k, e - s + 1, v);
+            apply(k, s, e, v);
             return;
         }
 
@@ -127,19 +127,17 @@ struct Seg {
         info[k].set(merge(info[ls(k)], info[rs(k)]));
     }
 
-    void apply(int k, ll sz, const Tag &v) {
-        info[k].apply(sz, v);
-        tag[k].apply(v);
+    void apply(int k, int s, int e, const Tag &v) {
+        info[k].apply(s, e, v);
+        tag[k].apply(s, e, v);
     }
 
     void push(int k, int s, int e) {
         if (tag[k].check()) {
-            ll len = e - s + 1;
-            ll lsz = len - len / 2, rsz = len / 2;
             if (!ls(k)) ls(k) = new_node();
             if (!rs(k)) rs(k) = new_node();
-            apply(ls(k), lsz, tag[k]);
-            apply(rs(k), rsz, tag[k]);
+            apply(ls(k), s, mid, tag[k]);
+            apply(rs(k), mid + 1, e, tag[k]);
             tag[k] = Tag();
         }
     }
@@ -148,7 +146,7 @@ struct Seg {
         if (!k) k = new_node();
 
         if (L <= s && e <= R) {
-            apply(k, e - s + 1, v);
+            apply(k, s, e, v);
             return;
         }
 
@@ -217,7 +215,7 @@ struct Tag {
         return x != 0;
     }
 
-    void apply(const Tag &a) {
+    void apply(int s, int e, const Tag &a) {
         if (!a.check()) return;
         x += a.x;
     }
@@ -228,9 +226,9 @@ struct Info {
     ll sum;
     Info(ll sum = 0) : lson(0), rson(0), sum(sum) {}
 
-    void apply(ll sz, const Tag &a) {
+    void apply(int s, int e, const Tag &a) {
         if (!a.check()) return;
-        sum += sz * a.x;
+        sum += (e - s + 1) * a.x;
     }
 
     friend Info operator+(const Info &a, const Info &b) {
@@ -252,7 +250,7 @@ struct Tag {
         return x != 0;
     }
 
-    void apply(const Tag &a) {
+    void apply(int s, int e, const Tag &a) {
         if (!a.check()) return;
         x = max(x, a.x);
     }
@@ -263,7 +261,7 @@ struct Info {
     ll sum;
     Info(ll sum = 0) : lson(0), rson(0), sum(sum) {}
 
-    void apply(ll sz, const Tag &a) {
+    void apply(int s, int e, const Tag &a) {
         if (!a.check()) return;
         sum = max(sum, a.x);
     }
@@ -287,7 +285,7 @@ struct Tag {
         return x != 1e9;
     }
 
-    void apply(const Tag &a) {
+    void apply(int s, int e, const Tag &a) {
         if (!a.check()) return;
         x = min(x, a.x);
     }
@@ -298,7 +296,7 @@ struct Info {
     ll sum;
     Info(ll sum = 1e9) : lson(0), rson(0), sum(sum) {}
 
-    void apply(ll sz, const Tag &a) {
+    void apply(int s, int e, const Tag &a) {
         if (!a.check()) return;
         sum = min(sum, a.x);
     }
@@ -322,7 +320,7 @@ struct Tag {
         return x != 0;
     }
 
-    void apply(const Tag &a) {
+    void apply(int s, int e, const Tag &a) {
         if (!a.check()) return;
         x += a.x;
     }
@@ -333,9 +331,9 @@ struct Info {
     ll sum, mx;
     Info(ll sum = 0, ll mx = 0) : lson(0), rson(0), sum(sum), mx(mx) {}
 
-    void apply(ll sz, const Tag &a) {
+    void apply(int s, int e, const Tag &a) {
         if (!a.check()) return;
-        sum += sz * a.x;
+        sum += (e - s + 1) * a.x;
         mx += a.x;
     }
 
@@ -359,7 +357,7 @@ struct Tag {
         return x != 0;
     }
 
-    void apply(const Tag &a) {
+    void apply(int s, int e, const Tag &a) {
         if (!a.check()) return;
         x += a.x;
     }
@@ -370,9 +368,9 @@ struct Info {
     ll sum, mi;
     Info(ll sum = 0, ll mi = 0) : lson(0), rson(0), sum(sum), mi(mi) {}
 
-    void apply(ll sz, const Tag &a) {
+    void apply(int s, int e, const Tag &a) {
         if (!a.check()) return;
-        sum += sz * a.x;
+        sum += (e - s + 1) * a.x;
         mi += a.x;
     }
 

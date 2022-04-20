@@ -53,17 +53,21 @@ const int MOD = 1e9 + 7;
 
 // region 质因数分解, 枚举质数
 int isp[M];
-vector<int> ps;
+vector<int> pr;
 
 void prime(int lim) {
     fill(isp, isp + lim + 1, 1);
 
     isp[0] = isp[1] = 0;
     for (int i = 2; i <= lim; i++) {
-        if (!isp[i]) continue;
+        if (isp[i]) pr.push_back(i);
 
-        ps.push_back(i);
-        for (int j = i * 2; j <= lim; j += i) isp[j] = 0;
+        for (int p : pr) {
+            if (p > lim / i) break;
+
+            isp[i * p] = 0;
+            if (i % p == 0) break;
+        }
     }
 }
 
@@ -71,13 +75,13 @@ vector<pll> fs;
 
 void divide(ll x) {
     fs = {};
-    for (int p : ps) {
+    for (int p : pr) {
         if (p > x / p) break;
 
         if (x % p == 0) {
-            int cnt = 0;
-            while (x % p == 0) x /= p, cnt++;
-            fs.push_back({p, cnt});
+            int c = 0;
+            while (x % p == 0) x /= p, c++;
+            fs.push_back({p, c});
         }
     }
     if (x > 1) fs.push_back({x, 1});

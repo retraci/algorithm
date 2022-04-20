@@ -1,4 +1,10 @@
 // region e-dcc
+int e[M * 4], ne[M * 4], h1[N], h2[N], edm;
+
+void add(int h[], int u, int v) {
+    e[edm] = v, ne[edm] = h[u], h[u] = edm++;
+}
+
 int dfn[N], low[N], ti;
 vector<int> stk;
 int co[N], sz[N], dcc;
@@ -35,6 +41,12 @@ void tarjan(int u, int pe) {
 // endregion
 
 // region v-dcc
+int e[M * 4], ne[M * 4], h1[N], h2[N], edm;
+
+void add(int h[], int u, int v) {
+    e[edm] = v, ne[edm] = h[u], h[u] = edm++;
+}
+
 int dfn[N], low[N], ti, rt;
 vector<int> stk;
 vector<int> cc[N];

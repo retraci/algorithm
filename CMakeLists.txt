@@ -22,18 +22,15 @@ add_executable(acwing_1083 acwing/course/course2/1_dp/1.8_digit/acwing_1083.cpp)
 add_executable(acwing_1084 acwing/course/course2/1_dp/1.8_digit/acwing_1084.cpp)
 add_executable(acwing_1085 acwing/course/course2/1_dp/1.8_digit/acwing_1085.cpp)
 add_executable(P1980 luogu/practice/dp/digit/P1980.cpp)
-add_executable(B codeforces/contest/round/782/B.cpp)
-add_executable(C codeforces/contest/round/782/C.cpp)
-
-add_executable(D codeforces/contest/round/782/D.cpp)
+add_executable(B codeforces/contest/round/783/B.cpp)
+add_executable(C codeforces/contest/round/783/C.cpp)
+add_executable(D codeforces/contest/round/783/D.cpp)
 add_executable(P2602 luogu/practice/dp/digit/P2602.cpp)
-add_executable(E codeforces/contest/Hello_2022/E.cpp)
+add_executable(E codeforces/contest/round/782/E.cpp)
 add_executable(acwing_1086 acwing/course/course2/1_dp/1.8_digit/acwing_1086.cpp)
-
 add_executable(acwing_1684 acwing/practice/winter_daily_2022/week_6/acwing_1684.cpp)
 add_executable(acwing_1460 acwing/practice/winter_daily_2022/week_6/acwing_1460.cpp)
 add_executable(acwing_1471 acwing/practice/winter_daily_2022/week_6/acwing_1471.cpp)
-
 add_executable(acwing_135 acwing/course/course2/1_dp/1.9_monotonicity_queue/acwing_135.cpp)
 add_executable(acwing_1087 acwing/course/course2/1_dp/1.9_monotonicity_queue/acwing_1087.cpp)
 add_executable(acwing_1088 acwing/course/course2/1_dp/1.9_monotonicity_queue/acwing_1088.cpp)
@@ -69,7 +66,6 @@ add_executable(acwing_165 acwing/course/course2/2_search/2.10_dfs_prune/acwing_1
 add_executable(acwing_166 acwing/course/course2/2_search/2.10_dfs_prune/acwing_166.cpp)
 add_executable(acwing_167 acwing/course/course2/2_search/2.10_dfs_prune/acwing_167.cpp)
 add_executable(acwing_168 acwing/course/course2/2_search/2.10_dfs_prune/acwing_168.cpp)
-
 add_executable(acwing_170 acwing/course/course2/2_search/2.11_iterative_deepening/acwing_170.cpp)
 add_executable(acwing_171 acwing/course/course2/2_search/2.12_double_dfs/acwing_171.cpp)
 add_executable(acwing_180 acwing/course/course2/2_search/2.13_IDA_star/acwing_180.cpp)
@@ -85,9 +81,7 @@ add_executable(acwing_340 acwing/course/course2/3_graph/3.2_single_source_applic
 add_executable(acwing_342 acwing/course/course2/3_graph/3.2_single_source_applications/acwing_342.cpp)
 add_executable(acwing_341 acwing/course/course2/3_graph/3.2_single_source_applications/acwing_341.cpp)
 add_executable(acwing_341_gt acwing/course/course2/3_graph/3.2_single_source_applications/acwing_341_gt.cpp)
-
 add_executable(F atcoder/contest/abc/227/F.cpp)
-
 add_executable(CF896C codeforces/practice/ODT/CF896C.cpp)
 add_executable(acwing_1137 acwing/course/course2/3_graph/3.3_single_source_extensions/acwing_1137.cpp)
 add_executable(acwing_1131 acwing/course/course2/3_graph/3.3_single_source_extensions/acwing_1131.cpp)
@@ -98,24 +92,20 @@ add_executable(acwing_343 acwing/course/course2/3_graph/3.4_floyd/acwing_343.cpp
 add_executable(acwing_1125 acwing/course/course2/3_graph/3.4_floyd/acwing_1125.cpp)
 add_executable(acwing_344 acwing/course/course2/3_graph/3.4_floyd/acwing_344.cpp)
 add_executable(acwing_345 acwing/course/course2/3_graph/3.4_floyd/acwing_345.cpp)
-
 add_executable(acwing_1140 acwing/course/course2/3_graph/3.5_minimum_spanning_tree/acwing_1140.cpp)
 add_executable(G atcoder/contest/abc/240/G.cpp)
 add_executable(acwing_1141 acwing/course/course2/3_graph/3.5_minimum_spanning_tree/acwing_1141.cpp)
 add_executable(acwing_1142 acwing/course/course2/3_graph/3.5_minimum_spanning_tree/acwing_1142.cpp)
 add_executable(acwing_1143 acwing/course/course2/3_graph/3.5_minimum_spanning_tree/acwing_1143.cpp)
 add_executable(acwing_1144 acwing/course/course2/3_graph/3.5_minimum_spanning_tree/acwing_1144.cpp)
-
 add_executable(acwing_1146 acwing/course/course2/3_graph/3.6_minimum_spanning_tree_extensions/acwing_1146.cpp)
 add_executable(acwing_1145 acwing/course/course2/3_graph/3.6_minimum_spanning_tree_extensions/acwing_1145.cpp)
 add_executable(acwing_346 acwing/course/course2/3_graph/3.6_minimum_spanning_tree_extensions/acwing_346.cpp)
 add_executable(acwing_1148 acwing/course/course2/3_graph/3.6_minimum_spanning_tree_extensions/acwing_1148.cpp)
-
 add_executable(101 daimayuan/namomo_spring_camp_2022/daily/week_1/61.cpp)
 add_executable(323 daimayuan/namomo_spring_camp_2022/daily/week_1/323.cpp)
 add_executable(436 daimayuan/namomo_spring_camp_2022/daily/week_1/436.cpp)
-add_executable(A codeforces/contest/round/782/A.cpp)
-
+add_executable(A codeforces/contest/round/783/A.cpp)
 add_executable(acwing_904 acwing/course/course2/3_graph/3.7_negative_ring/acwing_904.cpp)
 add_executable(acwing_361 acwing/course/course2/3_graph/3.7_negative_ring/acwing_361.cpp)
 add_executable(1165 acwing/course/course2/3_graph/3.7_negative_ring/acwing_1165.cpp)
@@ -168,7 +158,6 @@ add_executable(acwing_244 acwing/course/course2/4_data_structures/4.2_bit/acwing
 add_executable(acwing_241 acwing/course/course2/4_data_structures/4.2_bit/acwing_241.cpp)
 add_executable(acwing_242 acwing/course/course2/4_data_structures/4.2_bit/acwing_242.cpp)
 add_executable(acwing_243 acwing/course/course2/4_data_structures/4.3_seg_tree/acwing_243.cpp)
-
 add_executable(CF1573E daimayuan/namomo_spring_camp_2022/course/week_1/CF1573E.cpp)
 add_executable(P4766 daimayuan/namomo_spring_camp_2022/course/week_1/P4766.cpp)
 add_executable(A_Namomo_Subsequence_2020_EC_Final daimayuan/namomo_spring_camp_2022/course/week_2/A_Namomo_Subsequence_2020_EC_Final.cpp)
@@ -192,9 +181,7 @@ add_executable(505 daimayuan/namomo_spring_camp_2022/daily/week_3/505.cpp)
 add_executable(acwing_1275 acwing/course/course2/4_data_structures/4.3_seg_tree/acwing_1275.cpp)
 add_executable(acwing_245 acwing/course/course2/4_data_structures/4.3_seg_tree/acwing_245.cpp)
 add_executable(acwing_1016 acwing/course/course2/1_dp/1.2_lis/acwing_1016.cpp)
-
 add_executable(acwing_246 acwing/course/course2/4_data_structures/4.3_seg_tree/acwing_246.cpp)
-
 add_executable(acwing_247 acwing/course/course2/4_data_structures/4.3_seg_tree/acwing_247.cpp)
 add_executable(acwing_1277 acwing/course/course2/4_data_structures/4.3_seg_tree/acwing_1277.cpp)
 add_executable(555 daimayuan/namomo_spring_camp_2022/daily/week_3/555.cpp)
@@ -208,7 +195,6 @@ add_executable(CF840D codeforces/practice/persistent_data_structures/CF840D.cpp)
 add_executable(CF893F codeforces/practice/persistent_data_structures/CF893F.cpp)
 add_executable(559 daimayuan/namomo_spring_camp_2022/daily/week_3/559.cpp)
 add_executable(560 daimayuan/namomo_spring_camp_2022/daily/week_3/560.cpp)
-
 add_executable(562 daimayuan/namomo_spring_camp_2022/daily/week_4/562.cpp)
 add_executable(CF1634F codeforces/practice/math/CF1634F.cpp)
 add_executable(131 daimayuan/namomo_spring_camp_2022/daily/week_4/131.cpp)
@@ -216,7 +202,6 @@ add_executable(CF1354D daimayuan/namomo_spring_camp_2022/course/week_3/CF1354D.c
 add_executable(ABC234G daimayuan/namomo_spring_camp_2022/course/week_3/ABC234G.cpp)
 add_executable(CF1635F daimayuan/namomo_spring_camp_2022/course/week_3/CF1635F.cpp)
 add_executable(daimayuan_Closest_Equals daimayuan/namomo_spring_camp_2022/course/week_3/daimayuan_Closest_Equals.cpp)
-
 add_executable(CF526F daimayuan/namomo_spring_camp_2022/course/week_3/CF526F.cpp)
 add_executable(607 daimayuan/namomo_spring_camp_2022/daily/week_4/607.cpp)
 add_executable(CF438D daimayuan/namomo_spring_camp_2022/course/week_3/CF438D.cpp)
@@ -224,11 +209,9 @@ add_executable(CF765F daimayuan/namomo_spring_camp_2022/course/week_3/CF765F.cpp
 add_executable(acwing_1282 acwing/course/course2/4_data_structures/4.6_ac_automaton/acwing_1282.cpp)
 add_executable(acwing_1285 acwing/course/course2/4_data_structures/4.6_ac_automaton/acwing_1285.cpp)
 add_executable(acwing_1053 acwing/course/course2/4_data_structures/4.6_ac_automaton/acwing_1053.cpp)
-
 add_executable(608 daimayuan/namomo_spring_camp_2022/daily/week_4/608.cpp)
 add_executable(611 daimayuan/namomo_spring_camp_2022/daily/week_4/611.cpp)
 add_executable(P3809 daimayuan/namomo_spring_camp_2022/course/week_4/P3809.cpp)
-
 add_executable(614 daimayuan/namomo_spring_camp_2022/daily/week_4/614.cpp)
 add_executable(613 daimayuan/namomo_spring_camp_2022/daily/week_4/613.cpp)
 add_executable(606 daimayuan/namomo_spring_camp_2022/daily/week_5/606.cpp)
@@ -298,7 +281,6 @@ add_executable(acwing_203 acwing/course/course2/5_math/5.6_congruence/acwing_203
 add_executable(acwing_222 acwing/course/course2/5_math/5.6_congruence/acwing_222.cpp)
 add_executable(acwing_1298 acwing/course/course2/5_math/5.6_congruence/acwing_1298.cpp)
 add_executable(acwing_202 acwing/course/course2/5_math/5.6_congruence/acwing_202.cpp)
-
 add_executable(703 daimayuan/namomo_spring_camp_2022/daily/week_6/703.cpp)
 add_executable(704 daimayuan/namomo_spring_camp_2022/daily/week_6/704.cpp)
 add_executable(673 daimayuan/namomo_spring_camp_2022/daily/week_6/673.cpp)
@@ -312,13 +294,10 @@ add_executable(acwing_1312 acwing/course/course2/5_math/5.8_comb/acwing_1312.cpp
 add_executable(709 daimayuan/namomo_spring_camp_2022/daily/week_6/709.cpp)
 add_executable(707 daimayuan/namomo_spring_camp_2022/daily/week_6/707.cpp)
 add_executable(701 daimayuan/namomo_spring_camp_2022/daily/week_7/701.cpp)
-
 add_executable(671 daimayuan/namomo_spring_camp_2022/daily/week_6/671.cpp)
-
 add_executable(NC32204B nowcoder/practice/dp/NC32204B.cpp)
 add_executable(t7 lanqiao/2022_C++B-Provincial/t7.cpp)
 add_executable(t5 lanqiao/2022_C++B-Provincial/t5.cpp)
-
 add_executable(acwing_1316 acwing/course/course2/5_math/5.8_comb/acwing_1316.cpp)
 add_executable(acwing_207 acwing/course/course2/5_math/5.9_gauss/acwing_207.cpp)
 add_executable(acwing_208 acwing/course/course2/5_math/5.9_gauss/acwing_208.cpp)
@@ -329,14 +308,11 @@ add_executable(acwing_215 acwing/course/course2/5_math/5.10_principle_of_inclusi
 add_executable(acwing_217 acwing/course/course2/5_math/5.11_expect/acwing_217.cpp)
 add_executable(acwing_218 acwing/course/course2/5_math/5.11_expect/acwing_218.cpp)
 add_executable(P5677 luogu/practice/bit/P5677.cpp)
-
 add_executable(731 daimayuan/namomo_spring_camp_2022/daily/week_7/731.cpp)
 add_executable(acwing_1319 acwing/course/course2/5_math/5.12_game/acwing_1319.cpp)
 add_executable(acwing_1321 acwing/course/course2/5_math/5.12_game/acwing_1321.cpp)
-
 add_executable(712 daimayuan/namomo_spring_camp_2022/daily/week_7/712.cpp)
 add_executable(733 daimayuan/namomo_spring_camp_2022/daily/week_7/733.cpp)
-
 add_executable(acwing_90 acwing/course/course2/6_base_algorithm/6.1_bit_operation/acwing_90.cpp)
 add_executable(acwing_95 acwing/course/course2/6_base_algorithm/6.2_Iterative_and_recursion/acwing_95.cpp)
 add_executable(acwing_97 acwing/course/course2/6_base_algorithm/6.2_Iterative_and_recursion/acwing_97.cpp)
@@ -356,9 +332,7 @@ add_executable(acwing_105 acwing/course/course2/6_base_algorithm/6.5_sort/acwing
 add_executable(acwing_106 acwing/course/course2/6_base_algorithm/6.5_sort/acwing_106.cpp)
 add_executable(acwing_107 acwing/course/course2/6_base_algorithm/6.5_sort/acwing_107.cpp)
 add_executable(acwing_1273 acwing/course/course2/6_base_algorithm/6.6_RMQ/acwing_1273.cpp)
-
 add_executable(CF102984F codeforces/practice/game/CF102984F.cpp)
-
 add_executable(737 daimayuan/namomo_spring_camp_2022/daily/week_7/737.cpp)
 add_executable(741 daimayuan/namomo_spring_camp_2022/daily/week_7/741.cpp)
 add_executable(744 daimayuan/namomo_spring_camp_2022/daily/week_8/744.cpp)
@@ -367,10 +341,15 @@ add_executable(acwing_1358 acwing/course/course3/5_math/5.1_mobius/acwing_1358.c
 add_executable(acwing_221 acwing/course/course3/5_math/5.2_product_function/acwing_221.cpp)
 add_executable(P3327 luogu/practice/mobius/P3327.cpp)
 add_executable(P1829 daimayuan/namomo_spring_camp_2022/course/week_6/P1829.cpp)
-
 add_executable(P3372 luogu/practice/seg_tree/P3372.cpp)
 add_executable(NC1076B nowcoder/practice/seg_tree/NC1076B.cpp)
-
 add_executable(P2572 daimayuan/namomo_spring_camp_2022/course/week_7/P2572.cpp)
 add_executable(hdu_1003 hdu/practice/dp/hdu_1003.cpp)
-add_executable(tmp2 tmp2.cpp)
+add_executable(hdu6588 daimayuan/namomo_spring_camp_2022/course/week_6/hdu6588.cpp)
+add_executable(675 daimayuan/namomo_spring_camp_2022/daily/week_8/675.cpp)
+add_executable(746 daimayuan/namomo_spring_camp_2022/daily/week_8/746.cpp)
+add_executable(acwing_2171 acwing/course/course3/1_graph/1.1_maximum_flow/1.1.1_template/acwing_2171.cpp)
+add_executable(NC30825A daimayuan/namomo_spring_camp_2022/course/week_7/NC30825A.cpp)
+
+add_executable(PP5579 daimayuan/namomo_spring_camp_2022/course/week_7/PP5579.cpp)
+add_executable(NC31454G daimayuan/namomo_spring_camp_2022/course/week_7/NC31454G.cpp)

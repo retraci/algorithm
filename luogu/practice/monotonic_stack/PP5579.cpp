@@ -47,75 +47,57 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 110;
-const int M = 1e5 + 10;
-const int MOD = 1e9 + 7;
+const int N = 5e5 + 10;
 
-int n;
-int a[N];
+int n, m;
+ll a[N], s[N];
+ll stk[N], lst[N], h[N], tp;
 
-// region 质因数分解, 枚举质数
-int isp[M];
-vector<int> pr;
-
-void prime(int lim) {
-    fill(isp, isp + lim + 1, 1);
-
-    isp[0] = isp[1] = 0;
-    for (int i = 2; i <= lim; i++) {
-        if (isp[i]) pr.push_back(i);
-
-        for (int p : pr) {
-            if (p > lim / i) break;
-
-            isp[i * p] = 0;
-            if (i % p == 0) break;
-        }
-    }
+ll get(int id, ll delta, ll pre) {
+    ll cur = delta * a[id] + pre;
+    return cur;
 }
-
-vector<pll> fs;
-
-void divide(ll x) {
-    fs = {};
-    for (int p : pr) {
-        if (p > x / p) break;
-
-        if (x % p == 0) {
-            int c = 0;
-            while (x % p == 0) x /= p, c++;
-            fs.push_back({p, c});
-        }
-    }
-    if (x > 1) fs.push_back({x, 1});
-}
-// endregion
 
 void solve() {
-    unordered_map<int, int> cnt;
-    for (int i = 1; i <= n; i++) {
-        divide(a[i]);
-        for (auto [p, c] : fs) cnt[p] += c;
-    }
+    sort(a + 1, a + n + 1);
+    for (int i = 1; i <= n; i++) s[i] = s[i - 1] + a[i];
 
-    ll ans = 1;
-    for (auto [p, c] : cnt) {
-        ll s = 0, cur = 1;
-        for (int i = 0; i <= c; i++) {
-            s += cur;
-            s %= MOD;
+    tp = 0;
+    stk[++tp] = 0, lst[tp] = 0, h[tp] = 0;
+    stk[++tp] = 1, lst[tp] = 0, h[tp] = 0;
+    for (int _ = 1; _ <= m; _++) {
+        ll d, b;
+        cin >> d >> b;
 
-            cur *= p;
-            cur %= MOD;
+        ll ans = 0, rb = n;
+        while (get(stk[tp], d - lst[tp], h[tp]) > b) {
+            int lb = stk[tp];
+            ll cnt = rb - lb + 1;
+            ans += (s[rb] - s[lb - 1]) * (d - lst[tp]) + cnt * (h[tp] - b);
+            rb = lb - 1, tp--;
         }
-        ans *= s;
-        ans %= MOD;
+
+        if (get(rb, d - lst[tp], h[tp]) > b) {
+            int left = stk[tp], right = rb;
+            while (left < right) {
+                int md = left + right >> 1;
+                if (get(md, d - lst[tp], h[tp]) >= b) right = md;
+                else left = md + 1;
+            }
+            int lb = left;
+            ll cnt = rb - lb + 1;
+            ans += (s[rb] - s[lb - 1]) * (d - lst[tp]) + cnt * (h[tp] - b);
+
+            stk[++tp] = lb, lst[tp] = d, h[tp] = b;
+        } else if (rb + 1 <= n) {
+            stk[++tp] = rb + 1, lst[tp] = d, h[tp] = b;
+        }
+
+        cout << ans << "\n";
     }
-    cout << ans << "\n";
 }
 
 void prework() {
-    prime(1e5);
 }
 
 int main() {
@@ -129,7 +111,7 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n;
+        cin >> n >> m;
         for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }

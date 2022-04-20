@@ -48,74 +48,32 @@ using namespace std;
 using namespace grid_delta;
 
 const int N = 110;
-const int M = 1e5 + 10;
-const int MOD = 1e9 + 7;
 
 int n;
-int a[N];
-
-// region 质因数分解, 枚举质数
-int isp[M];
-vector<int> pr;
-
-void prime(int lim) {
-    fill(isp, isp + lim + 1, 1);
-
-    isp[0] = isp[1] = 0;
-    for (int i = 2; i <= lim; i++) {
-        if (isp[i]) pr.push_back(i);
-
-        for (int p : pr) {
-            if (p > lim / i) break;
-
-            isp[i * p] = 0;
-            if (i % p == 0) break;
-        }
-    }
-}
-
-vector<pll> fs;
-
-void divide(ll x) {
-    fs = {};
-    for (int p : pr) {
-        if (p > x / p) break;
-
-        if (x % p == 0) {
-            int c = 0;
-            while (x % p == 0) x /= p, c++;
-            fs.push_back({p, c});
-        }
-    }
-    if (x > 1) fs.push_back({x, 1});
-}
-// endregion
+pii a[N];
 
 void solve() {
-    unordered_map<int, int> cnt;
-    for (int i = 1; i <= n; i++) {
-        divide(a[i]);
-        for (auto [p, c] : fs) cnt[p] += c;
+    if (n == 2) {
+        cout << "Yes" << "\n";
+        return;
     }
 
-    ll ans = 1;
-    for (auto [p, c] : cnt) {
-        ll s = 0, cur = 1;
-        for (int i = 0; i <= c; i++) {
-            s += cur;
-            s %= MOD;
+    sort(a + 1, a + n + 1, [](auto &a, auto &b) {
+        if (a.fi != b.fi) return a.fi < b.fi;
+        else return a.se > b.se;
+    });
 
-            cur *= p;
-            cur %= MOD;
-        }
-        ans *= s;
-        ans %= MOD;
+    int s = 0;
+    for (int i = 1; i <= n; i++) s += a[i].se;
+    int flag = 0;
+    for (int i = 1; i <= n - 1; i++) {
+        int tmp = a[i].fi + s - a[i].se;
+        if (tmp > a[i + 1].fi) flag = 1;
     }
-    cout << ans << "\n";
+    cout << (flag ? "No" : "Yes") << "\n";
 }
 
 void prework() {
-    prime(1e5);
 }
 
 int main() {
@@ -127,10 +85,10 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-//    cin >> T;
+    cin >> T;
     while (T--) {
         cin >> n;
-        for (int i = 1; i <= n; i++) cin >> a[i];
+        for (int i = 1; i <= n; i++) cin >> a[i].fi >> a[i].se;
         solve();
     }
 

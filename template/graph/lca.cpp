@@ -1,5 +1,10 @@
 // region 无边权的lca
+int e[M * 2], ne[M * 2], h[N], edm;
 int dep[N], fa[N][32];
+
+void add(int u, int v) {
+    e[edm] = v, ne[edm] = h[u], h[u] = edm++;
+}
 
 void lca_init(int rt) {
     fill(dep, dep + n + 1, -1);
@@ -11,7 +16,7 @@ void lca_init(int rt) {
         auto u = que.front(); que.pop();
 
         for (int i = h[u]; ~i; i = ne[i]) {
-            int v = g[i];
+            int v = e[i];
 
             if (dep[v] == -1) {
                 dep[v] = dep[u] + 1;
@@ -43,11 +48,13 @@ int lca(int x, int y) {
 // endregion
 
 // region 有边权的lca
+pii e[M * 2];
+int ne[M * 2], h[N], edm;
 int dep[N], fa[N][32];
 ll w[N][32];
 
 void add(int u, int v, int cost) {
-    g[edm] = {cost, v};
+    e[edm] = {cost, v};
     ne[edm] = h[u], h[u] = edm++;
 }
 
@@ -61,7 +68,7 @@ void lca_init(int rt) {
         auto u = que.front(); que.pop();
 
         for (int i = h[u]; ~i; i = ne[i]) {
-            auto [cost, v] = g[i];
+            auto [cost, v] = e[i];
 
             if (dep[v] == -1) {
                 dep[v] = dep[u] + 1;
@@ -100,13 +107,18 @@ ll lca(int x, int y) {
 // endregion
 
 // region 无边权的欧拉序lca
-int id[N], eula[2 * N], cnt;
-int dep[2 * N], st[2 * N][32], lg[2 * N];
+int e[M * 2], ne[M * 2], h[N], edm;
+int id[N], eula[N * 2], cnt;
+int dep[N * 2], st[N * 2][32], lg[N * 2];
+
+void add(int u, int v) {
+    e[edm] = v, ne[edm] = h[u], h[u] = edm++;
+}
 
 void dfs(int u) {
     eula[++cnt] = u, id[u] = cnt;
     for (int i = h[u]; ~i; i = ne[i]) {
-        int v = g[i];
+        int v = e[i];
 
         dep[v] = dep[u] + 1;
         dfs(v);

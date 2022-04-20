@@ -1,180 +1,113 @@
-#include <iostream>
-#include <cstdio>
-#include <algorithm>
-#include <cstring>
-#include <numeric>
-#include <iomanip>
-#include <vector>
-#include <queue>
-#include <stack>
-#include <set>
-#include <map>
-#include <unordered_set>
-#include <unordered_map>
-#include <bitset>
-#include <cmath>
+#include<iostream>
+#include<cstring>
+#include<set>
 
 using namespace std;
-constexpr int P = 998244353;
-using i64 = long long;
+typedef long long LL;
+const int maxn = 1e6 + 5;
+const LL INF = 0x3f3f3f3f3f3f3f3f;
+struct Node {
+    int l, r, sum;
+} tr[maxn * 4];
+LL f[maxn][2];
+int a[maxn], p[maxn], L[maxn], R[maxn];
+int n, k;
 
-int norm(int x) {
-    if (x < 0) {
-        x += P;
-    }
-    if (x >= P) {
-        x -= P;
-    }
-    return x;
+void pushup(int u) {
+    tr[u].sum = tr[u << 1].sum + tr[u << 1 | 1].sum;
 }
 
-template<class T>
-T power(T a, int b) {
-    T res = 1;
-    for (; b; b /= 2, a *= a) {
-        if (b % 2) {
-            res *= a;
-        }
+void build(int u, int l, int r) {
+    tr[u] = {l, r, 0};
+    if (l == r) return;
+    int mid = l + r >> 1;
+    build(u << 1, l, mid), build(u << 1 | 1, mid + 1, r);
+}
+
+void modify(int u, int x, int v) {
+    if (tr[u].l == tr[u].r) {
+        tr[u].sum += v;
+        return;
     }
+    int mid = tr[u].l + tr[u].r >> 1;
+    if (x <= mid) modify(u << 1, x, v);
+    else modify(u << 1 | 1, x, v);
+    pushup(u);
+}
+
+int query(int u, int x) {
+    if (!tr[u].sum && x <= tr[u].l) return tr[u].l;
+    if (tr[u].l == tr[u].r) return -1;
+    int mid = tr[u].l + tr[u].r >> 1;
+    if (mid < x) return query(u << 1 | 1, x);
+    int res = query(u << 1, x);
+    if (res == -1) return query(u << 1 | 1, x);
     return res;
 }
 
-struct Z {
-    int x;
-
-    Z(int x = 0) : x(norm(x)) {}
-
-    int val() const {
-        return x;
-    }
-
-    Z operator-() const {
-        return Z(norm(P - x));
-    }
-
-    Z inv() const {
-        return power(*this, P - 2);
-    }
-
-    Z &operator*=(const Z &rhs) {
-        x = i64(x) * rhs.x % P;
-        return *this;
-    }
-
-    Z &operator+=(const Z &rhs) {
-        x = norm(x + rhs.x);
-        return *this;
-    }
-
-    Z &operator-=(const Z &rhs) {
-        x = norm(x - rhs.x);
-        return *this;
-    }
-
-    Z &operator/=(const Z &rhs) {
-        return *this *= rhs.inv();
-    }
-
-    friend Z operator*(const Z &lhs, const Z &rhs) {
-        Z res = lhs;
-        res *= rhs;
-        return res;
-    }
-
-    friend Z operator+(const Z &lhs, const Z &rhs) {
-        Z res = lhs;
-        res += rhs;
-        return res;
-    }
-
-    friend Z operator-(const Z &lhs, const Z &rhs) {
-        Z res = lhs;
-        res -= rhs;
-        return res;
-    }
-
-    friend Z operator/(const Z &lhs, const Z &rhs) {
-        Z res = lhs;
-        res /= rhs;
-        return res;
-    }
-};
-
-const int N = 1e7 + 5;
-Z phi[N], f[N], s[N];
-vector<int> pri;
-
-Z find(long long n, long long m) {
-    Z ans = 0;
-    for (int i = 1; i * i <= m; i++)
-        if (m % i == 0) {
-            int j = m / i;
-            ans = ans + phi[i] * ((n / i) % P);
-            if (i != j)
-                ans = ans + phi[j] * ((n / j) % P);
-        }
-    return ans;
+int get(int a, int b) {
+    return min(abs(a - b), n - abs(a - b));
 }
 
-bool vis[N];
-int cnt[N];
+int mov(int i, int j) {
+    return ((i - 1 + j) % n + n) % n + 1;
+}
 
 int main() {
 #ifdef LOCAL
     freopen("../in.txt", "r", stdin);
     freopen("../out.txt", "w", stdout);
 #endif
-    ios_base::sync_with_stdio(false);
-    cin.tie(0);
-    cout.tie(0);
-    int m = 1e7;
-    phi[1] = f[1] = 1;
-    for (int i = 2; i <= m; ++i) {
-        if (!vis[i]) {
-            pri.push_back(i);
-            phi[i] = i - 1;
-            f[i] = phi[i] + i;
-            cnt[i] = i;
+
+    int T;
+    scanf("%d", &T);
+    while (T--) {
+        scanf("%d%d", &n, &k);
+        for (int i = 1; i <= n; i++) {
+            scanf("%d", &a[i]);
+            p[a[i]] = i;
+            f[i][0] = f[i][1] = INF;
         }
-        for (int j: pri) {
-            if (i * j > m) break;
-            vis[i * j] = 1;
-            cnt[i * j] = j;
-            if (i % j == 0) {
-                cnt[i * j] = cnt[i] * j;
-                phi[i * j] = phi[i] * j;
-                int pre = cnt[i * j] / j;
-                if (cnt[i] == i) f[i * j] = f[i] * j + phi[i * j];
-                else f[i * j] = f[cnt[i] * j] * f[i / cnt[i]];
-                break;
+        build(1, 1, n);
+        for (int i = 1; i <= k; i++) modify(1, a[i], 1);
+        int t = query(1, 0);
+        LL ans = INF;
+        L[1] = query(1, a[1]);
+        R[k] = query(1, a[k]);
+        for (int i = 2; i <= n; i++) {
+            modify(1, a[i - 1], -1);
+            modify(1, a[(i + k - 2) % n + 1], 1);
+            L[i] = query(1, a[i]);
+            R[(i + k - 2) % n + 1] = query(1, a[(i + k - 2) % n + 1]);
+        }
+        if (t == -1) {
+            puts("0");
+            continue;
+        }
+        f[t][0] = get(1, p[t]);
+        f[t][1] = get(k, p[t]);
+        for (int i = t; i <= n; i++) {
+            {
+                int v = L[p[i]];
+                if (v == -1) {
+                    ans = min(ans, f[i][0]);
+                } else {
+                    int id1 = p[i], id2 = p[v];
+                    f[v][0] = min(f[v][0], f[i][0] + get(id2, id1));
+                    f[v][1] = min(f[v][1], f[i][0] + get(id2, mov(id1, k - 1)));
+                }
             }
-            phi[i * j] = phi[i] * phi[j];
-            f[i * j] = f[i] * f[j];
+            {
+                int v = R[p[i]];
+                if (v == -1) {
+                    ans = min(ans, f[i][1]);
+                } else {
+                    int id1 = p[i], id2 = p[v];
+                    f[v][1] = min(f[v][1], f[i][1] + get(id2, id1));
+                    f[v][0] = min(f[v][0], f[i][1] + get(id2, mov(id1, -(k - 1))));
+                }
+            }
         }
+        printf("%lld\n", ans);
     }
-    for (int i = 1; i <= m; ++i) s[i] = s[i - 1] + f[i] * (3 * i + 3) + i;
-
-
-    int t;
-    cin >> t;
-//    int cur = 10000;
-    while (t--) {
-        __int128_t n = 0;
-        string a;
-        cin >> a;
-        int len = a.size();
-        for (int i = 0; i < len; i++)
-            n = n * 10 + a[i] - 48;
-        __int128_t l = 0, r = N, lim = 0;
-        while (l <= r) {
-            __int128_t mid = (l + r) >> 1;
-            if (mid * mid * mid <= n) l = mid + 1;
-            else r = mid - 1;
-        }
-        l--;
-        Z ans = (n / l - l * l) % P * f[l] + l + find(n % l, l);
-        ans += s[l - 1];
-        cout << ans.val() << "\n";
-    }
-    return 0;
 }
