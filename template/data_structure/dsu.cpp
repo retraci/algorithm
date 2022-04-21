@@ -1,15 +1,11 @@
 // region dsu
 template <int SZ>
 struct Dsu {
-    int n;
     int pa[SZ + 10];
 
-    Dsu() : n(SZ) {
-        iota(pa, pa + n + 1, 0);
-    }
+    Dsu() {}
 
-    void init(int _n) {
-        n = _n;
+    void init(int n) {
         iota(pa, pa + n + 1, 0);
     }
 

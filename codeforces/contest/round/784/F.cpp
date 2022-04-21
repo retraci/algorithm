@@ -49,28 +49,21 @@ using namespace grid_delta;
 
 const int N = 2e5 + 10;
 
-ll n, a, b;
-ll p[N], s[N];
+int n;
+int a[N], s[N];
 
 void solve() {
-    for (int i = 1; i <= n; i++) s[i] = s[i - 1] + p[i];
-    ll ans = 0, lst = 0;
-    for (int i = 1; i <= n; i++) {
-        ll t1 = b * ((s[n] - s[i]) - lst * (n - i));
-        ll t2 = a * (p[i] - lst) + b * ((s[n] - s[i]) - p[i] * (n - i));
-        if (t2 < t1) lst = p[i];
-    }
-
-    ll tar = lst;
-    lst = 0;
-    for (int i = 1; i <= n; i++) {
-        ans += b * (p[i] - lst);
-//        debug("fenwick", b * (p[i] - lst));
-        if (p[i] <= tar) {
-//            debug("move", a * (p[i] - lst));
-            ans += a * (p[i] - lst), lst = p[i];
+    for (int i = 1; i <= n; i++) s[i] = s[i - 1] + a[i];
+    map<int, int> mp;
+    for (int i = 1; i <= n; i++) mp[s[i]] = i;
+    int ans = 0, sum = 0;
+    for (int i = n; i >= 1; i--) {
+        mp.erase(s[i]), sum += a[i];
+        if (mp.count(sum)) {
+            ans = max(ans, mp[sum] + (n - i + 1));
         }
     }
+
     cout << ans << "\n";
 }
 
@@ -88,8 +81,8 @@ int main() {
     int T = 1;
     cin >> T;
     while (T--) {
-        cin >> n >> a >> b;
-        for (int i = 1; i <= n; i++) cin >> p[i];
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 

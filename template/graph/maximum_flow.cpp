@@ -47,3 +47,66 @@ int ek() {
     return f;
 }
 // endregion
+
+// region dinic
+int n, m, S, T;
+pii e[2 * M];
+int h[N], ne[2 * M], edm;
+int d[N], nh[N];
+
+void add(int u, int v, int cap) {
+    e[edm] = {v, cap};
+    ne[edm] = h[u], h[u] = edm++;
+    e[edm] = {u, 0};
+    ne[edm] = h[v], h[v] = edm++;
+}
+
+bool bfs() {
+    fill(d + 1, d + tt + 1, -1);
+    queue<int> que;
+    d[S] = 0;
+    que.push(S);
+    while (!que.empty()) {
+        auto u = que.front(); que.pop();
+
+        for (int i = h[u]; ~i; i = ne[i]) {
+            auto [v, cap] = e[i];
+            if (d[v] != -1 || cap == 0) continue;
+
+            d[v] = d[u] + 1;
+            if (v == T) return true;
+            que.push(v);
+        }
+    }
+
+    return false;
+}
+
+int dfs(int u, int lit) {
+    if (u == T) return lit;
+
+    int flow = 0;
+    for (int &i = nh[u]; ~i; i = ne[i]) {
+        auto &[v, cap] = e[i];
+        if (d[v] != d[u] + 1 || cap == 0) continue;
+
+        int ret = dfs(v, min(cap, lit - flow));
+        if (ret == 0) d[v] = -1;
+        flow += ret, cap -= ret, e[i ^ 1].se += ret;
+
+        if (lit - flow == 0) break;
+    }
+
+    return flow;
+}
+
+ll dinic() {
+    ll flow = 0;
+    while (bfs()) {
+        for (int i = 1; i <= tt; i++) nh[i] = h[i];
+        int tmp;
+        while (tmp = dfs(S, 1e9)) flow += tmp;
+    }
+    return flow;
+}
+// endregion

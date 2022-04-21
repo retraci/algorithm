@@ -47,7 +47,7 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-// region bit
+// region fenwick
 template<int SZ>
 struct Bit {
     int n;

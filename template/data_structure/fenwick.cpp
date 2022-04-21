@@ -1,4 +1,4 @@
-// region bit
+// region fenwick
 template<int SZ>
 struct Bit {
     int n;
@@ -25,7 +25,7 @@ struct Bit {
 };
 // endregion
 
-// region 区间修改bit
+// region 区间修改fenwick
 template<int SZ>
 struct Bit {
     int n;

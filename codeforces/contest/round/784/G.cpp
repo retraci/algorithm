@@ -47,31 +47,34 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 2e5 + 10;
+const int N = 55;
 
-ll n, a, b;
-ll p[N], s[N];
+int n, m;
+string g[N];
 
 void solve() {
-    for (int i = 1; i <= n; i++) s[i] = s[i - 1] + p[i];
-    ll ans = 0, lst = 0;
+    string ans[n + 1];
     for (int i = 1; i <= n; i++) {
-        ll t1 = b * ((s[n] - s[i]) - lst * (n - i));
-        ll t2 = a * (p[i] - lst) + b * ((s[n] - s[i]) - p[i] * (n - i));
-        if (t2 < t1) lst = p[i];
+        ans[i] = string(m, '.');
     }
 
-    ll tar = lst;
-    lst = 0;
-    for (int i = 1; i <= n; i++) {
-        ans += b * (p[i] - lst);
-//        debug("fenwick", b * (p[i] - lst));
-        if (p[i] <= tar) {
-//            debug("move", a * (p[i] - lst));
-            ans += a * (p[i] - lst), lst = p[i];
+    for (int j = 0; j < m; j++) {
+        int pos = n;
+        for (int i = n; i >= 1; i--) {
+            if (g[i][j] == 'o') {
+                pos = i - 1;
+                ans[i][j] = 'o';
+                continue;
+            }
+
+            if (g[i][j] == '*') ans[pos--][j] = '*';
         }
     }
-    cout << ans << "\n";
+
+    for (int i = 1; i <= n; i++) {
+        cout << ans[i] << "\n";
+    }
+    cout << "\n";
 }
 
 void prework() {
@@ -88,8 +91,10 @@ int main() {
     int T = 1;
     cin >> T;
     while (T--) {
-        cin >> n >> a >> b;
-        for (int i = 1; i <= n; i++) cin >> p[i];
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) {
+            cin >> g[i];
+        }
         solve();
     }
 

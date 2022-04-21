@@ -1,113 +1,83 @@
-#include<iostream>
-#include<cstring>
-#include<set>
+#include<bits/stdc++.h>
 
 using namespace std;
-typedef long long LL;
-const int maxn = 1e6 + 5;
-const LL INF = 0x3f3f3f3f3f3f3f3f;
-struct Node {
-    int l, r, sum;
-} tr[maxn * 4];
-LL f[maxn][2];
-int a[maxn], p[maxn], L[maxn], R[maxn];
-int n, k;
+#define int long long
+#define IOS ios_base::sync_with_stdio(false);cin.tie(0);cout.tie(0);
+#define endl '\n'
+#define eb emplace_back
+#define pb push_back
+#define fi first
+#define se second
+#define all(x) (x).begin(),(x).end()
+typedef vector<int> VI;
+typedef pair<int, int> PII;
+typedef double db;
 
-void pushup(int u) {
-    tr[u].sum = tr[u << 1].sum + tr[u << 1 | 1].sum;
+const int N = 2510;
+int a[N][N], f[2][10];
+int K, ans = 0;
+
+int sum(int x1, int x2, int y1, int y2) {
+    return a[x2][y2] - a[x1][y2] - a[x2][y1] + a[x1][y1];
 }
 
-void build(int u, int l, int r) {
-    tr[u] = {l, r, 0};
-    if (l == r) return;
-    int mid = l + r >> 1;
-    build(u << 1, l, mid), build(u << 1 | 1, mid + 1, r);
-}
-
-void modify(int u, int x, int v) {
-    if (tr[u].l == tr[u].r) {
-        tr[u].sum += v;
+void slove(int x1, int x2, int y1, int y2) {
+    if (x1 == x2 || y1 == y2) return;
+    if (x1 + 1 == x2 && y1 + 1 == y2) {
+        if (sum(x1, x2, y1, y2) == K) ans++;
         return;
     }
-    int mid = tr[u].l + tr[u].r >> 1;
-    if (x <= mid) modify(u << 1, x, v);
-    else modify(u << 1 | 1, x, v);
-    pushup(u);
-}
-
-int query(int u, int x) {
-    if (!tr[u].sum && x <= tr[u].l) return tr[u].l;
-    if (tr[u].l == tr[u].r) return -1;
-    int mid = tr[u].l + tr[u].r >> 1;
-    if (mid < x) return query(u << 1 | 1, x);
-    int res = query(u << 1, x);
-    if (res == -1) return query(u << 1 | 1, x);
-    return res;
-}
-
-int get(int a, int b) {
-    return min(abs(a - b), n - abs(a - b));
-}
-
-int mov(int i, int j) {
-    return ((i - 1 + j) % n + n) % n + 1;
-}
-
-int main() {
-#ifdef LOCAL
-    freopen("../in.txt", "r", stdin);
-    freopen("../out.txt", "w", stdout);
-#endif
-
-    int T;
-    scanf("%d", &T);
-    while (T--) {
-        scanf("%d%d", &n, &k);
-        for (int i = 1; i <= n; i++) {
-            scanf("%d", &a[i]);
-            p[a[i]] = i;
-            f[i][0] = f[i][1] = INF;
-        }
-        build(1, 1, n);
-        for (int i = 1; i <= k; i++) modify(1, a[i], 1);
-        int t = query(1, 0);
-        LL ans = INF;
-        L[1] = query(1, a[1]);
-        R[k] = query(1, a[k]);
-        for (int i = 2; i <= n; i++) {
-            modify(1, a[i - 1], -1);
-            modify(1, a[(i + k - 2) % n + 1], 1);
-            L[i] = query(1, a[i]);
-            R[(i + k - 2) % n + 1] = query(1, a[(i + k - 2) % n + 1]);
-        }
-        if (t == -1) {
-            puts("0");
-            continue;
-        }
-        f[t][0] = get(1, p[t]);
-        f[t][1] = get(k, p[t]);
-        for (int i = t; i <= n; i++) {
-            {
-                int v = L[p[i]];
-                if (v == -1) {
-                    ans = min(ans, f[i][0]);
-                } else {
-                    int id1 = p[i], id2 = p[v];
-                    f[v][0] = min(f[v][0], f[i][0] + get(id2, id1));
-                    f[v][1] = min(f[v][1], f[i][0] + get(id2, mov(id1, k - 1)));
+    if (x2 - x1 > y2 - y1) {
+        int mid = x1 + x2 >> 1;
+        slove(x1, mid, y1, y2);
+        slove(mid, x2, y1, y2);
+        for (int i = y1; i < y2; ++i) {
+            f[0][0] = f[1][0] = mid;
+            for (int j = 1; j <= K + 1; ++j) f[0][j] = x1, f[1][j] = x2;
+            for (int j = i + 1; j <= y2; ++j) {
+                for (int k = 1; k <= K + 1; k++) {
+                    while (sum(f[0][k], mid, i, j) >= k) f[0][k]++;
+                    while (sum(mid, f[1][k], i, j) >= k) f[1][k]--;
                 }
-            }
-            {
-                int v = R[p[i]];
-                if (v == -1) {
-                    ans = min(ans, f[i][1]);
-                } else {
-                    int id1 = p[i], id2 = p[v];
-                    f[v][1] = min(f[v][1], f[i][1] + get(id2, id1));
-                    f[v][0] = min(f[v][0], f[i][1] + get(id2, mov(id1, -(k - 1))));
+                for (int k = 0; k <= K; ++k) {
+                    ans += (f[0][k] - f[0][k + 1]) * (f[1][K - k + 1] - f[1][K - k]);
                 }
             }
         }
-        printf("%lld\n", ans);
+    } else {
+        int mid = y1 + y2 >> 1;
+        slove(x1, x2, y1, mid);
+        slove(x1, x2, mid, y2);
+        for (int i = x1; i < x2; ++i) {
+            f[0][0] = f[1][0] = mid;
+            for (int j = 1; j <= K + 1; ++j) f[0][j] = y1, f[1][j] = y2;
+            for (int j = i + 1; j <= x2; ++j) {
+                for (int k = 1; k <= K + 1; k++) {
+                    while (sum(i, j, f[0][k], mid) >= k) f[0][k]++;
+                    while (sum(i, j, mid, f[1][k]) >= k) f[1][k]--;
+                }
+                for (int k = 0; k <= K; ++k) {
+                    ans += (f[0][k] - f[0][k + 1]) * (f[1][K - k + 1] - f[1][K - k]);
+                }
+            }
+        }
     }
+}
+
+signed main() {
+    IOS
+
+    int n, m;
+    cin >> n >> m >> K;
+    for (int i = 1; i <= n; ++i) {
+        for (int j = 1; j <= m; ++j) {
+            char c;
+            cin >> c;
+            a[i][j] = c - '0';
+            a[i][j] += a[i][j - 1] + a[i - 1][j] - a[i - 1][j - 1];
+        }
+    }
+    slove(0, n, 0, m);
+    cout << ans;
+    return 0;
 }

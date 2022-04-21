@@ -47,31 +47,58 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 2e5 + 10;
+// region dsu
+template <int SZ>
+struct Dsu {
+    int pa[SZ + 10];
 
-ll n, a, b;
-ll p[N], s[N];
+    Dsu() {}
+
+    void init(int n) {
+        iota(pa, pa + n + 1, 0);
+    }
+
+    int find(int x) {
+        return x == pa[x] ? x : pa[x] = find(pa[x]);
+    }
+
+    bool unite(int x, int y) {
+        if (same(x, y)) return false;
+        int tx = find(x), ty = find(y);
+        pa[tx] = ty;
+        return true;
+    }
+
+    bool same(int x, int y) {
+        int tx = find(x), ty = find(y);
+        return tx == ty;
+    }
+};
+// endregion
+
+const int N = 1e5 + 10;
+
+int n, m;
+pii es[N];
+Dsu<N> dsu;
 
 void solve() {
-    for (int i = 1; i <= n; i++) s[i] = s[i - 1] + p[i];
-    ll ans = 0, lst = 0;
-    for (int i = 1; i <= n; i++) {
-        ll t1 = b * ((s[n] - s[i]) - lst * (n - i));
-        ll t2 = a * (p[i] - lst) + b * ((s[n] - s[i]) - p[i] * (n - i));
-        if (t2 < t1) lst = p[i];
+    dsu.init(n);
+    for (int i = 1; i <= m; i++) {
+        auto [u, v] = es[i];
+        dsu.unite(u, v);
     }
 
-    ll tar = lst;
-    lst = 0;
+    vector<int> cnt(n + 1);
     for (int i = 1; i <= n; i++) {
-        ans += b * (p[i] - lst);
-//        debug("fenwick", b * (p[i] - lst));
-        if (p[i] <= tar) {
-//            debug("move", a * (p[i] - lst));
-            ans += a * (p[i] - lst), lst = p[i];
-        }
+        cnt[dsu.find(i)]++;
     }
-    cout << ans << "\n";
+
+    int ans = 0;
+    for (int i = 1; i <= n; i++) {
+        if (cnt[i] >= 1) ans += cnt[i] - 1;
+    }
+    cout << m - ans << "\n";
 }
 
 void prework() {
@@ -86,10 +113,14 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int T = 1;
-    cin >> T;
+//    cin >> T;
     while (T--) {
-        cin >> n >> a >> b;
-        for (int i = 1; i <= n; i++) cin >> p[i];
+        cin >> n >> m;
+        for (int i = 1; i <= m; i++) {
+            int u, v;
+            cin >> u >> v;
+            es[i] = {u, v};
+        }
         solve();
     }
 
