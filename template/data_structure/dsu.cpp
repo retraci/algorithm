@@ -5,8 +5,8 @@ struct Dsu {
 
     Dsu() {}
 
-    void init(int n) {
-        iota(pa, pa + n + 1, 0);
+    void init(int _n) {
+        iota(pa, pa + _n + 1, 0);
     }
 
     int find(int x) {

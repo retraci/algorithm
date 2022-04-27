@@ -47,30 +47,28 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 10010;
-const int M = 1e5 + 10;
+const int N = 210;
+const int M = N * N;
+const double eps = 1e-7;
 
+// region dinic
 int n, m, S, T;
-int s[N], t[N], sc, tc;
-ti3 es[M];
-pll e[2 * (M + N)];
-int h[N], ne[2 * (M + N)], edm;
+pii e[2 * M];
+int h[N], ne[2 * M], edm;
 int d[N], nh[N], tt;
 
-void add(int u, int v, ll cap) {
-    e[edm] = {v, cap};
-    ne[edm] = h[u], h[u] = edm++;
-    e[edm] = {u, 0};
-    ne[edm] = h[v], h[v] = edm++;
+void add(int u, int v, int cap) {
+    e[edm] = {v, cap}, ne[edm] = h[u], h[u] = edm++;
+    e[edm] = {u, 0}, ne[edm] = h[v], h[v] = edm++;
 }
 
 bool bfs() {
-    fill(d, d + tt + 1, -1);
+    fill(d + 1, d + tt + 1, -1);
     queue<int> que;
     d[S] = 0;
     que.push(S);
     while (!que.empty()) {
-        int u = que.front(); que.pop();
+        auto u = que.front(); que.pop();
 
         for (int i = h[u]; ~i; i = ne[i]) {
             auto [v, cap] = e[i];
@@ -85,10 +83,10 @@ bool bfs() {
     return false;
 }
 
-ll dfs(int u, ll lit) {
+int dfs(int u, int lit) {
     if (u == T) return lit;
 
-    ll flow = 0;
+    int flow = 0;
     for (int &i = nh[u]; ~i; i = ne[i]) {
         auto &[v, cap] = e[i];
         if (d[v] != d[u] + 1 || cap == 0) continue;
@@ -99,6 +97,7 @@ ll dfs(int u, ll lit) {
 
         if (lit - flow == 0) break;
     }
+
     return flow;
 }
 
@@ -106,29 +105,57 @@ ll dinic() {
     ll flow = 0;
     while (bfs()) {
         for (int i = 1; i <= tt; i++) nh[i] = h[i];
-        ll tmp;
-        while (tmp = dfs(S, 1e18)) flow += tmp;
+        int tmp;
+        while (tmp = dfs(S, 1e9)) flow += tmp;
     }
     return flow;
 }
+// endregion
+
+double jp;
+pii a[N];
+int b[N], c[N];
+
+bool check(int i, int j) {
+    double dx = a[i].fi - a[j].fi, dy = a[i].se - a[j].se;
+    return dx * dx + dy * dy <= jp * jp + eps;
+}
 
 void init() {
-    tt = n + 2;
-    S = tt - 1, T = tt;
+    tt = 2 * n + 1;
     fill(h, h + tt + 1, -1), edm = 0;
-    for (int i = 1; i <= m; i++) {
-        auto [u, v, cap] = es[i];
-        add(u, v, cap);
-    }
 
-    for (int i = 1; i <= sc; i++) add(S, s[i], 1e18);
-    for (int i = 1; i <= tc; i++) add(t[i], T, 1e18);
+    S = tt;
+    for (int i = 1; i <= n; i++) add(S, i, b[i]), add(i, n + i, c[i]);
+    for (int i = 1; i <= n; i++) {
+        for (int j = i + 1; j <= n; j++) {
+            if (check(i, j)) add(n + i, j, 1e9), add(n + j, i, 1e9);
+        }
+    }
 }
 
 void solve() {
     init();
 
-    cout << dinic() << "\n";
+    int tar = accumulate(b + 1, b + n + 1, 0);
+    int flag = 0;
+    for (int i = 1; i <= n; i++) {
+        T = i;
+
+        for (int j = 0; j < edm; j += 2) {
+            e[j].se += e[j ^ 1].se;
+            e[j ^ 1].se = 0;
+        }
+
+        int ret = dinic();
+        if (ret == tar) {
+            flag = 1;
+            cout << i - 1 << " ";
+        }
+    }
+
+    if (!flag) cout << -1;
+    cout << "\n";
 }
 
 void prework() {
@@ -143,15 +170,12 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int _ = 1;
-//    cin >> _;
+    cin >> _;
     while (_--) {
-        cin >> n >> m >> sc >> tc;
-        for (int i = 1; i <= sc; i++) cin >> s[i];
-        for (int i = 1; i <= tc; i++) cin >> t[i];
-        for (int i = 1; i <= m; i++) {
-            int u, v, cap;
-            cin >> u >> v >> cap;
-            es[i] = {u, v, cap};
+        cin >> n >> jp;
+        for (int i = 1; i <= n; i++) {
+            cin >> a[i].fi >> a[i].se;
+            cin >> b[i] >> c[i];
         }
         solve();
     }

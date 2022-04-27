@@ -1,83 +1,179 @@
-#include<bits/stdc++.h>
+#include <iostream>
+#include <cstdio>
+#include <algorithm>
+#include <cstring>
+#include <numeric>
+#include <iomanip>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <set>
+#include <map>
+#include <unordered_set>
+#include <unordered_map>
+#include <bitset>
 
-using namespace std;
-#define int long long
-#define IOS ios_base::sync_with_stdio(false);cin.tie(0);cout.tie(0);
-#define endl '\n'
-#define eb emplace_back
-#define pb push_back
+// region general
+#define ll long long
+#define ld long double
+#define ull unsigned long long
 #define fi first
 #define se second
-#define all(x) (x).begin(),(x).end()
-typedef vector<int> VI;
-typedef pair<int, int> PII;
-typedef double db;
 
-const int N = 2510;
-int a[N][N], f[2][10];
-int K, ans = 0;
+typedef std::pair<int, int> pii;
+typedef std::pair<ll, ll> pll;
+typedef std::tuple<int, int, int> ti3;
+typedef std::tuple<ll, ll, ll> tl3;
+typedef std::tuple<int, int, int, int> ti4;
+typedef std::tuple<ll, ll, ll, ll> tl4;
 
-int sum(int x1, int x2, int y1, int y2) {
-    return a[x2][y2] - a[x1][y2] - a[x2][y1] + a[x1][y1];
+inline void debug() {
+    std::cout << "\n";
 }
 
-void slove(int x1, int x2, int y1, int y2) {
-    if (x1 == x2 || y1 == y2) return;
-    if (x1 + 1 == x2 && y1 + 1 == y2) {
-        if (sum(x1, x2, y1, y2) == K) ans++;
-        return;
-    }
-    if (x2 - x1 > y2 - y1) {
-        int mid = x1 + x2 >> 1;
-        slove(x1, mid, y1, y2);
-        slove(mid, x2, y1, y2);
-        for (int i = y1; i < y2; ++i) {
-            f[0][0] = f[1][0] = mid;
-            for (int j = 1; j <= K + 1; ++j) f[0][j] = x1, f[1][j] = x2;
-            for (int j = i + 1; j <= y2; ++j) {
-                for (int k = 1; k <= K + 1; k++) {
-                    while (sum(f[0][k], mid, i, j) >= k) f[0][k]++;
-                    while (sum(mid, f[1][k], i, j) >= k) f[1][k]--;
-                }
-                for (int k = 0; k <= K; ++k) {
-                    ans += (f[0][k] - f[0][k + 1]) * (f[1][K - k + 1] - f[1][K - k]);
-                }
+template<class T, class... OtherArgs>
+inline void debug(T &&var, OtherArgs &&... args) {
+    std::cout << std::forward<T>(var) << " ";
+    debug(std::forward<OtherArgs>(args)...);
+}
+// endregion
+// region grid_delta
+namespace grid_delta {
+    // 上, 右, 下, 左  |  左上, 右上, 右下, 左下
+    const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+}
+// endregion
+
+using namespace std;
+using namespace grid_delta;
+
+const int N = 210;
+const int M = N * N;
+const double eps = 1e-7;
+
+// region dinic
+int n, m, S, T;
+pii e[2 * M];
+int h[N], ne[2 * M], edm;
+int d[N], nh[N], tt;
+
+void add(int u, int v, int cap) {
+    e[edm] = {v, cap}, ne[edm] = h[u], h[u] = edm++;
+    e[edm] = {u, 0}, ne[edm] = h[v], h[v] = edm++;
+}
+
+bool bfs() {
+    queue<int> que;
+    memset(d, -1, sizeof d);
+    d[S] = 0;
+    que.push(S);
+    while (!que.empty()) {
+        int u = que.front(); que.pop();
+        for (int i = h[u]; ~i; i = ne[i]) {
+            auto [v, cap] = e[i];
+            if (d[v] == -1 && cap) {
+                d[v] = d[u] + 1;
+                if (v == T) return true;
+                que.push(v);
             }
         }
-    } else {
-        int mid = y1 + y2 >> 1;
-        slove(x1, x2, y1, mid);
-        slove(x1, x2, mid, y2);
-        for (int i = x1; i < x2; ++i) {
-            f[0][0] = f[1][0] = mid;
-            for (int j = 1; j <= K + 1; ++j) f[0][j] = y1, f[1][j] = y2;
-            for (int j = i + 1; j <= x2; ++j) {
-                for (int k = 1; k <= K + 1; k++) {
-                    while (sum(i, j, f[0][k], mid) >= k) f[0][k]++;
-                    while (sum(i, j, mid, f[1][k]) >= k) f[1][k]--;
-                }
-                for (int k = 0; k <= K; ++k) {
-                    ans += (f[0][k] - f[0][k + 1]) * (f[1][K - k + 1] - f[1][K - k]);
-                }
-            }
+    }
+    return false;
+}
+
+int find(int u, int limit) {
+    if (u == T) return limit;
+
+    int flow = 0;
+    for (int i = h[u]; ~i && flow < limit; i = ne[i]) {
+        // nh[u] = i;
+        auto &[v, cap] = e[i];
+        if (d[v] == d[u] + 1 && cap) {
+            int t = find(v, min(cap, limit - flow));
+            if (!t) d[v] = -1;
+            e[i].se -= t, e[i ^ 1].se += t, flow += t;
+        }
+    }
+    return flow;
+}
+
+int dinic() {
+    int r = 0, flow;
+    while (bfs()) {
+        for (int i = 0; i <= tt; i++) nh[i] = h[i];
+        while (flow = find(S, 1e9)) r += flow;
+    }
+    return r;
+}
+// endregion
+
+double jp;
+pii a[N];
+int b[N], c[N];
+
+bool check(int i, int j) {
+    double dx = a[i].fi - a[j].fi, dy = a[i].se - a[j].se;
+    return dx * dx + dy * dy <= jp * jp + eps;
+}
+
+void init() {
+    tt = 2 * n + 2;
+    fill(h, h + tt + 1, -1), edm = 0;
+
+    S = tt - 1, T = tt;
+    for (int i = 1; i <= n; i++) add(S, i, b[i]), add(i, n + i, c[i]);
+    for (int i = 1; i <= n; i++) {
+        for (int j = i + 1; j <= n; j++) {
+            if (check(i, j)) add(n + i, j, 1e9), add(n + j, i, 1e9);
         }
     }
 }
 
-signed main() {
-    IOS
+void solve() {
+    init();
 
-    int n, m;
-    cin >> n >> m >> K;
-    for (int i = 1; i <= n; ++i) {
-        for (int j = 1; j <= m; ++j) {
-            char c;
-            cin >> c;
-            a[i][j] = c - '0';
-            a[i][j] += a[i][j - 1] + a[i - 1][j] - a[i - 1][j - 1];
+    int tar = accumulate(b + 1, b + n + 1, 0);
+    int flag = 0;
+    for (int i = 1; i <= n; i++) {
+        T = i;
+
+        for (int j = 0; j < edm; j += 2) {
+            e[j].se += e[j ^ 1].se;
+            e[j ^ 1].se = 0;
+        }
+
+        int ret = dinic();
+        if (ret == tar) {
+            flag = 1;
+            cout << i - 1 << " ";
         }
     }
-    slove(0, n, 0, m);
-    cout << ans;
+
+    if (!flag) cout << -1;
+    cout << "\n";
+}
+
+void prework() {
+}
+
+int main() {
+#ifdef LOCAL
+    freopen("../in.txt", "r", stdin);
+    freopen("../out.txt", "w", stdout);
+#endif
+
+    prework();
+    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+    int _ = 1;
+    cin >> _;
+    while (_--) {
+        cin >> n >> jp;
+        for (int i = 1; i <= n; i++) {
+            cin >> a[i].fi >> a[i].se;
+            cin >> b[i] >> c[i];
+        }
+        solve();
+    }
+
     return 0;
 }

@@ -47,30 +47,27 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 10010;
-const int M = 1e5 + 10;
+const int N = 1010;
+const int M = 1e4 + 10;
 
+// region dinic
 int n, m, S, T;
-int s[N], t[N], sc, tc;
-ti3 es[M];
-pll e[2 * (M + N)];
-int h[N], ne[2 * (M + N)], edm;
+pii e[2 * M];
+int h[N], ne[2 * M], edm;
 int d[N], nh[N], tt;
 
-void add(int u, int v, ll cap) {
-    e[edm] = {v, cap};
-    ne[edm] = h[u], h[u] = edm++;
-    e[edm] = {u, 0};
-    ne[edm] = h[v], h[v] = edm++;
+void add(int u, int v, int cap) {
+    e[edm] = {v, cap}, ne[edm] = h[u], h[u] = edm++;
+    e[edm] = {u, 0}, ne[edm] = h[v], h[v] = edm++;
 }
 
 bool bfs() {
-    fill(d, d + tt + 1, -1);
+    fill(d + 1, d + tt + 1, -1);
     queue<int> que;
     d[S] = 0;
     que.push(S);
     while (!que.empty()) {
-        int u = que.front(); que.pop();
+        auto u = que.front(); que.pop();
 
         for (int i = h[u]; ~i; i = ne[i]) {
             auto [v, cap] = e[i];
@@ -85,10 +82,10 @@ bool bfs() {
     return false;
 }
 
-ll dfs(int u, ll lit) {
+int dfs(int u, int lit) {
     if (u == T) return lit;
 
-    ll flow = 0;
+    int flow = 0;
     for (int &i = nh[u]; ~i; i = ne[i]) {
         auto &[v, cap] = e[i];
         if (d[v] != d[u] + 1 || cap == 0) continue;
@@ -99,6 +96,7 @@ ll dfs(int u, ll lit) {
 
         if (lit - flow == 0) break;
     }
+
     return flow;
 }
 
@@ -106,23 +104,34 @@ ll dinic() {
     ll flow = 0;
     while (bfs()) {
         for (int i = 1; i <= tt; i++) nh[i] = h[i];
-        ll tmp;
-        while (tmp = dfs(S, 1e18)) flow += tmp;
+        int tmp;
+        while (tmp = dfs(S, 1e9)) flow += tmp;
     }
     return flow;
 }
+// endregion
+
+int a[N];
+vector<int> b[N];
+int c[N];
+int pa[N];
 
 void init() {
     tt = n + 2;
+    fill(h, h + tt, -1), edm = 0;
     S = tt - 1, T = tt;
-    fill(h, h + tt + 1, -1), edm = 0;
-    for (int i = 1; i <= m; i++) {
-        auto [u, v, cap] = es[i];
-        add(u, v, cap);
-    }
 
-    for (int i = 1; i <= sc; i++) add(S, s[i], 1e18);
-    for (int i = 1; i <= tc; i++) add(t[i], T, 1e18);
+    for (int i = 1; i <= n; i++) {
+        add(i, T, c[i]);
+
+        int s = 0;
+        for (int x : b[i]) {
+            if (!pa[x]) s += a[x];
+            else add(pa[x], i, 1e9);
+            pa[x] = i;
+        }
+        add(S, i, s);
+    }
 }
 
 void solve() {
@@ -145,13 +154,17 @@ int main() {
     int _ = 1;
 //    cin >> _;
     while (_--) {
-        cin >> n >> m >> sc >> tc;
-        for (int i = 1; i <= sc; i++) cin >> s[i];
-        for (int i = 1; i <= tc; i++) cin >> t[i];
-        for (int i = 1; i <= m; i++) {
-            int u, v, cap;
-            cin >> u >> v >> cap;
-            es[i] = {u, v, cap};
+        cin >> m >> n;
+        for (int i = 1; i <= m; i++) cin >> a[i];
+        for (int i = 1; i <= n; i++) {
+            int sz;
+            cin >> sz;
+            while (sz--) {
+                int t;
+                cin >> t;
+                b[i].push_back(t);
+            }
+            cin >> c[i];
         }
         solve();
     }

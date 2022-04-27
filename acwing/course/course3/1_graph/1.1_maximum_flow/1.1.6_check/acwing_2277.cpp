@@ -47,25 +47,23 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 10010;
-const int M = 1e5 + 10;
+using ai3 = array<int, 3>;
 
-int n, m, S, T;
-int s[N], t[N], sc, tc;
-ti3 es[M];
-pll e[2 * (M + N)];
-int h[N], ne[2 * (M + N)], edm;
-int d[N], nh[N], tt;
+const int N = 210;
+const int M = 40010;
 
-void add(int u, int v, ll cap) {
-    e[edm] = {v, cap};
-    ne[edm] = h[u], h[u] = edm++;
-    e[edm] = {u, 0};
-    ne[edm] = h[v], h[v] = edm++;
+int n, m, k, S, T;
+ai3 e[2 * M];
+int h[N], ne[2 * M], edm;
+int d[N], nh[N];
+
+void add(int u, int v, int cap, int len) {
+    e[edm] = {v, cap, len}, ne[edm] = h[u], h[u] = edm++;
+    e[edm] = {u, cap, len}, ne[edm] = h[v], h[v] = edm++;
 }
 
-bool bfs() {
-    fill(d, d + tt + 1, -1);
+bool bfs(int md) {
+    fill(d, d + n + 1, -1);
     queue<int> que;
     d[S] = 0;
     que.push(S);
@@ -73,8 +71,8 @@ bool bfs() {
         int u = que.front(); que.pop();
 
         for (int i = h[u]; ~i; i = ne[i]) {
-            auto [v, cap] = e[i];
-            if (d[v] != -1 || cap == 0) continue;
+            auto [v, cap, len] = e[i];
+            if (cap == 0 || d[v] != -1 || len > md) continue;
 
             d[v] = d[u] + 1;
             if (v == T) return true;
@@ -85,50 +83,50 @@ bool bfs() {
     return false;
 }
 
-ll dfs(int u, ll lit) {
+int dfs(int u, int lit, int md) {
     if (u == T) return lit;
 
-    ll flow = 0;
+    int flow = 0;
     for (int &i = nh[u]; ~i; i = ne[i]) {
-        auto &[v, cap] = e[i];
-        if (d[v] != d[u] + 1 || cap == 0) continue;
+        auto &[v, cap, len] = e[i];
+        if (cap == 0 || d[v] != d[u] + 1 || len > md) continue;
 
-        int ret = dfs(v, min(cap, lit - flow));
+        int ret = dfs(v, min(cap, lit - flow), md);
         if (ret == 0) d[v] = -1;
-        flow += ret, cap -= ret, e[i ^ 1].se += ret;
+        flow += ret, cap -= ret, e[i ^ 1][1] += ret;
 
         if (lit - flow == 0) break;
     }
+
     return flow;
 }
 
-ll dinic() {
-    ll flow = 0;
-    while (bfs()) {
-        for (int i = 1; i <= tt; i++) nh[i] = h[i];
-        ll tmp;
-        while (tmp = dfs(S, 1e18)) flow += tmp;
+int dinic(int md) {
+    int flow = 0;
+    while (bfs(md)) {
+        for (int i = 1; i <= n; i++) nh[i] = h[i];
+        int tmp;
+        while (tmp = dfs(S, 1e9, md)) flow += tmp;
     }
     return flow;
 }
 
-void init() {
-    tt = n + 2;
-    S = tt - 1, T = tt;
-    fill(h, h + tt + 1, -1), edm = 0;
-    for (int i = 1; i <= m; i++) {
-        auto [u, v, cap] = es[i];
-        add(u, v, cap);
-    }
-
-    for (int i = 1; i <= sc; i++) add(S, s[i], 1e18);
-    for (int i = 1; i <= tc; i++) add(t[i], T, 1e18);
+bool check(int md) {
+    for (int i = 0; i < edm; i++) e[i][1] = 1;
+    return dinic(md) >= k;
 }
 
 void solve() {
-    init();
+    S = 1, T = n;
 
-    cout << dinic() << "\n";
+    int left = 1, right = 1e6;
+    while (left < right) {
+        int md = left + right >> 1;
+        if (check(md)) right = md;
+        else left = md + 1;
+    }
+
+    cout << left << "\n";
 }
 
 void prework() {
@@ -145,13 +143,13 @@ int main() {
     int _ = 1;
 //    cin >> _;
     while (_--) {
-        cin >> n >> m >> sc >> tc;
-        for (int i = 1; i <= sc; i++) cin >> s[i];
-        for (int i = 1; i <= tc; i++) cin >> t[i];
+        cin >> n >> m >> k;
+        fill(h, h + n + 1, -1), edm = 0;
+
         for (int i = 1; i <= m; i++) {
-            int u, v, cap;
-            cin >> u >> v >> cap;
-            es[i] = {u, v, cap};
+            int u, v, len;
+            cin >> u >> v >> len;
+            add(u, v, 1, len);
         }
         solve();
     }

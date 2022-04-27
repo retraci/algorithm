@@ -5,10 +5,8 @@ int h[N], ne[M * 2], edm;
 int mic[N], pe[N];
 
 void add(int u, int v, int cap) {
-    e[edm] = {v, cap};
-    ne[edm] = h[u], h[u] = edm++;
-    e[edm] = {u, 0};
-    ne[edm] = h[v], h[v] = edm++;
+    e[edm] = {v, cap}, ne[edm] = h[u], h[u] = edm++;
+    e[edm] = {u, 0}, ne[edm] = h[v], h[v] = edm++;
 }
 
 bool bfs() {
@@ -52,13 +50,11 @@ int ek() {
 int n, m, S, T;
 pii e[2 * M];
 int h[N], ne[2 * M], edm;
-int d[N], nh[N];
+int d[N], nh[N], tt;
 
 void add(int u, int v, int cap) {
-    e[edm] = {v, cap};
-    ne[edm] = h[u], h[u] = edm++;
-    e[edm] = {u, 0};
-    ne[edm] = h[v], h[v] = edm++;
+    e[edm] = {v, cap}, ne[edm] = h[u], h[u] = edm++;
+    e[edm] = {u, 0}, ne[edm] = h[v], h[v] = edm++;
 }
 
 bool bfs() {
