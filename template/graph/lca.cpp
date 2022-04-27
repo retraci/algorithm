@@ -1,4 +1,5 @@
 // region 无边权的lca
+int n, m;
 int e[M * 2], ne[M * 2], h[N], edm;
 int dep[N], fa[N][32];
 
@@ -48,14 +49,14 @@ int lca(int x, int y) {
 // endregion
 
 // region 有边权的lca
+int n, m;
 pii e[M * 2];
 int ne[M * 2], h[N], edm;
 int dep[N], fa[N][32];
 ll w[N][32];
 
 void add(int u, int v, int cost) {
-    e[edm] = {cost, v};
-    ne[edm] = h[u], h[u] = edm++;
+    e[edm] = {cost, v}, ne[edm] = h[u], h[u] = edm++;
 }
 
 void lca_init(int rt) {
@@ -107,6 +108,7 @@ ll lca(int x, int y) {
 // endregion
 
 // region 无边权的欧拉序lca
+int n, m;
 int e[M * 2], ne[M * 2], h[N], edm;
 int id[N], eula[N * 2], cnt;
 int dep[N * 2], st[N * 2][32], lg[N * 2];
