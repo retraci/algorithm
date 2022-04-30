@@ -1,6 +1,6 @@
 // region fenwick
 template<int SZ>
-struct Bit {
+struct Fenwick {
     int n;
     ll tr[SZ + 10];
 
@@ -27,7 +27,7 @@ struct Bit {
 
 // region 区间修改fenwick
 template<int SZ>
-struct Bit {
+struct Fenwick {
     int n;
     ll tr1[SZ + 10], tr2[SZ + 10];
 

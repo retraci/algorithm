@@ -12,148 +12,89 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <bitset>
+#include <cmath>
 
-// region general
-#define ll long long
-#define ld long double
-#define ull unsigned long long
-#define fi first
-#define se second
-
-typedef std::pair<int, int> pii;
-typedef std::pair<ll, ll> pll;
-typedef std::tuple<int, int, int> ti3;
-typedef std::tuple<ll, ll, ll> tl3;
-typedef std::tuple<int, int, int, int> ti4;
-typedef std::tuple<ll, ll, ll, ll> tl4;
-
-inline void debug() {
+void debug() {
     std::cout << "\n";
 }
 
 template<class T, class... OtherArgs>
-inline void debug(T &&var, OtherArgs &&... args) {
+void debug(T &&var, OtherArgs &&... args) {
     std::cout << std::forward<T>(var) << " ";
     debug(std::forward<OtherArgs>(args)...);
 }
-// endregion
-// region grid_delta
-namespace grid_delta {
-    // 上, 右, 下, 左  |  左上, 右上, 右下, 左下
-    const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
-}
-// endregion
 
 using namespace std;
-using namespace grid_delta;
 
-const int N = 210;
-const int M = N * N;
-const double eps = 1e-7;
-
-// region dinic
-int n, m, S, T;
-pii e[2 * M];
-int h[N], ne[2 * M], edm;
-int d[N], nh[N], tt;
-
-void add(int u, int v, int cap) {
-    e[edm] = {v, cap}, ne[edm] = h[u], h[u] = edm++;
-    e[edm] = {u, 0}, ne[edm] = h[v], h[v] = edm++;
-}
-
-bool bfs() {
-    queue<int> que;
-    memset(d, -1, sizeof d);
-    d[S] = 0;
-    que.push(S);
-    while (!que.empty()) {
-        int u = que.front(); que.pop();
-        for (int i = h[u]; ~i; i = ne[i]) {
-            auto [v, cap] = e[i];
-            if (d[v] == -1 && cap) {
-                d[v] = d[u] + 1;
-                if (v == T) return true;
-                que.push(v);
-            }
-        }
-    }
-    return false;
-}
-
-int find(int u, int limit) {
-    if (u == T) return limit;
-
-    int flow = 0;
-    for (int i = h[u]; ~i && flow < limit; i = ne[i]) {
-        // nh[u] = i;
-        auto &[v, cap] = e[i];
-        if (d[v] == d[u] + 1 && cap) {
-            int t = find(v, min(cap, limit - flow));
-            if (!t) d[v] = -1;
-            e[i].se -= t, e[i ^ 1].se += t, flow += t;
-        }
-    }
-    return flow;
-}
-
-int dinic() {
-    int r = 0, flow;
-    while (bfs()) {
-        for (int i = 0; i <= tt; i++) nh[i] = h[i];
-        while (flow = find(S, 1e9)) r += flow;
-    }
-    return r;
-}
-// endregion
-
-double jp;
-pii a[N];
-int b[N], c[N];
-
-bool check(int i, int j) {
-    double dx = a[i].fi - a[j].fi, dy = a[i].se - a[j].se;
-    return dx * dx + dy * dy <= jp * jp + eps;
-}
-
-void init() {
-    tt = 2 * n + 2;
-    fill(h, h + tt + 1, -1), edm = 0;
-
-    S = tt - 1, T = tt;
-    for (int i = 1; i <= n; i++) add(S, i, b[i]), add(i, n + i, c[i]);
-    for (int i = 1; i <= n; i++) {
-        for (int j = i + 1; j <= n; j++) {
-            if (check(i, j)) add(n + i, j, 1e9), add(n + j, i, 1e9);
-        }
-    }
-}
+#define fi first
+#define se second
+using ll = long long;
+using ld = long double;
+using ull = unsigned long long;
+using pii = pair<int, int>;
 
 void solve() {
-    init();
+}
 
-    int tar = accumulate(b + 1, b + n + 1, 0);
-    int flag = 0;
-    for (int i = 1; i <= n; i++) {
-        T = i;
-
-        for (int j = 0; j < edm; j += 2) {
-            e[j].se += e[j ^ 1].se;
-            e[j ^ 1].se = 0;
-        }
-
-        int ret = dinic();
-        if (ret == tar) {
-            flag = 1;
-            cout << i - 1 << " ";
-        }
+void work1(vector<int> a) {
+    int ans = 0;
+    int lst = 100;
+    for (int x: a) {
+        ans += abs(lst - x);
+        lst = x;
     }
+    cout << ans << "\n\n";
+}
 
-    if (!flag) cout << -1;
+void work2(vector<int> a) {
+    int ans = 0;
+    int lst = 100;
+    while (!a.empty()) {
+        int mi = 1e9;
+        int id = -1;
+        for (int i = 0; i < a.size(); i++) {
+            if (abs(lst - a[i]) < mi) {
+                mi = abs(lst - a[i]);
+                id = i;
+            }
+        }
+        debug(id, a[id], mi);
+
+        ans += mi;
+        lst = a[id];
+        a.erase(a.begin() + id);
+    }
+    cout << ans << "\n\n";
+}
+
+void work3(vector<int> a) {
+    int ans = 0;
+    int lst = 100;
+    sort(a.begin(), a.end());
+    int s = lower_bound(a.begin(), a.end(), lst) - a.begin();
+    for (int i = s; i < a.size(); i++) {
+        ans += abs(a[i] - lst);
+        lst = a[i];
+        cout << a[i] << " ";
+    }
+    for (int i = s - 1; i >= 0; i--) {
+        ans += abs(a[i] - lst);
+        lst = a[i];
+        cout << a[i] << " ";
+    }
     cout << "\n";
+    cout << ans << "\n\n";
 }
 
 void prework() {
+//    vector<int> a = {55, 58, 39, 18, 90, 160, 150, 38, 184};
+//    cout << a.size() << "\n";
+//
+//    work1(a);
+//    work2(a);
+//    work3(a);
+
+cout << 22 * (1.75 * 1.75) << "\n";
 }
 
 int main() {
@@ -167,13 +108,43 @@ int main() {
     int _ = 1;
     cin >> _;
     while (_--) {
-        cin >> n >> jp;
-        for (int i = 1; i <= n; i++) {
-            cin >> a[i].fi >> a[i].se;
-            cin >> b[i] >> c[i];
-        }
         solve();
     }
+
+//    Semaphore wait = 1;    // 等待互斥, 当对面方向有人过桥就等待
+//    Semaphore mutex1 = 1;  // 东方向互斥信号量
+//    Semaphore mutex2 = 1;  // 西方向互斥信号量
+//
+//    int count1 = 0;       // 东方向要过桥人数, 要过桥+1, 已经过桥-1
+//    int count2 = 0;       // 西方向要过桥人数, 要过桥+1, 已经过桥-1
+//
+//    to_east {
+//            P(mutex1);
+//            if (count1 == 0) P(wait);
+//            count1++;
+//            V(mutex1);
+//
+//            东方向人过桥();
+//
+//            P(mutex1);
+//            count1--;
+//            if (count1 == 0) V(wait);
+//            V(mutex1);
+//    }
+//
+//    to_west {
+//            P(mutex2);
+//            if (count2 == 0) P(wait);
+//            count2++;
+//            V(mutex2);
+//
+//            西方向人过桥();
+//
+//            P(mutex2);
+//            count2--;
+//            if (count2 == 0) V(wait);
+//            V(mutex2);
+//    }
 
     return 0;
 }
