@@ -1,100 +1,45 @@
-#include <iostream>
-#include <cstdio>
-#include <algorithm>
-#include <cstring>
-#include <numeric>
-#include <iomanip>
-#include <vector>
-#include <queue>
-#include <stack>
-#include <set>
-#include <map>
-#include <unordered_set>
-#include <unordered_map>
-#include <bitset>
-#include <cmath>
-
-void debug() {
-    std::cout << "\n";
-}
-
-template<class T, class... OtherArgs>
-void debug(T &&var, OtherArgs &&... args) {
-    std::cout << std::forward<T>(var) << " ";
-    debug(std::forward<OtherArgs>(args)...);
-}
+#include<iostream>
+#include<cstring>
+#include<algorithm>
+#include<bitset>
 
 using namespace std;
+typedef long long LL;
+typedef pair<int, int> PII;
+const int mod = 998244353;
+int f[1 << 10];
+#define x first
+#define y second
+int xs[25], ys[25];
+int cntx, cnty;
+bitset<500> mask[10], state;
+int n, w, h, k;
+int inv[30];
 
-#define fi first
-#define se second
-using ll = long long;
-using ld = long double;
-using ull = unsigned long long;
-using pii = pair<int, int>;
-
-void solve() {
+int qpow(int a, int b, int mod) {
+    int res = 1;
+    while (b) {
+        if (b & 1) res = 1LL * res * a % mod;
+        b >>= 1;
+        a = 1LL * a * a % mod;
+    }
+    return res;
 }
 
-void work1(vector<int> a) {
-    int ans = 0;
-    int lst = 100;
-    for (int x: a) {
-        ans += abs(lst - x);
-        lst = x;
+struct Rect {
+    PII a, b;
+} r[15];
+
+void dfs(int u, int s) {
+    if (u == n) {
+        f[s] = (state.count() == k) ? 0 : -1;
+        return;
     }
-    cout << ans << "\n\n";
-}
-
-void work2(vector<int> a) {
-    int ans = 0;
-    int lst = 100;
-    while (!a.empty()) {
-        int mi = 1e9;
-        int id = -1;
-        for (int i = 0; i < a.size(); i++) {
-            if (abs(lst - a[i]) < mi) {
-                mi = abs(lst - a[i]);
-                id = i;
-            }
-        }
-        debug(id, a[id], mi);
-
-        ans += mi;
-        lst = a[id];
-        a.erase(a.begin() + id);
-    }
-    cout << ans << "\n\n";
-}
-
-void work3(vector<int> a) {
-    int ans = 0;
-    int lst = 100;
-    sort(a.begin(), a.end());
-    int s = lower_bound(a.begin(), a.end(), lst) - a.begin();
-    for (int i = s; i < a.size(); i++) {
-        ans += abs(a[i] - lst);
-        lst = a[i];
-        cout << a[i] << " ";
-    }
-    for (int i = s - 1; i >= 0; i--) {
-        ans += abs(a[i] - lst);
-        lst = a[i];
-        cout << a[i] << " ";
-    }
-    cout << "\n";
-    cout << ans << "\n\n";
-}
-
-void prework() {
-//    vector<int> a = {55, 58, 39, 18, 90, 160, 150, 38, 184};
-//    cout << a.size() << "\n";
-//
-//    work1(a);
-//    work2(a);
-//    work3(a);
-
-cout << 22 * (1.75 * 1.75) << "\n";
+    bitset<500> bk = state;
+    dfs(u + 1, s);
+    state = bk;
+    state |= mask[u];
+    dfs(u + 1, s | (1 << u));
 }
 
 int main() {
@@ -103,48 +48,62 @@ int main() {
     freopen("../out.txt", "w", stdout);
 #endif
 
-    prework();
-    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
-    int _ = 1;
-    cin >> _;
-    while (_--) {
-        solve();
+    for (int i = 1; i < 20; i++) inv[i] = qpow(i, mod - 2, mod);
+    int T;
+    scanf("%d", &T);
+    while (T--) {
+        scanf("%d%d%d", &n, &w, &h);
+        cntx = cnty = 0;
+        for (int i = 0; i < n; i++) {
+            scanf("%d%d%d%d", &r[i].a.x, &r[i].a.y, &r[i].b.x, &r[i].b.y);
+            if (r[i].a.x > w) r[i].a.x = w;
+            if (r[i].b.x > w) r[i].b.x = w;
+            if (r[i].a.y > h) r[i].a.y = h;
+            if (r[i].b.y > h) r[i].b.y = h;
+            xs[++cntx] = r[i].a.x;
+            xs[++cntx] = r[i].b.x;
+            ys[++cnty] = r[i].a.y;
+            ys[++cnty] = r[i].b.y;
+        }
+        sort(xs + 1, xs + cntx + 1);
+        sort(ys + 1, ys + cnty + 1);
+        cntx = unique(xs + 1, xs + cntx + 1) - (xs + 1);
+        cnty = unique(ys + 1, ys + cnty + 1) - (ys + 1);
+        k = (cntx - 1) * (cnty - 1);
+        bitset<500> t;
+        for (int i = 0; i < n; i++) {
+            r[i].a.x = lower_bound(xs + 1, xs + cntx + 1, r[i].a.x) - xs;
+            r[i].a.y = lower_bound(ys + 1, ys + cnty + 1, r[i].a.y) - ys;
+            r[i].b.x = lower_bound(xs + 1, xs + cntx + 1, r[i].b.x) - xs;
+            r[i].b.y = lower_bound(ys + 1, ys + cnty + 1, r[i].b.y) - ys;
+            mask[i].reset();
+            t.reset();
+            t = (1 << (r[i].b.y - r[i].a.y)) - 1;
+            t <<= r[i].a.y - 1;
+            for (int j = r[i].a.x - 1; j < r[i].b.x - 1; j++)
+                mask[i] |= (t << (j * (cnty - 1)));
+        }
+        state.reset();
+        dfs(0, 0);
+        if (f[(1 << n) - 1] == -1) {
+            puts("-1");
+            continue;
+        }
+        int p = inv[n];
+        for (int i = (1 << n) - 1; i >= 0; i--) {
+            if (f[i] != -1) continue;
+            int cnt = 0;
+            int res = 0;
+            for (int j = 0; j < n; j++) {
+                if (i >> j & 1) cnt++;
+                else res = (res + 1LL * p * f[i | (1 << j)]) % mod;
+            }
+            f[i] = (1LL + res) * n % mod * inv[n - cnt] % mod;
+        }
+        for (int mask = 0; mask < 1 << n; mask++) {
+            if (f[mask] == 0) cout << bitset<8>(mask) << "\n";
+        }
+
+        printf("%d\n", f[0]);
     }
-
-//    Semaphore wait = 1;    // 等待互斥, 当对面方向有人过桥就等待
-//    Semaphore mutex1 = 1;  // 东方向互斥信号量
-//    Semaphore mutex2 = 1;  // 西方向互斥信号量
-//
-//    int count1 = 0;       // 东方向要过桥人数, 要过桥+1, 已经过桥-1
-//    int count2 = 0;       // 西方向要过桥人数, 要过桥+1, 已经过桥-1
-//
-//    to_east {
-//            P(mutex1);
-//            if (count1 == 0) P(wait);
-//            count1++;
-//            V(mutex1);
-//
-//            东方向人过桥();
-//
-//            P(mutex1);
-//            count1--;
-//            if (count1 == 0) V(wait);
-//            V(mutex1);
-//    }
-//
-//    to_west {
-//            P(mutex2);
-//            if (count2 == 0) P(wait);
-//            count2++;
-//            V(mutex2);
-//
-//            西方向人过桥();
-//
-//            P(mutex2);
-//            count2--;
-//            if (count2 == 0) V(wait);
-//            V(mutex2);
-//    }
-
-    return 0;
 }
