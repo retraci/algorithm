@@ -407,8 +407,8 @@ add_executable(acwing_2195 acwing/course/course3/1_graph/1.3_cost_flow/1.3.6_pra
 
 add_executable(acwing_2184 acwing/course/course3/1_graph/1.3_cost_flow/1.3.4_split_point/acwing_2184.cpp)
 add_executable(acwing_969 acwing/course/course3/1_graph/1.3_cost_flow/1.3.5_upper_and_lower_bound_flow/acwing_969.cpp)
-add_executable(853 daimayuan/namomo_spring_camp_2022/daily/week_9/843.cpp)
-add_executable(854 daimayuan/namomo_spring_camp_2022/daily/week_9/854.cpp)
+add_executable(853 daimayuan/namomo_spring_camp_2022/daily/week_9/853.cpp)
+add_executable(854 daimayuan/namomo_spring_camp_2022/daily/week_10/854.cpp)
 
 add_executable(P4550 daimayuan/namomo_spring_camp_2022/course/week_9/P4550.cpp)
 add_executable(P4316 daimayuan/namomo_spring_camp_2022/course/week_9/P4316.cpp)
@@ -416,3 +416,6 @@ add_executable(NC32708B daimayuan/namomo_spring_camp_2022/course/week_9/NC32708B
 add_executable(hdu_5194 daimayuan/namomo_spring_camp_2022/course/week_9/hdu_5194.cpp)
 add_executable(NC32708G daimayuan/namomo_spring_camp_2022/course/week_9/NC32708G.cpp)
 add_executable(CF280C daimayuan/namomo_spring_camp_2022/course/week_9/CF280C.cpp)
+
+add_executable(846 daimayuan/namomo_spring_camp_2022/daily/week_10/846.cpp)
+add_executable(P3232 daimayuan/namomo_spring_camp_2022/course/week_9/P3232.cpp)

@@ -4,7 +4,7 @@ struct Fenwick {
     int n;
     ll tr[SZ + 10];
 
-    Bit() {
+    Fenwick() {
         init(SZ);
     }
 
@@ -31,7 +31,7 @@ struct Fenwick {
     int n;
     ll tr1[SZ + 10], tr2[SZ + 10];
 
-    Bit() {
+    Fenwick() {
         init(SZ);
     }
 
