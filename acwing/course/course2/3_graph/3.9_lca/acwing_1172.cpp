@@ -47,68 +47,81 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 4e4 + 10;
+// region 无权的lca
+template<int N, int M>
+struct Lca {
+    int n;
+    int h[N + 10], ne[M * 2 + 10], e[M * 2 + 10], edm;
+    int dep[N + 10], fa[N + 10][32];
 
-int n, m;
+    Lca() {}
 
-int rt;
-int g[N * 2], ne[N * 2], h[N], edm;
+    void init(int _n) {
+        n = _n;
+        fill(h, h + n + 1, -1), edm = 0;
+    }
 
-int dep[N], fa[N][32];
+    void add(int u, int v) {
+        e[edm] = v, ne[edm] = h[u], h[u] = edm++;
+    }
 
-void add(int u, int v) {
-    g[edm] = v;
-    ne[edm] = h[u], h[u] = edm++;
-}
+    void init_lca(int rt) {
+        fill(dep, dep + n + 1, -1);
 
-void lca_init() {
-    memset(dep, -1, sizeof dep);
+        queue<int> que;
+        que.push(rt);
+        dep[0] = 0, dep[rt] = 1;
+        while (!que.empty()) {
+            auto u = que.front(); que.pop();
 
-    queue<int> que;
-    que.push(rt);
-    dep[0] = 0, dep[rt] = 1;
-    while (!que.empty()) {
-        auto u = que.front(); que.pop();
+            for (int i = h[u]; ~i; i = ne[i]) {
+                int v = e[i];
 
-        for (int i = h[u]; ~i; i = ne[i]) {
-            auto v = g[i];
+                if (dep[v] == -1) {
+                    dep[v] = dep[u] + 1;
+                    fa[v][0] = u;
+                    que.push(v);
 
-            if (dep[v] == -1) {
-                dep[v] = dep[u] + 1;
-                fa[v][0] = u;
-                que.push(v);
-
-                for (int k = 1; k <= 31; k++) {
-                    fa[v][k] = fa[fa[v][k - 1]][k - 1];
+                    for (int k = 1; k <= 31; k++) {
+                        fa[v][k] = fa[fa[v][k - 1]][k - 1];
+                    }
                 }
             }
         }
     }
-}
 
-int lca(int x, int y) {
-    if (dep[x] < dep[y]) swap(x, y);
-    for (int k = 31; k >= 0; k--) {
-        if (dep[fa[x][k]] >= dep[y]) x = fa[x][k];
-    }
-    if (x == y) return x;
-
-    for (int k = 31; k >= 0; k--) {
-        if (fa[x][k] != fa[y][k]) {
-            x = fa[x][k], y = fa[y][k];
+    int work(int x, int y) {
+        if (dep[x] < dep[y]) swap(x, y);
+        for (int k = 31; k >= 0; k--) {
+            if (dep[fa[x][k]] >= dep[y]) x = fa[x][k];
         }
+        if (x == y) return x;
+
+        for (int k = 31; k >= 0; k--) {
+            if (fa[x][k] != fa[y][k]) {
+                x = fa[x][k], y = fa[y][k];
+            }
+        }
+        return fa[x][0];
     }
-    return fa[x][0];
-}
+};
+// endregion
+
+const int N = 4e4 + 10;
+
+int n, m;
+int rt;
+Lca<N, N> lca;
 
 void solve() {
-    lca_init();
+    lca.init_lca(rt);
 
     cin >> m;
     while (m--) {
         int x, y;
         cin >> x >> y;
-        int ret = lca(x, y);
+
+        int ret = lca.work(x, y);
         if (ret == x) cout << 1 << "\n";
         else if (ret == y) cout << 2 << "\n";
         else cout << 0 << "\n";
@@ -130,13 +143,13 @@ int main() {
 //    cin >> T;
     while (T--) {
         cin >> n;
-        memset(h, -1, sizeof h), edm = 0;
+        lca.init(4e4);
 
         for (int i = 1; i <= n; i++) {
             int u, v;
             cin >> u >> v;
             if (v == -1) rt = u;
-            else add(u, v), add(v, u);
+            else lca.add(u, v), lca.add(v, u);
         }
 
         solve();

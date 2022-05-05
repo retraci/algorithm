@@ -33,7 +33,82 @@ using ld = long double;
 using ull = unsigned long long;
 using pii = pair<int, int>;
 
+const int N = 2e3 + 10;
+const int M = 1e4 + 10;
+
+int n, m;
+int a[N];
+pii es[M];
+int h[N], ne[M], e[M], edm;
+int deg[N], tag[N], vis[N];
+vector<int> c[N];
+
+void add(int u, int v) {
+    e[edm] = v, ne[edm] = h[u], h[u] = edm++;
+}
+
+int dfs(int u) {
+    if (vis[u]) return a[u];
+    vis[u] = 1;
+
+    int res = min(n, a[u]);
+    for (int i = h[u]; ~i; i = ne[i]) {
+        int v = e[i];
+
+        int ret = dfs(v);
+        res = min(res, ret - 1);
+    }
+
+    c[res].push_back(u);
+    return a[u] = res;
+}
+
+void dfs2(int u) {
+    if (tag[u]) return;
+
+    tag[u] = 1;
+    for (int i = h[u]; ~i; i = ne[i]) {
+        int v = e[i];
+
+        dfs2(v);
+    }
+}
+
 void solve() {
+    fill(h, h + n + 1, -1), edm = 0;
+    for (int i = 1; i <= m; i++) {
+        auto [u, v] = es[i];
+        add(u, v), deg[v]++;
+    }
+    for (int i = 1; i <= n; i++) {
+        if (deg[i] == 0) dfs(i);
+    }
+    for (int i = 1; i <= n; i++) {
+        for (int x : c[i]) cout << x << " ";
+    }
+    cout << "\n";
+
+    fill(h, h + n + 1, -1), edm = 0;
+    for (int i = 1; i <= m; i++) {
+        auto [u, v] = es[i];
+        add(v, u);
+    }
+
+    for (int i = 1; i <= n; i++) {
+        fill(tag, tag + n + 1, 0);
+        dfs2(i);
+
+        int cur = n;
+        for (int j = n; j >= 1; j--) {
+            if (cur > j) break;
+
+            for (int k : c[j]) {
+                cur -= !tag[k];
+            }
+        }
+        cout << cur << " ";
+    }
+    cout << "\n";
 }
 
 void prework() {
@@ -48,8 +123,17 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int _ = 1;
-    cin >> _;
+//    cin >> _;
     while (_--) {
+        cin >> n >> m;
+        fill(h, h + n + 1, -1), edm = 0;
+
+        for (int i = 1; i <= n; i++) cin >> a[i];
+        for (int i = 1; i <= m; i++) {
+            int u, v;
+            cin >> u >> v;
+            es[i] = {u, v};
+        }
         solve();
     }
 

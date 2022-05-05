@@ -61,89 +61,126 @@ pair<int, int> myRanq(ull &k1, ull &k2, int MAXN) {
     else return make_pair(x, y);
 }
 
+// region dsu
+template <int SZ>
+struct Dsu {
+    int pa[SZ + 10];
+
+    Dsu() {}
+
+    void init(int _n) {
+        iota(pa, pa + _n + 1, 0);
+    }
+
+    int find(int x) {
+        return x == pa[x] ? x : pa[x] = find(pa[x]);
+    }
+
+    bool unite(int x, int y) {
+        if (same(x, y)) return false;
+        int tx = find(x), ty = find(y);
+        pa[tx] = ty;
+        return true;
+    }
+
+    bool same(int x, int y) {
+        int tx = find(x), ty = find(y);
+        return tx == ty;
+    }
+};
+// endregion
+
+// region 无边权的欧拉序lca
+template<int N, int M>
+struct Lca {
+    int n;
+    int h[N + 10], ne[2 * M + 10], e[2 * M + 10], edm;
+    int id[N + 10], eula[2 * N + 10], dep[2 * N + 10], cnt;
+    int st[2 * N][32];
+
+    Lca() {}
+
+    void init(int _n) {
+        n = _n;
+        fill(h, h + n + 1, -1), edm = 0;
+    }
+
+    void add(int u, int v) {
+        e[edm] = v, ne[edm] = h[u], h[u] = edm++;
+    }
+
+    void dfs(int u) {
+        eula[++cnt] = u, id[u] = cnt;
+
+        for (int i = h[u]; ~i; i = ne[i]) {
+            int v = e[i];
+            if (dep[v] != -1) continue;
+
+            dep[v] = dep[u] + 1;
+            dfs(v);
+            eula[++cnt] = u;
+        }
+    }
+
+    void init_lca(int rt) {
+        fill(dep, dep + n + 1, -1), cnt = 0;
+        dep[0] = 0, dep[rt] = 1;
+        dfs(rt);
+
+        int mxb = __lg(cnt);
+        for (int i = 1; i <= cnt; i++) st[i][0] = eula[i];
+        for (int k = 1; k <= mxb; k++) {
+            for (int i = 1; i + (1 << k) - 1 <= cnt; i++) {
+                int a = st[i][k - 1];
+                int b = st[i + (1 << (k - 1))][k - 1];
+
+                st[i][k] = dep[a] < dep[b] ? a : b;
+            }
+        }
+    }
+
+    int work(int x, int y) {
+        int L = id[x], R = id[y];
+        if (L > R) swap(L, R);
+
+        int k = __lg(R - L + 1);
+        int a = st[L][k];
+        int b = st[R - (1 << k) + 1][k];
+
+        return dep[a] < dep[b] ? a : b;
+    }
+};
+// endregion
+
 const int N = 1e5 + 10;
 const int M = 5e5 + 10;
 
 int n, m;
 ti3 es[M];
-
-int h[2 * N], ne[2 * N], g[2 * N], edm;
-int pa[2 * N], w[2 * N], tt;
-
-int id[2 * N], eula[4 * N], dep[4 * N], cnt;
-int st[4 * N][23];
-
-int find(int x) {
-    return x == pa[x] ? x : pa[x] = find(pa[x]);
-}
-
-bool unite(int x, int y) {
-    int tx = find(x), ty = find(y);
-    if (tx == ty) return false;
-    pa[tx] = ty;
-    return true;
-}
-
-void add(int u, int v) {
-    g[edm] = v, ne[edm] = h[u], h[u] = edm++;
-}
-
-void dfs(int u) {
-    eula[++cnt] = u, id[u] = cnt;
-    for (int i = h[u]; ~i; i = ne[i]) {
-        int v = g[i];
-
-        dep[v] = dep[u] + 1;
-        dfs(v);
-        eula[++cnt] = u;
-    }
-}
-
-void init_st(int rt) {
-    dep[rt] = 1;
-    dfs(tt);
-
-    for (int i = 1; i <= cnt; i++) st[i][0] = eula[i];
-    for (int k = 1; (1 << k) <= cnt; k++) {
-        for (int i = 1; i + (1 << k) - 1 <= cnt; i++) {
-            int a = st[i][k - 1];
-            int b = st[i + (1 << (k - 1))][k - 1];
-
-            st[i][k] = dep[a] < dep[b] ? a : b;
-        }
-    }
-}
-
-int lca(int x, int y) {
-    int L = id[x], R = id[y];
-    if (L > R) swap(L, R);
-
-    int k = __lg(R - L + 1);
-    int a = st[L][k];
-    int b = st[R - (1 << k) + 1][k];
-
-    return dep[a] < dep[b] ? a : b;
-}
+int w[2 * N], tt;
+Dsu<2 * N> dsu;
+Lca<2 * N, N> lca;
 
 void init() {
     sort(es + 1, es + m + 1, [](auto &a, auto &b) {
         return get<2>(a) < get<2>(b);
     });
-    iota(pa, pa + 2 * n + 1, 0);
-    fill(h, h + 2 * n + 1, -1), edm = 0;
+
+    dsu.init(2 * n);
+    lca.init(2 * n + 1);
     tt = n;
     for (int i = 1; i <= m; i++) {
-        auto[u, v, cost] = es[i];
-        int tu = find(u), tv = find(v);
+        auto [u, v, cost] = es[i];
+        int tu = dsu.find(u), tv = dsu.find(v);
         if (tu == tv) continue;
 
         tt++;
-        unite(tu, tt), unite(tv, tt);
-        add(tt, tu), add(tt, tv);
+        dsu.unite(tu, tt), dsu.unite(tv, tt);
+        lca.add(tt, tu), lca.add(tt, tv);
         w[tt] = cost;
     }
 
-    init_st(tt);
+    lca.init_lca(tt);
 }
 
 void solve() {
@@ -155,7 +192,7 @@ void solve() {
     while (Q--) {
         auto[x, y] = myRanq(a1, a2, n);
 
-        int tmp = w[lca(x, y)];
+        int tmp = w[lca.work(x, y)];
         ans ^= tmp;
     }
     cout << ans << "\n";

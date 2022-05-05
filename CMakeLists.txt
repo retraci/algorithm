@@ -425,3 +425,5 @@ add_executable(CF521E daimayuan/namomo_spring_camp_2022/course/week_10/CF521E.cp
 add_executable(CF19E daimayuan/namomo_spring_camp_2022/course/week_10/CF19E.cpp)
 add_executable(hdu_4857 daimayuan/namomo_spring_camp_2022/course/week_10/hdu_4857.cpp)
 add_executable(P1954 daimayuan/namomo_spring_camp_2022/course/week_10/P1954.cpp)
+add_executable(845 daimayuan/namomo_spring_camp_2022/daily/week_10/845.cpp)
+add_executable(CF101173H daimayuan/namomo_spring_camp_2022/course/week_10/CF101173H.cpp)
