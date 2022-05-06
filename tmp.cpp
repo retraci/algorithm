@@ -21,6 +21,10 @@ vector<int> g[MaxN], p[MaxN];
 int cnt, s[MaxN], sp, ans[MaxN], tn;
 bool dis[MaxN], vis[MaxN], e[MaxN];
 
+using pii = pair<int, int>;
+
+
+
 void pfs(int u) {
     vis[u] = 1;
     for (int i = 0, v; i < g[u].size(); i++)

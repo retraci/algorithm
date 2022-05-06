@@ -168,21 +168,21 @@ const int N = 55;
 int n;
 Big f[N];
 Big C[N][N];
-Big fac[55];
+Big pw2[55];
 
 void solve() {
     cout << f[n].to_str() << "\n";
 }
 
 void prework() {
-    fac[0] = Big(1);
+    pw2[0] = Big(1);
     int lst = 0;
     Big cur = Big(1);
     for (int i = 1; i <= 50; i++) {
         int x = i * (i - 1) / 2;
         int dta = x - lst;
         while (dta--) cur = cur * 2;
-        fac[i] = cur;
+        pw2[i] = cur;
 
         lst = x;
     }
@@ -196,9 +196,9 @@ void prework() {
 
     f[1] = Big(1);
     for (int i = 2; i <= 50; i++) {
-        f[i] = fac[i];
+        f[i] = pw2[i];
         for (int j = 1; j <= i - 1; j++) {
-            f[i] = f[i] - C[i - 1][j - 1] * f[j] * fac[i - j];
+            f[i] = f[i] - C[i - 1][j - 1] * f[j] * pw2[i - j];
         }
     }
 }
