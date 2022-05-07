@@ -1,18 +1,16 @@
 // region 单点修改线段树
 template<class Info, class Tag, int SZ,
-        class Merge = std::plus<Info>>
+        class Plus = std::plus<Info>>
 struct Seg {
 #define mid (s + e >> 1)
 #define ls(x) (info[x].lson)
 #define rs(x) (info[x].rson)
 
-    const Merge merge;
+    const Plus plus;
     int lb, rb, rt, mem;
     Info info[SZ * 4];
 
-    Seg() : merge(Merge()) {
-        init(1, SZ);
-    }
+    Seg() : plus(Plus()) {}
 
     void init(int L, int R) {
         rt = 0, mem = 0, lb = L, rb = R;
@@ -26,7 +24,7 @@ struct Seg {
     }
 
     void pull(int k) {
-        info[k].set(merge(info[ls(k)], info[rs(k)]));
+        info[k].set(plus(info[ls(k)], info[rs(k)]));
     }
 
     void apply(int k, int s, int e, const Tag &v) {
@@ -64,14 +62,14 @@ struct Seg {
 
         if (R <= mid) return qr(ls(k), s, mid, L, R);
         if (L >= mid + 1) return qr(rs(k), mid + 1, e, L, R);
-        return merge(qr(ls(k), s, mid, L, R), qr(rs(k), mid + 1, e, L, R));
+        return plus(qr(ls(k), s, mid, L, R), qr(rs(k), mid + 1, e, L, R));
     }
 
-    int qr_kth(int k, int s, int e, ll x) {
+    int kth(int k, int s, int e, ll x) {
         if (s == e) return s;
 
-        if (x <= info[ls(k)].sum) return qr_kth(ls(k), s, mid, x);
-        else return qr_kth(rs(k), mid + 1, e, x - info[ls(k)].sum);
+        if (x <= info[ls(k)].sum) return kth(ls(k), s, mid, x);
+        else return kth(rs(k), mid + 1, e, x - info[ls(k)].sum);
     }
 
     void upd(int id, const Tag &v) {
@@ -87,28 +85,26 @@ struct Seg {
         return qr(rt, lb, rb, L, R);
     }
 
-    int qr_kth(ll x) {
-        return qr_kth(rt, lb, rb, x);
+    int kth(ll x) {
+        return kth(rt, lb, rb, x);
     }
 };
 // endregion
 
 // region 区修线段树
 template<class Info, class Tag, int SZ,
-        class Merge = std::plus<Info>>
+        class Plus = std::plus<Info>>
 struct Seg {
 #define mid (s + e >> 1)
 #define ls(x) (info[x].lson)
 #define rs(x) (info[x].rson)
 
-    const Merge merge;
+    const Plus plus;
     int lb, rb, rt, mem;
     Info info[SZ * 4];
     Tag tag[SZ * 4];
 
-    Seg() : merge(Merge()) {
-        init(1, SZ);
-    }
+    Seg() : plus(Plus()) {}
 
     void init(int L, int R) {
         rt = 0, mem = 0, lb = L, rb = R;
@@ -124,7 +120,7 @@ struct Seg {
     }
 
     void pull(int k) {
-        info[k].set(merge(info[ls(k)], info[rs(k)]));
+        info[k].set(plus(info[ls(k)], info[rs(k)]));
     }
 
     void apply(int k, int s, int e, const Tag &v) {
@@ -176,15 +172,15 @@ struct Seg {
         push(k, s, e);
         if (R <= mid) return qr(ls(k), s, mid, L, R);
         if (L >= mid + 1) return qr(rs(k), mid + 1, e, L, R);
-        return merge(qr(ls(k), s, mid, L, R), qr(rs(k), mid + 1, e, L, R));
+        return plus(qr(ls(k), s, mid, L, R), qr(rs(k), mid + 1, e, L, R));
     }
 
-    int qr_kth(int k, int s, int e, ll x) {
+    int kth(int k, int s, int e, ll x) {
         if (s == e) return x <= info[k].sum ? s : rb + 1;
 
         push(k, s, e);
-        if (x <= info[ls(k)].sum) return qr_kth(ls(k), s, mid, x);
-        else return qr_kth(rs(k), mid + 1, e, x - info[ls(k)].sum);
+        if (x <= info[ls(k)].sum) return kth(ls(k), s, mid, x);
+        else return kth(rs(k), mid + 1, e, x - info[ls(k)].sum);
     }
 
     void upd(int L, int R, const Tag &v) {
@@ -201,8 +197,8 @@ struct Seg {
         return qr(rt, lb, rb, L, R);
     }
 
-    int qr_kth(ll x) {
-        return qr_kth(rt, lb, rb, x);
+    int kth(ll x) {
+        return kth(rt, lb, rb, x);
     }
 };
 // endregion
@@ -210,6 +206,7 @@ struct Seg {
 // region 区间求和
 struct Tag {
     ll x;
+
     Tag(ll x = 0) : x(x) {}
 
     bool check() const {
@@ -225,6 +222,7 @@ struct Tag {
 struct Info {
     int lson, rson;
     ll sum;
+
     Info(ll sum = 0) : lson(0), rson(0), sum(sum) {}
 
     void apply(int s, int e, const Tag &a) {
@@ -245,6 +243,7 @@ struct Info {
 // region 区间最大值
 struct Tag {
     ll x;
+
     Tag(ll x = 0) : x(x) {}
 
     bool check() const {
@@ -260,6 +259,7 @@ struct Tag {
 struct Info {
     int lson, rson;
     ll sum;
+
     Info(ll sum = 0) : lson(0), rson(0), sum(sum) {}
 
     void apply(int s, int e, const Tag &a) {
@@ -280,6 +280,7 @@ struct Info {
 // region 区间最小值
 struct Tag {
     ll x;
+
     Tag(ll x = 1e9) : x(x) {}
 
     bool check() const {
@@ -295,6 +296,7 @@ struct Tag {
 struct Info {
     int lson, rson;
     ll sum;
+
     Info(ll sum = 1e9) : lson(0), rson(0), sum(sum) {}
 
     void apply(int s, int e, const Tag &a) {
@@ -315,6 +317,7 @@ struct Info {
 // region 区修, 维护最大值
 struct Tag {
     ll x;
+
     Tag(ll x = 0) : x(x) {}
 
     bool check() const {
@@ -330,6 +333,7 @@ struct Tag {
 struct Info {
     int lson, rson;
     ll sum, mx;
+
     Info(ll sum = 0, ll mx = 0) : lson(0), rson(0), sum(sum), mx(mx) {}
 
     void apply(int s, int e, const Tag &a) {
@@ -352,6 +356,7 @@ struct Info {
 // region 区修, 维护最小值
 struct Tag {
     ll x;
+
     Tag(ll x = 0) : x(x) {}
 
     bool check() const {
@@ -367,6 +372,7 @@ struct Tag {
 struct Info {
     int lson, rson;
     ll sum, mi;
+
     Info(ll sum = 0, ll mi = 0) : lson(0), rson(0), sum(sum), mi(mi) {}
 
     void apply(int s, int e, const Tag &a) {

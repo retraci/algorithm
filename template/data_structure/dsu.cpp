@@ -1,22 +1,22 @@
 // region dsu
-template <int SZ>
+template<int SZ>
 struct Dsu {
-    int pa[SZ + 10];
+    int fa[SZ + 10];
 
     Dsu() {}
 
     void init(int _n) {
-        iota(pa, pa + _n + 1, 0);
+        iota(fa, fa + _n + 1, 0);
     }
 
     int find(int x) {
-        return x == pa[x] ? x : pa[x] = find(pa[x]);
+        return x == fa[x] ? x : fa[x] = find(fa[x]);
     }
 
     bool unite(int x, int y) {
         if (same(x, y)) return false;
         int tx = find(x), ty = find(y);
-        pa[tx] = ty;
+        fa[tx] = ty;
         return true;
     }
 

@@ -4,9 +4,7 @@ struct Fenwick {
     int n;
     ll tr[SZ + 10];
 
-    Fenwick() {
-        init(SZ);
-    }
+    Fenwick() {}
 
     void init(int _n, ll v = 0) {
         n = _n;
@@ -22,6 +20,18 @@ struct Fenwick {
         for (int i = id; i; i -= i & -i) res += tr[i];
         return res;
     }
+
+    int kth(int x) {
+        int pos = 0;
+        for (int i = __lg(n); i >= 0; i--) {
+            if (pos + (1 << i) <= n && tr[pos + (1 << i)] < x) {
+                pos += 1 << i;
+                x -= tr[pos];
+            }
+        }
+
+        return pos + 1;
+    }
 };
 // endregion
 
@@ -31,9 +41,7 @@ struct Fenwick {
     int n;
     ll tr1[SZ + 10], tr2[SZ + 10];
 
-    Fenwick() {
-        init(SZ);
-    }
+    Fenwick() {}
 
     void init(int _n, ll v = 0) {
         n = _n;
