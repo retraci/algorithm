@@ -34,35 +34,6 @@ using ld = long double;
 using ull = unsigned long long;
 using pii = pair<int, int>;
 
-// region dsu
-template<int SZ>
-struct Dsu {
-    int fa[SZ + 10];
-
-    Dsu() {}
-
-    void init(int _n) {
-        iota(fa, fa + _n + 1, 0);
-    }
-
-    int find(int x) {
-        return x == fa[x] ? x : fa[x] = find(fa[x]);
-    }
-
-    bool unite(int x, int y) {
-        if (same(x, y)) return false;
-        int tx = find(x), ty = find(y);
-        fa[tx] = ty;
-        return true;
-    }
-
-    bool same(int x, int y) {
-        int tx = find(x), ty = find(y);
-        return tx == ty;
-    }
-};
-// endregion
-
 // region 普通平衡树(fhq + 启发式合并)
 mt19937 rnd(random_device{}());
 template<class Info, class Tag, int SZ>
@@ -257,6 +228,7 @@ struct Fhq {
         int k = x;
         while (rs(k)) k = rs(k);
         Info res = info[k];
+        if (info[k].sz == 0) res.val = -1e9;
 
         rt = merge(x, y);
         return res;
@@ -270,6 +242,7 @@ struct Fhq {
         int k = y;
         while (ls(k)) k = ls(k);
         Info res = info[k];
+        if (info[k].sz == 0) res.val = 1e9;
 
         rt = merge(x, y);
         return res;
@@ -279,25 +252,24 @@ struct Fhq {
 
 // region 文艺平衡树(fhq)
 struct Tag {
-    int x;
+    int pv, nv;
 
-    Tag(int x = 0) : x(x) {}
+    Tag(int pv = -1, int nv = -1) : pv(pv), nv(nv) {}
 
     bool check() const {
-        return x != 0;
+        return pv != -1;
     }
 
     void apply(const Tag &a) {
         if (!a.check()) return;
-        x ^= a.x;
     }
 };
 
 struct Info {
     int lson, rson, key, val;
-    int sz, id;
+    int sz;
 
-    Info(int val = 0, int sz = 0, int id = 0) : lson(0), rson(0), val(val), sz(sz), id(id) {}
+    Info(int val = 0, int sz = 0) : lson(0), rson(0), val(val), sz(sz) {}
 
     void init() {
         key = rnd();
@@ -309,7 +281,7 @@ struct Info {
     }
 
     static Info plus(const Info &p, const Info &a, const Info &b) {
-        return {0, a.sz + b.sz + 1, 0};
+        return {0, a.sz + b.sz + 1};
     }
 
     void set(const Info &a) {
@@ -318,48 +290,201 @@ struct Info {
 };
 // endregion
 
+// region 线段树 套 x
+template<class OInfo, class Info, class Tag, int SZ>
+struct OSeg {
+#define mid (s + e >> 1)
+#define ls(x) (oinfo[x].lson)
+#define rs(x) (oinfo[x].rson)
+
+    int lb, rb, rt, mem;
+    OInfo oinfo[SZ * 4];
+
+    OSeg() {}
+
+    void init(int L, int R) {
+        rt = 0, mem = 0, lb = L, rb = R;
+        oinfo[0] = OInfo();
+    }
+
+    int new_node() {
+        int id = ++mem;
+        oinfo[id] = OInfo();
+        return id;
+    }
+
+    void upd(int id, int pv, int nv) {
+        upd(rt, lb, rb, id, pv, nv);
+    }
+
+    void upd(int &k, int s, int e, int id, int pv, int nv) {
+        if (!k) k = new_node();
+
+        oinfo[k].apply(pv, nv);
+        if (s == e) return;
+
+        if (id <= mid) upd(ls(k), s, mid, id, pv, nv);
+        if (id >= mid + 1) upd(rs(k), mid + 1, e, id, pv, nv);
+    }
+
+    void build(int L, int R, int a[]) {
+        build(rt, L, R, a);
+    }
+
+    void build(int &k, int s, int e, int a[]) {
+        if (!k) k = new_node();
+
+        oinfo[k].init(s, e, a);
+        if (s == e) return;
+        build(ls(k), s, mid, a), build(rs(k), mid + 1, e, a);
+    }
+
+    int get_rk(int L, int R, int x) {
+        return get_rk(rt, lb, rb, L, R, x) + 1;
+    }
+
+    int get_rk(int k, int s, int e, int L, int R, int x) {
+        if (L <= s && e <= R) return oinfo[k].get_rk(x);
+
+        if (R <= mid) return get_rk(ls(k), s, mid, L, R, x);
+        if (L >= mid + 1) return get_rk(rs(k), mid + 1, e, L, R, x);
+        return get_rk(ls(k), s, mid, L, R, x) + get_rk(rs(k), mid + 1, e, L, R, x);
+    }
+
+    int get_kth(int L, int R, int x) {
+        int left = 0, right = 1e8;
+        while (left < right) {
+            int md = left + right + 1 >> 1;
+            int t = get_rk(L, R, md);
+            if (t <= x) left = md;
+            else right = md - 1;
+        }
+    }
+
+    int get_pre(int L, int R, int x) {
+        return get_pre(rt, lb, rb, L, R, x);
+    }
+
+    int get_pre(int k, int s, int e, int L, int R, int x) {
+        if (L <= s && e <= R) return oinfo[k].get_pre(x);
+
+        if (R <= mid) return get_pre(ls(k), s, mid, L, R, x);
+        if (L >= mid + 1) return get_pre(rs(k), mid + 1, e, L, R, x);
+        return max(get_pre(ls(k), s, mid, L, R, x), get_pre(rs(k), mid + 1, e, L, R, x));
+    }
+
+    int get_nxt(int L, int R, int x) {
+        return get_nxt(rt, lb, rb, L, R, x);
+    }
+
+    int get_nxt(int k, int s, int e, int L, int R, int x) {
+        if (L <= s && e <= R) return oinfo[k].get_nxt(x);
+
+        if (R <= mid) return get_nxt(ls(k), s, mid, L, R, x);
+        if (L >= mid + 1) return get_nxt(rs(k), mid + 1, e, L, R, x);
+        return min(get_nxt(ls(k), s, mid, L, R, x), get_nxt(rs(k), mid + 1, e, L, R, x));
+    }
+};
+// endregion
+
+// region x 套 普通平衡树(fhq)
+Fhq<Info, Tag, 50000 * 40> fhq;
+
+struct OInfo {
+    int lson, rson;
+    int tid;
+
+    OInfo() : lson(0), rson(0) {}
+
+    void init(int s, int e, int a[]) {
+        static Info buf[50010];
+
+        for (int i = s; i <= e; i++) {
+            Info t = Info();
+            t.val = a[i];
+            t.sz = 1;
+            t.init();
+
+            buf[i] = t;
+        }
+        sort(buf + s, buf + e + 1, [](auto &a, auto &b) {
+            return a.val < b.val;
+        });
+
+        tid = fhq.new_tree();
+        fhq.root[tid] = fhq.build(s, e, buf);
+    }
+
+    void apply(int pv, int nv) {
+        fhq.del(tid, pv);
+
+        Info t = Info();
+        t.val = nv;
+        t.sz = 1;
+        t.init();
+        fhq.ins(tid, t);
+    }
+
+    int get_rk(int x) {
+        return fhq.get_rk(tid, x) - 1;
+    }
+
+    int get_pre(int x) {
+        return fhq.get_pre(tid, x).val;
+    }
+
+    int get_nxt(int x) {
+        int t = fhq.get_nxt(tid, x).val;
+        return t;
+    }
+};
+// endregion
+
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
-const int N = 100010;
-const int M = 300010;
+const int N = 5e4 + 10;
 
 int n, m;
 int a[N];
-pii b[M];
-Dsu<N> dsu;
-Fhq<Info, Tag, N> fhq;
+OSeg<OInfo, Info, Tag, N> seg;
 
 void solve() {
-    dsu.init(n);
-    for (int i = 1; i <= n; i++) {
-        int tid = fhq.new_tree();
-        fhq.ins(tid, {a[i], 1, i});
-    }
-    for (int i = 1; i <= m; i++) {
-        auto [x, y] = b[i];
+    seg.init(1, n);
+    seg.build(1, n, a);
 
-        int tx = dsu.find(x), ty = dsu.find(y);
-        if (fhq.size(tx) > fhq.size(ty)) swap(tx, ty);
+    while (m--) {
+        int op;
+        cin >> op;
 
-        fhq.xmerge(tx, ty), dsu.unite(tx, ty);
-    }
+        if (op == 1) {
+            int L, R, x;
+            cin >> L >> R >> x;
 
-    int q;
-    cin >> q;
-    while (q--) {
-        string op;
-        int x, y;
-        cin >> op >> x >> y;
-
-        if (op == "B") {
-            int tx = dsu.find(x), ty = dsu.find(y);
-            if (fhq.size(tx) > fhq.size(ty)) swap(tx, ty);
-            fhq.xmerge(tx, ty), dsu.unite(tx, ty);
+            cout << seg.get_rk(L, R, x) << "\n";
         }
-        if (op == "Q") {
-            int tx = dsu.find(x);
-            auto t = fhq.kth(tx, y);
-            if (t.sz == 0) cout << -1 << "\n";
-            else cout << t.id << "\n";
+        if (op == 2) {
+            int L, R, x;
+            cin >> L >> R >> x;
+
+            cout << seg.get_kth(L, R, x) << "\n";
+        }
+        if (op == 3) {
+            int p, x;
+            cin >> p >> x;
+
+            seg.upd(p, a[p], x);
+            a[p] = x;
+        }
+        if (op == 4) {
+            int L, R, x;
+            cin >> L >> R >> x;
+
+            cout << seg.get_pre(L, R, x) << "\n";
+        }
+        if (op == 5) {
+            int L, R, x;
+            cin >> L >> R >> x;
+
+            cout << seg.get_nxt(L, R, x) << "\n";
         }
     }
 }
@@ -380,7 +505,6 @@ int main() {
     while (_--) {
         cin >> n >> m;
         for (int i = 1; i <= n; i++) cin >> a[i];
-        for (int i = 1; i <= m; i++) cin >> b[i].fi >> b[i].se;
         solve();
     }
 

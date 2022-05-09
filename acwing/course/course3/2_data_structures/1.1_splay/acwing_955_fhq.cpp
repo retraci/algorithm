@@ -52,7 +52,6 @@ struct Fhq {
         rt = 0, tp = SZ;
         iota(mem, mem + SZ + 1, 0);
         info[0] = Info();
-        info[0].mxl = -1e9;
         tag[0] = Tag();
     }
 
@@ -226,7 +225,7 @@ struct Info {
     int lson, rson, key, val;
     int sz, sum, pre, suf, mxl;
 
-    Info(int val = 0, int sz = 0, int sum = 0, int pre = 0, int suf = 0, int mxl = 0) : lson(0), rson(0), val(val), sz(sz),
+    Info(int val = 0, int sz = 0, int sum = 0, int pre = 0, int suf = 0, int mxl = -1e9) : lson(0), rson(0), val(val), sz(sz),
                                                                                         sum(sum), pre(pre), suf(suf), mxl(mxl) {}
 
     void init() {
