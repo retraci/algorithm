@@ -12,8 +12,9 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <bitset>
-#include <cmath>
+#include <cassert>
 #include <random>
+#include <cmath>
 
 void debug() {
     std::cout << "\n";
@@ -35,28 +36,42 @@ using ull = unsigned long long;
 using pii = pair<int, int>;
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int N = 1e5 + 10;
+const int M = 1e5 + 10;
 
-int n;
-string s;
+int n, m;
+int a[N];
+int h[N + 10], ne[M * 2 + 10], e[M * 2 + 10], edm;
+vector<int> f[N];
+
+void add(int u, int v) {
+    e[edm] = v, ne[edm] = h[u], h[u] = edm++;
+}
+
+void dfs(int u, int fno) {
+    f[u].push_back(a[u]);
+
+    for (int i = h[u]; ~i; i = ne[i]) {
+        int v = e[i];
+        if (v == fno) continue;
+
+        dfs(v, u);
+        for (int x : f[v]) f[u].push_back(x);
+    }
+
+    sort(f[u].rbegin(), f[u].rend());
+    if (f[u].size() > 20) f[u].resize(20);
+}
 
 void solve() {
-    int f[n / 2 + 1][2];
-    memset(f, 0x3f, sizeof f);
+    dfs(1, 0);
 
-    int ans = 0;
-    f[0][0] = f[0][1] = 1;
-    for (int i = 1; i <= n / 2; i++) {
-        int x = (s[i * 2 - 1] - '0') + (s[i * 2] - '0');
+    while (m--) {
+        int u, k;
+        cin >> u >> k;
 
-        if (x == 0) f[i][0] = min(f[i - 1][0], f[i - 1][1] + 1);
-        if (x == 2) f[i][1] = min(f[i - 1][0] + 1, f[i - 1][1]);
-        if (x == 1) {
-            ans++;
-            f[i][0] = min(f[i - 1][0], f[i - 1][1] + 1);
-            f[i][1] = min(f[i - 1][0] + 1, f[i - 1][1]);
-        }
+        cout << f[u][k - 1] << "\n";
     }
-    cout << ans << " " << min(f[n / 2][0], f[n / 2][1]) << "\n";
 }
 
 void prework() {
@@ -71,11 +86,17 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int _ = 1;
-    cin >> _;
+//    cin >> _;
     while (_--) {
-        cin >> n;
-        cin >> s;
-        s = ' ' + s;
+        cin >> n >> m;
+        fill(h, h + n + 1, -1), edm = 0;
+
+        for (int i = 1; i <= n; i++) cin >> a[i];
+        for (int i = 1; i <= n - 1; i++) {
+            int u, v;
+            cin >> u >> v;
+            add(u, v), add(v, u);
+        }
         solve();
     }
 

@@ -12,8 +12,9 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <bitset>
-#include <cmath>
+#include <cassert>
 #include <random>
+#include <cmath>
 
 void debug() {
     std::cout << "\n";
@@ -35,28 +36,51 @@ using ull = unsigned long long;
 using pii = pair<int, int>;
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int N = 1e5 + 10;
+const int M = 1e6 + 10;
 
-int n;
-string s;
+int n, m;
+int a[N];
+vector<int> b[M];
+int g[M], ans;
+
+void merge(int x, int y) {
+    for (int id : b[x]) {
+        if (a[id - 1] == y) ans--;
+        if (a[id + 1] == y) ans--;
+    }
+
+    for (int id : b[x]) {
+        a[id] = y;
+        b[y].push_back(id);
+    }
+    b[x] = {};
+}
 
 void solve() {
-    int f[n / 2 + 1][2];
-    memset(f, 0x3f, sizeof f);
-
-    int ans = 0;
-    f[0][0] = f[0][1] = 1;
-    for (int i = 1; i <= n / 2; i++) {
-        int x = (s[i * 2 - 1] - '0') + (s[i * 2] - '0');
-
-        if (x == 0) f[i][0] = min(f[i - 1][0], f[i - 1][1] + 1);
-        if (x == 2) f[i][1] = min(f[i - 1][0] + 1, f[i - 1][1]);
-        if (x == 1) {
-            ans++;
-            f[i][0] = min(f[i - 1][0], f[i - 1][1] + 1);
-            f[i][1] = min(f[i - 1][0] + 1, f[i - 1][1]);
-        }
+    iota(g, g + (int) 1e6 + 1, 0);
+    for (int i = 1; i <= n; i++) {
+        b[a[i]].push_back(i);
     }
-    cout << ans << " " << min(f[n / 2][0], f[n / 2][1]) << "\n";
+
+    ans = 1;
+    for (int i = 2; i <= n; i++) {
+        if (a[i] != a[i - 1]) ans++;
+    }
+    while (m--) {
+        int op;
+        cin >> op;
+
+        if (op == 1) {
+            int x, y;
+            cin >> x >> y;
+            if (g[x] == g[y]) continue;
+
+            if (b[g[x]].size() > b[g[y]].size()) swap(g[x], g[y]);
+            merge(g[x], g[y]);
+        }
+        if (op == 2) cout << ans << "\n";
+    }
 }
 
 void prework() {
@@ -71,11 +95,10 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int _ = 1;
-    cin >> _;
+//    cin >> _;
     while (_--) {
-        cin >> n;
-        cin >> s;
-        s = ' ' + s;
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 

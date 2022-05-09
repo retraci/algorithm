@@ -33,25 +33,27 @@ using ld = long double;
 using ull = unsigned long long;
 using pii = pair<int, int>;
 
-// region dinic 整数费用流
+// region dinic 费用流
 template<int N, int M>
-struct Dinic {
-    using ai3 = array<int, 3>;
-    const int INF = 1e9;
+struct Flow {
+    using flowt = int;
+    using pff = pair<flowt, flowt>;
+    using af3 = array<flowt, 3>;
+    const flowt INF = 1e9;
 
     int n;
-    ai3 e[2 * M + 10];
+    af3 e[2 * M + 10];
     int h[N + 10], ne[2 * M + 10], edm;
     int d[N + 10], nh[N + 10], vis[N + 10];
 
-    Dinic() {}
+    Flow() {}
 
     void init(int _n) {
         n = _n;
         fill(h, h + n + 1, -1), edm = 0;
     }
 
-    void add(int u, int v, int cap, int cost) {
+    void add(int u, int v, flowt cap, flowt cost) {
         e[edm] = {v, cap, cost}, ne[edm] = h[u], h[u] = edm++;
         e[edm] = {u, 0, -cost}, ne[edm] = h[v], h[v] = edm++;
     }
@@ -76,7 +78,7 @@ struct Dinic {
 
                     if (!inq[v]) {
                         inq[v] = 1;
-                        if (!que.empty() && d[v] <= d[que.front()]) que.push_front(v);
+                        if (!que.empty() && d[v] < d[que.front()]) que.push_front(v);
                         else que.push_back(v);
                     }
                 }
@@ -86,17 +88,17 @@ struct Dinic {
         return d[T] != INF;
     }
 
-    pii dfs(int u, int T, int lit) {
+    pff dfs(int u, int T, flowt lit) {
         if (u == T) return {lit, lit * d[T]};
         vis[u] = 1;
 
-        int flow = 0, dis = 0;
+        flowt flow = 0, dis = 0;
         for (int &i = nh[u]; ~i; i = ne[i]) {
             auto &[v, cap, cost] = e[i];
             if (d[v] != d[u] + cost || cap == 0 || vis[v]) continue;
 
             auto [t1, t2] = dfs(v, T, min(cap, lit - flow));
-            if (t1 == 0) d[v] = 2 * INF;
+            if (t1 == 0) d[v] = INF;
             flow += t1, dis += t2, cap -= t1, e[i ^ 1][1] += t1;
 
             if (lit - flow == 0) break;
@@ -106,8 +108,8 @@ struct Dinic {
         return {flow, dis};
     }
 
-    pii max_flow_cost(int S, int T) {
-        int flow = 0, dis = 0;
+    pff max_flow_cost(int S, int T) {
+        flowt flow = 0, dis = 0;
         while (spfa(S, T)) {
             for (int i = 1; i <= n; i++) nh[i] = h[i];
             while (1) {
@@ -127,7 +129,7 @@ const int N = 5010;
 const int M = 50010;
 
 int n, m, S, T;
-Dinic<N, M> g;
+Flow<N, M> g;
 
 void solve() {
     auto [flow, dis] = g.max_flow_cost(S, T);

@@ -12,8 +12,9 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <bitset>
-#include <cmath>
 #include <random>
+#include <cassert>
+#include <cmath>
 
 void debug() {
     std::cout << "\n";
@@ -34,289 +35,288 @@ using ld = long double;
 using ull = unsigned long long;
 using pii = pair<int, int>;
 
-// region 维护序列(fhq + gc)
-mt19937 rnd(random_device{}());
-template<class Info, class Tag, int SZ>
-struct Fhq {
-#define lc info[p].lson
-#define rc info[p].rson
+// region 区修线段树
+template<class Info, class Tag, int SZ,
+        class Plus = std::plus<Info>>
+struct Seg {
+#define mid (s + e >> 1)
 #define ls(x) (info[x].lson)
 #define rs(x) (info[x].rson)
 
-    Info (*plus)(const Info &p, const Info &a, const Info &b);
-    int n, rt, mem[SZ + 10], tp, idx;
-    Info info[SZ + 10];
-    Tag tag[SZ + 10];
+    const Plus plus;
+    int lb, rb, root[SZ + 10], cnt, mem;
+    Info info[SZ * 4];
+    Tag tag[SZ * 4];
 
-    Fhq() : plus(Info::plus) {}
+    Seg() : plus(Plus()) {}
 
-    void init() {
-        rt = 0, tp = 0;
-        info[0] = Info();
-        info[0].mxl = -2e9;
-        tag[0] = Tag();
+    void init(int L, int R) {
+        cnt = 0, mem = 0, lb = L, rb = R;
+    }
+
+    int new_tree() {
+        int tid = ++cnt;
+        assert(tid < SZ + 10);
+        root[tid] = 0;
+        return tid;
     }
 
     int new_node() {
-        int id = tp ? mem[tp--] : ++idx;
+        int id = ++mem;
+        assert(id < SZ * 4);
         info[id] = Info();
         tag[id] = Tag();
         return id;
     }
 
-    int inline addNode(int x) {
-        int id = new_node();
-        Info v;
-        v.val = v.sum = v.mxl = x;
-        v.pre = v.suf = max(0, x);
-        v.key = rnd();
-        v.sz = 1;
-        info[id] = v;
-        tag[id] = Tag();
-        return id;
-    }
-
-    void inline reverse (int p) {
-        if (!p) return;
-        swap(info[p].suf, info[p].pre);
-        swap(lc, rc);
-        tag[p].rev ^= 1;
-    }
-
-    void inline cover(int p, int c) {
-        if (!p) return;
-        info[p].val = c, info[p].sum = c * info[p].sz;
-        if (c >= 0) info[p].mxl = info[p].pre = info[p].suf = info[p].sum;
-        else info[p].mxl = c, info[p].pre = info[p].suf = 0;
-        tag[p].cov = c;
-    }
-
     void pull(int k) {
-        info[k].set(plus(info[k], info[ls(k)], info[rs(k)]));
+        info[k].set(plus(info[ls(k)], info[rs(k)]));
     }
 
-    void apply(int k, const Tag &v) {
-        info[k].apply(v);
-        tag[k].apply(v);
+    void apply(int k, int s, int e, const Tag &v) {
+        info[k].apply(s, e, v);
+        tag[k].apply(s, e, v);
     }
 
-    void inline pushdown(int p) {
-        if (lc) {
-            if (tag[p].cov != 1e9) cover(lc, tag[p].cov);
-            if (tag[p].rev) reverse(lc);
+    void push(int k, int s, int e) {
+        if (tag[k].check()) {
+            if (!ls(k)) ls(k) = new_node();
+            if (!rs(k)) rs(k) = new_node();
+            apply(ls(k), s, mid, tag[k]);
+            apply(rs(k), mid + 1, e, tag[k]);
+            tag[k] = Tag();
         }
-        if (rc) {
-            if (tag[p].cov != 1e9) cover(rc, tag[p].cov);
-            if (tag[p].rev) reverse(rc);
-        }
-        tag[p] = Tag();
     }
 
-    void push(int k) {
-        pushdown(k);
-         if (tag[k].check()) {
-             if (ls(k)) apply(ls(k), tag[k]);
-             if (rs(k)) apply(rs(k), tag[k]);
-             tag[k] = Tag();
-         }
-    }
+    void upd(int &k, int s, int e, int L, int R, const Tag &v) {
+        if (!k) k = new_node();
 
-    void split(int k, int sz, int &x, int &y) {
-        if (!k) {
-            x = y = 0;
+        if (L <= s && e <= R) {
+            apply(k, s, e, v);
             return;
         }
 
-        push(k);
-        if (info[ls(k)].sz < sz) {
-            x = k;
-            split(rs(k), sz - info[ls(k)].sz - 1, rs(k), y);
-        } else {
-            y = k;
-            split(ls(k), sz, x, ls(k));
-        }
+        push(k, s, e);
+        if (L <= mid) upd(ls(k), s, mid, L, R, v);
+        if (R >= mid + 1) upd(rs(k), mid + 1, e, L, R, v);
         pull(k);
     }
 
-    int merge(int x, int y) {
-        if (!x || !y) return x | y;
+    void set(int &k, int s, int e, int id, const Info &v) {
+        if (!k) k = new_node();
 
-        if (info[x].key > info[y].key) {
-            push(x);
-            rs(x) = merge(rs(x), y);
-            pull(x);
-            return x;
-        } else {
-            push(y);
-            ls(y) = merge(x, ls(y));
-            pull(y);
-            return y;
+        if (s == e) {
+            info[k].set(v);
+            return;
         }
+
+        push(k, s, e);
+        if (id <= mid) set(ls(k), s, mid, id, v);
+        if (id >= mid + 1) set(rs(k), mid + 1, e, id, v);
+        pull(k);
     }
 
-    void del(int p) {
-        mem[++tp] = p;
-        if (lc) del(lc);
-        if (rc) del(rc);
+    Info qr(int k, int s, int e, int L, int R) {
+        if (L <= s && e <= R) return info[k];
+
+        push(k, s, e);
+        if (R <= mid) return qr(ls(k), s, mid, L, R);
+        if (L >= mid + 1) return qr(rs(k), mid + 1, e, L, R);
+        return plus(qr(ls(k), s, mid, L, R), qr(rs(k), mid + 1, e, L, R));
     }
 
-    int build(int l, int r, int a[]) {
-        if (l > r) return 0;
-        if (l == r) return addNode(a[l]);
-        int mid = (l + r) >> 1, p = addNode(a[mid]);
-        info[p].lson = build(l, mid - 1, a);
-        info[p].rson = build(mid + 1, r, a);
-        pull(p);
-        return p;
+    int kth(int k, int s, int e, ll x) {
+        if (s == e) return x <= info[k].sum ? s : rb + 1;
+
+        push(k, s, e);
+        if (x <= info[ls(k)].sum) return kth(ls(k), s, mid, x);
+        else return kth(rs(k), mid + 1, e, x - info[ls(k)].sum);
     }
 
-    void ins(int p, const Info &v) {
-        int x, y;
-        split(rt, p, x, y);
-
-        int t = addNode(v.val);
-        rt = merge(merge(x, t), y);
+    void upd(int tid, int L, int R, const Tag &v) {
+        if (R < L) return;
+        int &rt = root[tid];
+        upd(rt, lb, rb, L, R, v);
     }
 
+    void set(int tid, int id, const Info &v) {
+        int &rt = root[tid];
+        set(rt, lb, rb, id, v);
+    }
+
+    Info qr(int tid, int L, int R) {
+        if (R < L) return Info();
+        int rt = root[tid];
+        return qr(rt, lb, rb, L, R);
+    }
+
+    int kth(int tid, ll x) {
+        int rt = root[tid];
+        return kth(rt, lb, rb, x);
+    }
 };
 // endregion
 
-// region 文艺平衡树(fhq)
+// region 区间求和
 struct Tag {
-    int rev, cov;
+    ll x;
 
-    Tag(int rev = 0, int cov = 1e9) : rev(rev), cov(cov) {}
+    Tag(ll x = 0) : x(x) {}
 
     bool check() const {
-        return rev != 0 || cov != 1e9;
+        return x != 0;
     }
 
-    void apply(const Tag &a) {
+    void apply(int s, int e, const Tag &a) {
         if (!a.check()) return;
-        if (a.cov != 1e9) cov = a.cov;
-        if (a.rev) rev ^= a.rev;
+        x += a.x;
     }
 };
 
 struct Info {
-    int lson, rson, key, val;
-    int sz, sum, pre, suf, mxl;
+    int lson, rson;
+    ll sum;
 
-    Info(int val = 0, int sz = 0, int sum = 0, int pre = 0, int suf = 0, int mxl = 0) : lson(0), rson(0), val(val), sz(sz),
-                                                                                        sum(sum), pre(pre), suf(suf), mxl(mxl) {}
+    Info(ll sum = 0) : lson(0), rson(0), sum(sum) {}
 
-    void init() {
-        key = rnd();
-    }
-
-    void apply(const Tag &a) {
+    void apply(int s, int e, const Tag &a) {
         if (!a.check()) return;
-        if (a.cov != 1e9) {
-            val = a.cov, sum = sz * val;
-            if (a.cov >= 0) pre = suf = mxl = sum;
-            else mxl = val, pre = suf = 0;
-        }
-        if (a.rev) {
-            swap(lson, rson);
-            swap(pre, suf);
-        }
+        sum += (e - s + 1) * a.x;
     }
 
-    static Info plus(const Info &p, const Info &a, const Info &b) {
-        Info res = Info();
-        res.sz = a.sz + b.sz + 1;
-        res.sum = a.sum + b.sum + p.val;
-        res.pre = max(a.pre, a.sum + p.val + b.pre);
-        res.suf = max(b.suf, b.sum + p.val + a.suf);
-        res.mxl = max({a.mxl, b.mxl, a.suf + p.val + b.pre});
-        return res;
+    friend Info operator+(const Info &a, const Info &b) {
+        return a.sum + b.sum;
     }
 
     void set(const Info &a) {
-        sz = a.sz, sum = a.sum, pre = a.pre, suf = a.suf, mxl = a.mxl;
+        sum = a.sum;
+    }
+};
+// endregion
+
+// region 线段树 套 x
+template<class OInfo, class Info, class Tag, int SZ>
+struct OSeg {
+#define mid (s + e >> 1)
+#define ls(x) (oinfo[x].lson)
+#define rs(x) (oinfo[x].rson)
+
+    int lb, rb, rt, mem;
+    OInfo oinfo[SZ * 4];
+
+    OSeg() {}
+
+    void init(int L, int R) {
+        rt = 0, mem = 0, lb = L, rb = R;
+        oinfo[0] = OInfo();
+    }
+
+    int new_node() {
+        int id = ++mem;
+        assert(id < SZ * 4);
+        oinfo[id] = OInfo();
+        return id;
+    }
+
+    void upd(int id, int L, int R) {
+        upd(rt, lb, rb, id, L, R);
+    }
+
+    void upd(int &k, int s, int e, int id, int L, int R) {
+        if (!k) k = new_node();
+
+        oinfo[k].apply(L, R);
+        if (s == e) return;
+
+        if (id <= mid) upd(ls(k), s, mid, id, L, R);
+        if (id >= mid + 1) upd(rs(k), mid + 1, e, id, L, R);
+    }
+
+    int kth(int L, int R, int x) {
+        return kth(rt, lb, rb, L, R, x);
+    }
+
+    int kth(int k, int s, int e, int L, int R, int x) {
+        if (s == e) return s;
+
+        ll t = oinfo[rs(k)].get(L, R);
+        if (x <= t) return kth(rs(k), mid + 1, e, L, R, x);
+        else return kth(ls(k), s, mid, L, R, x - t);
+    }
+
+    void build(int L, int R, int a[]) {
+        build(rt, L, R, a);
+    }
+
+    void build(int &k, int s, int e, int a[]) {
+        if (!k) k = new_node();
+
+        oinfo[k].init(s, e, a);
+        if (s == e) return;
+        build(ls(k), s, mid, a), build(rs(k), mid + 1, e, a);
+    }
+};
+// endregion
+
+// region x 套 线段树
+Seg<Info, Tag, 50000 * 40> seg;
+
+struct OInfo {
+    int lson, rson;
+    int tid;
+
+    OInfo() : lson(0), rson(0) {
+        tid = seg.new_tree();
+    }
+
+    void init(int s, int e, int a[]) {}
+
+    void apply(int L, int R) {
+        seg.upd(tid, L, R, 1);
+    }
+
+    ll get(int L, int R) {
+        return seg.qr(tid, L, R).sum;
     }
 };
 // endregion
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
-const int N = 500010;
+const int N = 50010;
+
+using ai4 = array<int, 4>;
 
 int n, m;
-int a[N], b[N];
-Fhq<Info, Tag, N> fhq;
+ai4 qs[N];
+OSeg<OInfo, Info, Tag, N> oseg;
+vector<int> lsh;
+int nl;
+
+int get(int x) {
+    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin();
+}
+
+void init() {
+    for (int i = 1; i <= m; i++) lsh.push_back(get<3>(qs[i]));
+    sort(lsh.begin(), lsh.end());
+    lsh.resize(unique(lsh.begin(), lsh.end()) - lsh.begin());
+    nl = lsh.size();
+}
 
 void solve() {
-    fhq.init();
-    fhq.rt = fhq.build(1, n, a);
+    init();
+    oseg.init(1, nl);
+    seg.init(1, n);
 
-    while (m--) {
-        string op;
-        cin >> op;
+    for (int i = 1; i <= m; i++) {
+        auto [op, a, b, c] = qs[i];
 
-        if (op[0] == 'I') {
-            int p, k;
-            cin >> p >> k;
-
-            for (int i = 1; i <= k; i++) {
-                int x;
-                cin >> a[i];
-            }
-            int x, y;
-            fhq.split(fhq.rt, p, x, y);
-            fhq.rt = fhq.merge(x, fhq.merge(fhq.build(1, k, a), y));
+        if (op == 1) {
+            c = get(c) + 1;
+            oseg.upd(c, a, b);
         }
-
-        if (op[0] == 'D') {
-            int L, len;
-            cin >> L >> len;
-
-            // fhq.del(L, L + len - 1);
-
-            int x, y, z;
-            fhq.split(fhq.rt, L - 1, x, y);
-            fhq.split(y, len, y, z);
-            fhq.del(y);
-            fhq.rt = fhq.merge(x, z);
-        }
-
-        if (op[0] == 'M' && op[2] == 'K') {
-            int L, len, c;
-            cin >> L >> len >> c;
-
-//            fhq.upd(L, L + len - 1, {0, x});
-            int x, y, z;
-            fhq.split(fhq.rt, L - 1, x, y);
-            fhq.split(y, len, y, z);
-            fhq.cover(y, c);
-            fhq.rt = fhq.merge(x, fhq.merge(y, z));
-        }
-
-        if (op[0] == 'R') {
-            int L, len;
-            cin >> L >> len;
-
-//            fhq.upd(L, L + len - 1, {1, (int) 1e9});
-            int x, y, z;
-            fhq.split(fhq.rt, L - 1, x, y);
-            fhq.split(y, len, y, z);
-            fhq.reverse(y);
-            fhq.rt = fhq.merge(x, fhq.merge(y, z));
-        }
-
-        if (op[0] == 'G') {
-            int L, len;
-            cin >> L >> len;
-
-//            cout << fhq.qr(L, L + len - 1).sum << "\n";
-            int x, y, z;
-            fhq.split(fhq.rt, L - 1, x, y);
-            fhq.split(y, len, y, z);
-            cout << fhq.info[y].sum << "\n";
-            fhq.rt = fhq.merge(x, fhq.merge(y, z));
-        }
-
-        if (op[0] == 'M' && op[2] == 'X') {
-            cout << fhq.info[fhq.rt].mxl << "\n";
+        if (op == 2) {
+            cout << lsh[oseg.kth(a, b, c) - 1] << "\n";
         }
     }
 }
@@ -336,7 +336,12 @@ int main() {
 //    cin >> _;
     while (_--) {
         cin >> n >> m;
-        for (int i = 1; i <= n; i++) cin >> a[i];
+        for (int i = 1; i <= m; i++) {
+            int ta, tb, tc, td;
+            cin >> ta >> tb >> tc >> td;
+            qs[i] = {ta, tb, tc, td};
+        }
+
         solve();
     }
 

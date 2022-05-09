@@ -12,8 +12,9 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <bitset>
-#include <cmath>
+#include <cassert>
 #include <random>
+#include <cmath>
 
 void debug() {
     std::cout << "\n";
@@ -35,28 +36,34 @@ using ull = unsigned long long;
 using pii = pair<int, int>;
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int N = 1e6 + 10;
 
-int n;
-string s;
+int n, m;
+string str;
 
 void solve() {
-    int f[n / 2 + 1][2];
-    memset(f, 0x3f, sizeof f);
+    vector<int> s(n * m + 1);
+    for (int i = 1; i <= n * m; i++) s[i] = s[i - 1] + str[i] - '0';
 
-    int ans = 0;
-    f[0][0] = f[0][1] = 1;
-    for (int i = 1; i <= n / 2; i++) {
-        int x = (s[i * 2 - 1] - '0') + (s[i * 2] - '0');
-
-        if (x == 0) f[i][0] = min(f[i - 1][0], f[i - 1][1] + 1);
-        if (x == 2) f[i][1] = min(f[i - 1][0] + 1, f[i - 1][1]);
-        if (x == 1) {
-            ans++;
-            f[i][0] = min(f[i - 1][0], f[i - 1][1] + 1);
-            f[i][1] = min(f[i - 1][0] + 1, f[i - 1][1]);
-        }
+    vector<int> ans(n * m + 1);
+    vector<int> f(n * m + 1);
+    for (int i = 1 ; i <= n * m; i++) {
+        int p = max(0, i - m);
+        int cur = s[i] - s[p];
+        f[i] = f[p] + (cur > 0);
+        ans[i] += f[i];
     }
-    cout << ans << " " << min(f[n / 2][0], f[n / 2][1]) << "\n";
+
+    int cur = 0;
+    vector<int> g(m);
+    for (int i = 1; i <= n * m; i++) {
+        int x = (i - 1) % m;
+        if (!g[x] && str[i] == '1') g[x] = 1, cur++;
+        ans[i] += cur;
+    }
+
+    for (int i = 1; i <= n * m; i++) cout << ans[i] << " ";
+    cout << "\n";
 }
 
 void prework() {
@@ -73,9 +80,9 @@ int main() {
     int _ = 1;
     cin >> _;
     while (_--) {
-        cin >> n;
-        cin >> s;
-        s = ' ' + s;
+        cin >> n >> m;
+        cin >> str;
+        str = ' ' + str;
         solve();
     }
 

@@ -12,8 +12,9 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <bitset>
-#include <cmath>
+#include <cassert>
 #include <random>
+#include <cmath>
 
 void debug() {
     std::cout << "\n";
@@ -35,28 +36,30 @@ using ull = unsigned long long;
 using pii = pair<int, int>;
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int N = 1e5 + 10;
 
 int n;
-string s;
+int a[N], b[N];
 
 void solve() {
-    int f[n / 2 + 1][2];
-    memset(f, 0x3f, sizeof f);
+    vector<int> g(n + 1);
+    for (int i = 1; i <= n; i++) g[a[i]] = b[i];
 
-    int ans = 0;
-    f[0][0] = f[0][1] = 1;
-    for (int i = 1; i <= n / 2; i++) {
-        int x = (s[i * 2 - 1] - '0') + (s[i * 2] - '0');
+    vector<int> vis(n + 1);
+    vector<int> c;
+    for (int i = 1; i <= n; i++) {
+        if (vis[a[i]]) continue;
 
-        if (x == 0) f[i][0] = min(f[i - 1][0], f[i - 1][1] + 1);
-        if (x == 2) f[i][1] = min(f[i - 1][0] + 1, f[i - 1][1]);
-        if (x == 1) {
-            ans++;
-            f[i][0] = min(f[i - 1][0], f[i - 1][1] + 1);
-            f[i][1] = min(f[i - 1][0] + 1, f[i - 1][1]);
-        }
+        int u = a[i], cnt = 0;
+        while (!vis[u]) vis[u] = 1, u = g[u], cnt++;
+        c.push_back(cnt);
     }
-    cout << ans << " " << min(f[n / 2][0], f[n / 2][1]) << "\n";
+
+    int cnt = 0;
+    for (int x : c) cnt += x / 2;
+    ll ans = 0;
+    for (int i = 1; i <= cnt; i++) ans += 2 * ((n - i + 1) - i);
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -74,8 +77,8 @@ int main() {
     cin >> _;
     while (_--) {
         cin >> n;
-        cin >> s;
-        s = ' ' + s;
+        for (int i = 1; i <= n; i++) cin >> a[i];
+        for (int i = 1; i <= n; i++) cin >> b[i];
         solve();
     }
 

@@ -74,6 +74,7 @@ struct Fhq {
 
     int new_node() {
         int id = ++mem;
+        assert(id < SZ + 10);
         info[id] = Info();
         return id;
     }
@@ -252,6 +253,7 @@ struct Fhq {
 
     int new_tree() {
         int tid = ++cnt;
+        assert(tid < SZ + 10);
         root[tid] = 0;
         return tid;
     }
@@ -280,6 +282,7 @@ struct Fhq {
 
     int new_node() {
         int id = ++mem;
+        assert(id < SZ + 10);
         info[id] = Info();
         return id;
     }
@@ -471,6 +474,7 @@ struct Fhq {
 
     int new_node() {
         int id = ++mem;
+        assert(id < SZ + 10);
         info[id] = Info();
         tag[id] = Tag();
         return id;
@@ -598,7 +602,7 @@ struct Fhq {
 
         push(k);
         dump(ls(k), seq);
-        seq.push_back(info[k].val);
+        seq.push_back(info[k]);
         dump(rs(k), seq);
     }
 
@@ -632,6 +636,7 @@ struct Fhq {
     }
 
     int new_node() {
+        assert(tp >= 0);
         int id = mem[tp--];
         info[id] = Info();
         tag[id] = Tag();
@@ -768,7 +773,7 @@ struct Fhq {
 
         push(k);
         dump(ls(k), seq);
-        seq.push_back(info[k].val);
+        seq.push_back(info[k]);
         dump(rs(k), seq);
     }
 

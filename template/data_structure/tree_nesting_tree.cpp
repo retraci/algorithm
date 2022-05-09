@@ -17,6 +17,7 @@ struct OSeg {
 
     int new_node() {
         int id = ++mem;
+        assert(id < SZ * 4);
         oinfo[id] = OInfo();
         return id;
     }

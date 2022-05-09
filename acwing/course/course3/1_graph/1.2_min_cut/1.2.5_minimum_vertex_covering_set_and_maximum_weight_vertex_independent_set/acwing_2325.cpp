@@ -33,27 +33,31 @@ using ld = long double;
 using ull = unsigned long long;
 using pii = pair<int, int>;
 
-// region dinic 整数
+// region dinic
 template<int N, int M>
-struct Dinic {
-    int n, m, S, T;
-    pii e[2 * M + 10];
+struct Flow {
+    using flowt = int;
+    using pif = std::pair<int, flowt>;
+    const flowt INF = 1e9;
+
+    int n;
+    pif e[2 * M + 10];
     int h[N + 10], ne[2 * M + 10], edm;
     int d[N + 10], nh[N + 10], vis[N + 10];
 
-    Dinic() {}
+    Flow() {}
 
-    void init(int _n, int _S, int _T) {
-        n = _n, S = _S, T = _T;
+    void init(int _n) {
+        n = _n;
         fill(h, h + n + 1, -1), edm = 0;
     }
 
-    void add(int u, int v, int c1, int c2) {
+    void add(int u, int v, flowt c1, flowt c2) {
         e[edm] = {v, c1}, ne[edm] = h[u], h[u] = edm++;
         e[edm] = {u, c2}, ne[edm] = h[v], h[v] = edm++;
     }
 
-    bool bfs() {
+    bool bfs(int S, int T) {
         fill(d + 1, d + n + 1, -1);
         queue<int> que;
         d[S] = 0;
@@ -74,15 +78,15 @@ struct Dinic {
         return false;
     }
 
-    int dfs(int u, int lit) {
+    flowt dfs(int u, int T, flowt lit) {
         if (u == T) return lit;
 
-        int flow = 0;
+        flowt flow = 0;
         for (int &i = nh[u]; ~i; i = ne[i]) {
             auto &[v, cap] = e[i];
             if (d[v] != d[u] + 1 || cap == 0) continue;
 
-            int ret = dfs(v, min(cap, lit - flow));
+            flowt ret = dfs(v, T, min(cap, lit - flow));
             if (ret == 0) d[v] = -1;
             flow += ret, cap -= ret, e[i ^ 1].se += ret;
 
@@ -92,12 +96,16 @@ struct Dinic {
         return flow;
     }
 
-    ll dinic() {
-        ll flow = 0;
-        while (bfs()) {
+    flowt max_flow(int S, int T) {
+        flowt flow = 0;
+        while (bfs(S, T)) {
             for (int i = 1; i <= n; i++) nh[i] = h[i];
-            int tmp;
-            while (tmp = dfs(S, 1e9)) flow += tmp;
+            while (1) {
+                flowt t = dfs(S, T, INF);
+                if (t == 0) break;
+
+                flow += t;
+            }
         }
         return flow;
     }
@@ -112,22 +120,14 @@ struct Dinic {
         }
     }
 
-    const array<vector<int>, 2> qr() {
+    const vector<int> qr_min_cut(int S, int T) {
         fill(vis, vis + n + 1, 0);
         dfs(S);
 
-        array<vector<int>, 2> res;
+        vector<int> res;
         for (int i = 0; i < edm; i += 2) {
             int v = e[i].fi, u = e[i ^ 1].fi;
-            if (vis[u] && !vis[v]) {
-                if (u == S) res[0].push_back(v);
-            }
-        }
-        for (int i = 0; i < edm; i += 2) {
-            int v = e[i].fi, u = e[i ^ 1].fi;
-            if (vis[u] && !vis[v]) {
-                if (v == T) res[1].push_back(u);
-            }
+            if (vis[u] && !vis[v]) res.push_back(i);
         }
 
         return res;
@@ -138,18 +138,19 @@ struct Dinic {
 const int N = 110;
 const int M = 5010;
 
-int n, m;
+int n, m, S, T;
 int a[N], b[N];
 pii es[M];
-Dinic<2 * N, M + 2 * N> g;
+Flow<2 * N, M + 2 * N> g;
 int st[2 * N];
 
 void init() {
-    g.init(2 * n + 2, 2 * n + 1, 2 * n + 2);
+    S = 2 * n + 1, T = 2 * n + 2;
+    g.init(2 * n + 2);
 
     for (int i = 1; i <= n; i++) {
-        g.add(g.S, i, a[i], 0);
-        g.add(n + i, g.T, b[i], 0);
+        g.add(S, i, a[i], 0);
+        g.add(n + i, T, b[i], 0);
     }
     for (int i = 1; i <= m; i++) {
         auto [u, v] = es[i];
@@ -160,8 +161,15 @@ void init() {
 void solve() {
     init();
 
-    cout << g.dinic() << "\n";
-    auto &[v1, v2] = g.qr();
+    cout << g.max_flow(S, T) << "\n";
+    auto &mine = g.qr_min_cut(S, T);
+
+    vector<int> v1, v2;
+    for (int eid : mine) {
+        int u = g.e[eid ^ 1].fi, v = g.e[eid].fi;
+        if (u == S) v1.push_back(v);
+        if (v == T) v2.push_back(u);
+    }
 
     int cnt = v1.size() + v2.size();
     cout << cnt << "\n";

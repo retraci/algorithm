@@ -1,12 +1,14 @@
 // region ek
 template<int N, int M>
 struct Flow {
-    const int INF = INF;
+    using flowt = int;
+    using pif = std::pair<int, flowt>;
+    const flowt INF = 1e9;
 
     int n;
-    pii e[M * 2];
+    pif e[M * 2];
     int h[N], ne[M * 2], edm;
-    int incf[N], pe[N];
+    flowt incf[N], pe[N];
 
     Flow() {}
 
@@ -15,7 +17,7 @@ struct Flow {
         fill(h, h + n + 1, -1), edm = 0;
     }
 
-    void add(int u, int v, int c1, int c2) {
+    void add(int u, int v, flowt c1, flowt c2) {
         e[edm] = {v, c1}, ne[edm] = h[u], h[u] = edm++;
         e[edm] = {u, c2}, ne[edm] = h[v], h[v] = edm++;
     }
@@ -42,10 +44,10 @@ struct Flow {
         return false;
     }
 
-    int max_flow(int S, int T) {
-        int f = 0;
+    flowt max_flow(int S, int T) {
+        flowt flow = 0;
         while (bfs(S, T)) {
-            f += incf[T];
+            flow += incf[T];
             int t = T;
             while (t != S) {
                 int eid = pe[t];
@@ -54,18 +56,20 @@ struct Flow {
             }
         }
 
-        return f;
+        return flow;
     }
 };
 // endregion
 
-// region dinic 整数
+// region dinic
 template<int N, int M>
 struct Flow {
-    const int INF = 1e9;
+    using flowt = int;
+    using pif = std::pair<int, flowt>;
+    const flowt INF = 1e9;
 
     int n;
-    pii e[2 * M + 10];
+    pif e[2 * M + 10];
     int h[N + 10], ne[2 * M + 10], edm;
     int d[N + 10], nh[N + 10], vis[N + 10];
 
@@ -76,7 +80,7 @@ struct Flow {
         fill(h, h + n + 1, -1), edm = 0;
     }
 
-    void add(int u, int v, int c1, int c2) {
+    void add(int u, int v, flowt c1, flowt c2) {
         e[edm] = {v, c1}, ne[edm] = h[u], h[u] = edm++;
         e[edm] = {u, c2}, ne[edm] = h[v], h[v] = edm++;
     }
@@ -102,15 +106,15 @@ struct Flow {
         return false;
     }
 
-    int dfs(int u, int T, int lit) {
+    flowt dfs(int u, int T, flowt lit) {
         if (u == T) return lit;
 
-        int flow = 0;
+        flowt flow = 0;
         for (int &i = nh[u]; ~i; i = ne[i]) {
             auto &[v, cap] = e[i];
             if (d[v] != d[u] + 1 || cap == 0) continue;
 
-            int ret = dfs(v, T, min(cap, lit - flow));
+            flowt ret = dfs(v, T, min(cap, lit - flow));
             if (ret == 0) d[v] = -1;
             flow += ret, cap -= ret, e[i ^ 1].se += ret;
 
@@ -120,12 +124,12 @@ struct Flow {
         return flow;
     }
 
-    int max_flow(int S, int T) {
-        int flow = 0;
+    flowt max_flow(int S, int T) {
+        flowt flow = 0;
         while (bfs(S, T)) {
             for (int i = 1; i <= n; i++) nh[i] = h[i];
-            while (tmp = dfs(S, T, INF)) {
-                int t = dfs(S, T, INF);
+            while (1) {
+                flowt t = dfs(S, T, INF);
                 if (t == 0) break;
 
                 flow += t;
@@ -144,22 +148,14 @@ struct Flow {
         }
     }
 
-    const array<vector<int>, 2> qr(int S, int T) {
+    const vector<int> qr_min_cut(int S, int T) {
         fill(vis, vis + n + 1, 0);
         dfs(S);
 
-        array<vector<int>, 2> res;
+        vector<int> res;
         for (int i = 0; i < edm; i += 2) {
             int v = e[i].fi, u = e[i ^ 1].fi;
-            if (vis[u] && !vis[v]) {
-                if (u == S) res[0].push_back(v);
-            }
-        }
-        for (int i = 0; i < edm; i += 2) {
-            int v = e[i].fi, u = e[i ^ 1].fi;
-            if (vis[u] && !vis[v]) {
-                if (v == T) res[1].push_back(u);
-            }
+            if (vis[u] && !vis[v]) res.push_back(i);
         }
 
         return res;
@@ -167,95 +163,19 @@ struct Flow {
 };
 // endregion
 
-// region dinic 浮点
-template<int N, int M>
-struct Flow {
-    using pid = std::pair<int, double>;
-
-    const double INF = 1e18;
-
-    int n;
-    pid e[2 * M + 10];
-    int h[N + 10], ne[2 * M + 10], edm;
-    int d[N + 10], nh[N + 10];
-
-    Flow() {}
-
-    void init(int _n) {
-        n = _n;
-        fill(h, h + n + 1, -1), edm = 0;
-    }
-
-    void add(int u, int v, double c1, double c2) {
-        e[edm] = {v, c1}, ne[edm] = h[u], h[u] = edm++;
-        e[edm] = {u, c2}, ne[edm] = h[v], h[v] = edm++;
-    }
-
-    bool bfs(int S, int T) {
-        fill(d + 1, d + n + 1, -1);
-        queue<int> que;
-        d[S] = 0;
-        que.push(S);
-        while (!que.empty()) {
-            auto u = que.front(); que.pop();
-
-            for (int i = h[u]; ~i; i = ne[i]) {
-                auto [v, cap] = e[i];
-                if (d[v] != -1 || cap == 0) continue;
-
-                d[v] = d[u] + 1;
-                if (v == T) return true;
-                que.push(v);
-            }
-        }
-
-        return false;
-    }
-
-    double dfs(int u, int T, double lit) {
-        if (u == T) return lit;
-
-        double flow = 0;
-        for (int &i = nh[u]; ~i; i = ne[i]) {
-            auto &[v, cap] = e[i];
-            if (d[v] != d[u] + 1 || cap == 0) continue;
-
-            double ret = dfs(v, T, min(cap, lit - flow));
-            if (ret == 0) d[v] = -1;
-            flow += ret, cap -= ret, e[i ^ 1].se += ret;
-
-            if (lit - flow == 0) break;
-        }
-
-        return flow;
-    }
-
-    double dinic(int S, int T) {
-        double flow = 0;
-        while (bfs(S, T)) {
-            for (int i = 1; i <= n; i++) nh[i] = h[i];
-            while (tmp = dfs(S, T, INF)) {
-                double t = dfs(S, T, INF);
-                if (t == 0) break;
-
-                flow += t;
-            }
-        }
-        return flow;
-    }
-};
-// endregion
-
 // region ek 费用流
 template<int N, int M>
 struct Flow {
-    using ai3 = array<int, 3>;
+    using flowt = int;
+    using pff = pair<flowt, flowt>;
+    using af3 = array<flowt, 3>;
     const int INF = 1e9;
 
     int n;
-    ai3 e[M * 2 + 10];
+    af3 e[M * 2 + 10];
     int h[N + 10], ne[M * 2 + 10], edm;
-    int d[N + 10], incf[N + 10], pe[N + 10];
+    int d[N + 10], pe[N + 10];
+    flowt incf[N + 10];
 
     Flow() {}
 
@@ -264,7 +184,7 @@ struct Flow {
         fill(h, h + n + 1, -1), edm = 0;
     }
 
-    void add(int u, int v, int cap, int cost) {
+    void add(int u, int v, flowt cap, flowt cost) {
         e[edm] = {v, cap, cost}, ne[edm] = h[u], h[u] = edm++;
         e[edm] = {u, 0, -cost}, ne[edm] = h[v], h[v] = edm++;
     }
@@ -301,8 +221,8 @@ struct Flow {
         return incf[T] > 0;
     }
 
-    pii max_flow_cost(int S, int T) {
-        int flow = 0, dis = 0;
+    pff max_flow_cost(int S, int T) {
+        flowt flow = 0, dis = 0;
         while (spfa(S, T)) {
             flow += incf[T], dis += incf[T] * d[T];
             int t = T;
@@ -318,14 +238,16 @@ struct Flow {
 };
 // endregion
 
-// region dinic 整数费用流
+// region dinic 费用流
 template<int N, int M>
 struct Flow {
-    using ai3 = array<int, 3>;
-    const int INF = 1e9;
+    using flowt = int;
+    using pff = pair<flowt, flowt>;
+    using af3 = array<flowt, 3>;
+    const flowt INF = 1e9;
 
     int n;
-    ai3 e[2 * M + 10];
+    af3 e[2 * M + 10];
     int h[N + 10], ne[2 * M + 10], edm;
     int d[N + 10], nh[N + 10], vis[N + 10];
 
@@ -336,7 +258,7 @@ struct Flow {
         fill(h, h + n + 1, -1), edm = 0;
     }
 
-    void add(int u, int v, int cap, int cost) {
+    void add(int u, int v, flowt cap, flowt cost) {
         e[edm] = {v, cap, cost}, ne[edm] = h[u], h[u] = edm++;
         e[edm] = {u, 0, -cost}, ne[edm] = h[v], h[v] = edm++;
     }
@@ -371,11 +293,11 @@ struct Flow {
         return d[T] != INF;
     }
 
-    pii dfs(int u, int T, int lit) {
+    pff dfs(int u, int T, flowt lit) {
         if (u == T) return {lit, lit * d[T]};
         vis[u] = 1;
 
-        int flow = 0, dis = 0;
+        flowt flow = 0, dis = 0;
         for (int &i = nh[u]; ~i; i = ne[i]) {
             auto &[v, cap, cost] = e[i];
             if (d[v] != d[u] + cost || cap == 0 || vis[v]) continue;
@@ -391,8 +313,8 @@ struct Flow {
         return {flow, dis};
     }
 
-    pii max_flow_cost(int S, int T) {
-        int flow = 0, dis = 0;
+    pff max_flow_cost(int S, int T) {
+        flowt flow = 0, dis = 0;
         while (spfa(S, T)) {
             for (int i = 1; i <= n; i++) nh[i] = h[i];
             while (1) {

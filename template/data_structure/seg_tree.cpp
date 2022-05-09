@@ -19,6 +19,7 @@ struct Seg {
 
     int new_node() {
         int id = ++mem;
+        assert(id < SZ * 4);
         info[id] = Info();
         return id;
     }
@@ -114,6 +115,7 @@ struct Seg {
 
     int new_node() {
         int id = ++mem;
+        assert(id < SZ * 4);
         info[id] = Info();
         tag[id] = Tag();
         return id;

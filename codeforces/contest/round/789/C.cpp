@@ -35,28 +35,39 @@ using ull = unsigned long long;
 using pii = pair<int, int>;
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int N = 5010;
 
 int n;
-string s;
+int a[N];
+int s[N][N];
 
-void solve() {
-    int f[n / 2 + 1][2];
-    memset(f, 0x3f, sizeof f);
+void init() {
+    fill(&s[0][0], &s[n][n] + 1, 0);
+    for (int i = 1; i <= n; i++) s[i][a[i]] = 1;
 
-    int ans = 0;
-    f[0][0] = f[0][1] = 1;
-    for (int i = 1; i <= n / 2; i++) {
-        int x = (s[i * 2 - 1] - '0') + (s[i * 2] - '0');
-
-        if (x == 0) f[i][0] = min(f[i - 1][0], f[i - 1][1] + 1);
-        if (x == 2) f[i][1] = min(f[i - 1][0] + 1, f[i - 1][1]);
-        if (x == 1) {
-            ans++;
-            f[i][0] = min(f[i - 1][0], f[i - 1][1] + 1);
-            f[i][1] = min(f[i - 1][0] + 1, f[i - 1][1]);
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            s[i][j] += s[i - 1][j] + s[i][j - 1] - s[i - 1][j - 1];
         }
     }
-    cout << ans << " " << min(f[n / 2][0], f[n / 2][1]) << "\n";
+}
+
+int get(int x1, int y1, int x2, int y2) {
+    return s[x2][y2] - s[x2][y1 - 1] - s[x1 - 1][y2] + s[x1 - 1][y1 - 1];
+}
+
+void solve() {
+    init();
+
+    ll ans = 0;
+    for (int i = 2; i + 2 <= n; i++) {
+        for (int j = i + 1; j + 1 <= n; j++) {
+            int ta = get(1, 1, i - 1, a[j] - 1);
+            int tb = get(j + 1, 1, n, a[i] - 1);
+            ans += 1LL * ta * tb;
+        }
+    }
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -74,8 +85,7 @@ int main() {
     cin >> _;
     while (_--) {
         cin >> n;
-        cin >> s;
-        s = ' ' + s;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 

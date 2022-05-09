@@ -12,49 +12,33 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <bitset>
+#include <cassert>
+#include <random>
+#include <cmath>
 
-// region general
-#define ll long long
-#define ld long double
-#define ull unsigned long long
-#define fi first
-#define se second
-
-typedef std::pair<int, int> pii;
-typedef std::pair<ll, ll> pll;
-typedef std::tuple<int, int, int> ti3;
-typedef std::tuple<ll, ll, ll> tl3;
-typedef std::tuple<int, int, int, int> ti4;
-typedef std::tuple<ll, ll, ll, ll> tl4;
-
-inline void debug() {
+void debug() {
     std::cout << "\n";
 }
 
 template<class T, class... OtherArgs>
-inline void debug(T &&var, OtherArgs &&... args) {
+void debug(T &&var, OtherArgs &&... args) {
     std::cout << std::forward<T>(var) << " ";
     debug(std::forward<OtherArgs>(args)...);
 }
-// endregion
-// region grid_delta
-namespace grid_delta {
-    // 上, 右, 下, 左  |  左上, 右上, 右下, 左下
-    const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
-}
-// endregion
 
 using namespace std;
-using namespace grid_delta;
 
-const int N = 110;
-const int M = 410;
-const double eps = 1e-5;
+#define fi first
+#define se second
+using ll = long long;
+using ld = long double;
+using ull = unsigned long long;
+using pii = pair<int, int>;
 
 // region dinic
 template<int N, int M>
 struct Flow {
-    using flowt = double;
+    using flowt = ll;
     using pif = std::pair<int, flowt>;
     const flowt INF = 1e18;
 
@@ -138,17 +122,14 @@ struct Flow {
         }
     }
 
-    const array<vector<int>, 2> qr(int S, int T) {
+    const vector<int> get_min_cut(int S, int T) {
         fill(vis, vis + n + 1, 0);
         dfs(S);
 
-        array<vector<int>, 2> res;
+        vector<int> res;
         for (int i = 0; i < edm; i += 2) {
             int v = e[i].fi, u = e[i ^ 1].fi;
-            if (vis[u] && !vis[v]) {
-                if (u == S) res[0].push_back(v);
-                if (v == T) res[1].push_back(u);
-            }
+            if (vis[u] && !vis[v]) res.push_back(i);
         }
 
         return res;
@@ -156,48 +137,42 @@ struct Flow {
 };
 // endregion
 
+const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int N = 110;
+const int M = N * N / 2;
+
 int n, m, S, T;
-ti3 es[M];
-Flow<N, M> g;
+int a[N];
+pii es[M];
+Flow<2 * N, 2 * M + N> g;
 
 void init() {
-    g.init(n);
+    g.init(2 * n);
+    S = 1, T = n + n;
+
+    for (int i = 1; i <= n; i++) {
+        if (i == 1 || i == n) g.add(i, n + i, 1e18, 0);
+        else g.add(i, n + i, a[i], 0);
+    }
 
     for (int i = 1; i <= m; i++) {
-        auto [u, v, cap] = es[i];
-
-        g.add(u, v, cap, cap);
+        auto [u, v] = es[i];
+        g.add(n + u, v, 1e18, 0), g.add(n + v, u, 1e18, 0);
     }
-}
-
-bool check(double md) {
-    double sum = 0;
-    for (int i = 0; i < g.edm; i += 2) {
-        int cap = get<2>(es[i / 2 + 1]);
-        if (cap - md <= 0) {
-            sum += cap - md;
-            g.e[i].se = g.e[i ^ 1].se = 0;
-        } else {
-            g.e[i].se = g.e[i ^ 1].se = cap - md;
-        }
-    }
-
-    sum += g.max_flow(S, T);
-    return sum < 0;
 }
 
 void solve() {
     init();
 
-    double left = 0, right = 1e7;
-    while (left + eps < right) {
-        double md = (left + right) / 2;
-        if (check(md)) right = md;
-        else left = md;
+    cout << g.max_flow(S, T) << "\n";
+    auto &min_cut = g.get_min_cut(S, T);
+    vector<int> ans;
+    for (int eid : min_cut) {
+        ans.push_back(g.e[eid ^ 1].fi);
     }
-
-    cout << fixed << setprecision(2);
-    cout << left << "\n";
+    cout << ans.size() << "\n";
+    for (int x : ans) cout << x << " ";
+    cout << "\n";
 }
 
 void prework() {
@@ -214,13 +189,9 @@ int main() {
     int _ = 1;
 //    cin >> _;
     while (_--) {
-        cin >> n >> m >> S >> T;
-        for (int i = 1; i <= m; i++) {
-            int u, v, cap;
-            cin >> u >> v >> cap;
-            es[i] = {u, v, cap};
-        }
-
+        cin >> n >> m;
+        for (int i = 1; i <= m; i++) cin >> es[i].fi >> es[i].se;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 
