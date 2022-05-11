@@ -234,7 +234,7 @@ struct Fhq {
 };
 // endregion
 
-// region 普通平衡树(fhq + 启发式合并)
+// region 普通平衡树(fhq + 合并)
 mt19937 rnd(random_device{}());
 template<class Info, class Tag, int SZ>
 struct Fhq {
@@ -460,7 +460,7 @@ struct Fhq {
 #define rs(x) (info[x].rson)
 
     Info (*plus)(const Info &p, const Info &a, const Info &b);
-    int n, rt, mem;
+    int rt, mem;
     Info info[SZ + 10];
     Tag tag[SZ + 10];
 
@@ -614,6 +614,179 @@ struct Fhq {
 };
 // endregion
 
+// region 维护序列(fhq + 合并)
+mt19937 rnd(random_device{}());
+template<class Info, class Tag, int SZ>
+struct Fhq {
+#define ls(x) (info[x].lson)
+#define rs(x) (info[x].rson)
+
+    Info (*plus)(const Info &p, const Info &a, const Info &b);
+    int root[SZ + 10], cnt, mem;
+    Info info[SZ + 10];
+    Tag tag[SZ + 10];
+
+    Fhq() : plus(Info::plus) {}
+
+    void init() {
+        cnt = 0, mem = 0;
+    }
+
+    int new_tree() {
+        int tid = ++cnt;
+        assert(tid < SZ + 10);
+        root[tid] = 0;
+        return tid;
+    }
+
+    int new_node() {
+        int id = ++mem;
+        assert(id < SZ + 10);
+        info[id] = Info();
+        tag[id] = Tag();
+        return id;
+    }
+
+    int size(int tid) {
+        int rt = root[tid];
+        return info[rt].sz;
+    }
+
+    void pull(int k) {
+        info[k].set(plus(info[k], info[ls(k)], info[rs(k)]));
+    }
+
+    void apply(int k, const Tag &v) {
+        info[k].apply(v);
+        tag[k].apply(v);
+    }
+
+    void push(int k) {
+        if (tag[k].check()) {
+            if (ls(k)) apply(ls(k), tag[k]);
+            if (rs(k)) apply(rs(k), tag[k]);
+            tag[k] = Tag();
+        }
+    }
+
+    void split(int k, int sz, int &x, int &y) {
+        if (!k) {
+            x = y = 0;
+            return;
+        }
+
+        push(k);
+        if (info[ls(k)].sz < sz) {
+            x = k;
+            split(rs(k), sz - info[ls(k)].sz - 1, rs(k), y);
+        } else {
+            y = k;
+            split(ls(k), sz, x, ls(k));
+        }
+        pull(k);
+    }
+
+    int merge(int x, int y) {
+        if (!x || !y) return x | y;
+
+        if (info[x].key > info[y].key) {
+            push(x);
+            rs(x) = merge(rs(x), y);
+            pull(x);
+            return x;
+        } else {
+            push(y);
+            ls(y) = merge(x, ls(y));
+            pull(y);
+            return y;
+        }
+    }
+
+    int build(int L, int R, Info a[]) {
+        if (L > R) return 0;
+        if (L == R) {
+            int t = new_node();
+            info[t] = a[L];
+            info[t].init();
+            return t;
+        }
+
+        int mid = L + R >> 1, k = new_node();
+        info[k] = a[mid];
+        info[k].init();
+        ls(k) = build(L, mid - 1, a);
+        rs(k) = build(mid + 1, R, a);
+        pull(k);
+        return k;
+    }
+
+    void insarr(int tid, int p, int len, Info a[]) {
+        int &rt = root[tid];
+        int x, y;
+
+        int nt = build(1, len, a);
+        rt = merge(merge(x, nt), y);
+    }
+
+    void ins(int tid, int p, const Info &v) {
+        int &rt = root[tid];
+        int x, y;
+        split(rt, p, x, y);
+
+        int t = new_node();
+        info[t] = v;
+        info[t].init();
+        rt = merge(merge(x, t), y);
+    }
+
+    void del(int tid, int L, int R) {
+        int &rt = root[tid];
+        int x, y, z;
+        split(rt, L - 1, x, y);
+        split(y, R - L + 1, y, z);
+
+        rt = merge(x, z);
+    }
+
+    void upd(int tid, int L, int R, const Tag &v) {
+        int &rt = root[tid];
+        int x, y, z;
+        split(rt, L - 1, x, y);
+        split(y, R - L + 1, y, z);
+
+        apply(y, v);
+        rt = merge(merge(x, y), z);
+    }
+
+    Info qr(int tid, int L, int R) {
+        int &rt = root[tid];
+        int x, y, z;
+        split(rt, L - 1, x, y);
+        split(y, R - L + 1, y, z);
+
+        Info res = info[y];
+        rt = merge(merge(x, y), z);
+        return res;
+    }
+
+    void dump(int k, vector<Info> &seq) {
+        if (!k) return;
+
+        push(k);
+        dump(ls(k), seq);
+        seq.push_back(info[k]);
+        dump(rs(k), seq);
+    }
+
+    vector<Info> dump(int tid) {
+        int rt = root[tid];
+        vector<Info> res;
+        dump(rt, res);
+        return res;
+    }
+};
+// endregion
+
 // region 维护序列(fhq + gc)
 mt19937 rnd(random_device{}());
 template<class Info, class Tag, int SZ>
@@ -622,7 +795,7 @@ struct Fhq {
 #define rs(x) (info[x].rson)
 
     Info (*plus)(const Info &p, const Info &a, const Info &b);
-    int n, rt, mem[SZ + 10], tp;
+    int rt, mem[SZ + 10], tp;
     Info info[SZ + 10];
     Tag tag[SZ + 10];
 
@@ -631,8 +804,6 @@ struct Fhq {
     void init() {
         rt = 0, tp = SZ;
         iota(mem, mem + SZ + 1, 0);
-        info[0] = Info();
-        tag[0] = Tag();
     }
 
     int new_node() {
@@ -707,19 +878,19 @@ struct Fhq {
     int build(int L, int R, Info a[]) {
         if (L > R) return 0;
         if (L == R) {
-            int k = new_node();
-            info[k] = a[L];
-            info[k].init();
-            return k;
+            int t = new_node();
+            info[t] = a[L];
+            info[t].init();
+            return t;
         }
 
-        int mid = L + R >> 1, p = new_node();
-        info[p] = a[mid];
-        info[p].init();
-        ls(p) = build(L, mid - 1, a);
-        rs(p) = build(mid + 1, R, a);
-        pull(p);
-        return p;
+        int mid = L + R >> 1, k = new_node();
+        info[k] = a[mid];
+        info[k].init();
+        ls(k) = build(L, mid - 1, a);
+        rs(k) = build(mid + 1, R, a);
+        pull(k);
+        return k;
     }
 
     void insarr(int p, int len, Info a[]) {

@@ -14,6 +14,7 @@
 #include <bitset>
 #include <cmath>
 #include <random>
+#include <cassert>
 
 void debug() {
     std::cout << "\n";
@@ -42,7 +43,7 @@ struct Fhq {
 #define rs(x) (info[x].rson)
 
     Info (*plus)(const Info &p, const Info &a, const Info &b);
-    int n, rt, mem;
+    int rt, mem;
     Info info[SZ + 10];
     Tag tag[SZ + 10];
 
@@ -56,6 +57,7 @@ struct Fhq {
 
     int new_node() {
         int id = ++mem;
+        assert(id < SZ + 10);
         info[id] = Info();
         tag[id] = Tag();
         return id;
@@ -183,7 +185,7 @@ struct Fhq {
 
         push(k);
         dump(ls(k), seq);
-        seq.push_back(info[k].val);
+        seq.push_back(info[k]);
         dump(rs(k), seq);
     }
 

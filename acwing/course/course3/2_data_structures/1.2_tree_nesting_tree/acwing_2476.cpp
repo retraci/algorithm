@@ -14,6 +14,7 @@
 #include <bitset>
 #include <cmath>
 #include <random>
+#include <cassert>
 
 void debug() {
     std::cout << "\n";
@@ -34,7 +35,7 @@ using ld = long double;
 using ull = unsigned long long;
 using pii = pair<int, int>;
 
-// region 普通平衡树(fhq + 启发式合并)
+// region 普通平衡树(fhq + 合并)
 mt19937 rnd(random_device{}());
 template<class Info, class Tag, int SZ>
 struct Fhq {
@@ -53,6 +54,7 @@ struct Fhq {
 
     int new_tree() {
         int tid = ++cnt;
+        assert(tid < SZ + 10);
         root[tid] = 0;
         return tid;
     }
@@ -81,6 +83,7 @@ struct Fhq {
 
     int new_node() {
         int id = ++mem;
+        assert(id < SZ + 10);
         info[id] = Info();
         return id;
     }
