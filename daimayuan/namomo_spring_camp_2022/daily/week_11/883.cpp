@@ -35,25 +35,37 @@ using ld = long double;
 using ull = unsigned long long;
 using pii = pair<int, int>;
 using ai3 = array<int, 3>;
-mt19937 rnd(time(0));
-mt19937_64 rnd64(time(0));
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int N = 1e6 + 10;
 
-vector<int> lsh;
+int n;
+ll a[N];
+ll ans;
 
-int get(int x) {
-    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin();
+ll work(ll p) {
+    ll res = 0;
+    for (int i = 1; i <= n; i++) {
+        ll r = a[i] % p;
+        res += min(r, p - r);
+    }
+    return res;
 }
 
 void solve() {
-    int a, b;
-    swap(a, b);
+    for (int i = 1; i <= n; i++) a[i] += a[i - 1];
 
-    swap(a, b);
-    sort(lsh.begin(), lsh.end());
-    lsh.resize(unique(lsh.begin(), lsh.end()) - lsh.begin());
-    int nl = lsh.size();
+    ans = 1e18;
+    ll s = a[n];
+    for (int i = 2; i <= s / i; i++) {
+        if (s % i == 0) {
+            while (s % i == 0) s /= i;
+            ans = min(ans, work(i));
+        }
+    }
+    if (s > 1) ans = min(ans, work(s));
+
+    cout << (ans == 1e18 ? -1 : ans) << "\n";
 }
 
 void prework() {
@@ -68,8 +80,10 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int _ = 1;
-    cin >> _;
+//    cin >> _;
     while (_--) {
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 

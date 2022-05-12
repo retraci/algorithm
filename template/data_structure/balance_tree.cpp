@@ -55,7 +55,6 @@ struct Fenwick {
 // endregion
 
 // region 普通平衡树(fhq)
-mt19937 rnd(random_device{}());
 template<class Info, class Tag, int SZ>
 struct Fhq {
 #define ls(x) (info[x].lson)
@@ -235,7 +234,6 @@ struct Fhq {
 // endregion
 
 // region 普通平衡树(fhq + 合并)
-mt19937 rnd(random_device{}());
 template<class Info, class Tag, int SZ>
 struct Fhq {
 #define ls(x) (info[x].lson)
@@ -453,7 +451,6 @@ struct Fhq {
 // endregion
 
 // region 维护序列(fhq)
-mt19937 rnd(random_device{}());
 template<class Info, class Tag, int SZ>
 struct Fhq {
 #define ls(x) (info[x].lson)
@@ -615,7 +612,6 @@ struct Fhq {
 // endregion
 
 // region 维护序列(fhq + 合并)
-mt19937 rnd(random_device{}());
 template<class Info, class Tag, int SZ>
 struct Fhq {
 #define ls(x) (info[x].lson)
@@ -788,7 +784,6 @@ struct Fhq {
 // endregion
 
 // region 维护序列(fhq + gc)
-mt19937 rnd(random_device{}());
 template<class Info, class Tag, int SZ>
 struct Fhq {
 #define ls(x) (info[x].lson)

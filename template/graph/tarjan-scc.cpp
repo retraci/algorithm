@@ -3,10 +3,10 @@ template<int N, int M>
 struct Scc {
     int n;
     int h1[N + 10], h2[N + 10], ne[2 * M + 10], e[2 * M + 10], edm;
-    int dfn[N], low[N], ti;
+    int dfn[N + 10], low[N + 10], ti;
     vector<int> stk;
-    int ins[N];
-    int co[N], sz[N], scc;
+    int ins[N + 10];
+    int co[N + 10], sz[N + 10], scc;
 
     Scc() {}
 
@@ -19,6 +19,10 @@ struct Scc {
 
     void add(int h[], int u, int v) {
         e[edm] = v, ne[edm] = h[u], h[u] = edm++;
+    }
+
+    void add(int u, int v) {
+        add(h1, u, v);
     }
 
     void tarjan(int u) {
@@ -68,10 +72,10 @@ struct Scc {
     int n;
     pii e[2 * M + 10];
     int h1[N + 10], h2[N + 10], ne[2 * M + 10], edm;
-    int dfn[N], low[N], ti;
+    int dfn[N + 10], low[N + 10], ti;
     vector<int> stk;
-    int ins[N];
-    int co[N], sz[N], scc;
+    int ins[N + 10];
+    int co[N + 10], sz[N + 10], scc;
 
     Scc() {}
 
@@ -84,6 +88,10 @@ struct Scc {
 
     void add(int h[], int u, int v, int cost) {
         e[edm] = {v, cost}, ne[edm] = h[u], h[u] = edm++;
+    }
+
+    void add(int u, int v, int cost) {
+        add(h1, u, v, cost);
     }
 
     void tarjan(int u) {

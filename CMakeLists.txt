@@ -470,3 +470,7 @@ add_executable(acwing_2523 acwing/course/course3/2_data_structures/1.4_mo_algo/a
 add_executable(acwing_2534 acwing/course/course3/2_data_structures/1.4_mo_algo/acwing_2534.cpp)
 add_executable(acwing_2535 acwing/course/course3/2_data_structures/1.4_mo_algo/acwing_2535.cpp)
 add_executable(885 daimayuan/namomo_spring_camp_2022/daily/week_11/885.cpp)
+add_executable(885_dp daimayuan/namomo_spring_camp_2022/daily/week_11/885_dp.cpp)
+add_executable(acwing_2568 acwing/course/course3/2_data_structures/1.5_heavy_path_decomposition/acwing_2568.cpp)
+add_executable(acwing_918 acwing/course/course3/2_data_structures/1.5_heavy_path_decomposition/acwing_918.cpp)
+add_executable(883 daimayuan/namomo_spring_camp_2022/daily/week_11/883.cpp)

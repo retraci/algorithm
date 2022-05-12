@@ -1,61 +1,79 @@
-#include <iostream>
-#include <cstdio>
-#include <algorithm>
-#include <cstring>
-#include <numeric>
-#include <iomanip>
-#include <vector>
-#include <queue>
-#include <stack>
-#include <set>
-#include <map>
-#include <unordered_set>
-#include <unordered_map>
-#include <bitset>
-#include <cassert>
-#include <random>
-#include <cmath>
+// region trie
+template<int SZ>
+struct Trie {
+    int ne[SZ + 10][26], cnt[SZ + 10], mem;
 
-void debug() {
-    std::cout << "\n";
-}
-template<class T, class... OtherArgs>
-void debug(T &&var, OtherArgs &&... args) {
-    std::cout << std::forward<T>(var) << " ";
-    debug(std::forward<OtherArgs>(args)...);
-}
+    Trie() {}
 
-using namespace std;
-
-#define fi first
-#define se second
-using ll = long long;
-using ld = long double;
-using ull = unsigned long long;
-using pii = pair<int, int>;
-using ai3 = array<int, 3>;
-
-const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
-
-void solve() {
-}
-
-void prework() {
-}
-
-int main() {
-#ifdef LOCAL
-    freopen("../in.txt", "r", stdin);
-    freopen("../out.txt", "w", stdout);
-#endif
-
-    prework();
-    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
-    int _ = 1;
-    cin >> _;
-    while (_--) {
-        solve();
+    void init(int _n) {
+        fill(&ne[0][0], &ne[_n][25] + 1, 0);
+        fill(cnt, cnt + _n + 1, 0);
+        mem = 0;
     }
 
-    return 0;
-}
+    void ins(string &s) {
+        int u = 0;
+        for (char ch : s) {
+            int &v = ne[u][ch - 'a'];
+            if (!v) v = ++mem;
+            u = v;
+        }
+
+        cnt[u]++;
+    }
+
+    int qr(string &s) {
+        int u = 0, res = 0;
+        for (char ch : s) {
+            int &v = ne[u][ch - 'a'];
+            if (!v) break;
+            u = v;
+            res += cnt[u];
+        }
+
+        return res;
+    }
+};
+// endregion
+
+// region 01trie
+template<int SZ>
+struct Trie {
+    int ne[SZ + 10][2], cnt[SZ + 10], mem;
+
+    Trie() {}
+
+    void init(int _n) {
+        fill(&ne[0][0], &ne[_n][1] + 1, 0);
+        fill(cnt, cnt + _n + 1, 0);
+        mem = 0;
+    }
+
+    void ins(int x) {
+        int u = 0;
+        for (int i = __lg(x); i >= 0; i--) {
+            int bi = x >> i & 1;
+            int &v = ne[u][bi];
+            if (!v) v = ++mem;
+            u = v;
+        }
+
+        cnt[u]++;
+    }
+
+    int qr(int x) {
+        int u = 0, res = 0;
+        for (int i = __lg(x); i >= 0; i--) {
+            int bi = x >> i & 1;
+            if (ne[u][!bi]) {
+                res += 1 << i;
+                u = ne[u][!bi];
+            } else {
+                u = ne[u][bi];
+            }
+        }
+
+        return res;
+    }
+};
+// endregion

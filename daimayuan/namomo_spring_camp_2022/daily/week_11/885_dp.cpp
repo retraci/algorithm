@@ -80,35 +80,39 @@ const int M = 3e5 + 10;
 
 int n, m;
 string a[N];
-int ans;
+int f[M][22];
 Trie<M> tr;
 
-int dfs(int u) {
-    int res = tr.cnt[u];
+void dfs(int u) {
+    if (tr.cnt[u]) f[u][1] = 0, f[u][0] = 1;
+    else f[u][0] = 0;
 
-    vector<int> tmp;
     for (char i = 'a'; i <= 'z'; i++) {
         int v = tr.ne[u][i - 'a'];
         if (!v) continue;
 
-        tmp.push_back(dfs(v));
+        dfs(v);
+
+        vector<int> tmp(m + 1, 1e9);
+        for (int j = 0; j <= m; j++) {
+            for (int k = 0; k <= m - j; k++) {
+                tmp[j + k] = min(tmp[j + k], f[u][j] + f[v][k]);
+            }
+        }
+        for (int j = 0; j <= m; j++) f[u][j] = tmp[j];
     }
 
-    sort(tmp.begin(), tmp.end());
-    for (int x : tmp) {
-        if (x + res <= m) res += x;
-        else ans++;
-    }
-    return res;
+    for (int i = 1; i <= m; i++) f[u][0] = min(f[u][0], f[u][i] + 1);
 }
 
 void solve() {
     tr.init(M);
     for (int i = 1; i <= n; i++) tr.ins(a[i]);
 
-    int r = dfs(0);
+    fill(&f[0][0], &f[tr.mem][21] + 1, 1e9);
+    dfs(0);
 
-    cout << ans + (r > 0) << "\n";
+    cout << f[0][0] << "\n";
 }
 
 void prework() {
