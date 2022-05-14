@@ -47,15 +47,12 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e6 + 10;
-const int M = 1e7 + 10;
-
 // region 质因数分解, 枚举最小质数 (x < N)
-int isp[M], mip[M];
-vector<int> pr;
+vector<int> isp, mip, pr;
 
 void prime(int lim) {
-    fill(isp, isp + lim + 1, 1);
+    isp = vector<int>(lim + 1, 1);
+    mip.resize(lim + 1);
 
     isp[0] = isp[1] = 0;
     for (int i = 2; i <= lim; i++) {
@@ -86,6 +83,9 @@ void divide(int x) {
     }
 }
 // endregion
+
+const int N = 1e6 + 10;
+const int M = 1e7 + 10;
 
 int n, m;
 int a[N];

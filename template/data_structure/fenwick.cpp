@@ -1,23 +1,25 @@
 // region fenwick
 template<int SZ>
 struct Fenwick {
+    using fwt = int;
+
     int n;
-    ll tr[SZ + 10];
+    fwt tr[SZ + 10];
 
     Fenwick() {}
 
-    void init(int _n, ll v = 0) {
+    void init(int _n, fwt v = 0) {
         n = _n;
         fill(tr, tr + n + 1, v);
     }
 
-    void upd(int id, ll x) {
-        for (int i = id; i <= n; i += i & -i) tr[i] += x;
+    void upd(int id, fwt x) {
+        for (int i = id; i <= n; i += i & -i) tr[i] = tr[i] + x;
     }
 
-    ll qr(int id) {
-        ll res = 0;
-        for (int i = id; i; i -= i & -i) res += tr[i];
+    fwt qr(int id) {
+        fwt res = 0;
+        for (int i = id; i; i -= i & -i) res = res + tr[i];
         return res;
     }
 
@@ -38,37 +40,39 @@ struct Fenwick {
 // region 区间修改fenwick
 template<int SZ>
 struct Fenwick {
+    using fwt = int;
+
     int n;
-    ll tr1[SZ + 10], tr2[SZ + 10];
+    fwt tr1[SZ + 10], tr2[SZ + 10];
 
     Fenwick() {}
 
-    void init(int _n, ll v = 0) {
+    void init(int _n, fwt v = 0) {
         n = _n;
         fill(tr1, tr1 + n + 1, v);
         fill(tr2, tr2 + n + 1, v);
     }
 
-    void add(ll tr[], int id, ll x) {
-        for (int i = id; i <= n; i += i & -i) tr[i] += x;
+    void add(fwt tr[], int id, fwt x) {
+        for (int i = id; i <= n; i += i & -i) tr[i] = tr[i] + x;
     }
 
-    ll query(ll tr[], int id) {
-        ll res = 0;
-        for (int i = id; i; i -= i & -i) res += tr[i];
+    fwt query(fwt tr[], int id) {
+        fwt res = 0;
+        for (int i = id; i; i -= i & -i) res = res + tr[i];
         return res;
     }
 
-    ll get(int id) {
+    fwt get(int id) {
         return (id + 1) * query(tr1, id) - query(tr2, id);
     }
 
-    void upd(int L, int R, ll x) {
+    void upd(int L, int R, fwt x) {
         add(tr1, L, x), add(tr1, R + 1, -x);
         add(tr2, L, x * L), add(tr2, R + 1, -x * (R + 1));
     }
 
-    ll qr(int L, int R) {
+    fwt qr(int L, int R) {
         return get(R) - get(L - 1);
     }
 };

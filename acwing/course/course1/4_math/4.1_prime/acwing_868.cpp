@@ -47,14 +47,11 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e6 + 10;
-
 // region 埃筛
-int isp[N];
-vector<int> ps;
+vector<int> isp, ps;
 
 void prime(int lim) {
-    fill(isp, isp + lim + 1, 1);
+    isp = vector<int>(lim + 1, 1);
 
     isp[0] = isp[1] = 0;
     for (int i = 2; i <= lim; i++) {
@@ -64,7 +61,9 @@ void prime(int lim) {
         for (int j = i * 2; j <= lim; j += i) isp[j] = 0;
     }
 }
-// endregion
+// endregion86
+
+const int N = 1e6 + 10;
 
 int n;
 

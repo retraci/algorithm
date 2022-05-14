@@ -35,7 +35,6 @@ using ld = long double;
 using ull = unsigned long long;
 using pii = pair<int, int>;
 using ai3 = array<int, 3>;
-using pss = pair<string, string>;
 mt19937 mrnd(time(0));
 mt19937_64 mrnd64(time(0));
 
@@ -78,10 +77,12 @@ void init_hash(int lim = 0) {
 
 // region 树哈希
 vector<int> rd;
+
 void init_rd(int lim) {
     rd = vector<int>(lim + 1);
     for (int i = 1; i <= lim; i++) rd[i] = rnd(1e9 + 7);
 }
+
 template<int N, int M>
 struct Tree_hash {
     int n;
@@ -135,8 +136,8 @@ struct Tree_hash {
         return ha[u] = res;
     }
 
-    // 有根树哈希传入 root, 无根树不传
-    vector<int> work(int rt = 0) {
+    // 有根树哈希传入 root, 无根树不传, 返回 重心 和 重心对应的哈希
+    array<pair<int, pii>, 2> work(int rt = 0) {
         if (rt == 0) {
             fill(sz, sz + n + 1, 0);
             ctr = {};
@@ -144,105 +145,52 @@ struct Tree_hash {
         } else {
             ctr = {rt};
         }
+        if (ctr.size() != 2) ctr.push_back(-1);
 
         fill(sz, sz + n + 1, 0);
-        dfs2(ctr[0], -1);
-        if (ctr.size() == 2) dfs2(ctr[1], -1);
-        if (ctr.size() == 2 && ha[ctr[0]] > ha[ctr[1]]) swap(ctr[0], ctr[1]);
+        pii h1 = dfs2(ctr[0], -1);
+        pii h2 = ctr[1] != -1 ? dfs2(ctr[1], -1) : (pii) {-1, -1};
 
-        return ctr;
+        return {(pair<int, pii>) {ctr[0], h1}, {ctr[1], h2}};
     }
 };
 // endregion
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
-const int N = 100010;
+const int N = 55;
 
-int n;
-pss es[2 * N];
-Tree_hash<N, N> th[2];
-map<int, int> mp;
-vector<string> lsh;
+int n, m;
+vector<int> a[N];
+Tree_hash<N, N> th;
+map<array<pii, 2>, vector<int>> cnt;
 
-using node = pair<pii, int>;
-
-void dfs(int u1, int u2, int fno1, int fno2) {
-    vector<node> to[2];
-    for (int i = th[0].h[u1]; ~i; i = th[0].ne[i]) {
-        int v = th[0].e[i];
-        if (v == fno1) continue;
-
-        to[0].push_back({th[0].ha[v], v});
-    }
-    for (int i = th[1].h[u2]; ~i; i = th[1].ne[i]) {
-        int v = th[1].e[i];
-        if (v == fno2) continue;
-
-        to[1].push_back({th[1].ha[v], v});
-    }
-    sort(to[0].begin(), to[0].end());
-    sort(to[1].begin(), to[1].end());
-
-    for (int i = 0; i < to[0].size(); i++) {
-        int v1 = to[0][i].se;
-        int v2 = to[1][i].se;
-
-        mp[v1] = v2;
-        dfs(v1, v2, u1, u2);
-    }
-}
-
-int get(const string &x) {
-    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin();
-}
-
-void init() {
-    lsh = {};
-
-    for (int i = 1; i <= n - 1; i++) {
-        string u = es[i].fi, v = es[i].se;
-        lsh.push_back(u), lsh.push_back(v);
+void work(int tid) {
+    n = a[tid][0];
+    th.init(n);
+    for (int i = 1; i <= n; i++) {
+        if (a[tid][i]) th.add(a[tid][i], i), th.add(i, a[tid][i]);
     }
 
-    sort(lsh.begin(), lsh.end());
-    lsh.resize(unique(lsh.begin(), lsh.end()) - lsh.begin());
+    auto [ctr1, ctr2] = th.work();
+    pii h1 = ctr1.se, h2 = ctr2.se;
+    if (h1 > h2) swap(h1, h2);
+    cnt[{h1, h2}].push_back(tid);
 }
 
 void solve() {
-    if (n == 1) return;
-    init();
+    for (int i = 1; i <= m; i++) work(i);
 
-    th[0].init(n);
-    for (int i = 1; i <= n - 1; i++) {
-        string u = es[i].fi, v = es[i].se;
-
-        int nu = get(u) + 1, nv = get(v) + 1;
-        th[0].add(nu, nv), th[0].add(nv, nu);
-    }
-    th[1].init(n);
-    for (int i = 1; i <= n - 1; i++) {
-        string u = es[n + i].fi, v = es[n + i].se;
-
-        int nu = get(u) + 1, nv = get(v) + 1;
-        th[1].add(nu, nv), th[1].add(nv, nu);
+    vector<int> ans(m + 1);
+    for (auto &[ha, vec] : cnt) {
+        int mi = *min_element(vec.begin(), vec.end());
+        for (int tid : vec) ans[tid] = mi;
     }
 
-    int rt1 = th[0].work()[0];
-    int rt2 = th[1].work()[0];
-
-
-    mp = {};
-    mp[rt1] = rt2;
-    dfs(rt1, rt2, -1, -1);
-
-    for (map<int, int>::iterator it = mp.begin(); it != mp.end(); it++) {
-        int ta = it->fi, tb = it->se;
-        cout << lsh[ta - 1] << " " << lsh[tb - 1] << "\n";
-    }
+    for (int i = 1; i <= m; i++) cout << ans[i] << "\n";
 }
 
 void prework() {
-    init_rd(100000);
+    init_rd(50);
 }
 
 int main() {
@@ -255,18 +203,15 @@ int main() {
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int _ = 1;
 //    cin >> _;
-    while (cin >> n) {
-        for (int i = 1; i <= n - 1; i++) {
-            string u, v;
-            cin >> u >> v;
-            es[i] = {u, v};
-        }
-        for (int i = 1; i <= n - 1; i++) {
-            string u, v;
-            cin >> u >> v;
-            es[n + i] = {u, v};
-        }
+    while (_--) {
+        cin >> m;
+        for (int i = 1; i <= m; i++) {
+            cin >> n;
 
+            a[i].resize(n + 1);
+            for (int j = 1; j <= n; j++) cin >> a[i][j];
+            a[i][0] = n;
+        }
         solve();
     }
 

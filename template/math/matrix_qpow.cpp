@@ -1,13 +1,16 @@
-// region ll矩阵
+// region 矩阵
 template<int SZ>
 struct Mat {
+    using matt = int;
+    const matt mod = 1e9 = 7;
+    
     int r, c;
-    ll mod;
-    vector<vector<ll>> a;
+    matt mod;
+    vector<vector<matt>> a;
 
     inline Mat() {
-        r = SZ, c = SZ, mod = 1e9 + 7;
-        a = vector<vector<ll>>(SZ, vector<ll>(SZ));
+        r = SZ, c = SZ;
+        a = vector<vector<matt>>(SZ, vector<matt>(SZ));
     }
 
     inline void init(int _r, int _c, int _mod) {
@@ -49,7 +52,7 @@ struct Mat {
         return res;
     }
 
-    inline Mat operator*(ll x) const {
+    inline Mat operator*(matt x) const {
         Mat res;
         res.init(r, c, mod);
         for (int i = 0; i < r; i++) {
@@ -60,7 +63,7 @@ struct Mat {
         return res;
     }
 
-    inline Mat operator^(ll x) const {
+    inline Mat operator^(matt x) const {
         Mat res, bas;
         res.init(r, c, mod), bas.init(r, c, mod);
         for (int i = 0; i < r; i++) res.a[i][i] = 1;
@@ -146,7 +149,7 @@ struct Mat {
         return res;
     }
 
-    inline Mat operator^(ll x) const {
+    inline Mat operator^(matt x) const {
         Mat res(r, c), bas(r, c);
         for (int i = 0; i < r; i++) res.a[i][i] = 1;
         bas.a = a;

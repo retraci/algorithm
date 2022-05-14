@@ -47,34 +47,38 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 50010;
+// region 莫比乌斯函数
+vector<int> isp, pr, mu;
 
-int a, b, c, d, k;
-int isp[N], pr[N], pc;
-int mu[N];
+void init_prime(int lim) {
+    isp = vector<int>(lim + 1, 1);
+    mu.resize(lim + 1);
 
-void prime(int lim) {
-    fill(isp, isp + lim + 1, 1);
-    isp[0] = isp[1] = 0;
     mu[1] = 1;
-
+    isp[0] = isp[1] = 0;
     for (int i = 2; i <= lim; i++) {
         if (isp[i]) {
-            pr[++pc] = i;
+            pr.push_back(i);
             mu[i] = -1;
         }
 
-        for (int j = 1; pr[j] <= lim / i; j++) {
-            isp[i * pr[j]] = 0;
+        for (int p : pr) {
+            if (p > lim / i) break;
 
-            if (i % pr[j] == 0) {
-                mu[i * pr[j]] = 0;
+            isp[i * p] = 0;
+            if (i % p == 0) {
+                mu[i * p] = 0;
                 break;
             }
-            mu[i * pr[j]] = -mu[i];
+            mu[i * p] = -mu[i];
         }
     }
 }
+// endregion
+
+const int N = 50010;
+
+int a, b, c, d, k;
 
 ll calc(int ta, int tb) {
     ta /= k, tb /= k;
@@ -94,7 +98,7 @@ void solve() {
 }
 
 void prework() {
-    prime(50000);
+    init_prime(50000);
     for (int i = 1; i <= 50000; i++) mu[i] += mu[i - 1];
 }
 

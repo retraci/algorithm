@@ -15,11 +15,10 @@ void divide(ll x) {
 // endregion
 
 // region 质因数分解, 枚举质数
-int isp[N];
-vector<int> pr;
+vector<int> isp, pr;
 
-void prime(int lim) {
-    fill(isp, isp + lim + 1, 1);
+void init_prime(int lim) {
+    isp = vector<int>(lim + 1, 1);
 
     isp[0] = isp[1] = 0;
     for (int i = 2; i <= lim; i++) {
@@ -52,11 +51,11 @@ void divide(ll x) {
 // endregion
 
 // region 质因数分解, 枚举最小质数 (x < N)
-int isp[N], mip[N];
-vector<int> pr;
+vector<int> isp, mip, pr;
 
-void prime(int lim) {
-    fill(isp, isp + lim + 1, 1);
+void init_prime(int lim) {
+    isp = vector<int>(lim + 1, 1);
+    mip.resize(lim + 1);
 
     isp[0] = isp[1] = 0;
     for (int i = 2; i <= lim; i++) {
@@ -106,12 +105,11 @@ void dfs(int u, ll cur) {
 
 // endregion
 
-// region 埃筛
-int isp[N];
-vector<int> ps;
+// region 筛埃
+vector<int> isp, ps;
 
-void prime(int lim) {
-    fill(isp, isp + lim + 1, 1);
+void init_prime(int lim) {
+    isp = vector<int>(lim + 1, 1);
 
     isp[0] = isp[1] = 0;
     for (int i = 2; i <= lim; i++) {
@@ -121,7 +119,7 @@ void prime(int lim) {
         for (int j = i * 2; j <= lim; j += i) isp[j] = 0;
     }
 }
-// endregion
+// endregion86
 
 // region 欧拉函数
 ll eula(ll x) {
@@ -140,10 +138,11 @@ ll eula(ll x) {
 // endregion
 
 // region 欧拉函数(埃筛)
-int phi[N];
+vector<int> phi;
 
-void prime(int lim) {
-    iota(phi, phi + lim + 1, 0);
+void init_prime(int lim) {
+    phi.resize(lim + 1);
+    iota(phi.begin(), phi.end(), 0);
 
     for (int i = 2; i <= lim; i++) {
         if (phi[i] != i) continue;
@@ -192,11 +191,10 @@ ll crt() {
 // endregion
 
 // region 欧拉筛
-int isp[N];
-vector<int> pr;
+vector<int> isp, pr;
 
-void prime(int lim) {
-    fill(isp, isp + lim + 1, 1);
+void init_prime(int lim) {
+    isp = vector<int>(lim + 1, 1);
 
     isp[0] = isp[1] = 0;
     for (int i = 2; i <= lim; i++) {
@@ -212,13 +210,12 @@ void prime(int lim) {
 }
 // endregion
 
-// region 欧拉函数(欧拉筛)
-int isp[N];
-vector<int> pr;
-int phi[N];
+// region 欧拉函数
+vector<int> isp, pr, phi;
 
-void prime(int lim) {
-    fill(isp, isp + lim + 1, 1);
+void init_prime(int lim) {
+    isp = vector<int>(lim + 1, 1);
+    phi.resize(lim + 1);
 
     phi[1] = 1;
     isp[0] = isp[1] = 0;
@@ -243,13 +240,12 @@ void prime(int lim) {
 }
 // endregion
 
-// region 莫比乌斯函数(欧拉筛)
-int isp[N];
-vector<int> pr;
-int mu[N];
+// region 莫比乌斯函数
+vector<int> isp, pr, mu;
 
-void prime(int lim) {
-    fill(isp, isp + lim + 1, 1);
+void init_prime(int lim) {
+    isp = vector<int>(lim + 1, 1);
+    mu.resize(lim + 1);
 
     mu[1] = 1;
     isp[0] = isp[1] = 0;
@@ -273,13 +269,12 @@ void prime(int lim) {
 }
 // endregion
 
-// region 积性函数(欧拉筛)
-int isp[N];
-vector<int> pr;
-int low[N], f[N];
+// region 积性函数
+vector<int> isp, pr, low, f;
 
-void prime(int lim) {
-    fill(isp, isp + lim + 1, 1);
+void init_prime(int lim) {
+    isp = vector<int>(lim + 1, 1);
+    low.resize(lim + 1), f.resize(lim + 1);
 
     f[1] = 1;
     isp[0] = isp[1] = 0;

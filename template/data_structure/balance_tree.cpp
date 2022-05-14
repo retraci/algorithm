@@ -974,7 +974,7 @@ struct Info {
     Info(int val = 0, int sz = 0) : lson(0), rson(0), val(val), sz(sz) {}
 
     void init() {
-        key = rnd();
+        key = rnd(1e9 + 7);
     }
 
     void apply(const Tag &a) {

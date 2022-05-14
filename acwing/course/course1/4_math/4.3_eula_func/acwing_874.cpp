@@ -47,28 +47,44 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e6 + 10;
+// region 欧拉函数(欧拉筛)
+vector<int> isp, pr, phi;
 
-// region 埃筛求欧拉函数
-int phi[N];
+void init_prime(int lim) {
+    isp = vector<int>(lim + 1, 1);
+    phi.resize(lim + 1);
 
-void eula_init(int lim) {
-    iota(phi, phi + lim + 1, 0);
-
+    phi[1] = 1;
+    isp[0] = isp[1] = 0;
     for (int i = 2; i <= lim; i++) {
-        if (phi[i] != i) continue;
+        if (isp[i]) {
+            pr.push_back(i);
+            phi[i] = i - 1;
+        }
 
-        for (int j = i; j <= lim; j += i) phi[j] = phi[j] / i * (i - 1);
+        for (int p : pr) {
+            if (p > lim / i) break;
+
+            isp[i * p] = 0;
+            if (i % p == 0) {
+                phi[i * p] = phi[i] * p;
+                break;
+            } else {
+                phi[i * p] = phi[i] * phi[p];
+            }
+        }
     }
 }
 // endregion
 
+const int N = 1e6 + 10;
+
 int n;
 
 void solve() {
-    eula_init(n);
+    init_prime(n);
 
-    ll ans = accumulate(phi + 1, phi + n + 1, 0LL);
+    ll ans = accumulate(phi.begin(), phi.begin() + n + 1, 0LL);
     cout << ans << "\n";
 }
 

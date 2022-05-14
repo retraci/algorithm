@@ -33,9 +33,14 @@ using ll = long long;
 using ld = long double;
 using ull = unsigned long long;
 using pii = pair<int, int>;
+mt19937 mrnd(time(0));
+mt19937_64 mrnd64(time(0));
+
+int rnd(int mod) {
+    return mrnd() % mod;
+}
 
 // region 普通平衡树(fhq)
-mt19937 rnd(random_device{}());
 template<class Info, class Tag, int SZ>
 struct Fhq {
 #define ls(x) (info[x].lson)
@@ -234,7 +239,7 @@ struct Info {
     Info(int val = 0, int sz = 0) : lson(0), rson(0), val(val), sz(sz) {}
 
     void init() {
-        key = rnd();
+        key = rnd(1e9 + 7);
     }
 
     void apply(const Tag &a) {

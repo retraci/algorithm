@@ -47,14 +47,11 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-const int N = 1e7 + 10;
-
 // region 欧拉筛
-int isp[N];
-vector<int> pr;
+vector<int> isp, pr;
 
-void prime(int lim) {
-    fill(isp, isp + lim + 1, 1);
+void init_prime(int lim) {
+    isp = vector<int>(lim + 1, 1);
 
     isp[0] = isp[1] = 0;
     for (int i = 2; i <= lim; i++) {
@@ -70,6 +67,8 @@ void prime(int lim) {
 }
 // endregion
 
+const int N = 1e7 + 10;
+
 int n;
 ll f[N];
 
@@ -78,7 +77,7 @@ void solve() {
 }
 
 void prework() {
-    prime(1e7);
+    init_prime(1e7);
     f[0] = f[1] = 0;
     for (int i = 3; i <= 1e7; i++) {
         if (isp[i]) f[i] = f[i - 1] + 2 * i;

@@ -459,7 +459,7 @@ add_executable(acwing_243_sqrt acwing/course/course3/2_data_structures/1.3_sqrt/
 add_executable(acwing_947 acwing/course/course3/2_data_structures/1.3_sqrt/acwing_947.cpp)
 
 add_executable(P3201 luogu/practice/dsu_on_tree/P3201.cpp)
-add_executable(F codeforces/contest/round/789/F.cpp)
+add_executable(F codeforces/gym/103118/F.cpp)
 
 add_executable(47 daimayuan/namomo_spring_camp_2022/daily/week_11/47.cpp)
 add_executable(856 daimayuan/namomo_spring_camp_2022/daily/week_11/856.cpp)
@@ -474,3 +474,14 @@ add_executable(885_dp daimayuan/namomo_spring_camp_2022/daily/week_11/885_dp.cpp
 add_executable(acwing_2568 acwing/course/course3/2_data_structures/1.5_heavy_path_decomposition/acwing_2568.cpp)
 add_executable(acwing_918 acwing/course/course3/2_data_structures/1.5_heavy_path_decomposition/acwing_918.cpp)
 add_executable(883 daimayuan/namomo_spring_camp_2022/daily/week_11/883.cpp)
+add_executable(P6688 daimayuan/namomo_spring_camp_2022/course/week_11/P6688.cpp)
+
+add_executable(F_gt codeforces/gym/103118/F_gt.cpp)
+add_executable(ABC238G_mo_algo daimayuan/namomo_spring_camp_2022/course/week_11/ABC238G_mo_algo.cpp)
+add_executable(ABC238G_hash daimayuan/namomo_spring_camp_2022/course/week_11/ABC238G_hash.cpp)
+add_executable(P5043 daimayuan/namomo_spring_camp_2022/course/week_11/P5043.cpp)
+add_executable(spoj_TREEISO daimayuan/namomo_spring_camp_2022/course/week_11/spoj_TREEISO.cpp)
+add_executable(poj_1635 daimayuan/namomo_spring_camp_2022/course/week_11/poj_1635.cpp)
+add_executable(poj_1635_down daimayuan/namomo_spring_camp_2022/course/week_11/poj_1635_down.cpp)
+add_executable(hdu_5732 daimayuan/namomo_spring_camp_2022/course/week_11/hdu_5732.cpp)
+add_executable(hdu_5732_down daimayuan/namomo_spring_camp_2022/course/week_11/hdu_5732_down.cpp)

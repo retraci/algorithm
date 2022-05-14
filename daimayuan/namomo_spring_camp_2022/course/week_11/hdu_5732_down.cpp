@@ -78,10 +78,12 @@ void init_hash(int lim = 0) {
 
 // region 树哈希
 vector<int> rd;
+
 void init_rd(int lim) {
     rd = vector<int>(lim + 1);
     for (int i = 1; i <= lim; i++) rd[i] = rnd(1e9 + 7);
 }
+
 template<int N, int M>
 struct Tree_hash {
     int n;
@@ -135,8 +137,8 @@ struct Tree_hash {
         return ha[u] = res;
     }
 
-    // 有根树哈希传入 root, 无根树不传
-    vector<int> work(int rt = 0) {
+    // 有根树哈希传入 root, 无根树不传, 返回 重心 和 重心对应的哈希
+    array<pair<int, pii>, 2> work(int rt = 0) {
         if (rt == 0) {
             fill(sz, sz + n + 1, 0);
             ctr = {};
@@ -144,13 +146,13 @@ struct Tree_hash {
         } else {
             ctr = {rt};
         }
+        if (ctr.size() != 2) ctr.push_back(-1);
 
         fill(sz, sz + n + 1, 0);
-        dfs2(ctr[0], -1);
-        if (ctr.size() == 2) dfs2(ctr[1], -1);
-        if (ctr.size() == 2 && ha[ctr[0]] > ha[ctr[1]]) swap(ctr[0], ctr[1]);
+        pii h1 = dfs2(ctr[0], -1);
+        pii h2 = ctr[1] != -1 ? dfs2(ctr[1], -1) : (pii) {-1, -1};
 
-        return ctr;
+        return {(pair<int, pii>) {ctr[0], h1}, {ctr[1], h2}};
     }
 };
 // endregion
@@ -227,9 +229,8 @@ void solve() {
         th[1].add(nu, nv), th[1].add(nv, nu);
     }
 
-    int rt1 = th[0].work()[0];
-    int rt2 = th[1].work()[0];
-
+    int rt1 = th[0].work()[0].fi;
+    int rt2 = th[1].work()[0].fi;
 
     mp = {};
     mp[rt1] = rt2;

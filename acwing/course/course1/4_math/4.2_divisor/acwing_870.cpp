@@ -52,11 +52,10 @@ const int M = 1e5 + 10;
 const int MOD = 1e9 + 7;
 
 // region 质因数分解, 枚举质数
-int isp[M];
-vector<int> pr;
+vector<int> isp, pr;
 
 void prime(int lim) {
-    fill(isp, isp + lim + 1, 1);
+    isp = vector<int>(lim + 1, 1);
 
     isp[0] = isp[1] = 0;
     for (int i = 2; i <= lim; i++) {

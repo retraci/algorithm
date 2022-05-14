@@ -59,6 +59,16 @@ void init() {
     }
 }
 
+void debug() {
+    std::cout << "\n";
+}
+
+template<class T, class... OtherArgs>
+void debug(T &&var, OtherArgs &&... args) {
+    std::cout << std::forward<T>(var) << " ";
+    debug(std::forward<OtherArgs>(args)...);
+}
+
 void solve() {
     init();
 
@@ -75,6 +85,7 @@ void solve() {
         int half = m / 2;
         for (int j = 1; j <= half; j++) {
             int lb = j + 1, rb = m - j;
+            debug(1, j, rb + 1, m, get(i, 1, j), get(i, rb + 1, m));
             if (check(i, 1, j, rb + 1, m)) {
                 ans += get_val(i, lb, rb);
             }
