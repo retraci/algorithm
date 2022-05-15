@@ -59,38 +59,29 @@ vector<int> get_ne(const string &s) {
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
 const int N = 1e6 + 10;
-const int MOD = 1e9 + 7;
 
-int n;
 string s;
-int fa[23][N];
 
 void solve() {
-    n = s.size() - 1;
+    int n = s.size() - 1;
     auto ne = get_ne(s);
-
-    for (int i = 1; i <= n; i++) fa[0][i] = ne[i];
-    int mxb = __lg(n);
-    for (int k = 1; k <= mxb; k++) {
-        for (int i = 1; i <= n; i++) {
-            fa[k][i] = fa[k - 1][fa[k - 1][i]];
-        }
+    vector<int> ans(n + 1);
+    int j = ne[n];
+    while (j) {
+        ans[j]++;
+        j = ne[j];
     }
+    for (int i = 1; i <= n / 2; i++) ans[i] += ans[i - 1];
 
-    int ans = 1;
-    for (int i = 1; i <= n; i++) {
-        int j = i;
-        for (int k = mxb; k >= 0; k--) {
-            if (fa[k][j] > i / 2) j = fa[k][j];
-        }
+    int q;
+    cin >> q;
+    while (q--) {
+        int p;
+        cin >> p;
 
-        int cnt = 0;
-        for (int k = mxb; k >= 0; k--) {
-            if (fa[k][j]) cnt += 1 << k, j = fa[k][j];
-        }
-        ans = 1LL * ans * (cnt + 1) % MOD;
+        int t = min(p - 1, n - p);
+        cout << ans[t] << "\n";
     }
-    cout << ans << "\n";
 }
 
 void prework() {
@@ -105,7 +96,7 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int _ = 1;
-    cin >> _;
+//    cin >> _;
     while (_--) {
         cin >> s;
         s = ' ' + s;

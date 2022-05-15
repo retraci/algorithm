@@ -110,27 +110,43 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
+// region kmp
+// s 下标从 1 开始
+vector<int> get_ne(const string &s) {
+    int n = s.size() - 1;
+    vector<int> ne(n + 1, 0);
+    for (int i = 2, j = 0; i <= n; i++) {
+        while (j && s[i] != s[j + 1]) j = ne[j];
+        if (s[i] == s[j + 1]) j++;
+        ne[i] = j;
+    }
+
+    return ne;
+}
+
+// t 里面 出现 s
+int qr(const string &t, const string &s) {
+    vector<int> ne = get_ne(s);
+    int n = t.size() - 1, m = s.size() - 1;
+    for (int i = 1, j = 0; i <= n; i++) {
+        while (j && t[i] != s[j + 1]) j = ne[j];
+        if (t[i] == s[j + 1]) j++;
+
+        if (j == m) {
+            cout << i - m << " ";
+            j = ne[j];
+        }
+    }
+
+    return -1;
+}
+// endregion
+
 int n, m;
 string s1, s2;
 
 void solve() {
-    int ne[n + 1];
-    memset(ne, 0, sizeof ne);
-    for (int i = 2, j = 0; i <= n; i++) {
-        while (j && s1[i] != s1[j + 1]) j = ne[j];
-        if (s1[i] == s1[j + 1]) j++;
-        ne[i] = j;
-    }
-
-    for (int i = 1, j = 0; i <= m; i++) {
-        while (j && s2[i] != s1[j + 1]) j = ne[j];
-        if (s2[i] == s1[j + 1]) j++;
-
-        if (j == n) {
-            cout << i - n << " ";
-            j = ne[j];
-        }
-    }
+    qr(s2, s1);
 }
 
 void prework() {
@@ -147,7 +163,7 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        cin >> n >> s1 >> m >> s2;
+        cin >> m >> s1 >> n >> s2;
         s1 = ' ' + s1, s2 = ' ' + s2;
         solve();
     }

@@ -61,12 +61,14 @@ struct Lca {
 // region 边权lca
 template<int N, int M>
 struct Lca {
-    using pll = pair<ll, ll>;
+    using lcat = int;
+    using pit = pair<int, lcat>;
+    
     int n, mxb;
-    pii e[M * 2 + 10];
+    pit e[M * 2 + 10];
     int ne[M * 2 + 10], h[N + 10], edm;
     int dep[N + 10], fa[N + 10][32];
-    ll w[N + 10][32];
+    int w[N + 10][32];
 
     Lca() {}
 
@@ -75,7 +77,7 @@ struct Lca {
         fill(h, h + n + 1, -1), edm = 0;
     }
 
-    void add(int u, int v, int cost) {
+    void add(int u, int v, lcat cost) {
         e[edm] = {v, cost}, ne[edm] = h[u], h[u] = edm++;
     }
 
@@ -86,7 +88,7 @@ struct Lca {
         que.push(rt);
         dep[0] = 0, dep[rt] = 1;
         while (!que.empty()) {
-            auto u = que.front(); que.pop();
+            int u = que.front(); que.pop();
 
             for (int i = h[u]; ~i; i = ne[i]) {
                 auto [v, cost] = e[i];
@@ -105,8 +107,8 @@ struct Lca {
         }
     }
 
-    pll work(int x, int y) {
-        ll res = 0;
+    pit work(int x, int y) {
+        lcat res = 0;
         if (dep[x] < dep[y]) swap(x, y);
         for (int k = mxb; k >= 0; k--) {
             if (dep[fa[x][k]] >= dep[y]) {
