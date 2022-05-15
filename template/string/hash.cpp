@@ -128,7 +128,7 @@ struct Tree_hash {
         pii h1 = dfs2(ctr[0], -1);
         pii h2 = ctr[1] != -1 ? dfs2(ctr[1], -1) : (pii) {-1, -1};
 
-        return {(pair<int, pii>) {ctr[0], h1}, {ctr[1], h2}};
+        return (array<pair<int, pii>, 2>) {(pair<int, pii>) {ctr[0], h1}, (pair<int, pii>) {ctr[1], h2}};
     }
 };
 // endregion

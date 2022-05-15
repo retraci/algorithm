@@ -1,20 +1,20 @@
-#include <iostream>
-#include <cstdio>
 #include <algorithm>
-#include <cstring>
-#include <numeric>
-#include <iomanip>
-#include <vector>
-#include <queue>
-#include <stack>
-#include <set>
-#include <map>
-#include <unordered_set>
-#include <unordered_map>
-#include <bitset>
-#include <cassert>
-#include <random>
 #include <cmath>
+#include <cstdio>
+#include <cstring>
+#include <iostream>
+#include <map>
+#include <set>
+#include <utility>
+#include <vector>
+
+using namespace std;
+typedef long long ll;
+typedef unsigned long long ull;
+typedef pair<int, int> PII;
+const int mod = 998244353;
+const int inf = 1 << 30;
+const int maxn = 100000 + 5;
 
 void debug() {
     std::cout << "\n";
@@ -26,223 +26,142 @@ void debug(T &&var, OtherArgs &&... args) {
     debug(std::forward<OtherArgs>(args)...);
 }
 
-using namespace std;
+namespace sieve {
+    const int maxp = 2000000 + 5;
+    int vis[maxp], prime[maxp], tot;
 
-#define fi first
-#define se second
-using ll = long long;
-using ld = long double;
-using ull = unsigned long long;
-using pii = pair<int, int>;
-using ai3 = array<int, 3>;
-using pss = pair<string, string>;
-mt19937 mrnd(time(0));
-mt19937_64 mrnd64(time(0));
-
-int rnd(int mod) {
-    return mrnd() % mod;
-}
-
-// region 双模哈希
-const int mod1 = 1e9 + 7;
-const int mod2 = 1e9 + 9;
-
-pii operator+(const pii &a, const pii &b) {
-    int c1 = a.fi + b.fi, c2 = a.se + b.se;
-    if (c1 >= mod1) c1 -= mod1;
-    if (c2 >= mod2) c2 -= mod2;
-    return {c1, c2};
-}
-
-pii operator-(const pii &a, const pii &b) {
-    int c1 = a.fi - b.fi, c2 = a.se - b.se;
-    if (c1 < 0) c1 += mod1;
-    if (c2 < 0) c2 += mod2;
-    return {c1, c2};
-}
-
-pii operator*(const pii &a, const pii &b) {
-    return {1LL * a.fi * b.fi % mod1, 1LL * a.se * b.se % mod2};
-}
-
-vector<pii> pw;
-pii base;
-
-void init_hash(int lim = 0) {
-    pw = vector<pii>(lim + 1);
-    base = {rnd(mod1), rnd(mod2)};
-    pw[0] = {1, 1};
-    for (int i = 1; i <= lim; i++) pw[i] = pw[i - 1] * base;
-}
-// endregion
-
-// region 树哈希
-vector<int> rd;
-void init_rd(int lim) {
-    rd = vector<int>(lim + 1);
-    for (int i = 1; i <= lim; i++) rd[i] = rnd(1e9 + 7);
-}
-template<int N, int M>
-struct Tree_hash {
-    int n;
-    int h[N + 10], ne[M * 2 + 10], e[M * 2 + 10], edm;
-    int sz[N + 10];
-    pii ha[N + 10];
-    vector<int> ctr;
-
-    Tree_hash() {}
-
-    void init(int _n) {
-        n = _n;
-        fill(h, h + n + 1, -1), edm = 0;
+    void init() {
+        memset(vis, 0, sizeof(vis));
+        for (int i = 2; i < maxp; i++) {
+            if (!vis[i]) prime[++tot] = i;
+            for (int j = 1; j <= tot && prime[j] * i < maxp; j++) {
+                vis[i * prime[j]] = 1;
+                if (i % prime[j] == 0) break;
+            }
+        }
     }
+}  // namespace sieve
 
-    void add(int u, int v) {
-        e[edm] = v, ne[edm] = h[u], h[u] = edm++;
-    }
+namespace MyIO {
+    struct fastIO {
+        char s[100000];
+        int it, len;
 
-    void dfs1(int u, int fno) {
-        sz[u] = 1;
-        int mxs = 0;
-        for (int i = h[u]; ~i; i = ne[i]) {
-            int v = e[i];
-            if (v == fno) continue;
+        fastIO() { it = len = 0; }
 
-            dfs1(v, u);
-            sz[u] += sz[v];
-            mxs = max(mxs, sz[v]);
+        inline char get() {
+            if (it < len) return s[it++];
+            it = 0;
+            len = fread(s, 1, 100000, stdin);
+            if (len == 0)
+                return EOF;
+            else
+                return s[it++];
         }
 
-        int mx = max(mxs, n - sz[u]);
-        if (mx <= n / 2) ctr.push_back(u);
-    }
-
-    pii dfs2(int u, int fno) {
-        sz[u] = 1;
-
-        pii res = {1, 1};
-        for (int i = h[u]; ~i; i = ne[i]) {
-            int v = e[i];
-            if (v == fno) continue;
-
-            pii hash = dfs2(v, u);
-            sz[u] += sz[v];
-
-            int salt = rd[sz[v]];
-            res = res + (hash * (pii) {salt, salt});
+        bool notend() {
+            char c = get();
+            while (c == ' ' || c == '\n') c = get();
+            if (it > 0) it--;
+            return c != EOF;
         }
+    } buff;
 
-        return ha[u] = res;
+    inline int gi() {
+        int r = 0;
+        bool ng = 0;
+        char c = buff.get();
+        while (c != '-' && (c < '0' || c > '9')) c = buff.get();
+        if (c == '-') ng = 1, c = buff.get();
+        while (c >= '0' && c <= '9') r = r * 10 + c - '0', c = buff.get();
+        return ng ? -r : r;
+    }
+}  // namespace MyIO
+
+namespace {
+    inline int add(int x, int y) {
+        x += y;
+        return x >= mod ? x -= mod : x;
     }
 
-    // 有根树哈希传入 root, 无根树不传
-    vector<int> work(int rt = 0) {
-        if (rt == 0) {
-            fill(sz, sz + n + 1, 0);
-            ctr = {};
-            dfs1(1, -1);
-        } else {
-            ctr = {rt};
+    inline int sub(int x, int y) {
+        x -= y;
+        return x < 0 ? x += mod : x;
+    }
+
+    inline int mul(int x, int y) { return 1ll * x * y % mod; }
+
+    inline int qpow(int x, ll n) {
+        int r = 1;
+        while (n > 0) {
+            if (n & 1) r = 1ll * r * x % mod;
+            n >>= 1;
+            x = 1ll * x * x % mod;
         }
-
-        fill(sz, sz + n + 1, 0);
-        dfs2(ctr[0], -1);
-        if (ctr.size() == 2) dfs2(ctr[1], -1);
-        if (ctr.size() == 2 && ha[ctr[0]] > ha[ctr[1]]) swap(ctr[0], ctr[1]);
-
-        return ctr;
+        return r;
     }
-};
-// endregion
 
-const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
-const int N = 100010;
+    inline int inv(int x) { return qpow(x, mod - 2); }
+}  // namespace
 
-int n;
-pss es[2 * N];
-Tree_hash<N, N> th[2];
-map<int, int> mp;
-vector<string> lsh;
+using MyIO::gi;
+using sieve::prime;
+int ping[maxn], pingv[maxn];
+int n, ans, siz[maxn];
+vector<int> edge[maxn];
+map<ull, int> uqc[maxn];
+map<ull, int>::iterator it;
+ull hashval[maxn], hashrt[maxn];
+ull srchashval[maxn], srchashrt[maxn];
+int dp[maxn], rdp[maxn];
 
-using node = pair<pii, int>;
+ull pack(ull val, int sz) { return 2ull + 3ull * val + 7ull * prime[sz + 1]; }
 
-void dfs(int u1, int u2, int fno1, int fno2) {
-    vector<node> to[2];
-    for (int i = th[0].h[u1]; ~i; i = th[0].ne[i]) {
-        int v = th[0].e[i];
-        if (v == fno1) continue;
-
-        to[0].push_back({th[0].ha[v], v});
+void predfs(int u, int ff) {
+    siz[u] = dp[u] = 1;
+    hashval[u] = 1;
+    int sz = 0;
+    for (int v: edge[u]) {
+        if (v == ff) continue;
+        predfs(v, u);
+        sz++;
+        siz[u] += siz[v];
+        dp[u] = mul(dp[u], dp[v]);
+        uqc[u][hashval[v]]++;
+        hashval[u] += hashval[v] * prime[siz[v]];
     }
-    for (int i = th[1].h[u2]; ~i; i = th[1].ne[i]) {
-        int v = th[1].e[i];
-        if (v == fno2) continue;
-
-        to[1].push_back({th[1].ha[v], v});
-    }
-    sort(to[0].begin(), to[0].end());
-    sort(to[1].begin(), to[1].end());
-
-    for (int i = 0; i < to[0].size(); i++) {
-        int v1 = to[0][i].se;
-        int v2 = to[1][i].se;
-
-        mp[v1] = v2;
-        dfs(v1, v2, u1, u2);
+    srchashval[u] = hashval[u];
+    hashval[u] = pack(hashval[u], siz[u]);
+    dp[u] = mul(dp[u], ping[sz]);
+    for (it = uqc[u].begin(); it != uqc[u].end(); it++) {
+        dp[u] = mul(dp[u], pingv[it->second]);
     }
 }
 
-int get(const string &x) {
-    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin();
-}
+set<ull> qc;
 
-void init() {
-    lsh = {};
-
-    for (int i = 1; i <= n - 1; i++) {
-        string u = es[i].fi, v = es[i].se;
-        lsh.push_back(u), lsh.push_back(v);
+void dfs(int u, int ff) {
+    if (!qc.count(hashrt[u])) {
+        debug(u);
+        qc.insert(hashrt[u]);
+        ans = add(ans, rdp[u]);
     }
+    for (int v: edge[u]) {
+        if (v == ff) continue;
+        ull tmp = srchashrt[u] - hashval[v] * prime[siz[v]];
+        tmp = pack(tmp, n - siz[v]);
+        uqc[v][tmp]++;
+        srchashrt[v] = srchashval[v] + tmp * prime[n - siz[v]];
+        hashrt[v] = pack(srchashrt[v], n);
+        int tdp = mul(rdp[u], inv(dp[v]));
+        tdp = mul(tdp, inv((int) edge[u].size()));
+        tdp = mul(tdp, uqc[u][hashval[v]]);
 
-    sort(lsh.begin(), lsh.end());
-    lsh.resize(unique(lsh.begin(), lsh.end()) - lsh.begin());
-}
-
-void solve() {
-    if (n == 1) return;
-    init();
-
-    th[0].init(n);
-    for (int i = 1; i <= n - 1; i++) {
-        string u = es[i].fi, v = es[i].se;
-
-        int nu = get(u) + 1, nv = get(v) + 1;
-        th[0].add(nu, nv), th[0].add(nv, nu);
+        rdp[v] = mul(dp[v], tdp);
+        rdp[v] = mul(rdp[v], (int) edge[v].size());
+        rdp[v] = mul(rdp[v], inv(uqc[v][tmp]));
+        dfs(v, u);
     }
-    th[1].init(n);
-    for (int i = 1; i <= n - 1; i++) {
-        string u = es[n + i].fi, v = es[n + i].se;
-
-        int nu = get(u) + 1, nv = get(v) + 1;
-        th[1].add(nu, nv), th[1].add(nv, nu);
-    }
-
-    int rt1 = th[0].work()[0];
-    int rt2 = th[1].work()[0];
-
-
-    mp = {};
-    mp[rt1] = rt2;
-    dfs(rt1, rt2, -1, -1);
-
-    for (map<int, int>::iterator it = mp.begin(); it != mp.end(); it++) {
-        int ta = it->fi, tb = it->se;
-        cout << lsh[ta - 1] << " " << lsh[tb - 1] << "\n";
-    }
-}
-
-void prework() {
-    init_rd(100000);
 }
 
 int main() {
@@ -251,24 +170,36 @@ int main() {
     freopen("../out.txt", "w", stdout);
 #endif
 
-    prework();
-    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
-    int _ = 1;
-//    cin >> _;
-    while (cin >> n) {
-        for (int i = 1; i <= n - 1; i++) {
-            string u, v;
-            cin >> u >> v;
-            es[i] = {u, v};
-        }
-        for (int i = 1; i <= n - 1; i++) {
-            string u, v;
-            cin >> u >> v;
-            es[n + i] = {u, v};
-        }
-
-        solve();
+    sieve::init();
+    ping[0] = pingv[0] = 1;
+    for (int i = 1; i < maxn; i++) {
+        ping[i] = mul(ping[i - 1], i);
+        pingv[i] = mul(pingv[i - 1], inv(i));
     }
+    int T = gi();
+    while (T--) {
+        n = gi();
+        for (int i = 2, u, v; i <= n; i++) {
+            u = gi();
+            v = gi();
+            edge[u].push_back(v);
+            edge[v].push_back(u);
+        }
+        predfs(1, 0);
 
+        ans = 0;
+        qc.clear();
+        rdp[1] = dp[1];
+
+
+        hashrt[1] = hashval[1];
+        srchashrt[1] = srchashval[1];
+        dfs(1, 0);
+        printf("%d\n", ans);
+        for (int i = 1; i <= n; i++) {
+            edge[i].clear();
+            uqc[i].clear();
+        }
+    }
     return 0;
 }

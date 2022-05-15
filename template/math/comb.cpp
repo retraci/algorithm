@@ -22,7 +22,7 @@ ll C(ll a, ll b) {
 }
 
 void init_comb(int lim) {
-    fac.resize(lim + 1), ifac(lim + 1);
+    fac.resize(lim + 1), ifac.resize(lim + 1);
     fac[0] = ifac[0] = 1;
     for (int i = 1; i <= lim; i++) fac[i] = fac[i - 1] * i % MOD;
     ifac[lim] = inv(fac[lim]);
