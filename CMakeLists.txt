@@ -514,3 +514,6 @@ add_executable(CF1311F daimayuan/namomo_spring_camp_2022/daily/week_12/CF1311F.c
 add_executable(ABC245E daimayuan/namomo_spring_camp_2022/daily/week_12/ABC245E.cpp)
 add_executable(877 daimayuan/namomo_spring_camp_2022/daily/week_12/877.cpp)
 add_executable(884 daimayuan/namomo_spring_camp_2022/daily/week_12/884.cpp)
+add_executable(acwing_1004 acwing/course/course3/2_data_structures/2.10_SA/acwing_1004.cpp)
+add_executable(acwing_2572 acwing/course/course3/2_data_structures/2.10_SA/acwing_2572.cpp)
+add_executable(875 daimayuan/namomo_spring_camp_2022/daily/week_12/875.cpp)

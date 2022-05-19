@@ -105,21 +105,98 @@ struct SA {
 };
 // endregion
 
-const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
-const int N = 1e6 + 10;
+// region dsu
+template<int SZ>
+struct Dsu {
+    int fa[SZ + 10];
 
-SA<N> sautil;
+    Dsu() {}
+
+    void init(int _n) {
+        iota(fa, fa + _n + 1, 0);
+    }
+
+    int find(int x) {
+        return x == fa[x] ? x : fa[x] = find(fa[x]);
+    }
+
+    bool unite(int x, int y) {
+        if (same(x, y)) return false;
+        int tx = find(x), ty = find(y);
+        fa[tx] = ty;
+        return true;
+    }
+
+    bool same(int x, int y) {
+        int tx = find(x), ty = find(y);
+        return tx == ty;
+    }
+};
+// endregion
+
+const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int N = 300010;
+
+int n;
 string s;
+int a[N];
+SA<N> saut;
+Dsu<N> dsu;
+vector<int> hs[N];
+int mx1[N], mx2[N], mi1[N], mi2[N], sz[N];
+
+ll C2(int x) {
+    return 1LL * x * (x - 1) / 2;
+}
+
+pll work(int r) {
+    static ll cnt = 0, mx = -2e18;
+
+    for (auto x : hs[r]) {
+        int tx = dsu.find(x - 1), ty = dsu.find(x);
+        cnt -= C2(sz[tx]) + C2(sz[ty]);
+        sz[ty] += sz[tx];
+        cnt += C2(sz[ty]);
+
+        if (mx1[tx] >= mx1[ty]) {
+            mx2[ty] = max(mx1[ty], mx2[tx]);
+            mx1[ty] = mx1[tx];
+        }
+        else if (mx1[tx] > mx2[ty]) {
+            mx2[ty] = mx1[tx];
+        }
+        if (mi1[tx] <= mi1[ty]) {
+            mi2[ty] = min(mi1[ty], mi2[tx]);
+            mi1[ty] = mi1[tx];
+        }
+        else if (mi1[tx] < mi2[ty]) {
+            mi2[ty] = mi1[tx];
+        }
+        mx = max({mx, 1LL * mx1[ty] * mx2[ty], 1LL * mi1[ty] * mi2[ty]});
+
+        dsu.unite(tx, ty);
+    }
+
+    if (mx == -2e18) return {cnt, 0};
+    return {cnt, mx};
+}
 
 void solve() {
-    auto sa = sautil.get_sa(s);
-    auto h = sautil.get_h(s);
+    auto sa = saut.get_sa(s);
+    auto h = saut.get_h(s);
 
-    int n = s.size() - 1;
-    for (int i = 1; i <= n; i++) cout << sa[i] << " ";
-    cout << "\n";
-    for (int i = 1; i <= n; i++) cout << h[i] << " ";
-    cout << "\n";
+    for (int i = 2; i <= n; i++) hs[h[i]].push_back(i);
+
+    dsu.init(n);
+    for (int i = 1; i <= n; i++) {
+        mx1[i] = mi1[i] = a[sa[i]];
+        mx2[i] = -2e9, mi2[i] = 2e9;
+        sz[i] = 1;
+    }
+
+    vector<pll> ans(n + 1);
+    for (int i = n - 1; i >= 0; i--) ans[i] = work(i);
+    for (int i = 0; i <= n - 1; i++) cout << ans[i].fi << " " << ans[i].se << "\n";
 }
 
 void prework() {
@@ -136,8 +213,10 @@ int main() {
     int _ = 1;
 //    cin >> _;
     while (_--) {
+        cin >> n;
         cin >> s;
         s = ' ' + s;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 

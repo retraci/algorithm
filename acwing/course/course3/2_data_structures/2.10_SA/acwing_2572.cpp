@@ -52,7 +52,7 @@ struct SA {
 
     // s 下标从 1 开始
     vector<int> get_sa(const string &s) {
-        n = s.size() - 1, m = 300;
+        n = s.size() - 1, m = n;
         fill(cnt, cnt + m + 1, 0);
         fill(prk, prk + 2 * n + 1, 0);
 
@@ -106,20 +106,65 @@ struct SA {
 // endregion
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
-const int N = 1e6 + 10;
+const int N = 1e5 + 10;
 
-SA<N> sautil;
-string s;
+int n;
+int a[N];
+vector<int> lsh;
+int nl;
+SA<N> saut;
+
+int get(int x) {
+    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin();
+}
+
+void init() {
+    lsh = {};
+    for (int i = 1; i <= n; i++) lsh.push_back(a[i]);
+    sort(lsh.begin(), lsh.end());
+    lsh.resize(unique(lsh.begin(), lsh.end()) - lsh.begin());
+    nl = lsh.size();
+
+    for (int i = 1; i <= n; i++) a[i] = get(a[i]) + 1;
+    reverse(a + 1, a + n + 1);
+}
 
 void solve() {
-    auto sa = sautil.get_sa(s);
-    auto h = sautil.get_h(s);
+    init();
 
-    int n = s.size() - 1;
-    for (int i = 1; i <= n; i++) cout << sa[i] << " ";
-    cout << "\n";
-    for (int i = 1; i <= n; i++) cout << h[i] << " ";
-    cout << "\n";
+    string s = string(a + 1, a + n + 1);
+    s = ' ' + s;
+
+    auto sa = saut.get_sa(s);
+    auto h = saut.get_h(s);
+
+    vector<int> L(n + 2), R(n + 2);
+    for (int i = 1; i <= n; i++) {
+        L[i] = i - 1, R[i] = i + 1;
+    }
+    R[0] = 1, L[n + 1] = n;
+
+    ll cur = 0;
+    for (int i = 1; i <= n; i++) {
+        cur += n + 1 - sa[i] - h[i];
+    }
+
+    vector<ll> ans(n + 1);
+    for (int i = 1; i <= n; i++) {
+        ans[i] = cur;
+
+        int k = saut.rk[i], j = R[k];
+        cur -= n + 1 - sa[k] - h[k];
+        if (j != n + 1) {
+            cur -= n + 1 - sa[j] - h[j];
+            h[j] = min(h[j], h[k]);
+            cur += n + 1 - sa[j] - h[j];
+        }
+
+        R[L[k]] = R[k], L[R[k]] = L[k];
+    }
+
+    for (int i = n; i >= 1; i--) cout << ans[i] << "\n";
 }
 
 void prework() {
@@ -136,8 +181,8 @@ int main() {
     int _ = 1;
 //    cin >> _;
     while (_--) {
-        cin >> s;
-        s = ' ' + s;
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 
