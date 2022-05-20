@@ -1,16 +1,16 @@
 // region 质因数分解
-vector<pll> fs;
-
-void divide(ll x) {
-    fs = {};
+vector<pll> divide(ll x) {
+    vector<pll> res;
     for (int i = 2; i <= x / i; i++) {
         if (x % i == 0) {
             int c = 0;
             while (x % i == 0) x /= i, c++;
-            fs.push_back({i, c});
+            res.push_back({i, c});
         }
     }
-    if (x > 1) fs.push_back({x, 1});
+    if (x > 1) res.push_back({x, 1});
+
+    return res;
 }
 // endregion
 
