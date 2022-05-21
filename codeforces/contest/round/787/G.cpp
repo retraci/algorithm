@@ -32,7 +32,6 @@ using namespace std;
 #define se second
 using ll = long long;
 using ld = long double;
-using ull = unsigned long long;
 using pii = pair<int, int>;
 using pll = pair<ll, ll>;
 using ai3 = array<int, 3>;
@@ -44,30 +43,34 @@ int rnd(int mod) {
 }
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
-const int N = 2510;
+const int N = 255;
 
-int n, m, x;
+int n, m;
 int a[N];
 
 void solve() {
-    ll f[x + 1][n + 1];
-    fill(&f[0][0], &f[x][n] + 1, -1e18);
-    f[0][0] = 0;
+    for (int i = 1; i <= n; i++) a[i] += a[i - 1];
 
-    deque<int> que;
-    for (int k = 1; k <= x; k++) {
-        que = {};
-        que.push_back(0);
-        for (int i = 1; i <= n; i++) {
-            while (!que.empty() && que.front() < i - m) que.pop_front();
-            f[k][i] = f[k - 1][que.front()] + a[i];
-            while (!que.empty() && f[k - 1][i] >= f[k - 1][que.back()]) que.pop_back();
-            que.push_back(i);
+    int f[n + 1][m + 1][m + 1];
+    memset(f, 0x3f, sizeof f);
+    f[0][0][m] = 0;
+    for (int i = 1; i <= n; i++) {
+        for (int j = 0; j <= m; j++) {
+            for (int k = m - 1; k >= 0; k--) {
+                f[i - 1][j][k] = min(f[i - 1][j][k], f[i - 1][j][k + 1]);
+            }
+        }
+
+        for (int j = 0; j <= m; j++) {
+            for (int k = 0; k <= j; k++) {
+                int tmp = abs(j - a[i]);
+                f[i][j][k] = f[i - 1][j - k][k] + tmp;
+            }
         }
     }
 
-    ll ans = *max_element(&f[x][n - m + 1], &f[x][n] + 1);
-    cout << (ans < 0 ? -1 : ans) << "\n";
+    int ans = *min_element(&f[n][m][0], &f[n][m][m] + 1);
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -84,7 +87,7 @@ int main() {
     int _ = 1;
 //    cin >> _;
     while (_--) {
-        cin >> n >> m >> x;
+        cin >> n >> m;
         for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
