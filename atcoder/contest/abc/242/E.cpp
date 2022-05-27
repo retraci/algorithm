@@ -43,32 +43,30 @@ int rnd(int mod) {
 }
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int MOD = 998244353;
 
+int n;
 string s;
 
 void solve() {
-    int n = s.size() - 1;
-    for (int L = 1; L <= n; L++) {
-        for (int R = L; R <= n; R++) {
-            string t = s.substr(L, R - L + 1);
-            reverse(t.begin(), t.end());
-            string cur = s.substr(1, L - 1 - 1 + 1) + t + s.substr(R + 1, n - (R + 1) + 1);
-            string rc = string(cur.begin(), cur.end());
-            if (cur == rc) {
-                cout << L << " " << R << "\n";
-                return;
-            }
-        }
+    string s1 = s.substr(0, (n + 1) / 2);
+    string s2 = s1.substr(0, n / 2);
+    reverse(s2.begin(), s2.end());
+
+    int ans = 0;
+    for (char ch : s1) {
+        ans = 1LL * ans * 26 % MOD;
+        ans += ch - 'A';
+        ans %= MOD;
     }
+
+    string t = s1 + s2;
+    ans += (t <= s);
+    ans %= MOD;
+    cout << ans << "\n";
 }
 
 void prework() {
-//    int T = 100;
-//    while (T--) {
-//        string s(100, ' ');
-//        for (int i = 0; i < 100; i++) s[i] = rnd(26) + 'a';
-//        cout << s << "\n";
-//    }
 }
 
 int main() {
@@ -82,8 +80,7 @@ int main() {
     int _ = 1;
     cin >> _;
     while (_--) {
-        cin >> s;
-        s = ' ' + s;
+        cin >> n >> s;
         solve();
     }
 

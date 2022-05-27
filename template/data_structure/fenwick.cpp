@@ -8,9 +8,9 @@ struct Fenwick {
 
     Fenwick() {}
 
-    void init(int _n, fwt v = 0) {
+    void init(int _n) {
         n = _n;
-        fill(tr, tr + n + 1, v);
+        fill(tr, tr + n + 1, 0);
     }
 
     void upd(int id, fwt x) {
@@ -47,10 +47,10 @@ struct Fenwick {
 
     Fenwick() {}
 
-    void init(int _n, fwt v = 0) {
+    void init(int _n) {
         n = _n;
-        fill(tr1, tr1 + n + 1, v);
-        fill(tr2, tr2 + n + 1, v);
+        fill(tr1, tr1 + n + 1, 0);
+        fill(tr2, tr2 + n + 1, 0);
     }
 
     void add(fwt tr[], int id, fwt x) {

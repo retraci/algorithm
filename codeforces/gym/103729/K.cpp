@@ -44,31 +44,21 @@ int rnd(int mod) {
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
 
-string s;
+double n, c;
 
 void solve() {
-    int n = s.size() - 1;
-    for (int L = 1; L <= n; L++) {
-        for (int R = L; R <= n; R++) {
-            string t = s.substr(L, R - L + 1);
-            reverse(t.begin(), t.end());
-            string cur = s.substr(1, L - 1 - 1 + 1) + t + s.substr(R + 1, n - (R + 1) + 1);
-            string rc = string(cur.begin(), cur.end());
-            if (cur == rc) {
-                cout << L << " " << R << "\n";
-                return;
-            }
-        }
-    }
+    double ans;
+    if (n >= 10000000) ans = 2;
+    else if (n > 9800000 && n <= 9999999) ans = 1 + 1.0 * (n - 9800000) / 200000;
+    else ans = 1.0 * (n - 9500000) / 300000;
+    ans += c;
+    ans = max(0.0, ans);
+
+    cout << fixed << setprecision(7);
+    cout << ans << "\n";
 }
 
 void prework() {
-//    int T = 100;
-//    while (T--) {
-//        string s(100, ' ');
-//        for (int i = 0; i < 100; i++) s[i] = rnd(26) + 'a';
-//        cout << s << "\n";
-//    }
 }
 
 int main() {
@@ -82,8 +72,7 @@ int main() {
     int _ = 1;
     cin >> _;
     while (_--) {
-        cin >> s;
-        s = ' ' + s;
+        cin >> n >> c;
         solve();
     }
 

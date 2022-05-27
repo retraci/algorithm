@@ -96,7 +96,7 @@ struct Lca {
     int n;
     int h[N + 10], ne[2 * M + 10], e[2 * M + 10], edm;
     int id[N + 10], eula[2 * N + 10], dep[2 * N + 10], cnt;
-    int st[2 * N][32];
+    int st[32][2 * N];
 
     Lca() {}
 
@@ -128,13 +128,13 @@ struct Lca {
         dfs(rt);
 
         int mxb = __lg(cnt);
-        for (int i = 1; i <= cnt; i++) st[i][0] = eula[i];
+        for (int i = 1; i <= cnt; i++) st[0][i] = eula[i];
         for (int k = 1; k <= mxb; k++) {
             for (int i = 1; i + (1 << k) - 1 <= cnt; i++) {
-                int a = st[i][k - 1];
-                int b = st[i + (1 << (k - 1))][k - 1];
+                int a = st[k - 1][i];
+                int b = st[k - 1][i + (1 << (k - 1))];
 
-                st[i][k] = dep[a] < dep[b] ? a : b;
+                st[k][i] = dep[a] < dep[b] ? a : b;
             }
         }
     }
@@ -144,8 +144,8 @@ struct Lca {
         if (L > R) swap(L, R);
 
         int k = __lg(R - L + 1);
-        int a = st[L][k];
-        int b = st[R - (1 << k) + 1][k];
+        int a = st[k][L];
+        int b = st[k][R - (1 << k) + 1];
 
         return dep[a] < dep[b] ? a : b;
     }

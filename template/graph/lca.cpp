@@ -3,7 +3,7 @@ template<int N, int M>
 struct Lca {
     int n, mxb;
     int h[N + 10], ne[M * 2 + 10], e[M * 2 + 10], edm;
-    int dep[N + 10], fa[N + 10][32];
+    int dep[N + 10], fa[32][N + 10];
 
     Lca() {}
 
@@ -30,11 +30,11 @@ struct Lca {
 
                 if (dep[v] == -1) {
                     dep[v] = dep[u] + 1;
-                    fa[v][0] = u;
+                    fa[0][v] = u;
                     que.push(v);
 
                     for (int k = 1; k <= mxb; k++) {
-                        fa[v][k] = fa[fa[v][k - 1]][k - 1];
+                        fa[k][v] = fa[k - 1][fa[k - 1][v]];
                     }
                 }
             }
@@ -44,16 +44,16 @@ struct Lca {
     int work(int x, int y) {
         if (dep[x] < dep[y]) swap(x, y);
         for (int k = mxb; k >= 0; k--) {
-            if (dep[fa[x][k]] >= dep[y]) x = fa[x][k];
+            if (dep[fa[k][x]] >= dep[y]) x = fa[k][x];
         }
         if (x == y) return x;
 
         for (int k = mxb; k >= 0; k--) {
-            if (fa[x][k] != fa[y][k]) {
-                x = fa[x][k], y = fa[y][k];
+            if (fa[k][x] != fa[k][y]) {
+                x = fa[k][x], y = fa[k][y];
             }
         }
-        return fa[x][0];
+        return fa[0][x];
     }
 };
 // endregion
@@ -67,8 +67,8 @@ struct Lca {
     int n, mxb;
     pit e[M * 2 + 10];
     int ne[M * 2 + 10], h[N + 10], edm;
-    int dep[N + 10], fa[N + 10][32];
-    int w[N + 10][32];
+    int dep[N + 10], fa[32][N + 10];
+    lcat w[32][N + 10];
 
     Lca() {}
 
@@ -95,12 +95,12 @@ struct Lca {
 
                 if (dep[v] == -1) {
                     dep[v] = dep[u] + 1;
-                    fa[v][0] = u, w[v][0] = cost;
+                    fa[0][v] = u, w[0][v] = cost;
                     que.push(v);
 
                     for (int k = 1; k <= mxb; k++) {
-                        fa[v][k] = fa[fa[v][k - 1]][k - 1];
-                        w[v][k] = w[v][k - 1] + w[fa[v][k - 1]][k - 1];
+                        fa[k][v] = fa[k - 1][fa[k - 1][v]];
+                        w[k][v] = w[k - 1][v] + w[k - 1][fa[k - 1][v]];
                     }
                 }
             }
@@ -111,22 +111,22 @@ struct Lca {
         lcat res = 0;
         if (dep[x] < dep[y]) swap(x, y);
         for (int k = mxb; k >= 0; k--) {
-            if (dep[fa[x][k]] >= dep[y]) {
-                res += w[x][k];
-                x = fa[x][k];
+            if (dep[fa[k][x]] >= dep[y]) {
+                res += w[k][x];
+                x = fa[k][x];
             }
         }
         if (x == y) return {x, res};
 
         for (int k = mxb; k >= 0; k--) {
-            if (fa[x][k] != fa[y][k]) {
-                res += w[x][k] + w[y][k];
-                x = fa[x][k], y = fa[y][k];
+            if (fa[k][x] != fa[k][y]) {
+                res += w[k][x] + w[k][y];
+                x = fa[k][x], y = fa[k][y];
             }
         }
 
-        res += w[x][0] + w[y][0];
-        return {fa[x][0], res};
+        res += w[0][x] + w[0][y];
+        return {fa[0][x], res};
     }
 };
 // endregion
@@ -137,7 +137,7 @@ struct Lca {
     int n;
     int h[N + 10], ne[2 * M + 10], e[2 * M + 10], edm;
     int id[N + 10], eula[2 * N + 10], dep[2 * N + 10], cnt;
-    int st[2 * N][32];
+    int st[32][2 * N];
 
     Lca() {}
 
@@ -169,13 +169,13 @@ struct Lca {
         dfs(rt);
 
         int mxb = __lg(cnt);
-        for (int i = 1; i <= cnt; i++) st[i][0] = eula[i];
+        for (int i = 1; i <= cnt; i++) st[0][i] = eula[i];
         for (int k = 1; k <= mxb; k++) {
             for (int i = 1; i + (1 << k) - 1 <= cnt; i++) {
-                int a = st[i][k - 1];
-                int b = st[i + (1 << (k - 1))][k - 1];
+                int a = st[k - 1][i];
+                int b = st[k - 1][i + (1 << (k - 1))];
 
-                st[i][k] = dep[a] < dep[b] ? a : b;
+                st[k][i] = dep[a] < dep[b] ? a : b;
             }
         }
     }
@@ -185,8 +185,8 @@ struct Lca {
         if (L > R) swap(L, R);
 
         int k = __lg(R - L + 1);
-        int a = st[L][k];
-        int b = st[R - (1 << k) + 1][k];
+        int a = st[k][L];
+        int b = st[k][R - (1 << k) + 1];
 
         return dep[a] < dep[b] ? a : b;
     }

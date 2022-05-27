@@ -43,32 +43,48 @@ int rnd(int mod) {
 }
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int N = 2e5 + 10;
 
-string s;
+int n, m;
+int a[N];
+
+int work(const vector<int> &v) {
+    int mi = 1e9, mx = 0;
+    for (int i = 1; i < v.size(); i++) {
+        int d = v[i] - v[i - 1] - 1;
+        mi = min(mi, d), mx = max(mx, d);
+    }
+
+    return min(mi, max((mx - 1) / 2, m - v.back() - 1));
+}
 
 void solve() {
-    int n = s.size() - 1;
-    for (int L = 1; L <= n; L++) {
-        for (int R = L; R <= n; R++) {
-            string t = s.substr(L, R - L + 1);
-            reverse(t.begin(), t.end());
-            string cur = s.substr(1, L - 1 - 1 + 1) + t + s.substr(R + 1, n - (R + 1) + 1);
-            string rc = string(cur.begin(), cur.end());
-            if (cur == rc) {
-                cout << L << " " << R << "\n";
-                return;
-            }
+    a[0] = 0;
+    int mi = 1e9, mip = 0;
+    for (int i = 1; i <= n; i++) {
+        int d = a[i] - a[i - 1] - 1;
+
+        if (d < mi) {
+            mi = d;
+            mip = i;
         }
     }
+
+    int ans = mi;
+    vector<int> v;
+    for (int i = 0; i <= n; i++) {
+        if (i == mip) continue;
+        v.push_back(a[i]);
+    }
+
+    ans = max(ans, work(v));
+    v[mip - 1] = a[mip];
+    ans = max(ans, work(v));
+
+    cout << ans << "\n";
 }
 
 void prework() {
-//    int T = 100;
-//    while (T--) {
-//        string s(100, ' ');
-//        for (int i = 0; i < 100; i++) s[i] = rnd(26) + 'a';
-//        cout << s << "\n";
-//    }
 }
 
 int main() {
@@ -82,8 +98,8 @@ int main() {
     int _ = 1;
     cin >> _;
     while (_--) {
-        cin >> s;
-        s = ' ' + s;
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 

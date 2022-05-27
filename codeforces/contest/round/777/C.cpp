@@ -35,6 +35,7 @@ using ld = long double;
 using pii = pair<int, int>;
 using pll = pair<ll, ll>;
 using ai3 = array<int, 3>;
+using ai4 = array<int, 4>;
 mt19937 mrnd(time(0));
 mt19937_64 mrnd64(time(0));
 
@@ -43,32 +44,35 @@ int rnd(int mod) {
 }
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int N = 110;
 
-string s;
+int n, m;
+string g[N];
 
 void solve() {
-    int n = s.size() - 1;
-    for (int L = 1; L <= n; L++) {
-        for (int R = L; R <= n; R++) {
-            string t = s.substr(L, R - L + 1);
-            reverse(t.begin(), t.end());
-            string cur = s.substr(1, L - 1 - 1 + 1) + t + s.substr(R + 1, n - (R + 1) + 1);
-            string rc = string(cur.begin(), cur.end());
-            if (cur == rc) {
-                cout << L << " " << R << "\n";
-                return;
+    if (g[1][1] == '1') {
+        cout << -1 << "\n";
+        return;
+    }
+
+    vector<ai4> ans;
+    for (int i = n; i >= 2; i--) {
+        for (int j = 1; j <= m; j++) {
+            if (g[i][j] == '1') {
+                ans.push_back({i - 1, j, i, j});
             }
         }
     }
+
+    for (int j = m; j >= 2; j--) {
+        if (g[1][j] == '1') ans.push_back({1, j - 1, 1, j});
+    }
+
+    cout << ans.size() << "\n";
+    for (auto [x1, y1, x2, y2] : ans) cout << x1 << " " << y1 << " " << x2 << " " << y2 << "\n";
 }
 
 void prework() {
-//    int T = 100;
-//    while (T--) {
-//        string s(100, ' ');
-//        for (int i = 0; i < 100; i++) s[i] = rnd(26) + 'a';
-//        cout << s << "\n";
-//    }
 }
 
 int main() {
@@ -82,8 +86,11 @@ int main() {
     int _ = 1;
     cin >> _;
     while (_--) {
-        cin >> s;
-        s = ' ' + s;
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) {
+            cin >> g[i];
+            g[i] = ' ' + g[i];
+        }
         solve();
     }
 

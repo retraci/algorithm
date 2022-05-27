@@ -43,32 +43,52 @@ int rnd(int mod) {
 }
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int N = 110;
 
-string s;
+int n, d;
+vector<int> lsh;
+int nl;
+int f[2010];
+
+int get(int x) {
+    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin();
+}
 
 void solve() {
-    int n = s.size() - 1;
-    for (int L = 1; L <= n; L++) {
-        for (int R = L; R <= n; R++) {
-            string t = s.substr(L, R - L + 1);
-            reverse(t.begin(), t.end());
-            string cur = s.substr(1, L - 1 - 1 + 1) + t + s.substr(R + 1, n - (R + 1) + 1);
-            string rc = string(cur.begin(), cur.end());
-            if (cur == rc) {
-                cout << L << " " << R << "\n";
-                return;
+    vector<int> fs;
+    for (int i = 1; i <= n / i; i++) {
+        if (n % i == 0) {
+            fs.push_back(i);
+            if (i != n / i) fs.push_back(n / i);
+        }
+    }
+
+    lsh = vector<int>(fs);
+    sort(lsh.begin(), lsh.end());
+    lsh.resize(unique(lsh.begin(), lsh.end()) - lsh.begin());
+    nl = lsh.size();
+
+    fill(f, f + nl + 1, 0);
+    f[1] = 1;
+    for (int i = 1; i <= nl; i++) {
+        int x = lsh[i - 1];
+        if (x == 1 || x % d != 0 || x % (1LL * d * d) == 0) continue;
+
+        for (int j = 1; j <= nl; j++) {
+            int y = lsh[j - 1];
+
+            if (1LL * x * y <= n && n % (x * y) == 0) {
+                int v = get(x * y) + 1;
+                f[v] += f[j];
+                f[v] = min(2, f[v]);
             }
         }
     }
+
+    cout << (f[nl] >= 2 ? "YES" : "NO") << "\n";
 }
 
 void prework() {
-//    int T = 100;
-//    while (T--) {
-//        string s(100, ' ');
-//        for (int i = 0; i < 100; i++) s[i] = rnd(26) + 'a';
-//        cout << s << "\n";
-//    }
 }
 
 int main() {
@@ -82,8 +102,7 @@ int main() {
     int _ = 1;
     cin >> _;
     while (_--) {
-        cin >> s;
-        s = ' ' + s;
+        cin >> n >> d;
         solve();
     }
 

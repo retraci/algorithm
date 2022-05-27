@@ -102,10 +102,9 @@ void dfs(int u, ll cur) {
         cur *= p;
     }
 }
-
 // endregion
 
-// region 筛埃
+// region 埃筛
 vector<int> isp, ps;
 
 void init_prime(int lim) {

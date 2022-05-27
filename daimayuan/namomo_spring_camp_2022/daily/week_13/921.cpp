@@ -43,32 +43,56 @@ int rnd(int mod) {
 }
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int N = 1e6 + 10;
+const int M = 1e6 + 10;
 
-string s;
+int n;
+int h[N], ne[M * 2], e[M * 2], edm;
+int siz[N], dep[N];
+ll ans[N];
 
-void solve() {
-    int n = s.size() - 1;
-    for (int L = 1; L <= n; L++) {
-        for (int R = L; R <= n; R++) {
-            string t = s.substr(L, R - L + 1);
-            reverse(t.begin(), t.end());
-            string cur = s.substr(1, L - 1 - 1 + 1) + t + s.substr(R + 1, n - (R + 1) + 1);
-            string rc = string(cur.begin(), cur.end());
-            if (cur == rc) {
-                cout << L << " " << R << "\n";
-                return;
-            }
-        }
+void add(int u, int v) {
+    e[edm] = v, ne[edm] = h[u], h[u] = edm++;
+}
+
+void pdfs(int u, int fno) {
+    siz[u] = 1;
+    for (int i = h[u]; ~i; i = ne[i]) {
+        int v = e[i];
+        if (v == fno) continue;
+
+        dep[v] = dep[u] + 1;
+        pdfs(v, u);
+        siz[u] += siz[v];
     }
 }
 
+void dfs(int u, int fno) {
+    for (int i = h[u]; ~i; i = ne[i]) {
+        int v = e[i];
+        if (v == fno) continue;
+
+        ans[v] = ans[u] - siz[v] + (n - siz[v]);
+        dfs(v, u);
+    }
+}
+
+void solve() {
+    if (n == 0) {
+        cout << 0 << "\n";
+        return;
+    }
+
+    dep[1] = 1;
+    pdfs(1, 0);
+
+    ans[1] = accumulate(dep + 1, dep + n + 1, 0LL);
+    dfs(1, 0);
+
+    cout << *max_element(ans + 1, ans + n + 1) << "\n";
+}
+
 void prework() {
-//    int T = 100;
-//    while (T--) {
-//        string s(100, ' ');
-//        for (int i = 0; i < 100; i++) s[i] = rnd(26) + 'a';
-//        cout << s << "\n";
-//    }
 }
 
 int main() {
@@ -80,10 +104,16 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int _ = 1;
-    cin >> _;
+//    cin >> _;
     while (_--) {
-        cin >> s;
-        s = ' ' + s;
+        cin >> n;
+        fill(h, h + n + 1, -1), edm = 0;
+
+        for (int i = 1; i <= n - 1; i++) {
+            int u, v;
+            cin >> u >> v;
+            add(u, v), add(v, u);
+        }
         solve();
     }
 

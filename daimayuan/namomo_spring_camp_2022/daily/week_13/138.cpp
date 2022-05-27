@@ -43,32 +43,27 @@ int rnd(int mod) {
 }
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int N = 1e5 + 10;
 
-string s;
+int n, m;
+int a[N];
 
 void solve() {
-    int n = s.size() - 1;
-    for (int L = 1; L <= n; L++) {
-        for (int R = L; R <= n; R++) {
-            string t = s.substr(L, R - L + 1);
-            reverse(t.begin(), t.end());
-            string cur = s.substr(1, L - 1 - 1 + 1) + t + s.substr(R + 1, n - (R + 1) + 1);
-            string rc = string(cur.begin(), cur.end());
-            if (cur == rc) {
-                cout << L << " " << R << "\n";
-                return;
-            }
-        }
+    sort(a + 1, a + n + 1);
+    vector<int> d;
+    for (int i = 2; i <= n; i++) d.push_back(a[i] - a[i - 1]);
+    sort(d.rbegin(), d.rend());
+
+    int ans = a[n] - a[1];
+    m--;
+    for (int x : d) {
+        if (m-- == 0) break;
+        ans -= x;
     }
+    cout << ans << "\n";
 }
 
 void prework() {
-//    int T = 100;
-//    while (T--) {
-//        string s(100, ' ');
-//        for (int i = 0; i < 100; i++) s[i] = rnd(26) + 'a';
-//        cout << s << "\n";
-//    }
 }
 
 int main() {
@@ -80,10 +75,10 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int _ = 1;
-    cin >> _;
+//    cin >> _;
     while (_--) {
-        cin >> s;
-        s = ' ' + s;
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 

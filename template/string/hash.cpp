@@ -19,29 +19,30 @@ pii operator-(const pii &a, const pii &b) {
 pii operator*(const pii &a, const pii &b) {
     return {1LL * a.fi * b.fi % mod1, 1LL * a.se * b.se % mod2};
 }
+// endregion
 
+// region 字符串哈希
 vector<pii> pw;
 pii base;
 
-void init_hash(int lim = 0) {
+void init_strhash(int lim = 0) {
     pw = vector<pii>(lim + 1);
     base = {rnd(mod1), rnd(mod2)};
     pw[0] = {1, 1};
     for (int i = 1; i <= lim; i++) pw[i] = pw[i - 1] * base;
 }
-// endregion
 
-// region 字符串哈希
 struct Str_hash {
     vector<pii> v;
 
     Str_hash() {}
 
+    // 下标 1 开始
     void init(const string &s) {
-        int m = s.size();
+        int m = s.size() - 1;
         v.resize(m + 1);
         for (int j = 1; j <= m; j++) {
-            char ch = s[j - 1];
+            char ch = s[j];
             v[j] = v[j - 1] * base + (pii) {ch, ch};
         }
     }

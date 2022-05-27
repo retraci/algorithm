@@ -81,11 +81,14 @@ struct Dsu {
 // region 边权lca
 template<int N, int M>
 struct Lca {
+    using lcat = int;
+    using pit = pair<int, lcat>;
+
     int n, mxb;
-    pii e[M * 2 + 10];
+    pit e[M * 2 + 10];
     int ne[M * 2 + 10], h[N + 10], edm;
-    int dep[N + 10], fa[N + 10][32];
-    ll w[N + 10][32];
+    int dep[N + 10], fa[32][N + 10];
+    lcat w[32][N + 10];
 
     Lca() {}
 
@@ -94,7 +97,7 @@ struct Lca {
         fill(h, h + n + 1, -1), edm = 0;
     }
 
-    void add(int u, int v, int cost) {
+    void add(int u, int v, lcat cost) {
         e[edm] = {v, cost}, ne[edm] = h[u], h[u] = edm++;
     }
 
@@ -112,37 +115,38 @@ struct Lca {
 
                 if (dep[v] == -1) {
                     dep[v] = dep[u] + 1;
-                    fa[v][0] = u, w[v][0] = cost;
+                    fa[0][v] = u, w[0][v] = cost;
                     que.push(v);
 
                     for (int k = 1; k <= mxb; k++) {
-                        fa[v][k] = fa[fa[v][k - 1]][k - 1];
-                        w[v][k] = max(w[v][k - 1], w[fa[v][k - 1]][k - 1]);
+                        fa[k][v] = fa[k - 1][fa[k - 1][v]];
+                        w[k][v] = max(w[k - 1][v], w[k - 1][fa[k - 1][v]]);
                     }
                 }
             }
         }
     }
 
-    pll work(int x, int y) {
-        ll res = 0;
+    pit work(int x, int y) {
+        lcat res = 0;
         if (dep[x] < dep[y]) swap(x, y);
         for (int k = mxb; k >= 0; k--) {
-            if (dep[fa[x][k]] >= dep[y]) {
-                res = max(res, w[x][k]);
-                x = fa[x][k];
+            if (dep[fa[k][x]] >= dep[y]) {
+                res = max(res, w[k][x]);
+                x = fa[k][x];
             }
         }
         if (x == y) return {x, res};
 
         for (int k = mxb; k >= 0; k--) {
-            if (fa[x][k] != fa[y][k]) {
-                res = max({res, w[x][k], w[y][k]});
-                x = fa[x][k], y = fa[y][k];
+            if (fa[k][x] != fa[k][y]) {
+                res = max({res, w[k][x], w[k][y]});
+                x = fa[k][x], y = fa[k][y];
             }
         }
-        res = max({res, w[x][0], w[y][0]});
-        return {fa[x][0], res};
+
+        res = max({res, w[0][x], w[0][y]});
+        return {fa[0][x], res};
     }
 };
 // endregion

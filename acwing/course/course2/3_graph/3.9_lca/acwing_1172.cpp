@@ -50,14 +50,14 @@ using namespace grid_delta;
 // region 无权的lca
 template<int N, int M>
 struct Lca {
-    int n;
+    int n, mxb;
     int h[N + 10], ne[M * 2 + 10], e[M * 2 + 10], edm;
-    int dep[N + 10], fa[N + 10][32];
+    int dep[N + 10], fa[32][N + 10];
 
     Lca() {}
 
     void init(int _n) {
-        n = _n;
+        n = _n, mxb = __lg(n);
         fill(h, h + n + 1, -1), edm = 0;
     }
 
@@ -79,11 +79,11 @@ struct Lca {
 
                 if (dep[v] == -1) {
                     dep[v] = dep[u] + 1;
-                    fa[v][0] = u;
+                    fa[0][v] = u;
                     que.push(v);
 
-                    for (int k = 1; k <= 31; k++) {
-                        fa[v][k] = fa[fa[v][k - 1]][k - 1];
+                    for (int k = 1; k <= mxb; k++) {
+                        fa[k][v] = fa[k - 1][fa[k - 1][v]];
                     }
                 }
             }
@@ -92,17 +92,17 @@ struct Lca {
 
     int work(int x, int y) {
         if (dep[x] < dep[y]) swap(x, y);
-        for (int k = 31; k >= 0; k--) {
-            if (dep[fa[x][k]] >= dep[y]) x = fa[x][k];
+        for (int k = mxb; k >= 0; k--) {
+            if (dep[fa[k][x]] >= dep[y]) x = fa[k][x];
         }
         if (x == y) return x;
 
-        for (int k = 31; k >= 0; k--) {
-            if (fa[x][k] != fa[y][k]) {
-                x = fa[x][k], y = fa[y][k];
+        for (int k = mxb; k >= 0; k--) {
+            if (fa[k][x] != fa[k][y]) {
+                x = fa[k][x], y = fa[k][y];
             }
         }
-        return fa[x][0];
+        return fa[0][x];
     }
 };
 // endregion

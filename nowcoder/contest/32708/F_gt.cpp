@@ -43,32 +43,44 @@ int rnd(int mod) {
 }
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int N = 1e5 + 10;
+const int M = 1e5 + 10;
 
-string s;
+int n;
+int a[N];
+int h[N], ne[M * 2], e[M * 2], edm;
+
+void add(int u, int v) {
+    e[edm] = v, ne[edm] = h[u], h[u] = edm++;
+}
+
+double work() {
+    vector<double> b;
+    for (int u = 1; u <= n; u++) {
+        vector<int> tmp;
+        for (int i = h[u]; ~i; i = ne[i]) {
+            int v = e[i];
+            tmp.push_back(a[v]);
+        }
+        sort(tmp.rbegin(), tmp.rend());
+        b.push_back((a[u] + tmp[0]) / 2.0);
+        if (tmp.size() >= 2) b.push_back((a[u] + tmp[0] + tmp[1]) / 3.0);
+    }
+
+    return *max_element(b.begin(), b.end());
+}
 
 void solve() {
-    int n = s.size() - 1;
-    for (int L = 1; L <= n; L++) {
-        for (int R = L; R <= n; R++) {
-            string t = s.substr(L, R - L + 1);
-            reverse(t.begin(), t.end());
-            string cur = s.substr(1, L - 1 - 1 + 1) + t + s.substr(R + 1, n - (R + 1) + 1);
-            string rc = string(cur.begin(), cur.end());
-            if (cur == rc) {
-                cout << L << " " << R << "\n";
-                return;
-            }
-        }
-    }
+    double ans = work();
+    for (int i = 1; i <= n; i++) a[i] = -a[i];
+    ans = max(ans, work());
+
+    ans = ans * ans / 4;
+    cout << fixed << setprecision(6);
+    cout << ans << "\n";
 }
 
 void prework() {
-//    int T = 100;
-//    while (T--) {
-//        string s(100, ' ');
-//        for (int i = 0; i < 100; i++) s[i] = rnd(26) + 'a';
-//        cout << s << "\n";
-//    }
 }
 
 int main() {
@@ -80,10 +92,16 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int _ = 1;
-    cin >> _;
+//    cin >> _;
     while (_--) {
-        cin >> s;
-        s = ' ' + s;
+        cin >> n;
+        fill(h, h + n + 1, -1), edm = 0;
+        for (int i = 1; i <= n; i++) cin >> a[i];
+        for (int j = 1; j <= n - 1; j++) {
+            int u, v;
+            cin >> u >> v;
+            add(u, v), add(v, u);
+        }
         solve();
     }
 

@@ -43,32 +43,21 @@ int rnd(int mod) {
 }
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int dx = 500000;
 
-string s;
+double n;
+double f[20 * dx + 10], s[20 * dx + 10];
 
 void solve() {
-    int n = s.size() - 1;
-    for (int L = 1; L <= n; L++) {
-        for (int R = L; R <= n; R++) {
-            string t = s.substr(L, R - L + 1);
-            reverse(t.begin(), t.end());
-            string cur = s.substr(1, L - 1 - 1 + 1) + t + s.substr(R + 1, n - (R + 1) + 1);
-            string rc = string(cur.begin(), cur.end());
-            if (cur == rc) {
-                cout << L << " " << R << "\n";
-                return;
-            }
-        }
-    }
+    cout << fixed << setprecision(6);
+    cout << f[int((dx + n - 1) / n)] << "\n";
 }
 
 void prework() {
-//    int T = 100;
-//    while (T--) {
-//        string s(100, ' ');
-//        for (int i = 0; i < 100; i++) s[i] = rnd(26) + 'a';
-//        cout << s << "\n";
-//    }
+    for (int i = 1; i <= 20 * dx; i++) {
+        f[i] = (1.0 * dx / (dx - 1)) + (s[i - 1] - s[max(0, i - dx)]) / (dx - 1);
+        s[i] = s[i - 1] + f[i];
+    }
 }
 
 int main() {
@@ -82,8 +71,7 @@ int main() {
     int _ = 1;
     cin >> _;
     while (_--) {
-        cin >> s;
-        s = ' ' + s;
+        cin >> n;
         solve();
     }
 

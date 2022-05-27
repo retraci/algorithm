@@ -43,32 +43,55 @@ int rnd(int mod) {
 }
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int N = 1e5 + 10;
+const int M = 1e6 + 10;
 
-string s;
+int n, m;
+int a[N];
+ai3 qs[M];
+int cnt[N], bl, cur;
+
+void add(int x) {
+    cur -= cnt[x] / 2;
+    cnt[x]++;
+    cur += cnt[x] / 2;
+}
+
+void del(int x) {
+    cur -= cnt[x] / 2;
+    cnt[x]--;
+    cur += cnt[x] / 2;
+}
+
+int get(int i) {
+    return (i - 1) / bl + 1;
+}
 
 void solve() {
-    int n = s.size() - 1;
-    for (int L = 1; L <= n; L++) {
-        for (int R = L; R <= n; R++) {
-            string t = s.substr(L, R - L + 1);
-            reverse(t.begin(), t.end());
-            string cur = s.substr(1, L - 1 - 1 + 1) + t + s.substr(R + 1, n - (R + 1) + 1);
-            string rc = string(cur.begin(), cur.end());
-            if (cur == rc) {
-                cout << L << " " << R << "\n";
-                return;
-            }
-        }
+    bl = sqrt(n);
+    sort(qs + 1, qs + m + 1, [](auto &a, auto &b) {
+        int bid1 = get(a[0]), bid2 = get(b[0]);
+        if (bid1 != bid2) return bid1 < bid2;
+        return bid1 & 1 ? a[1] < b[1] : a[1] > b[1];
+    });
+
+    vector<int> ans(m + 1);
+    int cl = 1, cr = 0;
+    for (int i = 1; i <= m; i++) {
+        auto [L, R, qid] = qs[i];
+
+        while (cl < L) del(a[cl++]);
+        while (cl > L) add(a[--cl]);
+        while (cr > R) del(a[cr--]);
+        while (cr < R) add(a[++cr]);
+
+        ans[qid] = cur;
     }
+
+    for (int i = 1; i <= m; i++) cout << ans[i] << "\n";
 }
 
 void prework() {
-//    int T = 100;
-//    while (T--) {
-//        string s(100, ' ');
-//        for (int i = 0; i < 100; i++) s[i] = rnd(26) + 'a';
-//        cout << s << "\n";
-//    }
 }
 
 int main() {
@@ -80,10 +103,16 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int _ = 1;
-    cin >> _;
+//    cin >> _;
     while (_--) {
-        cin >> s;
-        s = ' ' + s;
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> a[i];
+        cin >> m;
+        for (int i = 1; i <= m; i++) {
+            int L, R;
+            cin >> L >> R;
+            qs[i] = {L, R, i};
+        }
         solve();
     }
 

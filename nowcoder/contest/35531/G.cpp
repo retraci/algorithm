@@ -43,32 +43,48 @@ int rnd(int mod) {
 }
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int N = 1e6 + 10;
 
-string s;
+int n, m, tmi, tmx, r;
+int a[N];
+
+int get(ll cur, int x) {
+    return ((x - tmi - cur) % r + r) % r + tmi;
+}
 
 void solve() {
-    int n = s.size() - 1;
-    for (int L = 1; L <= n; L++) {
-        for (int R = L; R <= n; R++) {
-            string t = s.substr(L, R - L + 1);
-            reverse(t.begin(), t.end());
-            string cur = s.substr(1, L - 1 - 1 + 1) + t + s.substr(R + 1, n - (R + 1) + 1);
-            string rc = string(cur.begin(), cur.end());
-            if (cur == rc) {
-                cout << L << " " << R << "\n";
-                return;
+    r = tmx - tmi + 1;
+    deque<pii> que;
+    for (int i = 1; i <= n; i++) que.push_front({1, a[i]});
+
+    ll cur = 0, tt = n;
+    while (m--) {
+        int t, k;
+        cin >> t >> k;
+
+        cur += t;
+        ll ans = 0, s = 0;
+        while (!que.empty() && s < k) {
+            auto [len, x] = que.front(); que.pop_front();
+
+            int used = min(k - s, 1LL * len);
+            s += used, tt -= used;
+            if (len > used) {
+                int dta = len - used;
+                que.push_front({dta, x});
             }
+            ans += 1LL * used * get(cur, x);
         }
+
+        if (s < k) ans += 1LL * (k - s) * tmx;
+        cout << ans << "\n";
+
+        int tmp = (tmx - tmi + cur) % r + tmi;
+        que.push_back({n - tt, tmp}), tt = n;
     }
 }
 
 void prework() {
-//    int T = 100;
-//    while (T--) {
-//        string s(100, ' ');
-//        for (int i = 0; i < 100; i++) s[i] = rnd(26) + 'a';
-//        cout << s << "\n";
-//    }
 }
 
 int main() {
@@ -80,10 +96,10 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int _ = 1;
-    cin >> _;
+//    cin >> _;
     while (_--) {
-        cin >> s;
-        s = ' ' + s;
+        cin >> n >> m >> tmi >> tmx;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 
