@@ -5,17 +5,23 @@
 
 using namespace std;
 
+// region 快读
+static struct FastInput {
+    template<typename T>
+    inline FastInput& operator>> (T &x) {
+        T ret = 0, sgn = 1;
+        char c = getchar();
+        while (!isdigit(c)) sgn = (c == '-' ? -1 : 1), c = getchar();
+        while (isdigit(c)) ret = (ret << 3) + (ret << 1) + c - '0', c = getchar();
+        x = (sgn == -1 ? -ret : ret);
+        return *this;
+    }
+} fin;
+// endregion
+
 #define ll long long
 
 const int N = 1e5 + 10;
-
-template<typename T> inline void rd(T& x){
-    T ret = 0, sgn = 1;
-    char c = getchar();
-    while(!isdigit(c)) sgn = (c == '-' ? -1 : 1), c = getchar();
-    while(isdigit(c)) ret = (ret << 3) + (ret << 1) + c - '0', c = getchar();
-    x = (sgn == -1 ? -ret : ret);
-}
 
 ll n, K, x, p;
 ll vs[N];
@@ -42,10 +48,10 @@ int main() {
     freopen("../out.txt", "w", stdout);
 #endif
 
-    rd(n); rd(K); rd(x); rd(p);
-    for (int i = 0; i < n; i++) rd(vs[i]);
-    for (int i = 0; i < K; i++) rd(ts[i]);
-    for (int i = 0; i < K; i++) rd(ps[i]);
+    fin >> n >> K >> x >> p;
+    for (int i = 0; i < n; i++) fin >> vs[i];
+    for (int i = 0; i < K; i++) fin >> ts[i];
+    for (int i = 0; i < K; i++) fin >> ps[i];
     solve();
 
     return 0;

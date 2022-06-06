@@ -84,7 +84,7 @@ struct VDcc {
         n = _n, ti = 0, dcc = 0;
         fill(h1, h1 + n + 1, -1), edm = 0;
         fill(dfn, dfn + n + 1, 0);
-        for (int i = 1; i <= n; i++) cc[i] = {};
+        for (int i = 1; i <= n; i++) cc[i].clear();
         fill(cut, cut + n + 1, 0);
     }
 

@@ -44,7 +44,7 @@ void floyd() {
                 if (mi > 1LL * g[k][i] + f[i][j] + g[j][k]) {
                     mi = g[k][i] + f[i][j] + g[j][k];
 
-                    path = {};
+                    path.clear();
                     path.push_back(k);
                     path.push_back(i);
                     dfs(i, j);

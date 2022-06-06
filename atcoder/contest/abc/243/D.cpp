@@ -44,7 +44,28 @@ int rnd(int mod) {
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
 
+ll n, x;
+string s;
+
 void solve() {
+    vector<int> stk;
+    while (x) {
+        stk.push_back(x & 1);
+        x >>= 1;
+    }
+
+    reverse(stk.begin(), stk.end());
+    for (char op : s) {
+        if (op == 'U') stk.pop_back();
+        if (op == 'L') stk.push_back(0);
+        if (op == 'R') stk.push_back(1);
+    }
+
+    ll ans = 0;
+    for (int y : stk) {
+        ans = ans * 2 + y;
+    }
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -59,8 +80,10 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int _ = 1;
-    cin >> _;
+//    cin >> _;
     while (_--) {
+        cin >> n >> x;
+        cin >> s;
         solve();
     }
 

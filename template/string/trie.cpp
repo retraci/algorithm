@@ -5,24 +5,31 @@ struct Trie {
 
     Trie() {}
 
-    void init(int _n) {
-        fill(&ne[0][0], &ne[_n][25] + 1, 0);
-        fill(cnt, cnt + _n + 1, 0);
+    void init() {
+        fill(&ne[0][0], &ne[id][0], 0);
+        cnt[0] = 0;
         mem = 0;
     }
 
-    void ins(string &s) {
+    int new_node() {
+        int id = ++mem;
+        fill(&ne[id][0], &ne[id][26], 0);
+        cnt[id] = 0;
+        return id;
+    }
+
+    void add(const string &s) {
         int u = 0;
         for (char ch : s) {
             int &v = ne[u][ch - 'a'];
-            if (!v) v = ++mem;
+            if (!v) v = new_node();
             u = v;
         }
 
         cnt[u]++;
     }
 
-    int qr(string &s) {
+    int qr(const string &s) {
         int u = 0, res = 0;
         for (char ch : s) {
             int &v = ne[u][ch - 'a'];
@@ -39,37 +46,61 @@ struct Trie {
 // region 01trie
 template<int SZ>
 struct Trie {
-    int ne[SZ + 10][2], cnt[SZ + 10], mem;
+    int mxb;
+    int ne[32 * SZ + 10][2], cnt[32 * SZ + 10], mem;
 
     Trie() {}
 
-    void init(int _n) {
-        fill(&ne[0][0], &ne[_n][1] + 1, 0);
-        fill(cnt, cnt + _n + 1, 0);
+    void init(int _mxb) {
+        mxb = _mxb;
+        ne[0][0] = ne[0][1] = 0;
+        cnt[0] = 0;
         mem = 0;
     }
 
-    void ins(int x) {
+    int new_node() {
+        int id = ++mem;
+        ne[id][0] = ne[id][1] = 0;
+        cnt[id] = 0;
+        return id;
+    }
+
+    void add(int x) {
         int u = 0;
-        for (int i = __lg(x); i >= 0; i--) {
-            int bi = x >> i & 1;
-            int &v = ne[u][bi];
-            if (!v) v = ++mem;
+        for (int i = mxb; i >= 0; i--) {
+            int bit = x >> i & 1;
+            int &v = ne[u][bit];
+            if (!v) v = new_node();
             u = v;
         }
 
         cnt[u]++;
     }
 
-    int qr(int x) {
+    int qr_mx(int x) {
         int u = 0, res = 0;
-        for (int i = __lg(x); i >= 0; i--) {
-            int bi = x >> i & 1;
-            if (ne[u][!bi]) {
+        for (int i = mxb; i >= 0; i--) {
+            int bit = x >> i & 1;
+            if (ne[u][!bit]) {
                 res += 1 << i;
-                u = ne[u][!bi];
+                u = ne[u][!bit];
             } else {
-                u = ne[u][bi];
+                u = ne[u][bit];
+            }
+        }
+
+        return res;
+    }
+
+    int qr_mi(int x) {
+        int u = 0, res = 0;
+        for (int i = mxb; i >= 0; i--) {
+            int bit = x >> i & 1;
+            if (ne[u][bit]) {
+                u = ne[u][bit];
+            } else {
+                res += 1 << i;
+                u = ne[u][!bit];
             }
         }
 

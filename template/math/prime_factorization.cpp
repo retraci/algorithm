@@ -36,7 +36,7 @@ void init_prime(int lim) {
 vector<pll> fs;
 
 void divide(ll x) {
-    fs = {};
+    fs.clear();
     for (int p : pr) {
         if (p > x / p) break;
 
@@ -77,7 +77,7 @@ void init_prime(int lim) {
 vector<pii> fs;
 
 void divide(int x) {
-    fs = {};
+    fs.clear();
     while (x > 1) {
         int p = mip[x];
         int c = 0;

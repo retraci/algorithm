@@ -118,14 +118,14 @@ void solve() {
     int f[2][m + 1];
     memset(f, 0, sizeof f);
 
-    int que[m + 1];
+    int que[m + 1], hh, tt;
     for (int i = 1; i <= n; i++) {
         auto &[v, w, s] = va[i];
         auto &pre = f[i - 1 & 1];
         auto &cur = f[i & 1];
 
         for (int r = 0; r < v; r++) {
-            int tt = 0, hh = 1;
+            hh = 1, tt = 0;
             for (int j = r; j <= m; j += v) {
                 while (tt >= hh && (j - que[hh]) / v > s) hh++;
                 while (tt >= hh && pre[que[tt]] + (j - que[tt]) / v * w <= pre[j]) tt--;

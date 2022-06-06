@@ -118,7 +118,7 @@ struct Tree_hash {
     array<pair<int, pii>, 2> work(int rt = 0) {
         if (rt == 0) {
             fill(sz, sz + n + 1, 0);
-            ctr = {};
+            ctr.clear();
             dfs1(1, -1);
         } else {
             ctr = {rt};

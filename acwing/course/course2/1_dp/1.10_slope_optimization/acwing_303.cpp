@@ -75,8 +75,8 @@ void solve() {
     memset(f, 0x3f, sizeof f);
     for (int i = 0; i <= p; i++) f[i][0] = 0;
     for (int i = 1; i <= p; i++) {
-        hh = 0, tt = 0;
-        que[0] = 0;
+        hh = 1, tt = 0;
+        que[++tt] = 0;
         for (int j = 1; j <= m; j++) {
             while (tt > hh) {
                 ll x1 = que[hh], x2 = que[hh + 1];

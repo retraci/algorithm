@@ -9,6 +9,7 @@ struct Odt {
 
     void init(int _n) {
         n = _n;
+        odt.clear();
         odt[0] = 0, odt[n + 1] = 0;
     }
 

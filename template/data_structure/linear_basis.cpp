@@ -24,7 +24,7 @@ ll query(ll k) {
 }
 
 void init_lbas() {
-    bas = {};
+    bas.clear();
     for (int i = 1; i <= n; i++) insert(va[i]);
     // 排序
     sort(bas.begin(), bas.end());

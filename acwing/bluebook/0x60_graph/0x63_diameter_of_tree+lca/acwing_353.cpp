@@ -99,15 +99,50 @@ namespace grid_delta {
 using namespace std;
 using namespace grid_delta;
 
-// region 快读
-template<typename T>
-inline void rd(T &x) {
-    T ret = 0, sgn = 1;
-    char c = getchar();
-    while (!isdigit(c)) sgn = (c == '-' ? -1 : 1), c = getchar();
-    while (isdigit(c)) ret = (ret << 3) + (ret << 1) + c - '0', c = getchar();
-    x = (sgn == -1 ? -ret : ret);
-}
+// region 快读快写
+static struct FastInput {
+    template<typename T>
+    inline FastInput& operator>>(T &x) {
+        T ret = 0, sgn = 1;
+        char c = getchar();
+        while (!isdigit(c)) sgn = (c == '-' ? -1 : 1), c = getchar();
+        while (isdigit(c)) ret = (ret << 3) + (ret << 1) + c - '0', c = getchar();
+        x = (sgn == -1 ? -ret : ret);
+        return *this;
+    }
+} fin;
+
+static struct FastOutput {
+    inline FastOutput& operator<<(const string& s) {
+        for (int i = 0; i < (int) s.size(); i++) putchar(s[i]);
+        return *this;
+    }
+
+    template <typename T>
+    inline void work_int(T x) {
+        static char buf[41];
+
+        if (x == 0) {
+            putchar('0');
+        } else {
+            int w = 0;
+            if (x < 0) putchar('-'), x = -x;
+            while (x) buf[++w] = (x % 10) + 48, x /= 10;
+            while (w) putchar(buf[w--]);
+        }
+    }
+
+    inline FastOutput& operator<<(__int128 x) {
+        work_int(x);
+        return *this;
+    }
+
+    template <typename T>
+    inline typename enable_if<is_integral<T>::value, FastOutput&>::type operator<<(T x) {
+        work_int(x);
+        return *this;
+    }
+} fout;
 // endregion
 
 // region 最大值线段树分裂
@@ -221,8 +256,7 @@ int n, m;
 int h[N], ne[N * 2], ver[N * 2], tt;
 
 Seg<N> seg;
-int fa[N][22], dep[N];
-
+int fa[22][N], dep[N];
 int ans[N];
 
 void add(int u, int v) {
@@ -230,11 +264,11 @@ void add(int u, int v) {
 }
 
 void dfs_lca(int u, int fno) {
-    fa[u][0] = fno, dep[u] = dep[fno] + 1;
+    fa[0][u] = fno, dep[u] = dep[fno] + 1;
 
     for (int i = 1; i <= 20; i++) {
-        int pv = fa[u][i - 1];
-        fa[u][i] = fa[pv][i - 1];
+        int pv = fa[i - 1][u];
+        fa[i][u] = fa[i - 1][pv];
     }
 
     for (int i = h[u]; i; i = ne[i]) {
@@ -249,22 +283,22 @@ int lca(int x, int y) {
 
     int delta = dep[x] - dep[y];
     for (int i = 0; delta; i++, delta >>= 1) {
-        if (delta & 1) x = fa[x][i];
+        if (delta & 1) x = fa[i][x];
     }
     if (x == y) return x;
 
     for (int i = 20; i >= 0; i--) {
-        if (fa[x][i] != fa[y][i]) {
-            x = fa[x][i], y = fa[y][i];
+        if (fa[i][x] != fa[i][y]) {
+            x = fa[i][x], y = fa[i][y];
         }
     }
-    return fa[x][0];
+    return fa[0][x];
 }
 
 void dfs(int u) {
     for (int i = h[u]; i; i = ne[i]) {
         int v = ver[i];
-        if (v == fa[u][0]) continue;
+        if (v == fa[0][u]) continue;
         dfs(v);
         seg.merge(seg.root[u], seg.root[v]);
     }
@@ -279,8 +313,8 @@ void solve() {
 
     for (int i = 1; i <= m; i++) {
         int x, y, z;
-        rd(x), rd(y), rd(z);
-        int lca1 = lca(x, y), lca2 = fa[lca1][0];
+        fin >> x >> y >> z;
+        int lca1 = lca(x, y), lca2 = fa[0][lca1];
         seg.update(seg.root[x], z, 1);
         seg.update(seg.root[y], z, 1);
         seg.update(seg.root[lca1], z, -1);
@@ -288,7 +322,7 @@ void solve() {
     }
 
     dfs(1);
-    for (int i = 1; i <= n; i++) cout << ans[i] << "\n";
+    for (int i = 1; i <= n; i++) fout << ans[i] << "\n";
 }
 
 void prework() {
@@ -305,10 +339,10 @@ int main() {
     int T = 1;
 //    cin >> T;
     while (T--) {
-        rd(n), rd(m);
+        fin >> n >> m;
         for (int i = 1; i <= n - 1; i++) {
             int u, v;
-            rd(u), rd(v);
+            fin >> u >> v;
             add(u, v), add(v, u);
         }
         solve();

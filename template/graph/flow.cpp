@@ -1,142 +1,4 @@
-// region ek
-template<int N, int M>
-struct Flow {
-    using flowt = int;
-    using pif = pair<int, flowt>;
-    const flowt INF = 1e9;
-
-    int n;
-    pif e[M * 2];
-    int h[N], ne[M * 2], edm;
-    flowt incf[N], pe[N];
-
-    Flow() {}
-
-    void init(int _n) {
-        n = _n;
-        fill(h, h + n + 1, -1), edm = 0;
-    }
-
-    void add(int u, int v, flowt c1, flowt c2) {
-        e[edm] = {v, c1}, ne[edm] = h[u], h[u] = edm++;
-        e[edm] = {u, c2}, ne[edm] = h[v], h[v] = edm++;
-    }
-
-    bool bfs(int S, int T) {
-        vector<int> vis(n + 1, 0);
-        queue<int> que;
-        vis[S] = 1, incf[S] = INF;
-        que.push(S);
-        while (!que.empty()) {
-            auto u = que.front(); que.pop();
-
-            for (int i = h[u]; ~i; i = ne[i]) {
-                auto [v, cap] = e[i];
-                if (cap == 0 || vis[v]) continue;
-                vis[v] = 1;
-
-                incf[v] = min(incf[u], cap), pe[v] = i;
-                if (v == T) return true;
-                que.push(v);
-            }
-        }
-
-        return false;
-    }
-
-    flowt max_flow(int S, int T) {
-        flowt flow = 0;
-        while (bfs(S, T)) {
-            flow += incf[T];
-            int t = T;
-            while (t != S) {
-                int eid = pe[t];
-                e[eid].se -= incf[T], e[eid ^ 1].se += incf[T];
-                t = e[eid ^ 1].fi;
-            }
-        }
-
-        return flow;
-    }
-};
-// endregion
-
-// region ek 费用流
-template<int N, int M>
-struct Flow {
-    using flowt = int;
-    using pff = pair<flowt, flowt>;
-    using af3 = array<flowt, 3>;
-    const int INF = 1e9;
-
-    int n;
-    af3 e[M * 2 + 10];
-    int h[N + 10], ne[M * 2 + 10], edm;
-    int d[N + 10], pe[N + 10];
-    flowt incf[N + 10];
-
-    Flow() {}
-
-    void init(int _n) {
-        n = _n;
-        fill(h, h + n + 1, -1), edm = 0;
-    }
-
-    void add(int u, int v, flowt cap, flowt cost) {
-        e[edm] = {v, cap, cost}, ne[edm] = h[u], h[u] = edm++;
-        e[edm] = {u, 0, -cost}, ne[edm] = h[v], h[v] = edm++;
-    }
-
-    bool spfa(int S, int T) {
-        fill(d, d + n + 1, INF);
-        fill(incf, incf + n + 1, 0);
-        vector<int> inq(n + 1, 0);
-
-        deque<int> que;
-        inq[S] = 1, d[S] = 0, incf[S] = INF;
-        que.push_back(S);
-        while (!que.empty()) {
-            auto u = que.front(); que.pop_front();
-            inq[u] = 0;
-
-            for (int i = h[u]; ~i; i = ne[i]) {
-                auto [v, cap, cost] = e[i];
-                if (cap == 0) continue;
-
-                if (d[v] > d[u] + cost) {
-                    d[v] = d[u] + cost;
-                    incf[v] = min(incf[u], cap), pe[v] = i;
-
-                    if (!inq[v]) {
-                        inq[v] = 1;
-                        if (!que.empty() && d[v] < d[que.front()]) que.push_front(v);
-                        else que.push_back(v);
-                    }
-                }
-            }
-        }
-
-        return incf[T] > 0;
-    }
-
-    pff max_flow_cost(int S, int T) {
-        flowt flow = 0, dis = 0;
-        while (spfa(S, T)) {
-            flow += incf[T], dis += incf[T] * d[T];
-            int t = T;
-            while (t != S) {
-                int eid = pe[t];
-                e[eid][1] -= incf[T], e[eid ^ 1][1] += incf[T];
-                t = e[eid ^ 1][0];
-            }
-        }
-
-        return {flow, dis};
-    }
-};
-// endregion
-
-// region dinic
+// region dinic 最大流
 template<int N, int M>
 struct Flow {
     using flowt = int;
@@ -146,7 +8,8 @@ struct Flow {
     int n;
     pif e[2 * M + 10];
     int h[N + 10], ne[2 * M + 10], edm;
-    int d[N + 10], nh[N + 10], vis[N + 10];
+    int nh[N + 10], vis[N + 10];
+    flowt d[N + 10];
 
     Flow() {}
 
@@ -161,12 +24,13 @@ struct Flow {
     }
 
     bool bfs(int S, int T) {
-        fill(d + 1, d + n + 1, -1);
         queue<int> que;
+        fill(d + 1, d + n + 1, -1);
+
         d[S] = 0;
         que.push(S);
         while (!que.empty()) {
-            auto u = que.front(); que.pop();
+            int u = que.front(); que.pop();
 
             for (int i = h[u]; ~i; i = ne[i]) {
                 auto [v, cap] = e[i];
@@ -199,7 +63,7 @@ struct Flow {
         return flow;
     }
 
-    flowt max_flow(int S, int T) {
+    flowt mf(int S, int T) {
         flowt flow = 0;
         while (bfs(S, T)) {
             for (int i = 1; i <= n; i++) nh[i] = h[i];
@@ -264,15 +128,15 @@ struct Flow {
         e[edm] = {u, 0, -cost}, ne[edm] = h[v], h[v] = edm++;
     }
 
-    bool spfa(int S, int T, int is_max_flow = 1) {
+    bool spfa(int S, int T, int is_mf = 1) {
+        static int inq[N + 1] = {0};
+        static deque<int> que;
         fill(d + 1, d + n + 1, INF);
-        vector<int> inq(n + 1, 0);
 
-        deque<int> que;
         d[S] = 0, inq[S] = 1;
         que.push_back(S);
         while (!que.empty()) {
-            auto u = que.front(); que.pop_front();
+            int u = que.front(); que.pop_front();
             inq[u] = 0;
 
             for (int i = h[u]; ~i; i = ne[i]) {
@@ -292,7 +156,7 @@ struct Flow {
         }
 
         // 可行流: cost = d[T] * flow, 若最小费用, 则 d[T] < 0
-        if (is_max_flow) return d[T] != INF;
+        if (is_mf) return d[T] != INF;
         else return d[T] != INF && d[T] < 0;
     }
 
@@ -300,50 +164,173 @@ struct Flow {
         if (u == T) return {lit, lit * d[T]};
         vis[u] = 1;
 
-        flowt flow = 0, dis = 0;
+        flowt flow = 0, fco = 0;
         for (int &i = nh[u]; ~i; i = ne[i]) {
             auto &[v, cap, cost] = e[i];
             if (d[v] != d[u] + cost || cap == 0 || vis[v]) continue;
 
             auto [t1, t2] = dfs(v, T, min(cap, lit - flow));
             if (t1 == 0) d[v] = INF;
-            flow += t1, dis += t2, cap -= t1, e[i ^ 1][1] += t1;
+            flow += t1, fco += t2, cap -= t1, e[i ^ 1][1] += t1;
 
             if (lit - flow == 0) break;
         }
 
         vis[u] = 0;
-        return {flow, dis};
+        return {flow, fco};
     }
 
-    pff max_flow_cost(int S, int T) {
-        flowt flow = 0, dis = 0;
+    pff mcmf(int S, int T) {
+        flowt flow = 0, fco = 0;
         while (spfa(S, T)) {
             for (int i = 1; i <= n; i++) nh[i] = h[i];
             while (1) {
                 auto [t1, t2] = dfs(S, T, INF);
                 if (t1 == 0) break;
 
-                flow += t1, dis += t2;
+                flow += t1, fco += t2;
             }
         }
 
-        return {flow, dis};
+        return {flow, fco};
     }
 
-    pff feasible_flow_cost(int S, int T) {
-        flowt flow = 0, dis = 0;
+    pff mcff(int S, int T) {
+        flowt flow = 0, fco = 0;
         while (spfa(S, T, 0)) {
             for (int i = 1; i <= n; i++) nh[i] = h[i];
             while (1) {
                 auto [t1, t2] = dfs(S, T, INF);
                 if (t1 == 0) break;
 
-                flow += t1, dis += t2;
+                flow += t1, fco += t2;
             }
         }
 
-        return {flow, dis};
+        return {flow, fco};
+    }
+};
+// endregion
+
+// region primal-dual 费用流
+template<int N, int M>
+struct Flow {
+    using flowt = int;
+    using pff = pair<flowt, flowt>;
+    using af3 = array<flowt, 3>;
+    const flowt INF = 1e9;
+
+    int n;
+    af3 e[2 * M + 10];
+    int h[N + 10], ne[2 * M + 10], edm;
+    int pre[N + 10];
+    flowt d[N + 10], r[N + 10];
+
+    Flow() {}
+
+    void init(int _n) {
+        n = _n;
+        fill(h, h + n + 1, -1), edm = 0;
+    }
+
+    void add(int u, int v, flowt cap, flowt cost) {
+        e[edm] = {v, cap, cost}, ne[edm] = h[u], h[u] = edm++;
+        e[edm] = {u, 0, -cost}, ne[edm] = h[v], h[v] = edm++;
+    }
+
+    bool dij(int S, int T) {
+        static int vis[N + 10];
+        static priority_queue<pff> que;
+        fill(d, d + n + 1, INF);
+        fill(vis, vis + n + 1, 0);
+
+        d[S] = 0;
+        que.push({0, S});
+        while (!que.empty()) {
+            auto [_, u] = que.top(); que.pop();
+            if (vis[u]) continue;
+            vis[u] = 1;
+
+            for (int i = h[u]; ~i; i = ne[i]) {
+                auto [v, cap, cost] = e[i];
+                if (cap == 0) continue;
+
+                flowt nc = cost + r[u] - r[v];
+                if (d[v] > d[u] + nc) {
+                    d[v] = d[u] + nc;
+                    pre[v] = i;
+                    que.push({-d[v], v});
+                }
+            }
+        }
+
+        return d[T] != INF;
+    }
+
+    void spfa(int S, int T) {
+        static int inq[N + 10] = {0};
+        static deque<int> que;
+        fill(r + 1, r + n + 1, INF);
+
+        r[S] = 0, inq[S] = 1;
+        que.push_back(S);
+        while (!que.empty()) {
+            int u = que.front(); que.pop_front();
+            inq[u] = 0;
+
+            for (int i = h[u]; ~i; i = ne[i]) {
+                auto [v, cap, cost] = e[i];
+                if (cap == 0) continue;
+
+                if (r[v] > r[u] + cost) {
+                    r[v] = r[u] + cost;
+
+                    if (!inq[v]) {
+                        inq[v] = 1;
+                        if (!que.empty() && r[v] < r[que.front()]) que.push_front(v);
+                        else que.push_back(v);
+                    }
+                }
+            }
+        }
+    }
+
+    pff mcmf(int S, int T) {
+        spfa(S, T);
+        flowt flow = 0, fco = 0;
+        while (dij(S, T)) {
+            for (int i = 1; i <= n; i++) r[i] += d[i];
+
+            flowt minf = INF;
+            for (int i = T; i != S; i = e[pre[i] ^ 1][0]) minf = min(minf, e[pre[i]][1]);
+            for (int i = T; i != S; i = e[pre[i] ^ 1][0]) {
+                e[pre[i]][1] -= minf, e[pre[i] ^ 1][1] += minf;
+            }
+
+            flow += minf, fco += minf * r[T];
+        }
+
+        return {flow, fco};
+    }
+
+    pff mcff(int S, int T) {
+        spfa(S, T);
+        flowt flow = 0, fco = 0;
+        while (dij(S, T)) {
+            for (int i = 1; i <= n; i++) r[i] += d[i];
+            // 可行流: cost = d[T] * flow, 若最小费用, 则 d[T] < 0
+            if (r[T] >= 0) break;
+
+            flowt minf = INF;
+            for (int i = T; i != S; i = e[pre[i] ^ 1][0]) minf = min(minf, e[pre[i]][1]);
+            for (int i = T; i != S; i = e[pre[i] ^ 1][0]) {
+                e[pre[i]][1] -= minf, e[pre[i] ^ 1][1] += minf;
+            }
+
+            flow += minf, fco += minf * r[T];
+        }
+
+        return {flow, fco};
     }
 };
 // endregion

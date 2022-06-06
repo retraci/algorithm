@@ -2,112 +2,113 @@
 #include <cstdio>
 #include <algorithm>
 #include <cstring>
+#include <numeric>
+#include <iomanip>
 #include <vector>
+#include <queue>
+#include <stack>
+#include <set>
+#include <map>
+#include <unordered_set>
+#include <unordered_map>
+#include <bitset>
+
+// region general
+#define ll long long
+#define ld long double
+#define ull unsigned long long
+#define fi first
+#define se second
+
+typedef std::pair<int, int> pii;
+typedef std::pair<ll, ll> pll;
+typedef std::tuple<int, int, int> ti3;
+typedef std::tuple<ll, ll, ll> tl3;
+typedef std::tuple<int, int, int, int> ti4;
+typedef std::tuple<ll, ll, ll, ll> tl4;
+
+inline void debug() {
+    std::cout << "\n";
+}
+
+template<class T, class... OtherArgs>
+inline void debug(T &&var, OtherArgs &&... args) {
+    std::cout << std::forward<T>(var) << " ";
+    debug(std::forward<OtherArgs>(args)...);
+}
+// endregion
+// region grid_delta
+namespace grid_delta {
+    // 上, 右, 下, 左  |  左上, 右上, 右下, 左下
+    const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+}
+// endregion
 
 using namespace std;
-
-struct Edge {
-    int u, v, w;
-};
+using namespace grid_delta;
 
 const int N = 210;
-const int M = 1e6 + 10;
 
-int K, m, s, t;
-int n;
-vector<int> lsh;
-vector<Edge> es;
+int n, m, K, S, E;
+ti3 es[N];
+int g[N][N];
 int f[N][N];
-int ans[N][N];
 
-// 强制走 n 条边的最短路
-//void bellman_ford(int s) {
-//    memset(dist, 0x3f, sizeof dist);
-//    dist[s] = 0;
-//    for (int i = 1; i <= n; i++) {
-//        memcpy(dist2, dist, sizeof dist2);
-//        memset(dist, 0x3f, sizeof dist);
-//        for (auto &[u, v, w]: es) {
-//            dist[v] = min(dist[v], dist2[u] + w);
-//            dist[u] = min(dist[u], dist2[v] + w);
-//        }
-//    }
-//}
+vector<int> lsh;
 
-// 强制走 K 个边
-void floyd(int a[][N], int b[][N]) {
-    // temp数组作为相乘的结果
-    static int temp[N][N];
-    memset(temp, 0x3f, sizeof temp);
-
-    for (int k = 0; k < n; k++) {
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                temp[i][j] = min(temp[i][j], a[i][k] + b[k][j]);
-            }
-        }
-    }
-
-    memcpy(a, temp, sizeof temp);
-}
-
-void ksm() {
-    memset(ans, 0x3f, sizeof ans);
-    for (int i = 0; i < n; i++) ans[i][i] = 0;
-
-    while (K) {
-        if (K & 1) floyd(ans, f);
-        floyd(f, f);
-        K >>= 1;
-    }
-}
-
-void add(int u, int v, int w) {
-    es.push_back({u, v, w});
-    lsh.push_back(u), lsh.push_back(v);
-}
-
-int get_idx(int x) {
+int get_id(int x) {
     return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin();
 }
 
 void init() {
-    sort(lsh.begin(), lsh.end());
-    lsh.erase(unique(lsh.begin(), lsh.end()));
-    n = lsh.size();
-    for (auto &[u, v, w]: es) {
-        u = get_idx(u);
-        v = get_idx(v);
+    for (int i = 1; i <= m; i++) {
+        auto [u, v, cost] = es[i];
+        lsh.push_back(u), lsh.push_back(v);
     }
-    s = get_idx(s), t = get_idx(t);
+    sort(lsh.begin(), lsh.end());
+    lsh.resize(unique(lsh.begin(), lsh.end()) - lsh.begin());
+    n = lsh.size();
+
+    memset(g, 0x3f, sizeof g);
+    for (int i = 1; i <= m; i++) {
+        auto [u, v, cost] = es[i];
+        u = get_id(u) + 1, v = get_id(v) + 1;
+        g[u][v] = g[v][u] = min(g[u][v], cost);
+    }
+}
+
+void work(int u[][N], int v[][N]) {
+    int res[N][N];
+    memset(res, 0x3f, sizeof res);
+
+    for (int k = 1; k <= n; k++) {
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                res[i][j] = min(res[i][j], u[i][k] + v[k][j]);
+            }
+        }
+    }
+
+    memcpy(u, res, sizeof res);
 }
 
 void solve() {
     init();
 
-    // 走了一条边的, 所以f[i][i]不为0
     memset(f, 0x3f, sizeof f);
-    for (auto &[u, v, w]: es) {
-        f[u][v] = f[v][u] = min(f[u][v], w);
+    for (int i = 1; i <= n; i++) f[i][i] = 0;
+    while (K) {
+        if (K & 1) work(f, g);
+        work(g, g);
+        K >>= 1;
     }
 
-    ksm();
-    printf("%d\n", ans[s][t]);
-
-    // T 了
-//    bellman_ford(s);
-//    printf("%d\n", dist[t]);
+    S = get_id(S) + 1, E = get_id(E) + 1;
+    cout << f[S][E] << "\n";
 }
 
-template<typename T>
-inline void rd(T &x) {
-    T ret = 0, sgn = 1;
-    char c = getchar();
-    while (!isdigit(c)) sgn = (c == '-' ? -1 : 1), c = getchar();
-    while (isdigit(c)) ret = (ret << 3) + (ret << 1) + c - '0', c = getchar();
-    x = (sgn == -1 ? -ret : ret);
+void prework() {
 }
-
 
 int main() {
 #ifdef LOCAL
@@ -115,14 +116,19 @@ int main() {
     freopen("../out.txt", "w", stdout);
 #endif
 
-//    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
-    rd(K), rd(m), rd(s), rd(t);
-    for (int i = 0; i < m; i++) {
-        int u, v, w;
-        rd(w), rd(u), rd(v);
-        add(u, v, w);
+    prework();
+    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+    int T = 1;
+//    cin >> T;
+    while (T--) {
+        cin >> K >> m >> S >> E;
+        for (int i = 1; i <= m; i++) {
+            int u, v, cost;
+            cin >> cost >> u >> v;
+            es[i] = {u, v, cost};
+        }
+        solve();
     }
-    solve();
 
     return 0;
 }

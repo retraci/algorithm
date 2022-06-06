@@ -69,7 +69,7 @@ struct Seg {
     int kth(int k, int s, int e, ll x) {
         if (s == e) return s;
 
-        if (x <= info[ls(k)].sum) return kth(ls(k), s, mid, x);
+        if (info[ls(k)].sum >= x) return kth(ls(k), s, mid, x);
         else return kth(rs(k), mid + 1, e, x - info[ls(k)].sum);
     }
 
@@ -181,7 +181,7 @@ struct Seg {
         if (s == e) return x <= info[k].sum ? s : rb + 1;
 
         push(k, s, e);
-        if (x <= info[ls(k)].sum) return kth(ls(k), s, mid, x);
+        if (info[ls(k)].sum >= x) return kth(ls(k), s, mid, x);
         else return kth(rs(k), mid + 1, e, x - info[ls(k)].sum);
     }
 

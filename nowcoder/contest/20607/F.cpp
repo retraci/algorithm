@@ -18,17 +18,17 @@ double calc(double k) {
 void solve() {
     p /= 1e4;
 
-    double ans = 1e18;
     ll left = 0, right = 1e18;
-    while (left < right) {
-        ll mid1 = left + (right - left) / 3, mid2 = right - (right - left) / 3;
-        double yl = calc(mid1), yr = calc(mid2);
-        ans = min({ans, yl, yr});
-        if (yl > yr) left = mid1 + 1;
-        else right = mid2 - 1;
+    while (left + 10 < right) {
+        ll mdl = (2 * left + right) / 3;
+        ll mdr = (left + 2 * right) / 3;
+        double v1 = calc(mdl), v2 = calc(mdr);
+        if (v1 > v2) left = mdl;
+        else right = mdr;
     }
+    double ans = 1e18;
+    for (int k = left; k <= right; k++) ans = min(ans, calc(k));
 
-//    cout << k << " ";
     cout << fixed << setprecision(10);
     cout << ans << endl;
 }
