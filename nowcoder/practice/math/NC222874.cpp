@@ -10,9 +10,6 @@ using namespace std;
 
 #define ll long long
 
-random_device rd;
-uniform_int_distribution<int> dist(-1e3, 1e3);
-
 ll x1, y11, z1, x2, y2, z2;
 int va[10], vb[10];
 unordered_set<int> st;
@@ -71,20 +68,6 @@ void solve() {
 
     if (!flag) puts("Yes");
     else puts("No");
-}
-
-ll get() {
-    return dist(rd);
-}
-
-void work() {
-    int T = 1e7;
-    while (T--) {
-        x1 = get(), y11 = get(), z1 = get(), x2 = get(), y2 = get(), z2 = get();
-        solve();
-    }
-
-    cout << st.size() << endl;
 }
 
 int main() {

@@ -14,42 +14,6 @@ vector<pll> divide(ll x) {
 }
 // endregion
 
-// region 质因数分解, 枚举质数
-vector<int> isp, pr;
-
-void init_prime(int lim) {
-    isp = vector<int>(lim + 1, 1);
-
-    isp[0] = isp[1] = 0;
-    for (int i = 2; i <= lim; i++) {
-        if (isp[i]) pr.push_back(i);
-
-        for (int p : pr) {
-            if (p > lim / i) break;
-
-            isp[i * p] = 0;
-            if (i % p == 0) break;
-        }
-    }
-}
-
-vector<pll> fs;
-
-void divide(ll x) {
-    fs.clear();
-    for (int p : pr) {
-        if (p > x / p) break;
-
-        if (x % p == 0) {
-            int c = 0;
-            while (x % p == 0) x /= p, c++;
-            fs.push_back({p, c});
-        }
-    }
-    if (x > 1) fs.push_back({x, 1});
-}
-// endregion
-
 // region 质因数分解, 枚举最小质数 (x < N)
 vector<int> isp, mip, pr;
 
@@ -74,16 +38,17 @@ void init_prime(int lim) {
     }
 }
 
-vector<pii> fs;
-
-void divide(int x) {
-    fs.clear();
+vector<pii> divide(int x) {
+    vector<pii> res;
+    res.clear();
     while (x > 1) {
         int p = mip[x];
         int c = 0;
         while (x % p == 0) x /= p, c++;
-        fs.push_back({p, c});
+        res.push_back({p, c});
     }
+
+    return res;
 }
 // endregion
 
@@ -101,6 +66,28 @@ void dfs(int u, ll cur) {
         dfs(u + 1, cur);
         cur *= p;
     }
+}
+// endregion
+
+// region [1, x]里 与 y 互质的个数
+// fs 为 y 分解质因数的结果
+ll calc(ll x, const vector<pll> &fs) {
+    ll s = 0;
+    int lim = 1 << fs.size();
+    for (int mask = 1; mask < lim; mask++) {
+        ll t = 1, c = 0;
+        for (int i = 0; i < fs.size(); i++) {
+            if (mask >> i & 1) {
+                t *= fs[i].fi;
+                c++;
+            }
+        }
+
+        int sgn = c & 1 ? 1 : -1;
+        s += sgn * x / t;
+    }
+
+    return x - s;
 }
 // endregion
 

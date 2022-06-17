@@ -19,15 +19,35 @@ using ld = long double;
 using pii = pair<int, int>;
 using pll = pair<ll, ll>;
 using ai3 = array<int, 3>;
-mt19937 mrnd(std::random_device{}());
+mt19937 mrnd(chrono::steady_clock::now().time_since_epoch().count());
 
 int rnd(int mod) {
     return mrnd() % mod;
 }
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int N = 2e5 + 10;
+
+int n, k;
+int a[N], d[2 * N];
+
+void add(int L, int R, int x) {
+    d[L] += x, d[R + 1] -= x;
+}
 
 void solve() {
+    fill(d, d + 2 * k + 2, 0);
+    for (int i = 1; i <= n / 2; i++) {
+        int mi = min(a[i], a[n + 1 - i]), mx = max(a[i], a[n + 1 - i]);
+        add(mi + mx + 1, mx + k, 1);
+        add(mx + k + 1, 2 * k, 2);
+        add(mi + 1, mi + mx - 1, 1);
+        add(2, mi, 2);
+    }
+
+    for (int i = 1; i <= 2 * k; i++) d[i] += d[i - 1];
+    int ans = *min_element(d + 2, d + 2 * k + 1);
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -44,6 +64,8 @@ int main() {
     int _ = 1;
     cin >> _;
     while (_--) {
+        cin >> n >> k;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 

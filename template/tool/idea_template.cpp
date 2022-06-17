@@ -18,7 +18,7 @@ using ld = long double;
 using pii = pair<int, int>;
 using pll = pair<ll, ll>;
 using ai3 = array<int, 3>;
-mt19937 mrnd(chrono::steady_clock::now().time_since_epoch().count());
+mt19937 mrnd(std::random_device{}());
 
 int rnd(int mod) {
     return mrnd() % mod;

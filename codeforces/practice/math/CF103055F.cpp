@@ -27,7 +27,25 @@ int rnd(int mod) {
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
 
+int n, m;
+
+int calc(int t) {
+    return n - m + (m - 1) / t * t;
+}
+
 void solve() {
+    if (n > m - 1) {
+        cout << abs(n - m) << endl;
+        return;
+    }
+
+    int ans = 1e9;
+    for (int L = 1; L <= n; L++) {
+        int R = min(n, (m - 1) / ((m - 1) / L));
+        ans = min(ans, calc(L));
+        L = R;
+    }
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -44,6 +62,7 @@ int main() {
     int _ = 1;
     cin >> _;
     while (_--) {
+        cin >> n >> m;
         solve();
     }
 

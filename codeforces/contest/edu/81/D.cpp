@@ -1,20 +1,4 @@
-#include <iostream>
-#include <cstdio>
-#include <algorithm>
-#include <cstring>
-#include <numeric>
-#include <iomanip>
-#include <vector>
-#include <queue>
-#include <stack>
-#include <set>
-#include <map>
-#include <unordered_set>
-#include <unordered_map>
-#include <bitset>
-#include <cassert>
-#include <random>
-#include <cmath>
+#include <bits/stdc++.h>
 
 void debug() {
     std::cout << "\n";
@@ -32,12 +16,10 @@ using namespace std;
 #define se second
 using ll = long long;
 using ld = long double;
-using ull = unsigned long long;
 using pii = pair<int, int>;
 using pll = pair<ll, ll>;
 using ai3 = array<int, 3>;
-mt19937 mrnd(time(0));
-mt19937_64 mrnd64(time(0));
+mt19937 mrnd(std::random_device{}());
 
 int rnd(int mod) {
     return mrnd() % mod;
@@ -63,7 +45,7 @@ const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 
 
 ll a, m;
 
-ll work(ll x, const vector<pll> &fs) {
+ll calc(ll x, const vector<pll> &fs) {
     ll s = 0;
     int lim = 1 << fs.size();
     for (int mask = 1; mask < lim; mask++) {
@@ -85,11 +67,10 @@ ll work(ll x, const vector<pll> &fs) {
 void solve() {
     ll g = __gcd(a, m);
     ll k1 = a / g, k2 = m / g;
-
     auto fs = divide(k2);
-    ll L = k1, R = k1 + k2 - 1;
-    ll ans = work(R, fs) - work(L - 1, fs);
 
+    ll L = a / g, R = (a + m - 1) / g;
+    ll ans = calc(R, fs) - calc(L - 1, fs);
     cout << ans << "\n";
 }
 

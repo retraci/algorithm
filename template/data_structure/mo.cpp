@@ -19,10 +19,10 @@ void solve() {
     for (int i = 1; i <= q; i++) {
         auto [qid, L, R] = qs[i];
 
-        while (cl < L) del(a[cl++]);
-        while (cl > L) add(a[--cl]);
-        while (cr > R) del(a[cr--]);
-        while (cr < R) add(a[++cr]);
+        while (cl < L) del(cl++);
+        while (cl > L) add(--cl);
+        while (cr > R) del(cr--);
+        while (cr < R) add(++cr);
 
         ans[qid] = cur;
     }
@@ -80,12 +80,12 @@ void solve() {
         }
 
         // cr往后
-        while (cr < R) add(a[++cr]);
+        while (cr < R) add(++cr);
         // 暴力搞 cl, 再回滚
         int bak = cur;
-        for (int j = cl - 1; j >= L; j--) add(a[j]);
+        for (int j = cl - 1; j >= L; j--) add(j);
         ans[qid] = cur;
-        for (int j = cl - 1; j >= L; j--) del(a[j]);
+        for (int j = cl - 1; j >= L; j--) del(j);
         cur = bak;
     }
 }

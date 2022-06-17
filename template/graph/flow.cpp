@@ -2,11 +2,11 @@
 template<int N, int M>
 struct Flow {
     using flowt = int;
-    using pif = pair<int, flowt>;
+    using pit = pair<int, flowt>;
     const flowt INF = 1e9;
 
     int n;
-    pif e[2 * M + 10];
+    pit e[2 * M + 10];
     int h[N + 10], ne[2 * M + 10], edm;
     int nh[N + 10], vis[N + 10];
     flowt d[N + 10];
@@ -106,12 +106,12 @@ struct Flow {
 template<int N, int M>
 struct Flow {
     using flowt = int;
-    using pff = pair<flowt, flowt>;
-    using af3 = array<flowt, 3>;
+    using ptt = pair<flowt, flowt>;
+    using at3 = array<flowt, 3>;
     const flowt INF = 1e9;
 
     int n;
-    af3 e[2 * M + 10];
+    at3 e[2 * M + 10];
     int h[N + 10], ne[2 * M + 10], edm;
     int nh[N + 10], vis[N + 10];
     flowt d[N + 10];
@@ -160,7 +160,7 @@ struct Flow {
         else return d[T] != INF && d[T] < 0;
     }
 
-    pff dfs(int u, int T, flowt lit) {
+    ptt dfs(int u, int T, flowt lit) {
         if (u == T) return {lit, lit * d[T]};
         vis[u] = 1;
 
@@ -180,7 +180,7 @@ struct Flow {
         return {flow, fco};
     }
 
-    pff mcmf(int S, int T) {
+    ptt mcmf(int S, int T) {
         flowt flow = 0, fco = 0;
         while (spfa(S, T)) {
             for (int i = 1; i <= n; i++) nh[i] = h[i];
@@ -195,7 +195,7 @@ struct Flow {
         return {flow, fco};
     }
 
-    pff mcff(int S, int T) {
+    ptt mcff(int S, int T) {
         flowt flow = 0, fco = 0;
         while (spfa(S, T, 0)) {
             for (int i = 1; i <= n; i++) nh[i] = h[i];
@@ -216,12 +216,12 @@ struct Flow {
 template<int N, int M>
 struct Flow {
     using flowt = int;
-    using pff = pair<flowt, flowt>;
-    using af3 = array<flowt, 3>;
+    using ptt = pair<flowt, flowt>;
+    using at3 = array<flowt, 3>;
     const flowt INF = 1e9;
 
     int n;
-    af3 e[2 * M + 10];
+    at3 e[2 * M + 10];
     int h[N + 10], ne[2 * M + 10], edm;
     int pre[N + 10];
     flowt d[N + 10], r[N + 10];
@@ -240,7 +240,7 @@ struct Flow {
 
     bool dij(int S, int T) {
         static int vis[N + 10];
-        static priority_queue<pff> que;
+        static priority_queue<ptt> que;
         fill(d, d + n + 1, INF);
         fill(vis, vis + n + 1, 0);
 
@@ -295,7 +295,7 @@ struct Flow {
         }
     }
 
-    pff mcmf(int S, int T) {
+    ptt mcmf(int S, int T) {
         spfa(S, T);
         flowt flow = 0, fco = 0;
         while (dij(S, T)) {
@@ -313,7 +313,7 @@ struct Flow {
         return {flow, fco};
     }
 
-    pff mcff(int S, int T) {
+    ptt mcff(int S, int T) {
         spfa(S, T);
         flowt flow = 0, fco = 0;
         while (dij(S, T)) {

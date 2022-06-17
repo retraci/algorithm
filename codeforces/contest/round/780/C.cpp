@@ -19,7 +19,7 @@ using ld = long double;
 using pii = pair<int, int>;
 using pll = pair<ll, ll>;
 using ai3 = array<int, 3>;
-mt19937 mrnd(std::random_device{}());
+mt19937 mrnd(chrono::steady_clock::now().time_since_epoch().count());
 
 int rnd(int mod) {
     return mrnd() % mod;
@@ -27,7 +27,19 @@ int rnd(int mod) {
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
 
+string s;
+
 void solve() {
+    vector<int> cnt(26);
+    int ans = s.size();
+    for (char ch : s) {
+        if (++cnt[ch - 'a'] == 2) {
+            fill(cnt.begin(), cnt.end(), 0);
+            ans -= 2;
+        }
+    }
+
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -44,6 +56,7 @@ int main() {
     int _ = 1;
     cin >> _;
     while (_--) {
+        cin >> s;
         solve();
     }
 
