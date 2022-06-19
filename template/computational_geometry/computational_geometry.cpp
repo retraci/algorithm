@@ -14,44 +14,46 @@ struct P {
 
     P(cgt _x, cgt _y) : x(_x), y(_y) {}
 
-    P operator+(P p) { return {x + p.x, y + p.y}; }
+    P operator+(P p) const { return {x + p.x, y + p.y}; }
 
-    P operator-(P p) { return {x - p.x, y - p.y}; }
+    P operator-(P p) const { return {x - p.x, y - p.y}; }
 
-    P operator*(cgt d) { return {x * d, y * d}; }
+    P operator*(cgt d) const { return {x * d, y * d}; }
 
-    P operator/(cgt d) { return {x / d, y / d}; }
+    P operator/(cgt d) const { return {x / d, y / d}; }
 
-    bool operator==(P p) {
+    bool operator==(P p) const {
         return cmp(x, p.x) == 0 && cmp(y, p.y) == 0;
     }
 
-    cgt dot(P p) { return x * p.x + y * p.y; }
+    cgt dot(P p) const { return x * p.x + y * p.y; }
 
-    cgt det(P p) { return x * p.y - y * p.x; }
+    cgt det(P p) const { return x * p.y - y * p.x; }
 
-    cgt distTo(P p) { return (*this - p).abs(); }
+    cgt distTo(P p) const { return (*this - p).abs(); }
 
-    cgt alpha() { return atan2l(y, x); }
+    cgt distTo2(P p) const { return (*this - p).abs2(); }
+
+    cgt alpha() const { return atan2l(y, x); }
 
     void read() { cin >> x >> y; }
 
-    void write() { cout << "(" << x << ", " << y << ")" << "\n"; }
+    void write() const { cout << "(" << x << ", " << y << ")" << "\n"; }
 
-    cgt abs() { return sqrtl(abs2()); }
+    cgt abs() const { return sqrtl(abs2()); }
 
-    cgt abs2() { return x * x + y * y; }
+    cgt abs2() const { return x * x + y * y; }
 
     // 逆时针转90
-    P rot90() { return P(-y, x); }
+    P rot90() const { return P(-y, x); }
 
-    P unit() { return *this / abs(); }
+    P unit() const { return *this / abs(); }
 
     // 1: x轴上方, [0, PI), 0: x轴下方, [-PI, 0)
-    int quad() { return sign(y) == 1 || (sign(y) == 0 && sign(x) >= 0); }
+    int quad() const { return sign(y) == 1 || (sign(y) == 0 && sign(x) >= 0); }
 
     // 逆时针转
-    P rot(cgt ang) { return {x * cosl(ang) - y * sinl(ang), x * sinl(ang) + y * cosl(ang)}; }
+    P rot(cgt ang) const { return {x * cosl(ang) - y * sinl(ang), x * sinl(ang) + y * cosl(ang)}; }
 };
 
 struct L {
@@ -67,9 +69,9 @@ struct L {
 
     P &operator[](int i) { return ps[i]; }
 
-    P dir() { return ps[1] - ps[0]; }
+    P dir() const { return ps[1] - ps[0]; }
 
-    L push() {
+    L push() const {
         P delta = (ps[1] - ps[0]).rot90().unit() * eps;
         return {ps[0] + delta, ps[1] + delta};
     }
@@ -77,9 +79,10 @@ struct L {
 
 #define cross(p1, p2, p3) ((p2.x - p1.x) * (p3.y - p1.y) - (p3.x - p1.x) * (p2.y - p1.y))
 #define crossOp(p1, p2, p3) sign(cross(p1, p2, p3))
+#define scalar(p1, p2, p3) ((p2.x - p1.x) * (p3.x - p1.x) + (p2.y - p1.y) * (p3.y - p1.y))
 // endregion
 
-// 是否相交
+// 是否相交 (x)
 bool checkLL(P p1, P p2, P q1, P q2) {
     cgt a1 = cross(q1, q2, p1), a2 = -cross(q1, q2, p2);
     return sign(a1 + a2) != 0;
@@ -94,14 +97,14 @@ P getLL(P p1, P p2, P q1, P q2) {
 // 求直线l1, l2交点
 P getLL(L l1, L l2) { return getLL(l1[0], l1[1], l2[0], l2[1]); }
 
-// 是否重叠
+// 是否重叠 (x)
 bool intersect(cgt l1, cgt r1, cgt l2, cgt r2) {
     if (l1 > r1) swap(l1, r1);
     if (l2 > r2) swap(l2, r2);
     return !(cmp(r1, l2) == -1 || cmp(r2, l1) == -1);
 }
 
-// 求线段是否相交(重叠 => 相交)
+// 求线段是否相交(重叠 => 相交) (x)
 bool isSS(P p1, P p2, P q1, P q2) {
     return intersect(p1.x, p2.x, q1.x, q2.x)
         && intersect(p1.y, p2.y, q1.y, q2.y)
@@ -109,28 +112,20 @@ bool isSS(P p1, P p2, P q1, P q2) {
         && crossOp(q1, q2, p1) * crossOp(q1, q2, p2) <= 0;
 }
 
-// 求线段是否严格相交(重叠 !=> 相交)
+// 求线段是否严格相交(重叠 !=> 相交) (x)
 bool isSSStrict(P p1, P p2, P q1, P q2) {
     return crossOp(p1, p2, q1) * crossOp(p1, p2, q2) < 0
         && crossOp(q1, q2, p1) * crossOp(q1, q2, p2) < 0;
 }
 
-bool isMiddle(cgt a, cgt m, cgt b) {
-    return sign(a - m) == 0 || sign(b - m) == 0 || (a < m != b < m);
-}
-
-bool isMiddle(P a, P m, P b) {
-    return isMiddle(a.x, m.x, b.x) && isMiddle(a.y, m.y, b.y);
-}
-
 // 是否在线段上(在端点上 => 在线段上)
 bool onSeg(P p1, P p2, P q) {
-    return crossOp(p1, p2, q) == 0 && isMiddle(p1, q, p2);
+    return crossOp(p1, p2, q) == 0 && sign((q - p1).dot(q - p2)) <= 0;
 }
 
-// 是否严格在线段上(在端点上 !=> 在线段上)
+// 是否严格在线段上(在端点上 !=> 在线段上) (x)
 bool onSegStrict(P p1, P p2, P q) {
-    return crossOp(p1, p2, q) == 0 && sign((q - p1).dot(p1 - p2)) * sign((q - p2).dot(p1 - p2)) < 0;
+    return crossOp(p1, p2, q) == 0 && sign((q - p1).dot(q - p2))) < 0;
 }
 
 P proj(P p1, P p2, P q) {
@@ -154,6 +149,7 @@ cgt disSS(P p1, P p2, P q1, P q2) {
     return min(min(nearest(p1, p2, q1), nearest(p1, p2, q2)), min(nearest(q1, q2, p1), nearest(q1, q2, p2)));
 }
 
+// 求 0->p1, 0->p2 构成的角的弧度
 cgt rad(P p1, P p2) {
     return atan2l(p1.det(p2), p1.dot(p2));
 }
@@ -167,16 +163,20 @@ cgt inCircle(P p1, P p2, P p3) {
 
 // polygon
 
-// 求凸包面积
-cgt area(vector<P> ps) {
-    cgt res = 0;
+// 切凸包, 把直线左边和交点都返回 (x)
+vector<P> convexCut(const vector<P> &ps, P q1, P q2) {
+    vector<P> res;
     for (int i = 0; i < ps.size(); i++) {
-        res += ps[i].det(ps[(i + 1) % ps.size()]);
+        P p1 = ps[i], p2 = ps[(i + 1) % ps.size()];
+        int d1 = crossOp(q1, q2, p1), d2 = crossOp(q1, q2, p2);
+        if (d1 >= 0) res.push_back(p1);
+        if (d1 * d2 < 0) res.push_back(getLL(p1, p2, q1, q2));
     }
-    return res / 2;
+    return res;
 }
 
-int contain(vector<P> ps, P p) { // 2: inside, 1: on_seg, 0: outside
+// 点与多边形关系 (x)
+int contain(const vector<P> &ps, P p) { // 2: inside, 1: on_seg, 0: outside
     int ret = 0;
     for (int i = 0; i < ps.size(); i++) {
         P u = ps[i], v = ps[(i + 1) % ps.size()];
@@ -189,6 +189,23 @@ int contain(vector<P> ps, P p) { // 2: inside, 1: on_seg, 0: outside
 }
 
 // region 凸包
+// 求直线l1, l2交点
+P getLL(P p1, P p2, P q1, P q2) {
+    cgt a1 = cross(q1, q2, p1), a2 = -cross(q1, q2, p2);
+    return (p1 * a2 + p2 * a1) / (a1 + a2);
+}
+
+// 求直线l1, l2交点
+P getLL(L l1, L l2) { return getLL(l1[0], l1[1], l2[0], l2[1]); }
+
+bool operator<(P p1, P p2) {
+    int c = cmp(p1.x, p2.x);
+    if (c) return c == -1;
+    return cmp(p1.y, p2.y) == -1;
+}
+
+// endutil
+
 // 严格凸包(相同斜率 !=> 属于凸包)
 // 严格: <= 0, 非严格: < 0
 vector<P> convexHull(vector<P> ps) {
@@ -211,6 +228,65 @@ vector<P> convexHull(vector<P> ps) {
     res.resize(k - 1);
     return res;
 }
+
+// 求多边形面积
+cgt area(const vector<P> &ps) {
+    cgt res = 0;
+    for (int i = 0; i < ps.size(); i++) {
+        res += ps[i].det(ps[(i + 1) % ps.size()]);
+    }
+    return res / 2;
+}
+
+// 求凸包直径
+cgt convexDiameter(const vector<P> &ps) {
+    int n = ps.size();
+    if (n <= 1) return 0;
+    int is = 0, js = 0;
+    for (int k = 1; k < n; k++) {
+        is = ps[k] < ps[is] ? k : is, js = ps[js] < ps[k] ? k : js;
+    }
+    int i = is, j = js;
+    cgt ret = ps[i].distTo(ps[j]);
+    do {
+        if ((ps[(i + 1) % n] - ps[i]).det(ps[(j + 1) % n] - ps[j]) >= 0) j = (j + 1) % n;
+        else i = (i + 1) % n;
+        ret = max(ret, ps[i].distTo(ps[j]));
+    } while (i != is || j != js);
+    return ret;
+}
+
+// 最小矩形覆盖
+using aP4 = array<P, 4>;
+pair<cgt, aP4> rotatingCalipers(const vector<P> &ps) {
+    cgt mi = 1e100;
+    aP4 res;
+
+    int n = ps.size();
+    int j = 1, a = 1, b = 1;
+    for (int i = 0; i < n; i++) {
+        auto st = ps[i], ed = ps[(i + 1) % n];
+        while (cmp(cross(st, ed, ps[j]), cross(st, ed, ps[(j + 1) % n])) < 0) j = (j + 1) % n;
+        while (cmp(scalar(st, ed, ps[a]), scalar(st, ed, ps[(a + 1) % n])) < 0) a = (a + 1) % n;
+        if (i == 0) b = j;
+        while (cmp(scalar(st, ed, ps[b]), scalar(st, ed, ps[(b + 1) % n])) > 0) b = (b + 1) % n;
+
+        cgt h = cross(st, ed, ps[j]) / (ed - st).abs();
+        cgt w = (ed - st).dot(ps[a] - ps[b]) / (ed - st).abs();
+
+        if (h * w < mi) {
+            mi = h * w;
+            auto vx = (ed - st).unit();
+            res[0] = st + (vx * (scalar(st, ed, ps[a]) / (ed - st).abs()));
+            res[3] = st + (vx * (scalar(st, ed, ps[b]) / (ed - st).abs()));
+            auto vy = vx.rot90();
+            res[1] = res[0] + (vy * h);
+            res[2] = res[3] + (vy * h);
+        }
+    }
+
+    return {mi, res};
+}
 // endregion
 
 // region 半平面交
@@ -228,6 +304,8 @@ bool parallel(L l0, L l1) { return sign(l0.dir().det(l1.dir())) == 0; }
 
 // 直线同向(有方向)
 bool sameDir(L l0, L l1) { return parallel(l0, l1) && sign(l0.dir().dot(l1.dir())) == 1; }
+
+// endutil
 
 // 半平面交, 检查是否要弹出队列, (u, v)交点是否严格在 w 的左边
 // 严格: > 0, 非严格: return >= 0
@@ -278,6 +356,8 @@ P circumCenter(P a, P b, P c) {
     return a - P(bb.y * dc - cc.y * db, cc.x * db - bb.x * dc) / d;
 }
 
+// endutil
+
 C minimumCircleCovering(vector<P> ps) {
     shuffle(ps.begin(), ps.end(), mrnd);
     C res = {ps[0], 0};
@@ -303,37 +383,62 @@ C minimumCircleCovering(vector<P> ps) {
 }
 // endregion
 
-cgt convexDiameter(vector<P> ps) {
-    int n = ps.size();
-    if (n <= 1) return 0;
-    int is = 0, js = 0;
-    for (int k = 1; k < n; k++) {
-        is = ps[k] < ps[is] ? k : is, js = ps[js] < ps[k] ? k : js;
-    }
-    int i = is, j = js;
-    cgt ret = ps[i].distTo(ps[j]);
-    do {
-        if ((ps[(i + 1) % n] - ps[i]).det(ps[(j + 1) % n] - ps[j]) >= 0) (++j) %= n;
-        else (++i) %= n;
-        ret = max(ret, ps[i].distTo(ps[j]));
-    } while (i != is || j != js);
-    return ret;
+// region 三角剖分
+// 求直线l1, l2交点
+P getLL(P p1, P p2, P q1, P q2) {
+    cgt a1 = cross(q1, q2, p1), a2 = -cross(q1, q2, p2);
+    return (p1 * a2 + p2 * a1) / (a1 + a2);
 }
 
-vector<P> convexCut(const vector<P> &ps, P q1, P q2) {
-    vector<P> qs;
-    for (int i = 0; i < ps.size(); i++) {
-        P p1 = ps[i], p2 = ps[(i + 1) % ps.size()];
-        int d1 = crossOp(q1, q2, p1), d2 = crossOp(q1, q2, p2);
-        if (d1 >= 0) qs.push_back(p1);
-        if (d1 * d2 < 0) qs.push_back(getLL(p1, p2, q1, q2));
-    }
-    return qs;
+// 求 圆-线 的交点
+vector<P> getCL(P o, cgt r, P p1, P p2) {
+    if (cmp(abs((o - p1).det(p2 - p1) / p1.distTo(p2)), r) > 0) return {};
+    cgt xy = (p1 - o).dot(p2 - p1), y2 = (p2 - p1).abs2(), d2 = xy * xy - y2 * ((p1 - o).abs2() - r * r);
+    d2 = max(d2, (cgt) 0.0);
+    P m = p1 - (p2 - p1) * (xy / y2), dr = (p2 - p1) * (sqrtl(d2) / y2);
+    return {m - dr, m + dr}; // along dir: p1->p2
 }
+
+// 求 0->p1, 0->p2 构成的角的弧度
+cgt rad(P p1, P p2) {
+    return atan2l(p1.det(p2), p1.dot(p2));
+}
+
+// 求 扇形 有向面积
+cgt sectorErea(P o, cgt r, P p1, P p2) {
+    cgt ang = rad(p1 - o, p2 - o);
+    return r * r * ang / 2;
+}
+
+// 是否在线段上(在端点上 => 在线段上)
+bool onSeg(P p1, P p2, P q) {
+    return crossOp(p1, p2, q) == 0 && sign((q - p1).dot(q - p2)) <= 0;
+}
+
+// endutil
+
+cgt triangulation(P o, cgt r, P p1, P p2) {
+    auto da = o.distTo(p1), db = o.distTo(p2);
+    if (cmp(r, da) >= 0 && cmp(r, db) >= 0) return (p1 - o).det((p2 - o)) / 2;
+    if (sign((p1 - o).det((p2 - o)) == 0)) return 0;
+    P mid = getLL(p1, p2, o, o + (p1 - p2).rot90());
+    cgt d = mid.distTo(o);
+    if (!onSeg(p1, p2, mid)) d = min(o.distTo(p1), o.distTo(p2));
+    if (cmp(r, d) <= 0) return sectorErea(o, r, p1, p2);
+
+    auto is = getCL(o, r, p1, p2);
+    assert(!is.empty());
+    P pa = is[0], pb = is[1];
+    if (cmp(r, da) >= 0) return (p1 - o).det((pb - o)) / 2 + sectorErea(o, r, pb, p2);
+    if (cmp(r, db) >= 0) return (pa - o).det((p2 - o)) / 2 + sectorErea(o, r, p1, pa);
+    return (pa - o).det((pb - o)) / 2 + sectorErea(o, r, pb, p2) + sectorErea(o, r, p1, pa);
+}
+// endregion
 
 // min_dist
 
-cgt min_dist(vector<P> &ps, int l, int r) {
+// 平面最近点对
+cgt min_dist(const vector<P> &ps, int l, int r) {
     if (r - l <= 5) {
         cgt ret = 1e100;
         for (int i = l; i < r; i++) {
@@ -367,7 +472,8 @@ int type(P o1, cgt r1, P o2, cgt r2) {
     return 0;
 }
 
-vector<P> isCL(P o, cgt r, P p1, P p2) {
+// 求 圆-线 的交点
+vector<P> getCL(P o, cgt r, P p1, P p2) {
     if (cmp(abs((o - p1).det(p2 - p1) / p1.distTo(p2)), r) > 0) return {};
     cgt x = (p1 - o).dot(p2 - p1), y = (p2 - p1).abs2(), d = x * x - y * ((p1 - o).abs2() - r * r);
     d = max(d, (cgt) 0.0);
@@ -375,7 +481,8 @@ vector<P> isCL(P o, cgt r, P p1, P p2) {
     return {m - dr, m + dr}; // along dir: p1->p2
 }
 
-vector<P> isCC(P o1, cgt r1, P o2, cgt r2) { // need to check whether two circles are the same
+// 求 圆-圆 的交点 (x)
+vector<P> getCC(P o1, cgt r1, P o2, cgt r2) { // need to check whether two circles are the same
     cgt d = o1.distTo(o2);
     if (cmp(d, r1 + r2) == 1) return {};
     if (cmp(d, abs(r1 - r2)) == -1) return {};
@@ -383,7 +490,7 @@ vector<P> isCC(P o1, cgt r1, P o2, cgt r2) { // need to check whether two circle
     cgt y = (r1 * r1 + d * d - r2 * r2) / (2 * d), x = sqrtl(r1 * r1 - y * y);
     P dr = (o2 - o1).unit();
     P q1 = o1 + dr * y, q2 = dr.rot90() * x;
-    return {q1 - q2, q1 + q2};// along circle 1
+    return {q1 - q2, q1 + q2}; // along circle 1
 }
 
 vector<P> tanCP(P o, cgt r, P p) {
@@ -420,7 +527,7 @@ vector<L> intanCC(P o1, cgt r1, P o2, cgt r2) {
 }
 
 cgt areaCT(cgt r, P p1, P p2) {
-    vector<P> is = isCL(P(0, 0), r, p1, p2);
+    vector<P> is = getCL(P(0, 0), r, p1, p2);
     if (is.empty()) return r * r * rad(p1, p2) / 2;
     bool b1 = cmp(p1.abs2(), r * r) == 1, b2 = cmp(p2.abs2(), r * r) == 1;
     if (b1 && b2) {
@@ -435,7 +542,7 @@ cgt areaCT(cgt r, P p1, P p2) {
     return p1.det(p2) / 2;
 }
 
-// 内心
+// 内心 (x)
 P inCenter(P A, P B, P C) {
     cgt a = (B - C).abs(), b = (C - A).abs(), c = (A - B).abs();
     return (A * a + B * b + C * c) / (a + b + c);
@@ -448,7 +555,7 @@ P circumCenter(P a, P b, P c) {
     return a - P(bb.y * dc - cc.y * db, cc.x * db - bb.x * dc) / d;
 }
 
-// 垂心
+// 垂心 (x)
 P othroCenter(P a, P b, P c) {
     P ba = b - a, ca = c - a, bc = b - c;
     cgt Y = ba.y * ca.y * bc.y;
@@ -457,3 +564,25 @@ P othroCenter(P a, P b, P c) {
     cgt y0 = -ba.x * (x0 - c.x) / ba.y + ca.y;
     return {x0, y0};
 }
+
+// region 不能理解的神秘操作
+// 是否在以a, b为对角线的矩形内, 含边界
+bool isMiddle(cgt a, cgt m, cgt b) {
+    return sign(a - m) == 0 || sign(b - m) == 0 || (a < m != b < m);
+}
+
+// 是否在以a, b为对角线的矩形内, 含边界
+bool isMiddle(P a, P m, P b) {
+    return isMiddle(a.x, m.x, b.x) && isMiddle(a.y, m.y, b.y);
+}
+
+// 是否在线段上(在端点上 => 在线段上) (x)
+bool onSeg(P p1, P p2, P q) {
+    return crossOp(p1, p2, q) == 0 && isMiddle(p1, q, p2);
+}
+
+// 是否严格在线段上(在端点上 !=> 在线段上) (x)
+bool onSegStrict(P p1, P p2, P q) {
+    return crossOp(p1, p2, q) == 0 && sign((q - p1).dot(p1 - p2)) * sign((q - p2).dot(p1 - p2)) < 0;
+}
+// endregion

@@ -32,11 +32,13 @@ struct Lca {
                     dep[v] = dep[u] + 1;
                     fa[0][v] = u;
                     que.push(v);
-
-                    for (int k = 1; k <= mxb; k++) {
-                        fa[k][v] = fa[k - 1][fa[k - 1][v]];
-                    }
                 }
+            }
+        }
+
+        for (int k = 1; k <= mxb; k++) {
+            for (int v = 1; v <= n; v++) {
+                fa[k][v] = fa[k - 1][fa[k - 1][v]];
             }
         }
     }
@@ -97,12 +99,14 @@ struct Lca {
                     dep[v] = dep[u] + 1;
                     fa[0][v] = u, w[0][v] = cost;
                     que.push(v);
-
-                    for (int k = 1; k <= mxb; k++) {
-                        fa[k][v] = fa[k - 1][fa[k - 1][v]];
-                        w[k][v] = w[k - 1][v] + w[k - 1][fa[k - 1][v]];
-                    }
                 }
+            }
+        }
+
+        for (int k = 1; k <= mxb; k++) {
+            for (int v = 1; v <= n; v++) {
+                fa[k][v] = fa[k - 1][fa[k - 1][v]];
+                w[k][v] = w[k - 1][v] + w[k - 1][fa[k - 1][v]];
             }
         }
     }

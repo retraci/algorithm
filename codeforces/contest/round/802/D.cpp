@@ -19,29 +19,44 @@ using ld = long double;
 using pii = pair<int, int>;
 using pll = pair<ll, ll>;
 using ai3 = array<int, 3>;
-mt19937 mrnd(chrono::steady_clock::now().time_since_epoch().count());
+mt19937 mrnd(std::random_device{}());
 
 int rnd(int mod) {
     return mrnd() % mod;
 }
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int N = 200010;
+
+int n;
+int a[N];
 
 void solve() {
+    vector<ll> s(n + 1);
+    for (int i = 1; i <= n; i++) s[i] = s[i - 1] + a[i];
+
+    ll mx = 0;
+    for (int i = 1; i <= n; i++) {
+        ll t = (s[i] + i - 1) / i;
+        mx = max(mx, t);
+    }
+
+    int q;
+    cin >> q;
+    while (q--) {
+        int ti;
+        cin >> ti;
+
+        if (ti < mx) {
+            cout << -1 << "\n";
+        } else {
+            ll need = (s[n] + ti - 1) / ti;
+            cout << need << "\n";
+        }
+    }
 }
 
 void prework() {
-    int ans = 0;
-    int n = 50;
-    for (int i = 0; i <= n; i++) {
-        int a = 24, b = 24;
-        b -= i, a -= i;
-        a = min(24, a + b);
-        int t = a + i;
-        ans = max(ans, 20 * t);
-        if (ans == 720) debug(i, a, b);
-    }
-    cout << ans << "\n";
 }
 
 int main() {
@@ -55,6 +70,8 @@ int main() {
     int _ = 1;
 //    cin >> _;
     while (_--) {
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 

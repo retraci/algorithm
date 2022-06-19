@@ -19,29 +19,45 @@ using ld = long double;
 using pii = pair<int, int>;
 using pll = pair<ll, ll>;
 using ai3 = array<int, 3>;
-mt19937 mrnd(chrono::steady_clock::now().time_since_epoch().count());
+mt19937 mrnd(std::random_device{}());
 
 int rnd(int mod) {
     return mrnd() % mod;
 }
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int N = 2e5 + 10;
+
+int n;
+int a[N];
 
 void solve() {
+    multiset<int> mst(a + 1, a + n + 1);
+
+    int cur = 1;
+    while (!mst.empty()) {
+        if (mst.size() & 1) {
+            if (a[cur] != *mst.begin()) {
+                cout << "NO" << "\n";
+                return;
+            }
+            mst.erase(mst.begin());
+        } else {
+            int mi = *mst.begin();
+            if (a[cur] != mi && (cur + 1 > n || a[cur + 1] != mi)) {
+                cout << "NO" << "\n";
+                return;
+            }
+            if (a[cur] != mi && cur + 1 <= n) a[cur + 1] = a[cur];
+            mst.erase(mst.begin());
+        }
+        cur++;
+    }
+
+    cout << "YES" << "\n";
 }
 
 void prework() {
-    int ans = 0;
-    int n = 50;
-    for (int i = 0; i <= n; i++) {
-        int a = 24, b = 24;
-        b -= i, a -= i;
-        a = min(24, a + b);
-        int t = a + i;
-        ans = max(ans, 20 * t);
-        if (ans == 720) debug(i, a, b);
-    }
-    cout << ans << "\n";
 }
 
 int main() {
@@ -53,8 +69,10 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int _ = 1;
-//    cin >> _;
+    cin >> _;
     while (_--) {
+        cin >> n;
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 

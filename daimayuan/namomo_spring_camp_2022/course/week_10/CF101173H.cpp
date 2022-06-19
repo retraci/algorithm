@@ -101,12 +101,14 @@ struct Lca {
                     dep[v] = dep[u] + 1;
                     fa[v][0] = u, w[v][0] = min(d[u], d[v]);
                     que.push(v);
-
-                    for (int k = 1; k <= mxb; k++) {
-                        fa[v][k] = fa[fa[v][k - 1]][k - 1];
-                        w[v][k] = min(w[v][k - 1], w[fa[v][k - 1]][k - 1]);
-                    }
                 }
+            }
+        }
+
+        for (int k = 1; k <= mxb; k++) {
+            for (int v = 1; v <= n; v++) {
+                fa[v][k] = fa[fa[v][k - 1]][k - 1];
+                w[v][k] = min(w[v][k - 1], w[fa[v][k - 1]][k - 1]);
             }
         }
     }

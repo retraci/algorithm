@@ -75,7 +75,7 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int _ = 1;
-//    cin >> _;
+    cin >> _;
     while (_--) {
         cin >> n;
         solve();
