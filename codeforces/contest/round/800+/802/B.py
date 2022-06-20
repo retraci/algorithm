@@ -8,8 +8,7 @@ if __name__ == '__main__':
             t = (10 ** n) - 1 - a
             print(t)
         else:
-            t = 0
-            for i in range(n + 1):
-                t = t * 10 + 1
+            t = "1" * (n + 1)
+            t = int(t)
             t -= a
             print(t)

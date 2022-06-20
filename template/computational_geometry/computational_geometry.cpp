@@ -1,9 +1,9 @@
 // region 计算几何基础
 using cgt = double;
-const cgt eps = 1e-9;
+const cgt EPS = 1e-9;
 const cgt PI = acosl(-1);
 
-inline int sign(cgt a) { return a < -eps ? -1 : a > eps; }
+inline int sign(cgt a) { return a < -EPS ? -1 : a > EPS; }
 
 inline int cmp(cgt a, cgt b) { return sign(a - b); }
 
@@ -72,7 +72,7 @@ struct L {
     P dir() const { return ps[1] - ps[0]; }
 
     L push() const {
-        P delta = (ps[1] - ps[0]).rot90().unit() * eps;
+        P delta = (ps[1] - ps[0]).rot90().unit() * EPS;
         return {ps[0] + delta, ps[1] + delta};
     }
 };
@@ -82,7 +82,7 @@ struct L {
 #define scalar(p1, p2, p3) ((p2.x - p1.x) * (p3.x - p1.x) + (p2.y - p1.y) * (p3.y - p1.y))
 // endregion
 
-// 是否相交 (x)
+// 求直线是否相交
 bool checkLL(P p1, P p2, P q1, P q2) {
     cgt a1 = cross(q1, q2, p1), a2 = -cross(q1, q2, p2);
     return sign(a1 + a2) != 0;
@@ -97,35 +97,45 @@ P getLL(P p1, P p2, P q1, P q2) {
 // 求直线l1, l2交点
 P getLL(L l1, L l2) { return getLL(l1[0], l1[1], l2[0], l2[1]); }
 
-// 是否重叠 (x)
+// 求线段是否重叠
 bool intersect(cgt l1, cgt r1, cgt l2, cgt r2) {
     if (l1 > r1) swap(l1, r1);
     if (l2 > r2) swap(l2, r2);
     return !(cmp(r1, l2) == -1 || cmp(r2, l1) == -1);
 }
 
-// 求线段是否相交(重叠 => 相交) (x)
-bool isSS(P p1, P p2, P q1, P q2) {
+// 求线段是否相交(重叠 => 相交, 端点 => 相交)
+bool checkSS(P p1, P p2, P q1, P q2) {
     return intersect(p1.x, p2.x, q1.x, q2.x)
         && intersect(p1.y, p2.y, q1.y, q2.y)
         && crossOp(p1, p2, q1) * crossOp(p1, p2, q2) <= 0
         && crossOp(q1, q2, p1) * crossOp(q1, q2, p2) <= 0;
 }
 
-// 求线段是否严格相交(重叠 !=> 相交) (x)
-bool isSSStrict(P p1, P p2, P q1, P q2) {
+// 求线段是否严格相交(重叠 !=> 相交, 端点 !=> 相交)
+bool checkSSStrict(P p1, P p2, P q1, P q2) {
     return crossOp(p1, p2, q1) * crossOp(p1, p2, q2) < 0
         && crossOp(q1, q2, p1) * crossOp(q1, q2, p2) < 0;
 }
 
-// 是否在线段上(在端点上 => 在线段上)
-bool onSeg(P p1, P p2, P q) {
-    return crossOp(p1, p2, q) == 0 && sign((q - p1).dot(q - p2)) <= 0;
+// 是否在以a, b为对角线的矩形内, 含边界
+bool isMiddle(cgt a, cgt m, cgt b) {
+    return sign(a - m) == 0 || sign(b - m) == 0 || (a < m != b < m);
 }
 
-// 是否严格在线段上(在端点上 !=> 在线段上) (x)
+// 是否在以a, b为对角线的矩形内, 含边界
+bool isMiddle(P a, P m, P b) {
+    return isMiddle(a.x, m.x, b.x) && isMiddle(a.y, m.y, b.y);
+}
+
+// 是否在线段上(在端点上 => 在线段上)
+bool onSeg(P p1, P p2, P q) {
+    return crossOp(p1, p2, q) == 0 && isMiddle(p1, q, p2);
+}
+
+// 是否严格在线段上(在端点上 !=> 在线段上)
 bool onSegStrict(P p1, P p2, P q) {
-    return crossOp(p1, p2, q) == 0 && sign((q - p1).dot(q - p2))) < 0;
+    return crossOp(p1, p2, q) == 0 && sign((q - p1).dot(p1 - p2)) * sign((q - p2).dot(p1 - p2)) < 0;
 }
 
 P proj(P p1, P p2, P q) {
@@ -410,9 +420,19 @@ cgt sectorErea(P o, cgt r, P p1, P p2) {
     return r * r * ang / 2;
 }
 
+// 是否在以a, b为对角线的矩形内, 含边界
+bool isMiddle(cgt a, cgt m, cgt b) {
+    return sign(a - m) == 0 || sign(b - m) == 0 || (a < m != b < m);
+}
+
+// 是否在以a, b为对角线的矩形内, 含边界
+bool isMiddle(P a, P m, P b) {
+    return isMiddle(a.x, m.x, b.x) && isMiddle(a.y, m.y, b.y);
+}
+
 // 是否在线段上(在端点上 => 在线段上)
 bool onSeg(P p1, P p2, P q) {
-    return crossOp(p1, p2, q) == 0 && sign((q - p1).dot(q - p2)) <= 0;
+    return crossOp(p1, p2, q) == 0 && isMiddle(p1, q, p2);
 }
 
 // endutil
@@ -432,6 +452,34 @@ cgt triangulation(P o, cgt r, P p1, P p2) {
     if (cmp(r, da) >= 0) return (p1 - o).det((pb - o)) / 2 + sectorErea(o, r, pb, p2);
     if (cmp(r, db) >= 0) return (pa - o).det((p2 - o)) / 2 + sectorErea(o, r, p1, pa);
     return (pa - o).det((pb - o)) / 2 + sectorErea(o, r, pb, p2) + sectorErea(o, r, p1, pa);
+}
+// endregion
+
+// region 积分
+cgt f(cgt x) {
+    return sinl(x) / x;
+}
+
+cgt simpson(cgt L, cgt R) {
+    cgt mid = (L + R) / 2;
+    return (R - L) * (f(L) + 4 * f(mid) + f(R)) / 6;
+}
+
+cgt coates(cgt L, cgt R) {
+    cgt d = (R - L) / 4;
+    cgt x0 = L, x1 = L + d, x2 = x1 + d, x3 = R - d, x4 = R;
+    return (R - L) * (7 * f(x0) + 32 * f(x1) + 12 * f(x2) + 32 * f(x3) + 7 * f(x4)) / 90;
+}
+
+cgt asr(cgt L, cgt R, cgt s, cgt eps) {
+    cgt mid = (L + R) / 2;
+    auto fl = simpson(L, mid), fr = simpson(mid, R);
+    if (abs(fl + fr - s) <= 15 * eps) return fl + fr + (fl + fr - s) / 15;
+    return asr(L, mid, fl, eps / 2) + asr(mid, R, fr, eps / 2);
+}
+
+cgt calc(cgt L, cgt R, cgt eps) {
+    return asr(L, R, simpson(L, R), eps);
 }
 // endregion
 
@@ -564,25 +612,3 @@ P othroCenter(P a, P b, P c) {
     cgt y0 = -ba.x * (x0 - c.x) / ba.y + ca.y;
     return {x0, y0};
 }
-
-// region 不能理解的神秘操作
-// 是否在以a, b为对角线的矩形内, 含边界
-bool isMiddle(cgt a, cgt m, cgt b) {
-    return sign(a - m) == 0 || sign(b - m) == 0 || (a < m != b < m);
-}
-
-// 是否在以a, b为对角线的矩形内, 含边界
-bool isMiddle(P a, P m, P b) {
-    return isMiddle(a.x, m.x, b.x) && isMiddle(a.y, m.y, b.y);
-}
-
-// 是否在线段上(在端点上 => 在线段上) (x)
-bool onSeg(P p1, P p2, P q) {
-    return crossOp(p1, p2, q) == 0 && isMiddle(p1, q, p2);
-}
-
-// 是否严格在线段上(在端点上 !=> 在线段上) (x)
-bool onSegStrict(P p1, P p2, P q) {
-    return crossOp(p1, p2, q) == 0 && sign((q - p1).dot(p1 - p2)) * sign((q - p2).dot(p1 - p2)) < 0;
-}
-// endregion

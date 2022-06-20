@@ -394,103 +394,123 @@ struct Info {
 };
 // endregion
 
-// region 扫描线线段树
-vector <ll> lsh;
+// region 扫描线线段树 (矩形面积并)
+using cgt = ll;
 
-int get_id(int x) {
-    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin();
-}
+vector<cgt> lsh;
+int nl;
 
-template<int SZ>
+template<class Info, class Tag, int SZ,
+        class Plus = std::plus<Info>>
 struct Seg {
 #define mid (s + e >> 1)
-#define ls(x) (tr[x].lson)
-#define rs(x) (tr[x].rson)
+#define ls(x) (info[x].lson)
+#define rs(x) (info[x].rson)
 
-    struct Node {
-        int lson, rson;
-        ll sum, v;
-    };
-
+    const Plus plus;
     int lb, rb, rt, mem;
-    Node tr[SZ * 4];
+    Info info[SZ * 4];
+    Tag tag[SZ * 4];
 
-    Seg() {
-        init(1, SZ);
-    }
+    Seg() : plus(Plus()) {}
 
     void init(int L, int R) {
         rt = 0, mem = 0, lb = L, rb = R;
-        tr[0].lson = tr[0].rson = 0;
-        tr[0].sum = tr[0].v = 0;
-    }
-
-    void init(int L, int R, ll val) {
-        init(L, R);
-        for (int i = L; i <= R; i++) set(i, val);
+        info[0] = Info();
+        tag[0] = Tag();
     }
 
     int new_node() {
         int id = ++mem;
-        tr[id].lson = tr[id].rson = 0;
-        tr[id].sum = tr[id].v = 0;
+        assert(id < SZ * 4);
+        info[id] = Info();
+        tag[id] = Tag();
         return id;
     }
 
     void pull(int k, int s, int e) {
-        if (tr[k].sum) tr[k].v = lsh[e + 1] - lsh[s];
-        else if (s != e) tr[k].v = tr[ls(k)].v + tr[rs(k)].v;
-        else tr[k].v = 0;
+        if (info[k].sum) info[k].len = lsh[e + 1] - lsh[s];
+        else if (s != e) info[k].len = info[ls(k)].len + info[rs(k)].len;
+        else info[k].len = 0;
     }
 
-    void add(int &k, int s, int e, int L, int R, ll val) {
+    void apply(int k, int s, int e, const Tag &v) {
+        info[k].apply(s, e, v);
+        tag[k].apply(s, e, v);
+    }
+
+    void upd(int &k, int s, int e, int L, int R, const Tag &v) {
         if (!k) k = new_node();
 
         if (L <= s && e <= R) {
-            tr[k].sum = tr[k].sum + val;
+            apply(k, s, e, v);
             pull(k, s, e);
             return;
         }
 
-        if (L <= mid) add(ls(k), s, mid, L, R, val);
-        if (R >= mid + 1) add(rs(k), mid + 1, e, L, R, val);
+        if (L <= mid) upd(ls(k), s, mid, L, R, v);
+        if (R >= mid + 1) upd(rs(k), mid + 1, e, L, R, v);
         pull(k, s, e);
     }
 
-    void set(int &k, int s, int e, int id, ll val) {
+    void set(int &k, int s, int e, int id, const Info &v) {
         if (!k) k = new_node();
 
         if (s == e) {
-            tr[k].sum = val;
-            pull(k, s, e);
+            info[k].set(v);
             return;
         }
 
-        if (id <= mid) set(ls(k), s, mid, id, val);
-        if (id >= mid + 1) set(rs(k), mid + 1, e, id, val);
+        if (id <= mid) set(ls(k), s, mid, id, v);
+        if (id >= mid + 1) set(rs(k), mid + 1, e, id, v);
         pull(k, s, e);
     }
 
-    ll query(int k, int s, int e, int L, int R) {
-        if (L <= s && e <= R) return tr[k].v;
-
-        if (R <= mid) return query(ls(k), s, mid, L, R);
-        if (L >= mid + 1) return query(rs(k), mid + 1, e, L, R);
-        return query(ls(k), s, mid, L, R) + query(rs(k), mid + 1, e, L, R);
-    }
-
-    void add(int L, int R, ll val) {
+    void upd(int L, int R, const Tag &v) {
         if (R < L) return;
-        add(rt, lb, rb, L, R, val);
+        upd(rt, lb, rb, L, R, v);
     }
 
-    void set(int id, ll val) {
-        set(rt, lb, rb, id, val);
+    void set(int id, const Info &v) {
+        set(rt, lb, rb, id, v);
+    }
+};
+// endregion
+
+// region 扫描线
+struct Tag {
+    int x;
+
+    Tag(int x = 0) : x(x) {}
+
+    bool check() const {
+        return x != 0;
     }
 
-    ll query(int L, int R) {
-        if (R < L) return 0;
-        return query(rt, lb, rb, L, R);
+    void apply(int s, int e, const Tag &a) {
+        if (!a.check()) return;
+        x += a.x;
+    }
+};
+
+struct Info {
+    int lson, rson;
+    int sum;
+    cgt len;
+
+    Info(int sum = 0, cgt len = 0) : lson(0), rson(0), sum(sum), len(len) {}
+
+    void apply(int s, int e, const Tag &a) {
+        if (!a.check()) return;
+        sum += (e - s + 1) * a.x;
+    }
+
+    friend Info operator+(const Info &a, const Info &b) {
+        return a.sum + b.sum;
+    }
+
+    void set(const Info &a) {
+        sum = a.sum;
     }
 };
 // endregion

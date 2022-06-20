@@ -20,7 +20,6 @@ using pii = pair<int, int>;
 using pll = pair<ll, ll>;
 using ai3 = array<int, 3>;
 using ai4 = array<int, 4>;
-using td3i = tuple<double, double, double, int>;
 mt19937 mrnd(std::random_device{}());
 
 int rnd(int mod) {
@@ -28,7 +27,7 @@ int rnd(int mod) {
 }
 
 // region 扫描线线段树 (矩形面积并)
-using cgt = double;
+using cgt = ll;
 
 vector<cgt> lsh;
 int nl;
@@ -149,55 +148,56 @@ struct Info {
 // endregion
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
-const int N = 10010;
+const int N = 1e5 + 10;
 
 int n;
-td3i a[N * 2];
-int ti;
+ai4 a[N];
+Seg<Info, Tag, 2 * N> seg;
 
-Seg<Info, Tag, N * 2> seg;
+int get(int x) {
+    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin();
+}
 
 void init() {
-    for (int i = 1; i <= 2 * n; i++) {
-        auto [_, y1, y2, __] = a[i];
+    for (int i = 1; i <= n; i++) {
+        auto [x1, y1, x2, y2] = a[i];
         lsh.push_back(y1);
         lsh.push_back(y2);
     }
     sort(lsh.begin(), lsh.end());
     lsh.resize(unique(lsh.begin(), lsh.end()) - lsh.begin());
-}
-
-int get(double x) {
-    return lower_bound(lsh.begin(), lsh.end(), x) - lsh.begin();
+    nl = lsh.size();
 }
 
 void solve() {
     init();
 
-    nl = lsh.size();
-    seg.init(0, nl - 2);
+    ai4 b[n * 2 + 1];
+    for (int i = 1; i <= n; i++) {
+        auto [x1, y1, x2, y2] = a[i];
+        b[2 * i - 1] = {x1, y1, y2, 1};
+        b[2 * i] = {x2, y1, y2, -1};
+    }
 
-    sort(a + 1, a + 2 * n + 1, [](auto &a, auto &b) {
-        return get<0>(a) < get<0>(b);
+    sort(b + 1, b + 2 * n + 1, [](auto &a, auto &b) {
+        return a[0] < b[0];
     });
 
-    double ans = 0;
+    ll ans = 0;
+    seg.init(0, nl - 2);
     for (int i = 1; i <= 2 * n; i++) {
-        auto [x, y1, y2, k] = a[i];
+        auto [x, y1, y2, v] = b[i];
 
         if (i - 1 >= 1) {
-            auto [px, _, __, ___] = a[i - 1];
-            ans += (x - px) * seg.info[1].len;
+            ll dx = b[i][0] - b[i - 1][0];
+            ans += dx * seg.info[1].len;
         }
 
         int L = get(y1), R = get(y2) - 1;
-        seg.upd(L, R, k);
+        seg.upd(L, R, v);
     }
 
-    cout << "Test case #" << ++ti << "\n";
-    cout << fixed << setprecision(2);
-    cout << "Total explored area: " << ans << "\n";
-    cout << "\n";
+    cout << ans << "\n";
 }
 
 void prework() {
@@ -211,15 +211,12 @@ int main() {
 
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
-    int T = 1;
-//    cin >> T;
-    while (cin >> n, n) {
-        int cnt = 0;
+    int _ = 1;
+//    cin >> _;
+    while (_--) {
+        cin >> n;
         for (int i = 1; i <= n; i++) {
-            double x1, y1, x2, y2;
-            cin >> x1 >> y1 >> x2 >> y2;
-            a[++cnt] = {x1, y1, y2, 1};
-            a[++cnt] = {x2, y1, y2, -1};
+            for (int j = 0; j < 4; j++) cin >> a[i][j];
         }
         solve();
     }

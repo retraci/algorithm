@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+#pragma GCC optimize(3)
 
 void debug() {
     std::cout << "\n";
@@ -27,10 +28,10 @@ int rnd(int mod) {
 
 // region 计算几何基础
 using cgt = double;
-const cgt eps = 1e-9;
+const cgt EPS = 1e-9;
 const cgt PI = acosl(-1);
 
-inline int sign(cgt a) { return a < -eps ? -1 : a > eps; }
+inline int sign(cgt a) { return a < -EPS ? -1 : a > EPS; }
 
 inline int cmp(cgt a, cgt b) { return sign(a - b); }
 
@@ -99,7 +100,7 @@ struct L {
     P dir() const { return ps[1] - ps[0]; }
 
     L push() const {
-        P delta = (ps[1] - ps[0]).rot90().unit() * eps;
+        P delta = (ps[1] - ps[0]).rot90().unit() * EPS;
         return {ps[0] + delta, ps[1] + delta};
     }
 };
@@ -109,82 +110,91 @@ struct L {
 #define scalar(p1, p2, p3) ((p2.x - p1.x) * (p3.x - p1.x) + (p2.y - p1.y) * (p3.y - p1.y))
 // endregion
 
-// region 三角剖分
-// 求直线l1, l2交点
-P getLL(P p1, P p2, P q1, P q2) {
-    cgt a1 = cross(q1, q2, p1), a2 = -cross(q1, q2, p2);
-    return (p1 * a2 + p2 * a1) / (a1 + a2);
+const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int N = 1010;
+
+using C = pair<P, cgt>;
+
+int n;
+C a[N];
+int lid, rid;
+
+// region 积分
+cgt f(cgt x) {
+    static pair<cgt, cgt> ls[N];
+    int cnt = 0;
+
+    for (int i = lid; i <= rid; i++) {
+        auto [o, r] = a[i];
+
+        cgt dx = abs(x - o.x);
+        if (cmp(dx, r) < 0) {
+            cgt dy = sqrtl(r * r - dx * dx);
+            ls[++cnt] = {o.y - dy, o.y + dy};
+        }
+    }
+    if (cnt == 0) return 0;
+
+    sort(ls + 1, ls + cnt + 1);
+    cgt res = 0, st = ls[1].fi, ed = ls[1].se;
+    for (int i = 2; i <= cnt; i++) {
+        auto [L, R] = ls[i];
+        if (L <= ed) {
+            ed = max(ed, R);
+        } else {
+            res += ed - st;
+            st = L, ed = R;
+        }
+    }
+
+    return res + ed - st;
 }
 
-// 求 圆-线 的交点
-vector<P> getCL(P o, cgt r, P p1, P p2) {
-    if (cmp(abs((o - p1).det(p2 - p1) / p1.distTo(p2)), r) > 0) return {};
-    cgt xy = (p1 - o).dot(p2 - p1), y2 = (p2 - p1).abs2(), d2 = xy * xy - y2 * ((p1 - o).abs2() - r * r);
-    d2 = max(d2, (cgt) 0.0);
-    P m = p1 - (p2 - p1) * (xy / y2), dr = (p2 - p1) * (sqrtl(d2) / y2);
-    return {m - dr, m + dr}; // along dir: p1->p2
+cgt simpson(cgt L, cgt R) {
+    cgt mid = (L + R) / 2;
+    return (R - L) * (f(L) + 4 * f(mid) + f(R)) / 6;
 }
 
-// 求 0->p1, 0->p2 构成的角的弧度
-cgt rad(P p1, P p2) {
-    return atan2l(p1.det(p2), p1.dot(p2));
+cgt coates(cgt L, cgt R) {
+    cgt d = (R - L) / 4;
+    cgt x0 = L, x1 = L + d, x2 = x1 + d, x3 = R - d, x4 = R;
+    return (R - L) * (7 * f(x0) + 32 * f(x1) + 12 * f(x2) + 32 * f(x3) + 7 * f(x4)) / 90;
 }
 
-// 求 扇形 有向面积
-cgt sectorErea(P o, cgt r, P p1, P p2) {
-    cgt ang = rad(p1 - o, p2 - o);
-    return r * r * ang / 2;
+cgt asr(cgt L, cgt R, cgt s, cgt eps) {
+    cgt mid = (L + R) / 2;
+    auto fl = coates(L, mid), fr = coates(mid, R);
+    if (abs(fl + fr - s) <= 15 * eps) return fl + fr + (fl + fr - s) / 15;
+    return asr(L, mid, fl, eps / 2) + asr(mid, R, fr, eps / 2);
 }
 
-// 是否在以a, b为对角线的矩形内, 含边界
-bool isMiddle(cgt a, cgt m, cgt b) {
-    return sign(a - m) == 0 || sign(b - m) == 0 || (a < m != b < m);
-}
-
-// 是否在以a, b为对角线的矩形内, 含边界
-bool isMiddle(P a, P m, P b) {
-    return isMiddle(a.x, m.x, b.x) && isMiddle(a.y, m.y, b.y);
-}
-
-// 是否在线段上(在端点上 => 在线段上)
-bool onSeg(P p1, P p2, P q) {
-    return crossOp(p1, p2, q) == 0 && isMiddle(p1, q, p2);
-}
-
-// endutil
-
-cgt triangulation(P o, cgt r, P p1, P p2) {
-    auto da = o.distTo(p1), db = o.distTo(p2);
-    if (cmp(r, da) >= 0 && cmp(r, db) >= 0) return (p1 - o).det((p2 - o)) / 2;
-    if (sign((p1 - o).det((p2 - o)) == 0)) return 0;
-    P mid = getLL(p1, p2, o, o + (p1 - p2).rot90());
-    cgt d = mid.distTo(o);
-    if (!onSeg(p1, p2, mid)) d = min(o.distTo(p1), o.distTo(p2));
-    if (cmp(r, d) <= 0) return sectorErea(o, r, p1, p2);
-
-    auto is = getCL(o, r, p1, p2);
-    assert(!is.empty());
-    P pa = is[0], pb = is[1];
-    if (cmp(r, da) >= 0) return (p1 - o).det((pb - o)) / 2 + sectorErea(o, r, pb, p2);
-    if (cmp(r, db) >= 0) return (pa - o).det((p2 - o)) / 2 + sectorErea(o, r, p1, pa);
-    return (pa - o).det((pb - o)) / 2 + sectorErea(o, r, pb, p2) + sectorErea(o, r, p1, pa);
+cgt calc(cgt L, cgt R, cgt eps) {
+    return asr(L, R, coates(L, R), eps);
 }
 // endregion
 
-const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
-const int N = 55;
-
-int n;
-cgt r;
-P a[N];
+const cgt D = 100;
 
 void solve() {
     cgt ans = 0;
-    for (int i = 0; i < n; i++) {
-        ans += triangulation(P(0, 0), r, a[i], a[(i + 1) % n]);
+    sort(a + 1, a + n + 1, [](auto &a, auto &b) {
+        return a.fi.x - a.se < b.fi.x - b.se;
+    });
+    cgt x1 = a[1].fi.x - a[1].se, x2 = a[1].fi.x + a[1].se;
+    lid = 1, rid = 1;
+    for (int i = 2; i <= n; i++) {
+        auto [o, r] = a[i];
+        if (x2 >= o.x - r) {
+            x2 = max(x2, o.x + r);
+            rid = i;
+        } else {
+            ans += calc(x1 - D, x2 + D, 1e-5);
+            x1 = o.x - r, x2 = o.x + r;
+            lid = i, rid = i;
+        }
     }
-    ans = abs(ans);
-    cout << fixed << setprecision(2) << ans << "\n";
+    ans += calc(x1 - D, x2 + D, 1e-5);
+    cout << fixed << setprecision(3) << ans << "\n";
 }
 
 void prework() {
@@ -200,8 +210,13 @@ int main() {
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int _ = 1;
 //    cin >> _;
-    while (cin >> r >> n) {
-        for (int i = 0; i < n; i++) cin >> a[i].x >> a[i].y;
+    while (_--) {
+        cin >> n;
+        for (int i = 1; i <= n; i++) {
+            cgt x, y, r;
+            cin >> x >> y >> r;
+            a[i] = {{x, y}, r};
+        }
         solve();
     }
 
