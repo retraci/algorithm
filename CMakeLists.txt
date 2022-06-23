@@ -8,4 +8,4 @@ set(CMAKE_EXE_LINKER_FLAGS "-Wl,--stack,${stack_size}")
 
 add_executable(tmp tmp.cpp)
 
-add_executable(compiler codeforces/contest/round/600+/697/G.cpp)
+add_executable(compiler acwing/course/course3/5_math/5.6_burnside_and_polya/acwing_3134.cpp)

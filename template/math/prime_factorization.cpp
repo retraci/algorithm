@@ -123,7 +123,7 @@ ll eula(ll x) {
 }
 // endregion
 
-// region 欧拉函数(埃筛)
+// region 欧拉函数 (埃筛)
 vector<int> phi;
 
 void init_prime(int lim) {
@@ -135,44 +135,6 @@ void init_prime(int lim) {
 
         for (int j = i; j <= lim; j += i) phi[j] = phi[j] / i * (i - 1);
     }
-}
-// endregion
-
-// region 扩欧
-ll exgcd(ll a, ll b, ll &x, ll &y) {
-    if (!b) {
-        x = 1, y = 0;
-        return a;
-    }
-
-    ll d = exgcd(b, a % b, y, x);
-    y -= a / b * x;
-    return d;
-}
-// endregion
-
-// region 中国剩余定理
-int n;
-ll a[N], m[N];
-
-ll crt() {
-    ll a1 = a[1], m1 = m[1];
-    for (int i = 2; i <= n; i++) {
-        ll a2 = a[i], m2 = m[i];
-        ll k1, k2;
-        ll d = exgcd(m1, m2, k1, k2);
-        if ((a2 - a1) % d) return -1;
-
-        k1 *= (a2 - a1) / d;
-        ll tmp = m2 / d;
-        k1 = (k1 % tmp + tmp) % tmp;
-
-        a1 = k1 * m1 + a1;
-        m1 = m1 / d * m2;
-    }
-
-    ll x = (a1 % m1 + m1) % m1;
-    return x;
 }
 // endregion
 
@@ -196,7 +158,7 @@ void init_prime(int lim) {
 }
 // endregion
 
-// region 欧拉函数
+// region 欧拉函数 (线性筛)
 vector<int> isp, pr, phi;
 
 void init_prime(int lim) {
@@ -226,7 +188,7 @@ void init_prime(int lim) {
 }
 // endregion
 
-// region 莫比乌斯函数
+// region 莫比乌斯函数 (线性筛)
 vector<int> isp, pr, mu;
 
 void init_prime(int lim) {
@@ -255,7 +217,7 @@ void init_prime(int lim) {
 }
 // endregion
 
-// region 积性函数
+// region 积性函数 (线性筛)
 vector<int> isp, pr, low, f;
 
 void init_prime(int lim) {
