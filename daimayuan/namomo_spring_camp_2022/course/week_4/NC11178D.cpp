@@ -1,52 +1,31 @@
-#include <iostream>
-#include <cstdio>
-#include <algorithm>
-#include <cstring>
-#include <numeric>
-#include <iomanip>
-#include <vector>
-#include <queue>
-#include <stack>
-#include <set>
-#include <map>
-#include <unordered_set>
-#include <unordered_map>
-#include <bitset>
+#include <bits/stdc++.h>
 
-// region general
-#define ll long long
-#define ld long double
-#define ull unsigned long long
-#define fi first
-#define se second
-
-typedef std::pair<int, int> pii;
-typedef std::pair<ll, ll> pll;
-typedef std::tuple<int, int, int> ti3;
-typedef std::tuple<ll, ll, ll> tl3;
-typedef std::tuple<int, int, int, int> ti4;
-typedef std::tuple<ll, ll, ll, ll> tl4;
-
-inline void debug() {
+void debug() {
     std::cout << "\n";
 }
 
 template<class T, class... OtherArgs>
-inline void debug(T &&var, OtherArgs &&... args) {
+void debug(T &&var, OtherArgs &&... args) {
     std::cout << std::forward<T>(var) << " ";
     debug(std::forward<OtherArgs>(args)...);
 }
-// endregion
-// region grid_delta
-namespace grid_delta {
-    // 上, 右, 下, 左  |  左上, 右上, 右下, 左下
-    const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
-}
-// endregion
 
 using namespace std;
-using namespace grid_delta;
 
+#define fi first
+#define se second
+using ll = long long;
+using ld = long double;
+using pii = pair<int, int>;
+using pll = pair<ll, ll>;
+using ai3 = array<int, 3>;
+mt19937 mrnd(std::random_device{}());
+
+int rnd(int mod) {
+    return mrnd() % mod;
+}
+
+using ull = unsigned long long;
 ull myRand(ull &k1, ull &k2) {
     ull k3 = k1, k4 = k2;
     k1 = k4;
@@ -91,41 +70,34 @@ struct Dsu {
 // endregion
 
 // region 无边权的欧拉序lca
-template<int N, int M>
+template<int N, class G>
 struct Lca {
+    using lcat = int;
+
     int n;
-    int h[N + 10], ne[2 * M + 10], e[2 * M + 10], edm;
     int id[N + 10], eula[2 * N + 10], dep[2 * N + 10], cnt;
-    int st[32][2 * N];
+    lcat st[__lg(2 * N) + 1][2 * N];
 
     Lca() {}
 
-    void init(int _n) {
-        n = _n;
-        fill(h, h + n + 1, -1), edm = 0;
-    }
-
-    void add(int u, int v) {
-        e[edm] = v, ne[edm] = h[u], h[u] = edm++;
-    }
-
-    void dfs(int u) {
+    void dfs(int u, const G &g) {
         eula[++cnt] = u, id[u] = cnt;
 
-        for (int i = h[u]; ~i; i = ne[i]) {
-            int v = e[i];
+        for (int i = g.h[u]; ~i; i = g.ne[i]) {
+            int v = g.e[i];
             if (dep[v] != -1) continue;
 
             dep[v] = dep[u] + 1;
-            dfs(v);
+            dfs(v, g);
             eula[++cnt] = u;
         }
     }
 
-    void init_lca(int rt) {
+    void init(int rt, const G &g) {
+        n = g.n;
         fill(dep, dep + n + 1, -1), cnt = 0;
         dep[0] = 0, dep[rt] = 1;
-        dfs(rt);
+        dfs(rt, g);
 
         int mxb = __lg(cnt);
         for (int i = 1; i <= cnt; i++) st[0][i] = eula[i];
@@ -139,7 +111,7 @@ struct Lca {
         }
     }
 
-    int work(int x, int y) {
+    int lca(int x, int y) {
         int L = id[x], R = id[y];
         if (L > R) swap(L, R);
 
@@ -152,22 +124,45 @@ struct Lca {
 };
 // endregion
 
+// region 无权图
+template<int N, int M>
+struct Graph {
+    int n, m;
+    int h[N + 10], ne[M * 2 + 10], e[M * 2 + 10], edm;
+
+    Graph() {}
+
+    void init(int _n, int _m) {
+        n = _n, m = _m;
+        fill(h, h + n + 1, -1), edm = 0;
+    }
+
+    void add(int u, int v) {
+        e[edm] = v, ne[edm] = h[u], h[u] = edm++;
+    }
+};
+// endregion
+
+const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
 const int N = 1e5 + 10;
 const int M = 5e5 + 10;
 
+using G = Graph<2 * N, M>;
+
 int n, m;
-ti3 es[M];
+ai3 es[M];
 int w[2 * N], tt;
+G g;
 Dsu<2 * N> dsu;
-Lca<2 * N, N> lca;
+Lca<2 * N, G> lca;
 
 void init() {
     sort(es + 1, es + m + 1, [](auto &a, auto &b) {
-        return get<2>(a) < get<2>(b);
+        return a[2] < b[2];
     });
 
     dsu.init(2 * n);
-    lca.init(2 * n + 1);
+    g.init(2 * n + 1, -1);
     tt = n;
     for (int i = 1; i <= m; i++) {
         auto [u, v, cost] = es[i];
@@ -176,11 +171,11 @@ void init() {
 
         tt++;
         dsu.unite(tu, tt), dsu.unite(tv, tt);
-        lca.add(tt, tu), lca.add(tt, tv);
+        g.add(tt, tu), g.add(tt, tv);
         w[tt] = cost;
     }
 
-    lca.init_lca(tt);
+    lca.init(tt, g);
 }
 
 void solve() {
@@ -192,7 +187,7 @@ void solve() {
     while (Q--) {
         auto[x, y] = myRanq(a1, a2, n);
 
-        int tmp = w[lca.work(x, y)];
+        int tmp = w[lca.lca(x, y)];
         ans ^= tmp;
     }
     cout << ans << "\n";

@@ -32,10 +32,10 @@ void init_strhash(int lim = 0) {
     for (int i = 1; i <= lim; i++) pw[i] = pw[i - 1] * base;
 }
 
-struct Str_hash {
+struct StrHash {
     vector<pii> v;
 
-    Str_hash() {}
+    StrHash() {}
 
     // 下标 1 开始
     void init(const string &s) {
@@ -61,33 +61,23 @@ void init_rd(int lim) {
     for (int i = 1; i <= lim; i++) rd[i] = rnd(1e9 + 7);
 }
 
-template<int N, int M>
-struct Tree_hash {
+template<int N, class G>
+struct TreeHash {
     int n;
-    int h[N + 10], ne[M * 2 + 10], e[M * 2 + 10], edm;
     int sz[N + 10];
     pii ha[N + 10];
     vector<int> ctr;
 
-    Tree_hash() {}
+    TreeHash() {}
 
-    void init(int _n) {
-        n = _n;
-        fill(h, h + n + 1, -1), edm = 0;
-    }
-
-    void add(int u, int v) {
-        e[edm] = v, ne[edm] = h[u], h[u] = edm++;
-    }
-
-    void dfs1(int u, int fno) {
+    void dfs1(int u, int fno, const G &g) {
         sz[u] = 1;
         int mxs = 0;
-        for (int i = h[u]; ~i; i = ne[i]) {
-            int v = e[i];
+        for (int i = g.h[u]; ~i; i = g.ne[i]) {
+            int v = g.e[i];
             if (v == fno) continue;
 
-            dfs1(v, u);
+            dfs1(v, u, g);
             sz[u] += sz[v];
             mxs = max(mxs, sz[v]);
         }
@@ -96,15 +86,15 @@ struct Tree_hash {
         if (mx <= n / 2) ctr.push_back(u);
     }
 
-    pii dfs2(int u, int fno) {
+    pii dfs2(int u, int fno, const G &g) {
         sz[u] = 1;
 
         pii res = {1, 1};
-        for (int i = h[u]; ~i; i = ne[i]) {
-            int v = e[i];
+        for (int i = g.h[u]; ~i; i = g.ne[i]) {
+            int v = g.e[i];
             if (v == fno) continue;
 
-            pii hash = dfs2(v, u);
+            pii hash = dfs2(v, u, g);
             sz[u] += sz[v];
 
             int salt = rd[sz[v]];
@@ -114,20 +104,21 @@ struct Tree_hash {
         return ha[u] = res;
     }
 
-    // 有根树哈希传入 root, 无根树不传, 返回 重心 和 重心对应的哈希
-    array<pair<int, pii>, 2> work(int rt = 0) {
-        if (rt == 0) {
+    // 有根树哈希传入 root, 无根树传-1, 返回 重心 和 重心对应的哈希
+    array<pair<int, pii>, 2> work(int rt, const G &g) {
+        n = g.n;
+        if (rt == -1) {
             fill(sz, sz + n + 1, 0);
             ctr.clear();
-            dfs1(1, -1);
+            dfs1(1, -1, g);
         } else {
             ctr = {rt};
         }
         if (ctr.size() != 2) ctr.push_back(-1);
 
         fill(sz, sz + n + 1, 0);
-        pii h1 = dfs2(ctr[0], -1);
-        pii h2 = ctr[1] != -1 ? dfs2(ctr[1], -1) : (pii) {-1, -1};
+        pii h1 = dfs2(ctr[0], -1, g);
+        pii h2 = ctr[1] != -1 ? dfs2(ctr[1], -1, g) : (pii) {-1, -1};
 
         return (array<pair<int, pii>, 2>) {(pair<int, pii>) {ctr[0], h1}, (pair<int, pii>) {ctr[1], h2}};
     }

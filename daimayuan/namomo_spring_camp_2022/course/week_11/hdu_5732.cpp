@@ -32,10 +32,8 @@ using namespace std;
 #define se second
 using ll = long long;
 using ld = long double;
-using ull = unsigned long long;
 using pii = pair<int, int>;
 using ai3 = array<int, 3>;
-using pss = pair<string, string>;
 mt19937 mrnd(time(0));
 mt19937_64 mrnd64(time(0));
 
@@ -64,16 +62,6 @@ pii operator-(const pii &a, const pii &b) {
 pii operator*(const pii &a, const pii &b) {
     return {1LL * a.fi * b.fi % mod1, 1LL * a.se * b.se % mod2};
 }
-
-vector<pii> pw;
-pii base;
-
-void init_hash(int lim = 0) {
-    pw = vector<pii>(lim + 1);
-    base = {rnd(mod1), rnd(mod2)};
-    pw[0] = {1, 1};
-    for (int i = 1; i <= lim; i++) pw[i] = pw[i - 1] * base;
-}
 // endregion
 
 // region 树哈希
@@ -84,33 +72,23 @@ void init_rd(int lim) {
     for (int i = 1; i <= lim; i++) rd[i] = rnd(1e9 + 7);
 }
 
-template<int N, int M>
-struct Tree_hash {
+template<int N, class G>
+struct TreeHash {
     int n;
-    int h[N + 10], ne[M * 2 + 10], e[M * 2 + 10], edm;
     int sz[N + 10];
     pii ha[N + 10];
     vector<int> ctr;
 
-    Tree_hash() {}
+    TreeHash() {}
 
-    void init(int _n) {
-        n = _n;
-        fill(h, h + n + 1, -1), edm = 0;
-    }
-
-    void add(int u, int v) {
-        e[edm] = v, ne[edm] = h[u], h[u] = edm++;
-    }
-
-    void dfs1(int u, int fno) {
+    void dfs1(int u, int fno, const G &g) {
         sz[u] = 1;
         int mxs = 0;
-        for (int i = h[u]; ~i; i = ne[i]) {
-            int v = e[i];
+        for (int i = g.h[u]; ~i; i = g.ne[i]) {
+            int v = g.e[i];
             if (v == fno) continue;
 
-            dfs1(v, u);
+            dfs1(v, u, g);
             sz[u] += sz[v];
             mxs = max(mxs, sz[v]);
         }
@@ -119,15 +97,15 @@ struct Tree_hash {
         if (mx <= n / 2) ctr.push_back(u);
     }
 
-    pii dfs2(int u, int fno) {
+    pii dfs2(int u, int fno, const G &g) {
         sz[u] = 1;
 
         pii res = {1, 1};
-        for (int i = h[u]; ~i; i = ne[i]) {
-            int v = e[i];
+        for (int i = g.h[u]; ~i; i = g.ne[i]) {
+            int v = g.e[i];
             if (v == fno) continue;
 
-            pii hash = dfs2(v, u);
+            pii hash = dfs2(v, u, g);
             sz[u] += sz[v];
 
             int salt = rd[sz[v]];
@@ -137,22 +115,42 @@ struct Tree_hash {
         return ha[u] = res;
     }
 
-    // 有根树哈希传入 root, 无根树不传, 返回 重心 和 重心对应的哈希
-    array<pair<int, pii>, 2> work(int rt = 0) {
-        if (rt == 0) {
+    // 有根树哈希传入 root, 无根树传-1, 返回 重心 和 重心对应的哈希
+    array<pair<int, pii>, 2> work(int rt, const G &g) {
+        n = g.n;
+        if (rt == -1) {
             fill(sz, sz + n + 1, 0);
-            ctr = {};
-            dfs1(1, -1);
+            ctr.clear();
+            dfs1(1, -1, g);
         } else {
             ctr = {rt};
         }
         if (ctr.size() != 2) ctr.push_back(-1);
 
         fill(sz, sz + n + 1, 0);
-        pii h1 = dfs2(ctr[0], -1);
-        pii h2 = ctr[1] != -1 ? dfs2(ctr[1], -1) : (pii) {-1, -1};
+        pii h1 = dfs2(ctr[0], -1, g);
+        pii h2 = ctr[1] != -1 ? dfs2(ctr[1], -1, g) : (pii) {-1, -1};
 
-        return {(pair<int, pii>) {ctr[0], h1}, {ctr[1], h2}};
+        return (array<pair<int, pii>, 2>) {(pair<int, pii>) {ctr[0], h1}, (pair<int, pii>) {ctr[1], h2}};
+    }
+};
+// endregion
+
+// region 无权图
+template<int N, int M>
+struct Graph {
+    int n, m;
+    int h[N + 10], ne[M * 2 + 10], e[M * 2 + 10], edm;
+
+    Graph() {}
+
+    void init(int _n, int _m) {
+        n = _n, m = _m;
+        fill(h, h + n + 1, -1), edm = 0;
+    }
+
+    void add(int u, int v) {
+        e[edm] = v, ne[edm] = h[u], h[u] = edm++;
     }
 };
 // endregion
@@ -160,24 +158,27 @@ struct Tree_hash {
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
 const int N = 100010;
 
+using pss = pair<string, string>;
+using G = Graph<N, N>;
+using node = pair<pii, int>;
+
 int n;
 pss es[2 * N];
-Tree_hash<N, N> th[2];
+G g[2];
+TreeHash<N, G> th[2];
 map<int, int> mp;
 vector<string> lsh;
 
-using node = pair<pii, int>;
-
 void dfs(int u1, int u2, int fno1, int fno2) {
     vector<node> to[2];
-    for (int i = th[0].h[u1]; ~i; i = th[0].ne[i]) {
-        int v = th[0].e[i];
+    for (int i = g[0].h[u1]; ~i; i = g[0].ne[i]) {
+        int v = g[0].e[i];
         if (v == fno1) continue;
 
         to[0].push_back({th[0].ha[v], v});
     }
-    for (int i = th[1].h[u2]; ~i; i = th[1].ne[i]) {
-        int v = th[1].e[i];
+    for (int i = g[1].h[u2]; ~i; i = g[1].ne[i]) {
+        int v = g[1].e[i];
         if (v == fno2) continue;
 
         to[1].push_back({th[1].ha[v], v});
@@ -199,7 +200,7 @@ int get(const string &x) {
 }
 
 void init() {
-    lsh = {};
+    lsh.clear();
 
     for (int i = 1; i <= n - 1; i++) {
         auto [u, v] = es[i];
@@ -214,26 +215,25 @@ void solve() {
     if (n == 1) return;
     init();
 
-    th[0].init(n);
+    g[0].init(n, n - 1);
     for (int i = 1; i <= n - 1; i++) {
         auto [u, v] = es[i];
 
         int nu = get(u) + 1, nv = get(v) + 1;
-        th[0].add(nu, nv), th[0].add(nv, nu);
+        g[0].add(nu, nv), g[0].add(nv, nu);
     }
-    th[1].init(n);
+    g[1].init(n, n - 1);
     for (int i = 1; i <= n - 1; i++) {
         auto [u, v] = es[n + i];
 
         int nu = get(u) + 1, nv = get(v) + 1;
-        th[1].add(nu, nv), th[1].add(nv, nu);
+        g[1].add(nu, nv), g[1].add(nv, nu);
     }
 
-    auto [ctr1, ctr2] = th[0].work();
-    int rt1 = ctr1.fi;
-    int rt2 = ctr2.fi;
+    int rt1 = th[0].work(-1, g[0])[0].fi;
+    int rt2 = th[1].work(-1, g[1])[0].fi;
 
-    mp = {};
+    mp.clear();
     mp[rt1] = rt2;
     dfs(rt1, rt2, -1, -1);
 

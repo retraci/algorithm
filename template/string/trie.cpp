@@ -1,24 +1,24 @@
 // region trie
-template<int SZ>
+template<int SZ, int B = 26>
 struct Trie {
-    int ne[SZ + 10][26], cnt[SZ + 10], mem;
+    int ne[SZ + 10][B], cnt[SZ + 10], mem;
 
     Trie() {}
 
     void init() {
-        fill(&ne[0][0], &ne[id][0], 0);
+        fill(&ne[0][0], &ne[0][B], 0);
         cnt[0] = 0;
         mem = 0;
     }
 
     int new_node() {
         int id = ++mem;
-        fill(&ne[id][0], &ne[id][26], 0);
+        fill(&ne[id][0], &ne[id][B], 0);
         cnt[id] = 0;
         return id;
     }
 
-    void add(const string &s) {
+    void ins(const string &s) {
         int u = 0;
         for (char ch : s) {
             int &v = ne[u][ch - 'a'];
@@ -44,10 +44,12 @@ struct Trie {
 // endregion
 
 // region 01trie
-template<int SZ>
+template<int SZ, int B = 32>
 struct Trie {
+    using trt = int;
+
     int mxb;
-    int ne[32 * SZ + 10][2], cnt[32 * SZ + 10], mem;
+    int ne[B * SZ + 10][2], cnt[B * SZ + 10], mem;
 
     Trie() {}
 
@@ -65,7 +67,7 @@ struct Trie {
         return id;
     }
 
-    void add(int x) {
+    void ins(trt x) {
         int u = 0;
         for (int i = mxb; i >= 0; i--) {
             int bit = x >> i & 1;
@@ -77,12 +79,13 @@ struct Trie {
         cnt[u]++;
     }
 
-    int qr_mx(int x) {
-        int u = 0, res = 0;
+    trt qr_mx(trt x) {
+        int u = 0;
+        trt res = 0;
         for (int i = mxb; i >= 0; i--) {
             int bit = x >> i & 1;
             if (ne[u][!bit]) {
-                res += 1 << i;
+                res += 1LL << i;
                 u = ne[u][!bit];
             } else {
                 u = ne[u][bit];
@@ -92,14 +95,15 @@ struct Trie {
         return res;
     }
 
-    int qr_mi(int x) {
-        int u = 0, res = 0;
+    trt qr_mi(trt x) {
+        int u = 0;
+        trt res = 0;
         for (int i = mxb; i >= 0; i--) {
             int bit = x >> i & 1;
             if (ne[u][bit]) {
                 u = ne[u][bit];
             } else {
-                res += 1 << i;
+                res += 1LL << i;
                 u = ne[u][!bit];
             }
         }

@@ -1,32 +1,23 @@
 // region 无权的lca
-template<int N, int M>
+template<int N, class G>
 struct Lca {
     int n, mxb;
-    int h[N + 10], ne[M * 2 + 10], e[M * 2 + 10], edm;
-    int dep[N + 10], fa[32][N + 10];
+    int dep[N + 10], fa[__lg(N) + 1][N + 10];
 
     Lca() {}
 
-    void init(int _n) {
-        n = _n, mxb = __lg(n);
-        fill(h, h + n + 1, -1), edm = 0;
-    }
-
-    void add(int u, int v) {
-        e[edm] = v, ne[edm] = h[u], h[u] = edm++;
-    }
-
-    void init_lca(int rt) {
+    void init(int rt, const G &g) {
+        n = g.n, mxb = __lg(n);
         fill(dep, dep + n + 1, -1);
 
         queue<int> que;
         que.push(rt);
-        dep[0] = 0, dep[rt] = 1;
+        dep[0] = 0, dep[rt] = 1, fa[0][rt] = 0;
         while (!que.empty()) {
             auto u = que.front(); que.pop();
 
-            for (int i = h[u]; ~i; i = ne[i]) {
-                int v = e[i];
+            for (int i = g.h[u]; ~i; i = g.ne[i]) {
+                int v = g.e[i];
 
                 if (dep[v] == -1) {
                     dep[v] = dep[u] + 1;
@@ -43,10 +34,12 @@ struct Lca {
         }
     }
 
-    int work(int x, int y) {
+    int lca(int x, int y) {
         if (dep[x] < dep[y]) swap(x, y);
         for (int k = mxb; k >= 0; k--) {
-            if (dep[fa[k][x]] >= dep[y]) x = fa[k][x];
+            if (dep[fa[k][x]] >= dep[y]) {
+                x = fa[k][x];
+            }
         }
         if (x == y) return x;
 
@@ -61,39 +54,29 @@ struct Lca {
 // endregion
 
 // region 边权lca
-template<int N, int M>
+template<int N, class G>
 struct Lca {
     using lcat = int;
     using pit = pair<int, lcat>;
-    
+
     int n, mxb;
-    pit e[M * 2 + 10];
-    int ne[M * 2 + 10], h[N + 10], edm;
-    int dep[N + 10], fa[32][N + 10];
-    lcat w[32][N + 10];
+    int dep[N + 10], fa[__lg(N) + 1][N + 10];
+    lcat w[__lg(N) + 1][N + 10];
 
     Lca() {}
 
-    void init(int _n) {
-        n = _n, mxb = __lg(n);
-        fill(h, h + n + 1, -1), edm = 0;
-    }
-
-    void add(int u, int v, lcat cost) {
-        e[edm] = {v, cost}, ne[edm] = h[u], h[u] = edm++;
-    }
-
-    void init_lca(int rt) {
+    void init(int rt, const G &g) {
+        n = g.n, mxb = __lg(n);
         fill(dep, dep + n + 1, -1);
 
         queue<int> que;
         que.push(rt);
-        dep[0] = 0, dep[rt] = 1;
+        dep[0] = 0, dep[rt] = 1, fa[0][rt] = 0, w[0][rt] = 0;
         while (!que.empty()) {
             int u = que.front(); que.pop();
 
-            for (int i = h[u]; ~i; i = ne[i]) {
-                auto [v, cost] = e[i];
+            for (int i = g.h[u]; ~i; i = g.ne[i]) {
+                auto [v, cost] = g.e[i];
 
                 if (dep[v] == -1) {
                     dep[v] = dep[u] + 1;
@@ -111,7 +94,7 @@ struct Lca {
         }
     }
 
-    pit work(int x, int y) {
+    pit lca(int x, int y) {
         lcat res = 0;
         if (dep[x] < dep[y]) swap(x, y);
         for (int k = mxb; k >= 0; k--) {
@@ -136,41 +119,34 @@ struct Lca {
 // endregion
 
 // region 无边权的欧拉序lca
-template<int N, int M>
+template<int N, class G>
 struct Lca {
+    using lcat = int;
+
     int n;
-    int h[N + 10], ne[2 * M + 10], e[2 * M + 10], edm;
     int id[N + 10], eula[2 * N + 10], dep[2 * N + 10], cnt;
-    int st[32][2 * N];
+    lcat st[__lg(2 * N) + 1][2 * N];
 
     Lca() {}
 
-    void init(int _n) {
-        n = _n;
-        fill(h, h + n + 1, -1), edm = 0;
-    }
-
-    void add(int u, int v) {
-        e[edm] = v, ne[edm] = h[u], h[u] = edm++;
-    }
-
-    void dfs(int u) {
+    void dfs(int u, const G &g) {
         eula[++cnt] = u, id[u] = cnt;
 
-        for (int i = h[u]; ~i; i = ne[i]) {
-            int v = e[i];
+        for (int i = g.h[u]; ~i; i = g.ne[i]) {
+            int v = g.e[i];
             if (dep[v] != -1) continue;
 
             dep[v] = dep[u] + 1;
-            dfs(v);
+            dfs(v, g);
             eula[++cnt] = u;
         }
     }
 
-    void init_lca(int rt) {
+    void init(int rt, const G &g) {
+        n = g.n;
         fill(dep, dep + n + 1, -1), cnt = 0;
         dep[0] = 0, dep[rt] = 1;
-        dfs(rt);
+        dfs(rt, g);
 
         int mxb = __lg(cnt);
         for (int i = 1; i <= cnt; i++) st[0][i] = eula[i];
@@ -184,7 +160,7 @@ struct Lca {
         }
     }
 
-    int work(int x, int y) {
+    int lca(int x, int y) {
         int L = id[x], R = id[y];
         if (L > R) swap(L, R);
 

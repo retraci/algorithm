@@ -1,116 +1,144 @@
-#include <iostream>
-#include <cstdio>
-#include <algorithm>
-#include <cstring>
-#include <numeric>
-#include <iomanip>
-#include <vector>
-#include <queue>
-#include <stack>
-#include <set>
-#include <map>
-#include <unordered_set>
-#include <unordered_map>
-#include <bitset>
+#include <bits/stdc++.h>
 
-// region general
-#define ll long long
-#define ld long double
-#define ull unsigned long long
-#define fi first
-#define se second
-
-typedef std::pair<int, int> pii;
-typedef std::pair<ll, ll> pll;
-typedef std::tuple<int, int, int> ti3;
-typedef std::tuple<ll, ll, ll> tl3;
-typedef std::tuple<int, int, int, int> ti4;
-typedef std::tuple<ll, ll, ll, ll> tl4;
-
-inline void debug() {
+void debug() {
     std::cout << "\n";
 }
 
 template<class T, class... OtherArgs>
-inline void debug(T &&var, OtherArgs &&... args) {
+void debug(T &&var, OtherArgs &&... args) {
     std::cout << std::forward<T>(var) << " ";
     debug(std::forward<OtherArgs>(args)...);
 }
-// endregion
-// region grid_delta
-namespace grid_delta {
-    // 上, 右, 下, 左  |  左上, 右上, 右下, 左下
-    const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
-}
-// endregion
 
 using namespace std;
-using namespace grid_delta;
 
-const int N = 5010;
-const int M = 10010;
+#define fi first
+#define se second
+using ll = long long;
+using ld = long double;
+using pii = pair<int, int>;
+using pll = pair<ll, ll>;
+using ai3 = array<int, 3>;
+mt19937 mrnd(std::random_device{}());
 
-int n, m;
-int g[M * 4], ne[M * 4], h1[N], h2[N], edm;
-
-int dfn[N], low[N], ti;
-vector<int> stk;
-int co[N], sz[N], dcc;
-int br[M * 2];
-
-void add(int h[], int u, int v) {
-    g[edm] = v;
-    ne[edm] = h[u], h[u] = edm++;
+int rnd(int mod) {
+    return mrnd() % mod;
 }
 
-void tarjan(int u, int pe) {
-    dfn[u] = low[u] = ++ti;
-    stk.push_back(u);
+// region e-dcc
+template<int N, int M, class G>
+struct EDcc {
+    int n, m;
+    int dfn[N + 10], low[N + 10], ti;
+    vector<int> stk;
+    int co[N + 10], sz[N + 10], dcc;
+    int br[2 * M + 10];
 
-    for (int i = h1[u]; ~i; i = ne[i]) {
-        int v = g[i];
-        if ((i ^ 1) == pe) continue;
+    EDcc() {}
 
-        if (!dfn[v]) {
-            tarjan(v, i);
-            low[u] = min(low[u], low[v]);
+    void init(int _n, int _m) {
+        n = _n, m = _m, ti = 0, dcc = 0;
+        fill(dfn, dfn + n + 1, 0);
+        fill(sz, sz + n + 1, 0);
+        fill(br, br + 2 * m + 1, 0);
+    }
 
-            if (low[v] > dfn[u]) br[i] = br[i ^ 1] = 1;
-        } else {
-            low[u] = min(low[u], dfn[v]);
+    // 重边合法 => pe, 重边不合法 => fno
+    void tarjan(int u, int pe, const G &g) {
+        dfn[u] = low[u] = ++ti;
+        stk.push_back(u);
+
+        for (int i = g.h[u]; ~i; i = g.ne[i]) {
+            int v = g.e[i];
+            if ((i ^ 1) == pe) continue;
+
+            if (!dfn[v]) {
+                tarjan(v, i, g);
+                low[u] = min(low[u], low[v]);
+
+                if (low[v] > dfn[u]) br[i] = br[i ^ 1] = 1;
+            } else {
+                low[u] = min(low[u], dfn[v]);
+            }
+        }
+
+        if (dfn[u] == low[u]) {
+            dcc++;
+            int t;
+            do {
+                t = stk.back(); stk.pop_back();
+                co[t] = dcc;
+                sz[dcc]++;
+            } while (t != u);
         }
     }
 
-    if (dfn[u] == low[u]) {
-        dcc++;
-        int t;
-        do {
-            t = stk.back(); stk.pop_back();
-            co[t] = dcc;
-            sz[dcc]++;
-        } while (t != u);
+    // 有重边
+    G suodian(const G &g) {
+        G res;
+        res.init(dcc, 0);
+
+        for (int u = 1; u <= n; u++) {
+            for (int i = g.h[u]; ~i; i = g.ne[i]) {
+                int v = g.e[i];
+                if (co[u] == co[v]) continue;
+
+                res.add(co[u], co[v]), res.add(co[v], co[u]);
+            }
+        }
+
+        return res;
     }
-}
+};
+// endregion
+
+// region 无权图
+template<int N, int M>
+struct Graph {
+    int n, m;
+    int h[N + 10], ne[M * 2 + 10], e[M * 2 + 10], edm;
+
+    Graph() {}
+
+    void init(int _n, int _m) {
+        n = _n, m = _m;
+        fill(h, h + n + 1, -1), edm = 0;
+    }
+
+    void add(int u, int v) {
+        e[edm] = v, ne[edm] = h[u], h[u] = edm++;
+    }
+};
+// endregion
+
+const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int N = 5010;
+const int M = 10010;
+
+using G = Graph<N, M>;
+
+int n, m;
+G g;
+EDcc<N, M, G> edcc;
 
 void solve() {
-    fill(dfn, dfn + n + 1, 0);
     for (int i = 1; i <= n; i++) {
-        if (!dfn[i]) tarjan(i, -1);
+        if (!edcc.dfn[i]) edcc.tarjan(i, -1, g);
     }
 
-    vector<int> du(dcc + 1, 0);
+    vector<int> du(edcc.dcc + 1, 0);
     for (int u = 1; u <= n; u++) {
-        for (int i = h1[u]; ~i; i = ne[i]) {
-            if (br[i]) {
-                int v = g[i];
-                int cu = co[u], cv = co[v];
+        for (int i = g.h[u]; ~i; i = g.ne[i]) {
+            if (edcc.br[i]) {
+                int v = g.e[i];
+                int cu = edcc.co[u], cv = edcc.co[v];
                 du[cv]++;
             }
         }
     }
 
     int cnt = 0;
-    for (int i = 1; i <= dcc; i++) {
+    for (int i = 1; i <= edcc.dcc; i++) {
         cnt += du[i] == 1;
     }
     cout << (cnt + 1) / 2 << "\n";
@@ -127,16 +155,16 @@ int main() {
 
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
-    int T = 1;
+    int _ = 1;
 //    cin >> T;
-    while (T--) {
+    while (_--) {
         cin >> n >> m;
-        fill(h1, h1 + n + 1, -1), edm = 0;
+        g.init(n, m);
 
         for (int i = 1; i <= m; i++) {
             int u, v;
             cin >> u >> v;
-            add(h1, u, v), add(h1, v, u);
+            g.add(u, v), g.add(v, u);
         }
 
         solve();

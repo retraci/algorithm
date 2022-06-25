@@ -3,7 +3,7 @@ template<int SZ>
 struct SA {
     int n, sa[SZ + 10], rk[SZ + 10], prk[SZ * 2 + 10], id[SZ + 10], px[SZ + 10], cnt[SZ + 10];
 
-    SA () {}
+    SA() {}
 
     // s 下标从 1 开始
     vector<int> get_sa(const string &s, int m = 300) {

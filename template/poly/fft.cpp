@@ -1,4 +1,100 @@
 // region fft
+template<int SZ>
+struct FFT {
+    using fftt = double;
+    const fftt PI = acosl(-1.0);
+
+    struct num {
+        fftt x, y;
+
+        num() { x = y = 0; }
+        num(fftt x, fftt y) : x(x), y(y) {}
+
+        inline num operator+(num rhs) const { return num(x + rhs.x, y + rhs.y); }
+        inline num operator-(num rhs) const { return num(x - rhs.x, y - rhs.y); }
+        inline num operator*(num rhs) const { return num(x * rhs.x - y * rhs.y, x * rhs.y + y * rhs.x); }
+        inline num conj() const { return num(x, -y); }
+    };
+
+    int base;
+    num roots[1 << (__lg(SZ) + 2)];
+    int rev[1 << (__lg(SZ) + 2)];
+    num fa[1 << (__lg(SZ) + 1)], fb[1 << (__lg(SZ) + 1)];
+
+    FFT() {
+        base = 1;
+        roots[0] = {0, 0}, roots[1] = {1, 0};
+        rev[0] = 0, rev[1] = 1;
+    }
+
+    void ensure_base(int nbase) {
+        if (nbase <= base) return;
+
+        for (int i = 0; i < (1 << nbase); i++) {
+            rev[i] = (rev[i >> 1] >> 1) + ((i & 1) << (nbase - 1));
+        }
+        while (base < nbase) {
+            fftt angle = 2 * PI / (1 << (base + 1));
+            for (int i = 1 << (base - 1); i < (1 << base); i++) {
+                roots[i << 1] = roots[i];
+                fftt angle_i = angle * (2 * i + 1 - (1 << base));
+                roots[(i << 1) + 1] = num(cos(angle_i), sin(angle_i));
+            }
+            base++;
+        }
+    }
+
+    void dft(num a[], int n) {
+        assert((n & (n - 1)) == 0);
+
+        int zeros = __builtin_ctz(n);
+        ensure_base(zeros);
+        int shift = base - zeros;
+        for (int i = 0; i < n; i++) {
+            int j = rev[i] >> shift;
+            if (i < j) swap(a[i], a[j]);
+        }
+        for (int k = 1; k < n; k <<= 1) {
+            for (int i = 0; i < n; i += 2 * k) {
+                for (int j = 0; j < k; j++) {
+                    num z = a[i + j + k] * roots[j + k];
+                    a[i + j + k] = a[i + j] - z;
+                    a[i + j] = a[i + j] + z;
+                }
+            }
+        }
+    }
+
+    vector<int> multiply(const vector<int> &a, const vector<int> &b) {
+        int need = a.size() + b.size() - 1;
+        int nbase = 0;
+        while ((1 << nbase) < need) nbase++;
+        ensure_base(nbase);
+        int sz = 1 << nbase;
+        for (int i = 0; i < sz; i++) {
+            int x = (i < a.size() ? a[i] : 0);
+            int y = (i < b.size() ? b[i] : 0);
+            fa[i] = num(x, y);
+        }
+
+        dft(fa, sz);
+        num r(0, -0.25 / sz);
+        for (int i = 0; i <= (sz >> 1); i++) {
+            int j = (sz - i) & (sz - 1);
+            num z = (fa[j] * fa[j] - (fa[i] * fa[i]).conj()) * r;
+            if (i != j) fa[j] = (fa[i] * fa[i] - (fa[j] * fa[j]).conj()) * r;
+            fa[i] = z;
+        }
+
+        dft(fa, sz);
+        vector<int> res(need);
+        for (int i = 0; i < need; i++) res[i] = fa[i].x + 0.5;
+        return res;
+    }
+};
+// endregion
+
+// region fft (t宝)
 namespace FFT {
     using fftt = double;
     const fftt PI = acosl(-1.0);
@@ -153,4 +249,4 @@ namespace FFT {
         return multiply_mod(a, a, m, 1);
     }
 };
-// ednregion
+// endregion

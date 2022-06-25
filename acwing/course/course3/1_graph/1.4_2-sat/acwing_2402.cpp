@@ -33,38 +33,32 @@ using ld = long double;
 using ull = unsigned long long;
 using pii = pair<int, int>;
 
-// region scc 无权缩点
-template<int N, int M>
-struct Scc {
+// region 无边权 scc
+template<int N, class G>
+struct Tarjan {
     int n;
-    int h1[N + 10], h2[N + 10], ne[2 * M + 10], e[2 * M + 10], edm;
-    int dfn[N], low[N], ti;
+    int dfn[N + 10], low[N + 10], ti;
     vector<int> stk;
-    int ins[N];
-    int co[N], sz[N], scc;
+    int ins[N + 10];
+    int co[N + 10], sz[N + 10], scc;
 
-    Scc() {}
+    Tarjan() {}
 
     void init(int _n) {
         n = _n, ti = 0, scc = 0;
-        fill(h1, h1 + n + 1, -1), edm = 0;
         fill(dfn, dfn + n + 1, 0);
         fill(sz, sz + n + 1, 0);
     }
 
-    void add(int h[], int u, int v) {
-        e[edm] = v, ne[edm] = h[u], h[u] = edm++;
-    }
-
-    void tarjan(int u) {
+    void tarjan(int u, const G &g) {
         dfn[u] = low[u] = ++ti;
         stk.push_back(u), ins[u] = 1;
 
-        for (int i = h1[u]; ~i; i = ne[i]) {
-            int v = e[i];
+        for (int i = g.h[u]; ~i; i = g.ne[i]) {
+            int v = g.e[i];
 
             if (!dfn[v]) {
-                tarjan(v);
+                tarjan(v, g);
                 low[u] = min(low[u], low[v]);
             } else if (ins[v]) {
                 low[u] = min(low[u], dfn[v]);
@@ -82,17 +76,40 @@ struct Scc {
         }
     }
 
-    void suodian() {
-        fill(h2, h2 + scc + 1, -1);
+    // 有重边
+    G suodian(const G &g) {
+        G res;
+        res.init(scc, -1);
 
         for (int u = 1; u <= n; u++) {
-            for (int i = h1[u]; ~i; i = ne[i]) {
-                int v = e[i];
+            for (int i = g.h[u]; ~i; i = g.ne[i]) {
+                int v = g.e[i];
                 if (co[u] == co[v]) continue;
 
-                add(h2, co[u], co[v]);
+                res.init(co[u], co[v]);
             }
         }
+
+        return res;
+    }
+};
+// endregion
+
+// region 无权图
+template<int N, int M>
+struct Graph {
+    int n, m;
+    int h[N + 10], ne[M * 2 + 10], e[M * 2 + 10], edm;
+
+    Graph() {}
+
+    void init(int _n, int _m) {
+        n = _n, m = _m;
+        fill(h, h + n + 1, -1), edm = 0;
+    }
+
+    void add(int u, int v) {
+        e[edm] = v, ne[edm] = h[u], h[u] = edm++;
     }
 };
 // endregion
@@ -101,12 +118,16 @@ const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 
 const int N = 1e6 + 10;
 const int M = 1e6 + 10;
 
+using G = Graph<2 * N, 2 * M>;
+
 int n, m;
-Scc<2 * N, 2 * M> tj;
+G g;
+Tarjan<2 * N, G> tj;
 
 void solve() {
+    tj.init(2 * n);
     for (int i = 1; i <= n * 2; i++) {
-        if (!tj.dfn[i]) tj.tarjan(i);
+        if (!tj.dfn[i]) tj.tarjan(i, g);
     }
 
     for (int i = 1; i <= n; i++) {
@@ -139,7 +160,7 @@ int main() {
 //    cin >> _;
     while (_--) {
         cin >> n >> m;
-        tj.init(2 * n);
+        g.init(2 * n, m);
 
         for (int k = 1; k <= m; k++) {
             int i, a, j, b;
@@ -147,8 +168,8 @@ int main() {
             int u0 = a ? i : n + i, u1 = a ? n + i : i;
             int v0 = b ? j : n + j, v1 = b ? n + j : j;
 
-            tj.add(tj.h1, u0, v1);
-            tj.add(tj.h1, v0, u1);
+            g.add(u0, v1);
+            g.add(v0, u1);
         }
 
         solve();

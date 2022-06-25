@@ -531,7 +531,7 @@ struct Seg {
 
     int lb, rb, mem;
     Node tr[SZ * 40];
-    int root[SZ + 1], cnt;
+    int root[SZ + 10], cnt;
 
     Seg() {
         mem = 0, lb = 1, rb = SZ;

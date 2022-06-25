@@ -1,193 +1,146 @@
-#include <iostream>
-#include <cstdio>
-#include <algorithm>
-#include <cstring>
-#include <numeric>
-#include <iomanip>
-#include <vector>
-#include <queue>
-#include <stack>
-#include <set>
-#include <map>
-#include <unordered_set>
-#include <unordered_map>
-#include <bitset>
+#include <bits/stdc++.h>
 
-// region general
-#define ll long long
-#define ld long double
-#define ull unsigned long long
-#define fi first
-#define se second
-
-typedef std::pair<int, int> pii;
-typedef std::pair<ll, ll> pll;
-typedef std::tuple<int, int, int> ti3;
-typedef std::tuple<ll, ll, ll> tl3;
-typedef std::tuple<int, int, int, int> ti4;
-typedef std::tuple<ll, ll, ll, ll> tl4;
-
-inline void debug() {
+void debug() {
     std::cout << "\n";
 }
 
 template<class T, class... OtherArgs>
-inline void debug(T &&var, OtherArgs &&... args) {
+void debug(T &&var, OtherArgs &&... args) {
     std::cout << std::forward<T>(var) << " ";
     debug(std::forward<OtherArgs>(args)...);
 }
-// endregion
-// region grid_delta
-namespace grid_delta {
-    // 上, 右, 下, 左  |  左上, 右上, 右下, 左下
-    const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
-}
-// endregion
 
 using namespace std;
-using namespace grid_delta;
 
-// region hash_func
-template<typename TT>
-struct tuple_hash {
-    size_t operator()(TT const &tt) const {
-        return std::hash<TT>()(tt);
-    }
-};
+#define fi first
+#define se second
+using ll = long long;
+using ld = long double;
+using pii = pair<int, int>;
+using pll = pair<ll, ll>;
+using ai3 = array<int, 3>;
+mt19937 mrnd(std::random_device{}());
 
-template<class T>
-inline void hash_combine(std::size_t &seed, T const &v) {
-    seed ^= tuple_hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+int rnd(int mod) {
+    return mrnd() % mod;
 }
 
-template<typename T>
-inline void hash_val(std::size_t &seed, const T &val) {
-    hash_combine(seed, val);
-}
+// region 无边权 scc
+template<int N, class G>
+struct Tarjan {
+    int n;
+    int dfn[N + 10], low[N + 10], ti;
+    vector<int> stk;
+    int ins[N + 10];
+    int co[N + 10], sz[N + 10], scc;
 
-template<typename T, typename... Types>
-inline void hash_val(std::size_t &seed, const T &val, const Types &... args) {
-    hash_combine(seed, val);
-    hash_val(seed, args...);
-}
+    Tarjan() {}
 
-template<typename... Types>
-inline std::size_t hash_val(const Types &... args) {
-    std::size_t seed = 0;
-    hash_val(seed, args...);
-    return seed;
-}
-
-template<class Tuple, size_t Index = std::tuple_size<Tuple>::value - 1>
-struct HashValueImpl {
-    void operator()(size_t &seed, Tuple const &tuple) const {
-        HashValueImpl<Tuple, Index - 1>{}(seed, tuple);
-        hash_combine(seed, std::get<Index>(tuple));
+    void init(int _n) {
+        n = _n, ti = 0, scc = 0;
+        fill(dfn, dfn + n + 1, 0);
+        fill(sz, sz + n + 1, 0);
     }
-};
 
-template<class Tuple>
-struct HashValueImpl<Tuple, 0> {
-    void operator()(size_t &seed, Tuple const &tuple) const {
-        hash_combine(seed, std::get<0>(tuple));
+    void tarjan(int u, const G &g) {
+        dfn[u] = low[u] = ++ti;
+        stk.push_back(u), ins[u] = 1;
+
+        for (int i = g.h[u]; ~i; i = g.ne[i]) {
+            int v = g.e[i];
+
+            if (!dfn[v]) {
+                tarjan(v, g);
+                low[u] = min(low[u], low[v]);
+            } else if (ins[v]) {
+                low[u] = min(low[u], dfn[v]);
+            }
+        }
+
+        if (dfn[u] == low[u]) {
+            scc++;
+            int t;
+            do {
+                t = stk.back(); stk.pop_back(); ins[t] = 0;
+                co[t] = scc;
+                sz[scc]++;
+            } while (t != u);
+        }
     }
-};
 
-template<typename... TT>
-struct tuple_hash<std::tuple<TT...>> {
-    size_t operator()(std::tuple<TT...> const &tt) const {
-        size_t seed = 0;
-        HashValueImpl<std::tuple<TT...>>{}(seed, tt);
-        return seed;
-    }
-};
+    // 有重边
+    G suodian(const G &g) {
+        G res;
+        res.init(scc, -1);
 
-struct pair_hash {
-    template<class T1, class T2>
-    std::size_t operator()(const std::pair<T1, T2> &p) const {
-        return hash_val(p.first, p.second);
+        set<pii> st;
+        for (int u = 1; u <= n; u++) {
+            for (int i = g.h[u]; ~i; i = g.ne[i]) {
+                int v = g.e[i];
+                if (co[u] == co[v]) continue;
+                if (st.count({co[u], co[v]})) continue;
+
+                res.add(co[u], co[v]);
+                st.insert({co[u], co[v]});
+            }
+        }
+
+        return res;
     }
 };
 // endregion
 
+// region 无权图
+template<int N, int M>
+struct Graph {
+    int n, m;
+    int h[N + 10], ne[M * 2 + 10], e[M * 2 + 10], edm;
+
+    Graph() {}
+
+    void init(int _n, int _m) {
+        n = _n, m = _m;
+        fill(h, h + n + 1, -1), edm = 0;
+    }
+
+    void add(int u, int v) {
+        e[edm] = v, ne[edm] = h[u], h[u] = edm++;
+    }
+};
+// endregion
+
+const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
 const int N = 1e5 + 10;
 const int M = 1e6 + 10;
 
+using G = Graph<N, M>;
+
 int n, m, mod;
-int g[2 * M], ne[2 * M], h1[N], h2[N], edm;
-
-int dfn[N], low[N], ti;
-vector<int> stk;
-int ins[N];
-int co[N], sz[N], scc;
-
-void add(int h[], int u, int v) {
-    g[edm] = v;
-    ne[edm] = h[u], h[u] = edm++;
-}
-
-void tarjan(int u) {
-    dfn[u] = low[u] = ++ti;
-    stk.push_back(u), ins[u] = 1;
-
-    for (int i = h1[u]; ~i; i = ne[i]) {
-        int v = g[i];
-        if (!dfn[v]) {
-            tarjan(v);
-            low[u] = min(low[u], low[v]);
-        } else if (ins[v]) {
-            low[u] = min(low[u], dfn[v]);
-        }
-    }
-
-    if (low[u] == dfn[u]) {
-        scc++;
-        int t;
-        do {
-            t = stk.back(); stk.pop_back(), ins[t] = 0;
-            co[t] = scc;
-            sz[scc]++;
-        } while (t != u);
-    }
-}
-
-void init() {
-    fill(dfn, dfn + n + 1, 0);
-    for (int u = 1; u <= n; u++) {
-        if (!dfn[u]) tarjan(u);
-    }
-
-    unordered_set<pii, pair_hash> st;
-    fill(h2, h2 + scc + 1, -1);
-    for (int u = 1; u <= n; u++) {
-        for (int i = h1[u]; ~i; i = ne[i]) {
-            int v = g[i];
-            int su = co[u], sv = co[v];
-            if (su == sv || st.count({su, sv})) continue;
-
-            add(h2, su, sv);
-            st.insert({su, sv});
-        }
-    }
-}
+G g;
+Tarjan<N, G> tj;
 
 void solve() {
-    init();
+    tj.init(n);
+    for (int u = 1; u <= n; u++) {
+        if (!tj.dfn[u]) tj.tarjan(u, g);
+    }
 
+    int scc = tj.scc;
+    auto ng = tj.suodian(g);
     vector<int> f(scc + 1, 0), c(scc + 1, 0);
     for (int u = scc; u >= 1; u--) {
         if (c[u] == 0) {
-            f[u] = sz[u];
+            f[u] = tj.sz[u];
             c[u] = 1;
         }
 
-        for (int i = h2[u]; ~i; i = ne[i]) {
-            int v = g[i];
+        for (int i = ng.h[u]; ~i; i = ng.ne[i]) {
+            int v = ng.e[i];
 
-            if (f[v] < f[u] + sz[v]) {
-                f[v] = f[u] + sz[v];
+            if (f[v] < f[u] + tj.sz[v]) {
+                f[v] = f[u] + tj.sz[v];
                 c[v] = c[u];
-            } else if (f[v] == f[u] + sz[v]) {
+            } else if (f[v] == f[u] + tj.sz[v]) {
                 c[v] += c[u];
                 c[v] %= mod;
             }
@@ -221,12 +174,12 @@ int main() {
 //    cin >> T;
     while (T--) {
         cin >> n >> m >> mod;
-        fill(h1, h1 + n + 1, -1), edm = 0;
+        g.init(n, m);
 
         for (int i = 1; i <= m; i++) {
             int u, v;
             cin >> u >> v;
-            add(h1, u, v);
+            g.add(u, v);
         }
 
         solve();

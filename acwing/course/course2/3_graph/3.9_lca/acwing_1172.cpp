@@ -48,34 +48,25 @@ using namespace std;
 using namespace grid_delta;
 
 // region 无权的lca
-template<int N, int M>
+template<int N, class G>
 struct Lca {
     int n, mxb;
-    int h[N + 10], ne[M * 2 + 10], e[M * 2 + 10], edm;
-    int dep[N + 10], fa[32][N + 10];
+    int dep[N + 10], fa[__lg(N) + 1][N + 10];
 
     Lca() {}
 
-    void init(int _n) {
-        n = _n, mxb = __lg(n);
-        fill(h, h + n + 1, -1), edm = 0;
-    }
-
-    void add(int u, int v) {
-        e[edm] = v, ne[edm] = h[u], h[u] = edm++;
-    }
-
-    void init_lca(int rt) {
+    void init(int rt, const G &g) {
+        n = g.n, mxb = __lg(n);
         fill(dep, dep + n + 1, -1);
 
         queue<int> que;
         que.push(rt);
-        dep[0] = 0, dep[rt] = 1;
+        dep[0] = 0, dep[rt] = 1, fa[0][rt] = 0;
         while (!que.empty()) {
             auto u = que.front(); que.pop();
 
-            for (int i = h[u]; ~i; i = ne[i]) {
-                int v = e[i];
+            for (int i = g.h[u]; ~i; i = g.ne[i]) {
+                int v = g.e[i];
 
                 if (dep[v] == -1) {
                     dep[v] = dep[u] + 1;
@@ -92,10 +83,12 @@ struct Lca {
         }
     }
 
-    int work(int x, int y) {
+    int lca(int x, int y) {
         if (dep[x] < dep[y]) swap(x, y);
         for (int k = mxb; k >= 0; k--) {
-            if (dep[fa[k][x]] >= dep[y]) x = fa[k][x];
+            if (dep[fa[k][x]] >= dep[y]) {
+                x = fa[k][x];
+            }
         }
         if (x == y) return x;
 
@@ -109,21 +102,44 @@ struct Lca {
 };
 // endregion
 
+// region 无权图
+template<int N, int M>
+struct Graph {
+    int n, m;
+    int h[N + 10], ne[M * 2 + 10], e[M * 2 + 10], edm;
+
+    Graph() {}
+
+    void init(int _n, int _m) {
+        n = _n, m = _m;
+        fill(h, h + n + 1, -1), edm = 0;
+    }
+
+    void add(int u, int v) {
+        e[edm] = v, ne[edm] = h[u], h[u] = edm++;
+    }
+};
+// endregion
+
 const int N = 4e4 + 10;
 
-int n, m;
+using G = Graph<N, N>;
+
+int n;
 int rt;
-Lca<N, N> lca;
+G g;
+Lca<N, G> lca;
 
 void solve() {
-    lca.init_lca(rt);
+    lca.init(rt, g);
 
-    cin >> m;
-    while (m--) {
+    int q;
+    cin >> q;
+    while (q--) {
         int x, y;
         cin >> x >> y;
 
-        int ret = lca.work(x, y);
+        int ret = lca.lca(x, y);
         if (ret == x) cout << 1 << "\n";
         else if (ret == y) cout << 2 << "\n";
         else cout << 0 << "\n";
@@ -145,13 +161,13 @@ int main() {
 //    cin >> T;
     while (T--) {
         cin >> n;
-        lca.init(4e4);
+        g.init(4e4, 4e4);
 
         for (int i = 1; i <= n; i++) {
             int u, v;
             cin >> u >> v;
             if (v == -1) rt = u;
-            else lca.add(u, v), lca.add(v, u);
+            else g.add(u, v), g.add(v, u);
         }
 
         solve();

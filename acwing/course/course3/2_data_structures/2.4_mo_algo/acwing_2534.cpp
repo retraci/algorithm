@@ -38,34 +38,25 @@ using ai3 = array<int, 3>;
 using ai4 = array<int, 4>;
 
 // region 无权的lca
-template<int N, int M>
+template<int N, class G>
 struct Lca {
     int n, mxb;
-    int h[N + 10], ne[M * 2 + 10], e[M * 2 + 10], edm;
-    int dep[N + 10], fa[32][N + 10];
+    int dep[N + 10], fa[__lg(N) + 1][N + 10];
 
     Lca() {}
 
-    void init(int _n) {
-        n = _n, mxb = __lg(n);
-        fill(h, h + n + 1, -1), edm = 0;
-    }
-
-    void add(int u, int v) {
-        e[edm] = v, ne[edm] = h[u], h[u] = edm++;
-    }
-
-    void init_lca(int rt) {
+    void init(int rt, const G &g) {
+        n = g.n, mxb = __lg(n);
         fill(dep, dep + n + 1, -1);
 
         queue<int> que;
         que.push(rt);
-        dep[0] = 0, dep[rt] = 1;
+        dep[0] = 0, dep[rt] = 1, fa[0][rt] = 0;
         while (!que.empty()) {
             auto u = que.front(); que.pop();
 
-            for (int i = h[u]; ~i; i = ne[i]) {
-                int v = e[i];
+            for (int i = g.h[u]; ~i; i = g.ne[i]) {
+                int v = g.e[i];
 
                 if (dep[v] == -1) {
                     dep[v] = dep[u] + 1;
@@ -82,10 +73,12 @@ struct Lca {
         }
     }
 
-    int work(int x, int y) {
+    int lca(int x, int y) {
         if (dep[x] < dep[y]) swap(x, y);
         for (int k = mxb; k >= 0; k--) {
-            if (dep[fa[k][x]] >= dep[y]) x = fa[k][x];
+            if (dep[fa[k][x]] >= dep[y]) {
+                x = fa[k][x];
+            }
         }
         if (x == y) return x;
 
@@ -99,15 +92,38 @@ struct Lca {
 };
 // endregion
 
+// region 无权图
+template<int N, int M>
+struct Graph {
+    int n, m;
+    int h[N + 10], ne[M * 2 + 10], e[M * 2 + 10], edm;
+
+    Graph() {}
+
+    void init(int _n, int _m) {
+        n = _n, m = _m;
+        fill(h, h + n + 1, -1), edm = 0;
+    }
+
+    void add(int u, int v) {
+        e[edm] = v, ne[edm] = h[u], h[u] = edm++;
+    }
+};
+// endregion
+
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
 const int N = 40010;
 const int M = 1e5 + 10;
+
+using G = Graph<N, M>;
 
 int n, m;
 int a[N];
 pii b[M];
 ai4 qs[M];
-Lca<N, M> lca;
+
+G g;
+Lca<N, G> lca;
 int eula[2 * N], ein[N], eout[N], cnt;
 int bl;
 int vis[N], c[N], cur;
@@ -117,8 +133,8 @@ int nl;
 void dfs(int u, int fno) {
     eula[++cnt] = u, ein[u] = cnt;
 
-    for (int i = lca.h[u]; ~i; i = lca.ne[i]) {
-        int v = lca.e[i];
+    for (int i = g.h[u]; ~i; i = g.ne[i]) {
+        int v = g.e[i];
         if (v == fno) continue;
 
         dfs(v, u);
@@ -139,14 +155,14 @@ void init() {
 
     for (int i = 1; i <= n; i++) a[i] = get_lsh(a[i]) + 1;
 
-    lca.init_lca(1);
+    lca.init(1, g);
     cnt = 0;
     dfs(1, 0);
 
     for (int i = 1; i <= m; i++) {
         auto [L, R] = b[i];
         if (ein[L] > ein[R]) swap(L, R);
-        int p = lca.work(L, R);
+        int p = lca.lca(L, R);
         if (p != L) qs[i] = {i, eout[L], ein[R], p};
         else qs[i] = {i, ein[L], ein[R], 0};
     }
@@ -209,12 +225,13 @@ int main() {
 //    cin >> _;
     while (_--) {
         cin >> n >> m;
-        lca.init(n);
+        g.init(n, m);
+
         for (int i = 1; i <= n; i++) cin >> a[i];
         for (int i = 1; i <= n - 1; i++) {
             int u, v;
             cin >> u >> v;
-            lca.add(u, v), lca.add(v, u);
+            g.add(u, v), g.add(v, u);
         }
         for (int i = 1; i <= m; i++) cin >> b[i].fi >> b[i].se;
 

@@ -40,7 +40,7 @@ struct LinearBasis {
         fill(bas, bas + mxb + 1, 0);
     }
 
-    bool ins(lbt x) {
+    void ins(lbt x) {
         for (int i = mxb; i >= 0; i--) {
             if (x == 0) break;
             if (~x >> i & 1) continue;
@@ -55,10 +55,9 @@ struct LinearBasis {
                     if (bas[j] >> i & 1) bas[j] ^= x;
                 }
                 bas[i] = x;
-                return true;
+                break;
             }
         }
-        return false;
     }
 
     lbt qr() {
@@ -70,27 +69,17 @@ struct LinearBasis {
 // endregion
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
-const int N = (1 << 16) + 1;
+const int N = 1e5 + 10;
 
 int n;
 ll a[N];
-LinearBasis<33> lb;
+LinearBasis<63> lb;
 
 void solve() {
-    int m = (1 << n) - 1;
-    int ord[m + 1];
-    iota(ord, ord + m + 1, 0);
-    sort(ord + 1, ord + m + 1, [&](auto &lhs, auto &rhs) {
-        return a[lhs] < a[rhs];
-    });
+    lb.init(63);
+    for (int i = 1; i <= n; i++) lb.ins(a[i]);
 
-    ll ans = 0;
-    lb.init(31);
-    for (int i = 1; i <= m; i++) {
-        int id = ord[i];
-        if (lb.ins(id)) ans += a[id];
-    }
-    cout << ans << "\n";
+    cout << lb.qr() << "\n";
 }
 
 void prework() {
@@ -105,10 +94,10 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int _ = 1;
-//    cin >> T;
+//    cin >> _;
     while (_--) {
         cin >> n;
-        for (int i = 1; i <= (1 << n) - 1; i++) cin >> a[i];
+        for (int i = 1; i <= n; i++) cin >> a[i];
         solve();
     }
 

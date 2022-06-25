@@ -26,8 +26,22 @@ int rnd(int mod) {
 }
 
 const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {0, 0}};
+const int N = 1e3 + 10;
+const int MOD = 1e9 + 7;
+
+int n, k;
+int f[N][N];
 
 void solve() {
+    f[0][0] = 1;
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= k; j++) {
+            f[i][j] = f[i - 1][j - 1] + 1LL * j * f[i - 1][j] % MOD;
+            f[i][j] %= MOD;
+        }
+    }
+
+    cout << f[n][k] << "\n";
 }
 
 void prework() {
@@ -42,8 +56,9 @@ int main() {
     prework();
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int _ = 1;
-    cin >> _;
+//    cin >> _;
     while (_--) {
+        cin >> n >> k;
         solve();
     }
 

@@ -2,31 +2,44 @@
 struct Odt {
     using odtt = int;
 
-    int n;
-    map<int, odtt> odt;
+    map<int, odtt> tr;
 
     Odt() {}
 
     void init(int _n) {
-        n = _n;
-        odt.clear();
-        odt[0] = 0, odt[n + 1] = 0;
+        tr.clear();
+        tr[0] = 0, tr[_n + 1] = 0;
     }
 
     void split(int pos) {
-        auto [L, v] = *prev(odt.upper_bound(pos));
-        odt[pos] = v;
+        auto [L, v] = *prev(tr.upper_bound(pos));
+        tr[pos] = v;
     }
 
     void assign(int L, int R, odtt v) {
         split(L), split(R + 1);
 
-        auto it = odt.find(L);
+        auto it = tr.find(L);
         while (it->fi != R + 1) {
             auto [tl, tv] = *it;
-            it = odt.erase(it);
+            it = tr.erase(it);
         }
-        odt[L] = v;
+        tr[L] = v;
+    }
+
+    odtt qr(int L, int R) {
+        split(L), split(R + 1);
+
+        odtt res = 0;
+        auto it = tr.find(L);
+        while (it->fi != R + 1) {
+            auto [tl, tv] = *it;
+
+            res += tv;
+            it++;
+        }
+
+        return res;
     }
 };
 // endregion

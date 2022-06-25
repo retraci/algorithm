@@ -3,8 +3,8 @@ int a[N];
 
 template<int N, int SZ, int B>
 struct Trie {
-    int tr[SZ][2], mx_id[SZ], mem;
-    int root[N + 1];
+    int tr[SZ + 10][2], mx_id[SZ + 10], mem;
+    int root[N + 10];
 
     inline Trie() {
         init();
@@ -63,7 +63,7 @@ struct Seg {
 
     int lb, rb, mem;
     Node tr[32 * SZ];
-    int root[SZ + 1];
+    int root[SZ + 10];
 
     inline Seg() {
         init(1, SZ);
@@ -202,7 +202,7 @@ struct Seg {
 
     int lb, rb, mem;
     Node tr[32 * SZ];
-    int root[SZ + 1];
+    int root[SZ + 10];
 
     inline Seg() {
         init(1, SZ);

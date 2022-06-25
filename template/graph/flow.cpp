@@ -87,7 +87,7 @@ struct Flow {
         }
     }
 
-    const vector<int> qr_min_cut(int S, int T) {
+    vector<int> qr_min_cut(int S, int T) {
         fill(vis, vis + n + 1, 0);
         dfs(S);
 
