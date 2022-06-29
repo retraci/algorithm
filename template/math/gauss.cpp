@@ -1,21 +1,21 @@
 // region 普通方程
 template<int N, int M>
 struct Gauss {
-    using gst = long double;
+    using gst = double;
     const gst eps = 1e-9;
 
     gst mat[N + 10][M + 10];
 
     Gauss() {}
 
-    // r 为方程个数, c 为未知数个数; 无解返回 -1, 多解返回 自由元个数
+    // r 为方程个数, c 为未知数个数; 返回: 自由元个数, 无解返回 -1
     // mat[1 ~ c]: 增广矩阵, c + 1 位置为常数
     pair<int, vector<gst>> work(int r, int c) {
         int row = 1;
         for (int col = 1; col <= c; col++) {
             for (int i = row; i <= r; i++) {
                 if (fabs(mat[i][col]) > eps) {
-                    for (int j = col; j <= c + 1; j++) swap(mat[i][j], mat[row][j]);
+                    swap(mat[i], mat[row]);
                     break;
                 }
             }

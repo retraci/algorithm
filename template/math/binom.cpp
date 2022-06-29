@@ -1,33 +1,37 @@
-// region comb
-vector<ll> fac, ifac;
+// region Binom
+template<int N, int MOD>
+struct Binom {
+    int fac[N + 10], ifac[N + 10];
 
-ll ksm(ll a, ll b) {
-    a %= MOD;
-    ll res = 1;
-    while (b) {
-        if (b & 1) res = res * a % MOD;
-        a = a * a % MOD;
-        b >>= 1;
+    Binom() {}
+
+    void init(int lim) {
+        fac[0] = ifac[0] = 1;
+        for (int i = 1; i <= lim; i++) fac[i] = 1LL * fac[i - 1] * i % MOD;
+        ifac[lim] = inv(fac[lim]);
+        for (int i = lim - 1; i >= 1; i--) ifac[i] = 1LL * ifac[i + 1] * (i + 1) % MOD;
     }
-    return res;
-}
 
-ll inv(ll x) {
-    return ksm(x, MOD - 2);
-}
+    int ksm(int a, int b) {
+        a %= MOD;
+        int res = 1;
+        while (b) {
+            if (b & 1) res = 1LL * res * a % MOD;
+            a = 1LL * a * a % MOD;
+            b >>= 1;
+        }
+        return res;
+    }
 
-ll C(ll a, ll b) {
-    if (a < 0 || b < 0 || a < b) return 0;
-    return fac[a] * ifac[b] % MOD * ifac[a - b] % MOD;
-}
+    int inv(int x) {
+        return ksm(x, MOD - 2);
+    }
 
-void init_comb(int lim) {
-    fac.resize(lim + 1), ifac.resize(lim + 1);
-    fac[0] = ifac[0] = 1;
-    for (int i = 1; i <= lim; i++) fac[i] = fac[i - 1] * i % MOD;
-    ifac[lim] = inv(fac[lim]);
-    for (int i = lim - 1; i >= 1; i--) ifac[i] = ifac[i + 1] * (i + 1) % MOD;
-}
+    int C(int a, int b) {
+        if (a < 0 || b < 0 || a < b) return 0;
+        return 1LL * fac[a] * ifac[b] % MOD * ifac[a - b] % MOD;
+    }
+};
 // endregion
 
 // region lucas 固定 P

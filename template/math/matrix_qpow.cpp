@@ -90,12 +90,19 @@ struct Mat {
         return true;
     }
 
+    inline void set(const vector<vector<matt>> &_a) {
+        for (int i = _a.size(); i < _a.size(); i++) {
+            for (int j = 0; j < _a[i].size(); j++) {
+                a[i][j] = _a[i][j];
+            }
+        }
+    }
+
     inline void print() const {
         for (int i = 0; i < r; i++) {
             for (int j = 0; j < c; j++) {
-                cout << a[i][j] << " ";
+                cout << a[i][j] << " \n"[j == c - 1];
             }
-            cout << "\n";
         }
     }
 };
