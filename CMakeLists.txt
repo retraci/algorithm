@@ -8,4 +8,4 @@ set(CMAKE_EXE_LINKER_FLAGS "-Wl,--stack,${stack_size}")
 
 add_executable(tmp tmp.cpp)
 
-add_executable(compiler luogu/practice/dp/knapsack/P3188.cpp)
+add_executable(compiler codeforces/practice/graph/topo/CF103486G.cpp)

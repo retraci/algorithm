@@ -53,6 +53,26 @@ struct StrHash {
 };
 // endregion
 
+// region 字符串最小表示法
+// 下标从 0 开始
+string get_min(const string &s) {
+    int n = s.size();
+    string ns = s + s;
+    int i = 0, j = 1;
+
+    while (i < n && j < n) {
+        int k = 0;
+        while (k < n && ns[i + k] == ns[j + k]) k++;
+        if (ns[i + k] > ns[j + k]) i = i + k + 1;
+        else j = j + k + 1;
+        if (i == j) j++;
+    }
+
+    int pos = min(i, j);
+    return ns.substr(pos, n);
+}
+// endregion
+
 // region 树哈希
 vector<int> rd;
 
