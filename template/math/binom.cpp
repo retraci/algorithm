@@ -12,18 +12,18 @@ struct Binom {
         for (int i = lim - 1; i >= 1; i--) ifac[i] = 1LL * ifac[i + 1] * (i + 1) % MOD;
     }
 
-    int ksm(int a, int b) {
+    int ksm(ll a, ll b) {
         a %= MOD;
-        int res = 1;
+        ll res = 1;
         while (b) {
-            if (b & 1) res = 1LL * res * a % MOD;
-            a = 1LL * a * a % MOD;
+            if (b & 1) res = res * a % MOD;
+            a = a * a % MOD;
             b >>= 1;
         }
         return res;
     }
 
-    int inv(int x) {
+    int inv(ll x) {
         return ksm(x, MOD - 2);
     }
 

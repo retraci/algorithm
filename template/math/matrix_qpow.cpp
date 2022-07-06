@@ -1,7 +1,7 @@
 // region 矩阵
 template<int SZ>
 struct Mat {
-    using matt = int;
+    using matt = ll;
 
     int r, c;
     matt mod;
@@ -60,7 +60,7 @@ struct Mat {
         return res;
     }
 
-    inline Mat operator^(matt x) const {
+    inline Mat operator^(ll x) const {
         assert(r == c);
 
         Mat res, bas;
@@ -91,7 +91,7 @@ struct Mat {
     }
 
     inline void set(const vector<vector<matt>> &_a) {
-        for (int i = _a.size(); i < _a.size(); i++) {
+        for (int i = 0; i < _a.size(); i++) {
             for (int j = 0; j < _a[i].size(); j++) {
                 a[i][j] = _a[i][j];
             }
