@@ -26,27 +26,23 @@ int rnd(int mod) {
     return mrnd() % mod;
 }
 
-// region 二维数点 fenwick
+// region fenwick
 template<int SZ>
 struct Fenwick {
     using fwt = int;
-    using ptt = pair<fwt, fwt>;
-    using at4 = array<fwt, 4>;
 
-    int n, q;
+    int n;
     fwt tr[SZ + 10];
-    vector<ptt> ps;
-    vector<at4> qs;
 
     Fenwick() {}
 
-    void init(int _n, int _q) {
-        n = _n, q = _q;
+    void init(int _n) {
+        n = _n;
         fill(tr, tr + n + 1, 0);
-        ps.clear(), qs.clear();
     }
 
     void upd(int id, fwt x) {
+        assert(id > 0);
         for (int i = id; i <= n; i += i & -i) tr[i] = tr[i] + x;
     }
 
@@ -56,33 +52,63 @@ struct Fenwick {
         return res;
     }
 
-    void add_point(int x, fwt y) {
-        ps.push_back({x, y});
-    }
-
-    // qid, 左, 右, 下, 上
-    void add_qr(int qid, int x1, int x2, fwt y1, fwt y2) {
-        qs.push_back({qid, x1 - 1, y2, -1});
-        qs.push_back({qid, x1 - 1, y1 - 1, +1});
-        qs.push_back({qid, x2, y2, +1});
-        qs.push_back({qid, x2, y1 - 1, -1});
-    }
-
-    vector<fwt> get_ans() {
-        sort(ps.begin(), ps.end(), [](auto &a, auto &b) {
-            return a.fi < b.fi;
-        });
-        sort(qs.begin(), qs.end(), [](auto &a, auto &b) {
-            return a[1] < b[1];
-        });
-
-        int u = 0;
-        vector<fwt> ans(q + 1);
-        for (auto [qid, x, y, sgn] : qs) {
-            while (u < ps.size() && ps[u].fi <= x) upd(ps[u].se, 1), u++;
-            ans[qid] += sgn * qr(y);
+    int kth(fwt x) {
+        int pos = 0;
+        for (int i = __lg(n); i >= 0; i--) {
+            if (pos + (1 << i) <= n && tr[pos + (1 << i)] < x) {
+                pos += 1 << i;
+                x -= tr[pos];
+            }
         }
-        return ans;
+
+        return pos + 1;
+    }
+};
+// endregion
+
+// region 二维数点
+template<int Q, class Fenwick>
+struct TwoDimCount {
+    using fwt = int;
+    using tdct = int;
+    using at3 = array<tdct, 3>;
+    using at4 = array<tdct, 4>;
+    using at5 = array<tdct, 5>;
+
+    int oq;
+    at4 oqs[4 * Q + 10];
+
+    TwoDimCount() {}
+
+    // ps[i] = {x, y, w}
+    // qs[i] = {qid, x1, x2, y1, y2}
+    // m 为第二维的值域, q 为询问总个数
+    vector<fwt> work(vector<at3> ps, const vector<at5> &qs, Fenwick &fw, int m, int q) {
+        oq = 0;
+        for (auto [qid, x1, x2, y1, y2] : qs) {
+            oqs[++oq] = {qid, x1 - 1, y2, -1};
+            oqs[++oq] = {qid, x1 - 1, y1 - 1, +1};
+            oqs[++oq] = {qid, x2, y2, +1};
+            oqs[++oq] = {qid, x2, y1 - 1, -1};
+        }
+
+        sort(ps.begin(), ps.end(), [](auto &lhs, auto &rhs) {
+            return lhs[0] < rhs[0];
+        });
+        sort(oqs + 1, oqs + oq + 1, [](auto &lhs, auto &rhs) {
+            return lhs[1] < rhs[1];
+        });
+
+        fw.init(m);
+        int u = 0;
+        vector<fwt> res(q + 1);
+        for (int i = 1; i <= oq; i++) {
+            auto [qid, x, y, sgn] = oqs[i];
+
+            while (u < ps.size() && ps[u][0] <= x) fw.upd(ps[u][1], ps[u][2]), u++;
+            res[qid] += sgn * fw.qr(y);
+        }
+        return res;
     }
 };
 // endregion
@@ -91,55 +117,54 @@ const int dir[9][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 1}, {1, 
 const int N = 100010;
 const int Q = 200010;
 
+using ai5 = array<int, 5>;
+
 int n, q;
 int a[N];
 pii qs[Q];
-Fenwick<N> fw[8];
+TwoDimCount<Q, Fenwick<N>> tdc;
+Fenwick<N> fw1, fw2;
 int A[N], B[N];
 
 void solve() {
     ll cur = 0;
-    fw[0].init(n, q);
+    fw1.init(n);
     for (int i = 1; i <= n; i++) {
-        A[i] = fw[0].qr(a[i]);
+        A[i] = fw1.qr(a[i]);
         B[i] = a[i] - 1 - A[i];
         cur += min(A[i], B[i]);
-        fw[0].upd(a[i], 1);
+        fw1.upd(a[i], 1);
     }
 
-    for (int i = 1; i <= 7; i++) fw[i].init(n, q);
+    vector<ai3> ps[8];
     for (int i = 1; i <= n; i++) {
-        if (A[i] == B[i]) fw[1].add_point(i, a[i]);
-        if (A[i] + 1 == B[i]) fw[2].add_point(i, a[i]);
-        if (B[i] + 1 == A[i]) fw[3].add_point(i, a[i]);
-        if (A[i] + 2 <= B[i]) fw[4].add_point(i, a[i]);
-        if (B[i] + 2 <= A[i]) fw[5].add_point(i, a[i]);
+        if (A[i] == B[i]) ps[1].push_back({i, a[i], 1});
+        if (A[i] + 1 == B[i]) ps[2].push_back({i, a[i], 1});
+        if (B[i] + 1 == A[i]) ps[3].push_back({i, a[i], 1});
+        if (A[i] + 2 <= B[i]) ps[4].push_back({i, a[i], 1});
+        if (B[i] + 2 <= A[i]) ps[5].push_back({i, a[i], 1});
 
-        fw[6].add_point(i, a[i]);
-        fw[7].add_point(i, a[i]);
+        ps[6].push_back({i, a[i], 1});
+        ps[7].push_back({i, a[i], 1});
     }
 
+    vector<ai5> tdcqs[8];
     for (int i = 1; i <= q; i++) {
         auto [u, v] = qs[i];
 
         int mi = min(a[u], a[v]), mx = max(a[u], a[v]);
         if (u + 1 <= v - 1) {
-            for (int k = 1; k <= 5; k++) fw[k].add_qr(i, u + 1, v - 1, mi, mx);
+            for (int k = 1; k <= 5; k++) tdcqs[k].push_back({i, u + 1, v - 1, mi, mx});
         }
-        fw[6].add_qr(i, 1, u - 1, 1, a[v] - 1);
-        fw[7].add_qr(i, 1, v, 1, a[u] - 1);
+        tdcqs[6].push_back({i, 1, u - 1, 1, a[v] - 1});
+        tdcqs[7].push_back({i, 1, v, 1, a[u] - 1});
     }
 
-    vector<vector<int>> ret(8);
-    for (int i = 1; i <= 7; i++) ret[i] = fw[i].get_ans();
+    vector<int> ret[8];
+    for (int i = 1; i <= 7; i++) ret[i] = tdc.work(ps[i], tdcqs[i], fw2, n, q);
 
     for (int i = 1; i <= q; i++) {
         auto [u, v] = qs[i];
-
-//        for (int k = 1; k <= 7; k++) {
-//            cout << ret[k][i] << " ";
-//        }
-//        cout << "\n";
 
         ll ans = cur - min(A[u], B[u]) - min(A[v], B[v]);
         int t1 = min(ret[6][i], a[v] - 1 - ret[6][i]);

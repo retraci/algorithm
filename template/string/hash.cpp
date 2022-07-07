@@ -32,15 +32,15 @@ void init_strhash(int lim = 0) {
     for (int i = 1; i <= lim; i++) pw[i] = pw[i - 1] * base;
 }
 
+template<int SZ>
 struct StrHash {
-    vector<pii> v;
+    pii v[SZ + 10];
 
     StrHash() {}
 
     // 下标 1 开始
     void init(const string &s) {
         int m = s.size() - 1;
-        v.resize(m + 1);
         for (int j = 1; j <= m; j++) {
             char ch = s[j];
             v[j] = v[j - 1] * base + (pii) {ch, ch};

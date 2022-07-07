@@ -1,3 +1,30 @@
+#include <bits/stdc++.h>
+
+void debug() {
+    std::cout << "\n";
+}
+
+template<class T, class... OtherArgs>
+void debug(T &&var, OtherArgs &&... args) {
+    std::cout << std::forward<T>(var) << " ";
+    debug(std::forward<OtherArgs>(args)...);
+}
+
+using namespace std;
+
+#define fi first
+#define se second
+using ll = long long;
+using ld = long double;
+using pii = pair<int, int>;
+using pll = pair<ll, ll>;
+using ai3 = array<int, 3>;
+mt19937 mrnd(std::random_device{}());
+
+int rnd(int mod) {
+    return mrnd() % mod;
+}
+
 // region fenwick
 template<int SZ>
 struct Fenwick {
@@ -34,95 +61,6 @@ struct Fenwick {
         }
 
         return pos + 1;
-    }
-};
-// endregion
-
-// region 区间修改 fenwick
-template<int SZ>
-struct Fenwick {
-    using fwt = int;
-
-    int n;
-    fwt tr1[SZ + 10], tr2[SZ + 10];
-
-    Fenwick() {}
-
-    void init(int _n) {
-        n = _n;
-        fill(tr1, tr1 + n + 1, 0);
-        fill(tr2, tr2 + n + 1, 0);
-    }
-
-    void upd(fwt tr[], int id, fwt x) {
-        assert(id > 0);
-        for (int i = id; i <= n; i += i & -i) tr[i] = tr[i] + x;
-    }
-
-    fwt qr(fwt tr[], int id) {
-        fwt res = 0;
-        for (int i = id; i; i -= i & -i) res = res + tr[i];
-        return res;
-    }
-
-    fwt get_presum(int id) {
-        return (id + 1) * qr(tr1, id) - qr(tr2, id);
-    }
-
-    void upd_range(int L, int R, fwt x) {
-        upd(tr1, L, x), upd(tr1, R + 1, -x);
-        upd(tr2, L, x * L), upd(tr2, R + 1, -x * (R + 1));
-    }
-
-    fwt qr_range(int L, int R) {
-        return get_presum(R) - get_presum(L - 1);
-    }
-};
-// endregion
-
-// region 二维数点
-template<int Q, class Fenwick>
-struct TwoDimCount {
-    using fwt = int;
-    using tdct = int;
-    using at3 = array<tdct, 3>;
-    using at4 = array<tdct, 4>;
-    using at5 = array<tdct, 5>;
-
-    int oq;
-    at4 oqs[4 * Q + 10];
-
-    TwoDimCount() {}
-
-    // ps[i] = {x, y, w}
-    // qs[i] = {qid, x1, x2, y1, y2}
-    // m 为第二维的值域, q 为询问总个数
-    vector<fwt> work(vector<at3> ps, const vector<at5> &qs, Fenwick &fw, int m, int q) {
-        oq = 0;
-        for (auto [qid, x1, x2, y1, y2] : qs) {
-            oqs[++oq] = {qid, x1 - 1, y2, -1};
-            oqs[++oq] = {qid, x1 - 1, y1 - 1, +1};
-            oqs[++oq] = {qid, x2, y2, +1};
-            oqs[++oq] = {qid, x2, y1 - 1, -1};
-        }
-
-        sort(ps.begin(), ps.end(), [](auto &lhs, auto &rhs) {
-            return lhs[0] < rhs[0];
-        });
-        sort(oqs + 1, oqs + oq + 1, [](auto &lhs, auto &rhs) {
-            return lhs[1] < rhs[1];
-        });
-
-        fw.init(m);
-        int u = 0;
-        vector<fwt> res(q + 1);
-        for (int i = 1; i <= oq; i++) {
-            auto [qid, x, y, sgn] = oqs[i];
-
-            while (u < ps.size() && ps[u][0] <= x) fw.upd(ps[u][1], ps[u][2]), u++;
-            res[qid] += sgn * fw.qr(y);
-        }
-        return res;
     }
 };
 // endregion
@@ -183,10 +121,57 @@ struct Cdq {
         vector<at5> res(tt);
         for (int i = 1; i <= tt; i++) {
             auto [ret, x, y, z, cnt] = a[i];
-            // 把相等的也加上
             res[i - 1] = {ret + cnt - 1, x, y, z, cnt};
         }
+
         return res;
     }
 };
 // endregion
+
+const int dir[4][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
+const int N = 1e5 + 10;
+const int M = 2e5 + 10;
+
+
+int n, m;
+ai3 a[N];
+Fenwick<M> fw;
+Cdq<N, Fenwick<M>> cdq;
+
+void solve() {
+    auto ret = cdq.work(vector<ai3>(a + 1, a + n + 1), fw, m);
+
+    vector<int> ans(n + 1);
+    for (auto [res, x, y, z, cnt] : ret) {
+        ans[res] += cnt;
+    }
+    for (int i = 0; i < n; i++) cout << ans[i] << "\n";
+}
+
+void prework() {
+}
+
+int main() {
+#ifdef LOCAL
+    freopen("../in.txt", "r", stdin);
+    freopen("../out.txt", "w", stdout);
+#endif
+
+    prework();
+    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+    int _ = 1;
+//    cin >> _;
+    while (_--) {
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) {
+            int ta, tb, tc;
+            cin >> ta >> tb >> tc;
+
+            a[i] = {ta, tb, tc};
+        }
+        solve();
+    }
+
+    return 0;
+}

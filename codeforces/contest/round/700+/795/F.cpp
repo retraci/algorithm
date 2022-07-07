@@ -1,6 +1,54 @@
+#include <bits/stdc++.h>
+
+void debug() {
+    std::cout << "\n";
+}
+
+template<class T, class... OtherArgs>
+void debug(T &&var, OtherArgs &&... args) {
+    std::cout << std::forward<T>(var) << " ";
+    debug(std::forward<OtherArgs>(args)...);
+}
+
+using namespace std;
+
+#define fi first
+#define se second
+using ll = long long;
+using ld = long double;
+using pii = pair<int, int>;
+using pll = pair<ll, ll>;
+using ai3 = array<int, 3>;
+mt19937 mrnd(std::random_device{}());
+
+int rnd(int mod) {
+    return mrnd() % mod;
+}
+
+// region 无权图
+template<int N, int M>
+struct Graph {
+    int n, m;
+    int h[N + 10], ne[M * 2 + 10], e[M * 2 + 10], edm;
+
+    Graph() {}
+
+    void init(int _n, int _m) {
+        n = _n, m = _m;
+        fill(h, h + n + 1, -1), edm = 0;
+    }
+
+    void add(int u, int v) {
+        e[edm] = v, ne[edm] = h[u], h[u] = edm++;
+    }
+};
+// endregion
+
 // region 自动取模类
 template<int MOD, int RT>
 struct mint {
+    static const int mod = MOD;
+
     static constexpr mint rt() { return RT; } // primitive root for FFT
     int v;
 
@@ -73,7 +121,6 @@ struct mint {
         a = mint(tv);
         return is;
     }
-
     friend std::ostream &operator<<(std::ostream &os, const mint &a) {
         return os << a.v;
     }
@@ -101,108 +148,78 @@ struct Binom {
 };
 // endregion
 
-// region Binom
-template<int N, int MOD>
-struct Binom {
-    int fac[N + 10], ifac[N + 10];
+const int dir[4][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
+const int N = 2e5 + 10;
+const int MOD = 1e9 + 7;
 
-    Binom() {}
+using Z = mint<MOD, 5>;
 
-    void init(int lim) {
-        fac[0] = ifac[0] = 1;
-        for (int i = 1; i <= lim; i++) fac[i] = 1LL * fac[i - 1] * i % MOD;
-        ifac[lim] = inv(fac[lim]);
-        for (int i = lim - 1; i >= 1; i--) ifac[i] = 1LL * ifac[i + 1] * (i + 1) % MOD;
+int n, k;
+Graph<N, N> g;
+Binom<N, Z> binom;
+int sz[N];
+Z ans;
+
+void dfs(int u, int fno) {
+    sz[u] = 1;
+
+    Z s = 0;
+    for (int i = g.h[u]; ~i; i = g.ne[i]) {
+        int v = g.e[i];
+        if (v == fno) continue;
+
+        dfs(v, u);
+
+        sz[u] += sz[v];
+        s += binom.C(sz[v], k);
     }
 
-    int ksm(ll a, ll b) {
-        a %= MOD;
-        ll res = 1;
-        while (b) {
-            if (b & 1) res = res * a % MOD;
-            a = a * a % MOD;
-            b >>= 1;
+    s += binom.C(n - sz[u], k);
+    ans += n * (binom.C(n, k) - s);
+
+    if (fno != -1) {
+        Z t = (binom.C(sz[u], k) - (s - binom.C(n - sz[u], k)));
+        ans += Z(1) * sz[u] * (n - sz[u]) * t;
+    }
+    for (int i = g.h[u]; ~i; i = g.ne[i]) {
+        int v = g.e[i];
+        if (v == fno) continue;
+
+        Z t = binom.C(n - sz[v], k) - (s - binom.C(sz[v], k));
+        ans += Z(1) * (n - sz[v]) * sz[v] * t;
+    }
+}
+
+void solve() {
+    dfs(1, -1);
+
+    cout << ans << "\n";
+}
+
+void prework() {
+    binom.init(2e5);
+}
+
+int main() {
+#ifdef LOCAL
+    freopen("../in.txt", "r", stdin);
+    freopen("../out.txt", "w", stdout);
+#endif
+
+    prework();
+    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+    int _ = 1;
+//    cin >> _;
+    while (_--) {
+        cin >> n >> k;
+        g.init(n, n - 1);
+        for (int i = 1; i <= n - 1; i++) {
+            int u, v;
+            cin >> u >> v;
+            g.add(u, v), g.add(v, u);
         }
-        return res;
+        solve();
     }
 
-    int inv(ll x) {
-        return ksm(x, MOD - 2);
-    }
-
-    int C(int a, int b) {
-        if (a < 0 || b < 0 || a < b) return 0;
-        return 1LL * fac[a] * ifac[b] % MOD * ifac[a - b] % MOD;
-    }
-};
-// endregion
-
-// region lucas 固定 P
-vector<ll> fac, ifac;
-
-ll ksm(ll a, ll b) {
-    a %= MOD;
-    ll res = 1;
-    while (b) {
-        if (b & 1) res = res * a % MOD;
-        a = a * a % MOD;
-        b >>= 1;
-    }
-    return res;
+    return 0;
 }
-
-ll inv(ll x) {
-    return ksm(x, MOD - 2);
-}
-
-ll C(ll a, ll b) {
-    if (a < 0 || b < 0 || a < b) return 0;
-    return fac[a] * ifac[b] % MOD * ifac[a - b] % MOD;
-}
-
-void init_comb(int lim) {
-    fac.resize(lim + 1), ifac(lim + 1);
-    fac[0] = ifac[0] = 1;
-    for (int i = 1; i <= lim; i++) fac[i] = fac[i - 1] * i % MOD;
-    ifac[lim] = inv(fac[lim]);
-    for (int i = lim - 1; i >= 1; i--) ifac[i] = ifac[i + 1] * (i + 1) % MOD;
-}
-
-ll lucas(ll a, ll b) {
-    if (a < MOD && b < MOD) return C(a, b);
-    return 1LL * C(a % MOD, b % MOD) * lucas(a / MOD, b / MOD) % MOD;
-}
-// endregion
-
-// region lucas 非固定 P
-ll ksm(ll a, ll b, ll p) {
-    a %= p;
-    ll res = 1;
-    while (b) {
-        if (b & 1) res = res * a % p;
-        a = a * a % p;
-        b >>= 1;
-    }
-    return res;
-}
-
-ll inv(ll x, ll p) {
-    return ksm(x, p - 2, p);
-}
-
-ll C(ll a, ll b, ll p) {
-    if (b > a) return 0;
-
-    ll res = 1;
-    for (int i = 1, j = a; i <= b; i++, j--) {
-        res = res * j % p;
-        res = res * inv(i, p) % p;
-    }
-    return res;
-}
-
-ll lucas(ll a, ll b, ll p) {
-    if (a < p && b < p) return C(a, b, p);
-    return 1LL * C(a % p, b % p, p) * lucas(a / p, b / p, p) % p;
-}
-// endregion
