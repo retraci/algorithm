@@ -138,7 +138,7 @@ void init_prime(int lim) {
 }
 // endregion
 
-// region 欧拉筛
+// region 线性筛
 vector<int> isp, pr;
 
 void init_prime(int lim) {

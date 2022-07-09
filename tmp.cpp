@@ -31,9 +31,13 @@ void solve() {
 }
 
 void prework() {
-    int n = 1e5;
-    int lg = __lg(n);
-    cout << 8 * n * lg * lg << "\n";
+    double lim = 1e4, dx = 0.01;
+    double ans = 0;
+    for (double x = 0; x <= lim; x += dx) {
+        ans += dx * x * x * x * x * abs(sin(x));
+    }
+    cout << ans << "\n";
+    cout << 1.0 / 5 / lim * lim * lim * lim * lim * lim / acos(-1) * 2 << "\n";
 }
 
 int main() {
