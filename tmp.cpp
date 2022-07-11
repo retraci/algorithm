@@ -1,43 +1,43 @@
 #include <bits/stdc++.h>
 
-void debug() {
-    std::cout << "\n";
-}
-
-template<class T, class... OtherArgs>
-void debug(T &&var, OtherArgs &&... args) {
-    std::cout << std::forward<T>(var) << " ";
-    debug(std::forward<OtherArgs>(args)...);
-}
-
 using namespace std;
 
-#define fi first
-#define se second
-using ll = long long;
-using ld = long double;
-using pii = pair<int, int>;
-using pll = pair<ll, ll>;
-using ai3 = array<int, 3>;
-mt19937 mrnd(std::random_device{}());
+const int N = 2010;
+const int inf = 1 << 29;
 
-int rnd(int mod) {
-    return mrnd() % mod;
-}
+vector<int> son[N];
 
-const int dir[4][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
+int n, q, dp[N][N], a[N], sz[N];
 
-void solve() {
-}
+void dfs(int u) {
 
-void prework() {
-    double lim = 1e4, dx = 0.01;
-    double ans = 0;
-    for (double x = 0; x <= lim; x += dx) {
-        ans += dx * x * x * x * x * abs(sin(x));
+    /*
+        for (int j = 0; j < son[u].size(); j++) {
+            int v = son[u][j];
+        }
+    */
+
+    sz[u] = 0;
+    static int tmp[N];
+    for (auto v: son[u]) {
+        dfs(v);
+        for (int i = 0; i <= sz[u] + sz[v]; i++) {
+            tmp[i] = -inf;
+        }
+        for (int i = 0; i <= sz[u]; i++) {
+            for (int j = 0; j <= sz[v]; j++) {
+                tmp[i + j] = max(tmp[i + j], dp[u][i] + dp[v][j]);
+            }
+        }
+        for (int i = 0; i <= sz[u] + sz[v]; i++)
+            dp[u][i] = tmp[i];
+        sz[u] += sz[v];
     }
-    cout << ans << "\n";
-    cout << 1.0 / 5 / lim * lim * lim * lim * lim * lim / acos(-1) * 2 << "\n";
+    // u
+    sz[u] += 1;
+    for (int i = sz[u]; i >= 1; i--)
+        dp[u][i] = dp[u][i - 1] + a[u];
+    dp[u][0] = 0;
 }
 
 int main() {
@@ -46,13 +46,21 @@ int main() {
     freopen("../out.txt", "w", stdout);
 #endif
 
-    prework();
-    ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
-    int _ = 1;
-//    cin >> _;
-    while (_--) {
-        solve();
+    scanf("%d%d", &n, &q);
+    for (int i = 2; i <= n; i++) {
+        int f;
+        scanf("%d", &f);
+        son[f].push_back(i);
     }
+    for (int i = 1; i <= n; i++)
+        scanf("%d", &a[i]);
+    dfs(1);
 
-    return 0;
+    for (int i = 1; i <= n; i++) cout << sz[i] << " \n"[i == n];
+
+    for (int i = 0; i < q; i++) {
+        int u, m;
+        scanf("%d%d", &u, &m);
+        printf("%d\n", dp[u][m]);
+    }
 }
