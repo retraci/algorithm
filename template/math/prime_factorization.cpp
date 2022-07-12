@@ -105,7 +105,7 @@ void init_prime(int lim) {
         for (int j = i * 2; j <= lim; j += i) isp[j] = 0;
     }
 }
-// endregion86
+// endregion
 
 // region 欧拉函数
 ll eula(ll x) {

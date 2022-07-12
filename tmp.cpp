@@ -1,66 +1,54 @@
 #include <bits/stdc++.h>
-
 using namespace std;
 
-const int N = 2010;
-const int inf = 1 << 29;
+const int mod = 1000000007;
+const int N = 110;
 
-vector<int> son[N];
+int n, k, g[N][N];
+int cnt[N], dp[N];
 
-int n, q, dp[N][N], a[N], sz[N];
-
-void dfs(int u) {
-
-    /*
-        for (int j = 0; j < son[u].size(); j++) {
-            int v = son[u][j];
-        }
-    */
-
-    sz[u] = 0;
-    static int tmp[N];
-    for (auto v: son[u]) {
-        dfs(v);
-        for (int i = 0; i <= sz[u] + sz[v]; i++) {
-            tmp[i] = -inf;
-        }
-        for (int i = 0; i <= sz[u]; i++) {
-            for (int j = 0; j <= sz[v]; j++) {
-                tmp[i + j] = max(tmp[i + j], dp[u][i] + dp[v][j]);
-            }
-        }
-        for (int i = 0; i <= sz[u] + sz[v]; i++)
-            dp[u][i] = tmp[i];
-        sz[u] += sz[v];
+void solve() {
+    scanf("%d%d", &n, &k);
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= n; j++)
+            g[i][j] = (i == j)? 0 : mod;
+    for (int i = 1; i < n; i++) {
+        int u, v;
+        scanf("%d%d", &u, &v);
+        g[u][v] = g[v][u] = 1;
     }
-    // u
-    sz[u] += 1;
-    for (int i = sz[u]; i >= 1; i--)
-        dp[u][i] = dp[u][i - 1] + a[u];
-    dp[u][0] = 0;
+    if (k == 2) {
+        printf("%d\n", n * (n - 1) / 2);
+        return;
+    }
+    for (int k = 1; k <= n; k++)
+        for (int i = 1; i <= n; i++)
+            for (int j = 1; j <= n; j++)
+                g[i][j] = min(g[i][j], g[i][k] + g[k][j]);
+    int ans = 0;
+    for (int i = 1; i <= n; i++) {
+        for (int d = 1; d <= n; d++) {
+            for (int j = 1; j <= n; j++) cnt[j] = 0;
+            for (int u = 1; u <= n; u++) if (g[i][u] == d) {
+                    for (int v = 1; v <= n; v++) if (g[i][v] == 1 && g[i][u] == g[i][v] + g[v][u]) {
+                            cnt[v]++;
+                        }
+                }
+            for (int j = 1; j <= k; j++) dp[j] = 0;
+            dp[0] = 1;
+            for (int j = 1; j <= n; j++) if (cnt[j] > 0) {
+                    for (int l = k; l >= 1; l--) dp[l] = (dp[l] + 1ll * dp[l - 1] * cnt[j]) % mod;
+                }
+            ans = (ans + dp[k]) % mod;
+        }
+    }
+    printf("%d\n", ans);
 }
 
 int main() {
-#ifdef LOCAL
-    freopen("../in.txt", "r", stdin);
-    freopen("../out.txt", "w", stdout);
-#endif
-
-    scanf("%d%d", &n, &q);
-    for (int i = 2; i <= n; i++) {
-        int f;
-        scanf("%d", &f);
-        son[f].push_back(i);
-    }
-    for (int i = 1; i <= n; i++)
-        scanf("%d", &a[i]);
-    dfs(1);
-
-    for (int i = 1; i <= n; i++) cout << sz[i] << " \n"[i == n];
-
-    for (int i = 0; i < q; i++) {
-        int u, m;
-        scanf("%d%d", &u, &m);
-        printf("%d\n", dp[u][m]);
+    int tc;
+    scanf("%d",&tc);
+    for (int i = 1; i <= tc; i++) {
+        solve();
     }
 }
